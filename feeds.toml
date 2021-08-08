@@ -39,3 +39,18 @@ feedURL = true
 title = "Sentry"
 url = "https://blog.sentry.io/feed.xml"
 feedURL = true
+
+[[feed]]
+title = "GooleDevops"
+url = "https://cloudblog.withgoogle.com/products/devops-sre/rss/"
+feedURL = true
+
+[[feed]]
+title = "RiotGames"
+url = "https://technology.riotgames.com/news/feed"
+feedURL = true
+
+[[feed]]
+title = "Auth0"
+url = "https://auth0.com/blog/rss.xml"
+feedURL = true
