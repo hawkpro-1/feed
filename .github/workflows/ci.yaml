@@ -19,18 +19,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2.3.4
       
+#     - uses: dsaltares/fetch-gh-release-asset@master
+#       with:
+#         repo: "hawkpro-1/feed"
+#         file: "rssgen"
+#         target: "rssgen"
+#         token: ${{ secrets.GITHUB_TOKEN }}
+        
     - uses: dsaltares/fetch-gh-release-asset@master
       with:
         repo: "hawkpro-1/feed"
         file: "rssgen"
         target: "rssgen"
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Download Binary
-      run: |
-        sudo curl -LJ https://github.com/hawkpro-1/feed/releases/download/v1/rssgen -o /usr/bin/rssgen
-        sudo chmod +x /usr/bin/rssgen
-        rssgen
     
     - name: Deploy to GitHub Pages
       run: |
