@@ -19,7 +19,7 @@ jobs:
     
     - name: Download Binary
       run: |
-        curl -L https://github.com/hawkpro-1/feed/releases/download/v1/rssgen -o rssgen
+        curl -LJO https://github.com/hawkpro-1/feed/releases/download/v1/rssgen 
         chmod +x rssgen
         ./rssgen
     
