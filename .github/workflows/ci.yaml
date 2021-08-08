@@ -21,8 +21,8 @@ jobs:
     
     - name: Download Binary
       run: |
-        sudo wget -nv  https://github.com/hawkpro-1/feed/releases/download/v1/rssgen -O /usr/bin/rssgen
-        sudo chmod +x rssgen
+        sudo curl -LJ https://github.com/hawkpro-1/feed/releases/download/v1/rssgen -o /usr/bin/rssgen
+        sudo chmod +x /usr/bin/rssgen
         rssgen
     
     - name: Deploy to GitHub Pages
