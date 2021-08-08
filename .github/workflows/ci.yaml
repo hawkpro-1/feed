@@ -39,9 +39,6 @@ jobs:
         git config user.email $GITHUB_ACTOR@users.noreply.github.com
         git remote add gh-pages-remote https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
         git fetch --no-recurse-submodules
-        mkdir gh-pages
-        cd gh-pages
-        cp -r ../public/. .
         git add .
         git commit --message="Deploying to GitHub Pages from $GITHUB_SHA"
         git push gh-pages-remote gh-pages:gh-pages
