@@ -31,7 +31,11 @@ jobs:
         repo: "hawkpro-1/feed"
         file: "rssgen"
         target: "rssgen"
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: execte
+      run: | 
+        sudo chmod +x rssgen
+        sudo cp rssgen /usr/bin/rssgen
+        rssgen
     
     - name: Deploy to GitHub Pages
       run: |
