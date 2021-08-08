@@ -31,6 +31,7 @@ jobs:
         repo: "hawkpro-1/feed"
         file: "rssgen"
         target: "rssgen"
+        token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Deploy to GitHub Pages
       run: |
