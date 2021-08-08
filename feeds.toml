@@ -9,15 +9,15 @@ dateSelector = ".date"
 dateFormat = "January 2, 2006"
 
 
-#[[feed]]
-#title = "Futur"
-#url = "https://thefutur.com/blog"
-#articleSelector = ".blog-post"
-#titleSelector = ".wiz-blog-title-text"
-#linkSelector = "a"
-#imageSelector = ".blog-thumbnail"
-#dateSelector = ".last-blog"
-#dateFormat = "1.2.2006"
+[[feed]]
+title = "Futur"
+url = "https://thefutur.com/blog"
+articleSelector = ".blog-post"
+titleSelector = ".wiz-blog-title-text"
+linkSelector = "a"
+imageSelector = ".blog-thumbnail"
+dateSelector = ".last-blog"
+dateFormat = "1.2.2006"
 
 
 [[feed]]
@@ -25,7 +25,17 @@ title = "DataDog"
 url = "https://datadoghq.com/blog/index.xml"
 feedURL = true
 
-#[[feed]]
-#title = "Segment"
-#url = "https://segment.com/blog/rss.xml"
-#feedURL = true
+[[feed]]
+title = "Segment"
+url = "https://segment.com/blog/rss.xml"
+feedURL = true
+
+[[feed]]
+title = "Facebook"
+url = "https://engineering.fb.com/feed"
+feedURL = true
+
+[[feed]]
+title = "Sentry"
+url = "https://blog.sentry.io/feed.xml"
+feedURL = true
