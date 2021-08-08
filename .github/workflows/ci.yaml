@@ -15,13 +15,15 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v2.3.4
+    
+    - name: Checkout
+      uses: actions/checkout@v2.3.4
     
     - name: Download Binary
       run: |
-        curl -LJO https://github.com/hawkpro-1/feed/releases/download/v1/rssgen 
-        chmod +x rssgen
-        ./rssgen
+        sudo wget -nv  https://github.com/hawkpro-1/feed/releases/download/v1/rssgen -O /usr/bin/rssgen
+        sudo chmod +x rssgen
+        rssgen
     
     - name: Deploy to GitHub Pages
       run: |
