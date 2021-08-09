@@ -3,7 +3,7 @@ name: Publish RSS feeds to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - gh-pages
   schedule:
     # * is a special character in YAML so you have to quote this string
     # Run every day at 5:30 and 17:30:
