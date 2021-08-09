@@ -540,7 +540,7 @@ https://images.ctfassets.net/em6l9zw4tzag/7sCHriPWRH4klwTSURb6B9/7a8aa4f7df62bbc
       <pubDate>Tue, 15 Jun 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>Sentry Application Monitoring for Next.js </title>
+      <title>Sentry Application Monitoring for Next.js</title>
       <link>https://blog.sentry.io/2021/06/10/sentry-application-monitoring-for-next-js/</link>
       <description>As you could probably tell from the title, we shipped an SDK for Next.js. This means you can capture errors, measure performance, manage…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>As you could probably tell from the title, we shipped an <a href="https://docs.sentry.io/platforms/javascript/guides/nextjs/">SDK for Next.js</a>. This means you can capture errors, measure performance, manage releases, configure suspect commits, and automatically upload sourcemaps to view unminified JavaScript and TypeScript with zero(-ish) configuration. </p>
@@ -1583,7 +1583,7 @@ https://images.ctfassets.net/em6l9zw4tzag/2oJ0J0209ixlHSCxgb8bnV/fdb359e2a23b74a
       <pubDate>Wed, 07 Apr 2021 10:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>A Sanity Listicle for Mobile Developers </title>
+      <title>A Sanity Listicle for Mobile Developers</title>
       <link>https://blog.sentry.io/2021/03/30/a-sanity-listicle-for-mobile-developers/</link>
       <description>Before we look to April, let’s recap some of our most notable mobile updates from this past month with a few tips on how to solve what matters faster and a sneak peek of what&#39;s coming next</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Just like that Mobile March Madness 2021 is almost in our rearview. Before we look to April, let’s recap some of our most notable mobile updates from this past month with a few tips on how to solve what matters faster and a sneak peek of what’s coming next. That’s right. We’re constantly improving our mobile monitoring solution independent of our alliteration-based marketing campaigns.</p>
@@ -1654,7 +1654,7 @@ https://images.ctfassets.net/em6l9zw4tzag/2iW7jSnWPu3T1FDU06wAxj/afbc0ec6b7eb540
       <pubDate>Tue, 30 Mar 2021 15:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>Using Sentry Performance To Make Sentry Performant </title>
+      <title>Using Sentry Performance To Make Sentry Performant</title>
       <link>https://blog.sentry.io/2021/03/25/using-sentry-performance-to-make-sentry-performant/</link>
       <description>Like many companies, Sentry uses feature flags to determine when certain users see certain features. Recently, we decided to switch our…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Like many companies, Sentry uses feature flags to determine when certain users see certain features. Recently, we decided to switch our feature flag software to an open-source system called <a href="https://github.com/checkr/flagr">Flagr</a>. And while implementing Flagr, we used our new <a href="https://blog.sentry.io/2020/07/14/see-slow-faster-with-performance-monitoring">Performance</a> tools to find — and ultimately fix — a serious issue in how we were fetching our flags. </p>
@@ -2460,7 +2460,7 @@ https://images.ctfassets.net/em6l9zw4tzag/CbfkzxXV4X7wPnVhto7Of/87772ae8e4163ddd
       <pubDate>Thu, 11 Mar 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>Issue Detail Performance Improvements </title>
+      <title>Issue Detail Performance Improvements</title>
       <link>https://blog.sentry.io/2021/03/09/issue-detail-performance-improvements/</link>
       <description>One of Sentry’s most-trafficked pages is our issue details page, as it helps our customers understand the root cause of an error. For those…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>One of Sentry’s most-trafficked pages is our issue details page, as it helps our customers understand the root cause of an error. For those of you who are new to Sentry, we define an issue as a group of similar events. And to render these issue details, we need to fetch a significant amount of data from these events — counts, charts, and other metadata.</p>

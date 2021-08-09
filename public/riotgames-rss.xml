@@ -1,0 +1,989 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>RiotGames</title>
+    <link>https://technology.riotgames.com/news/feed</link>
+    <description></description>
+    <item>
+      <title>Bug Blog: TFT Bugs and Patches</title>
+      <link>https://technology.riotgames.com/news/bug-blog-tft-bugs-and-patches</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/126/tftheader.png&#34; width=&#34;1600&#34; height=&#34;611&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;In this article, I’ll be describing how we handle patches across PC and mobile for &lt;em&gt;TFT&lt;/em&gt;, and how this relates to quality assurance. Later, I’ll tag in my engineering counterpart, Gavin Jenkins, to give a super techy point of view on patches, and we’ll dive into two use cases that demonstrate different types of patches and how we deploy them.&lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div property="content:encoded"><p dir="ltr">Hello! My name is Alex Sherrell, and I’m the quality owner for <em>Teamfight Tactics</em>. I’m responsible for making sure <em>TFT </em>reaches our quality standards, and I work closely with individual teams to establish quality bars, holding them accountable and helping smash bugs and improve the overall player experience. </p>
+<p dir="ltr">I’ve been part of <em>TFT </em>since early days - I was one of the original 6 members of the team, and it was the first time Riot had really attempted this kind of idea, where a side project became a full game on a short timeline. We needed to have excellent communication and trust in each other to make it work at a quality we were willing to ship. </p>
+<p dir="ltr">In this article, I’ll be describing how we handle patches across PC and mobile for <em>TFT</em>, and how this relates to quality assurance. Later, I’ll tag in my engineering counterpart, Gavin Jenkins, to give a super techy point of view on patches, and we’ll dive into two use cases that demonstrate different types of patches and how we deploy them. </p>
+<p dir="ltr">Welcome to the <em>TFT</em> edition of the <a href="https://technology.riotgames.com/news/404-tech-blog-not-found-welcome-bug-blog" target="_blank">Bug Blog</a>!</p>
+
+<h2 dir="ltr">Server vs Client</h2>
+<p dir="ltr">To understand patches in <em>TFT</em>, we first have to explain how we handle game data and where it’s stored. </p>
+<p dir="ltr">There are two locations for information - server and client. <strong>Server </strong>information is shared with players from Riot’s servers. <strong>Client</strong> information means the player is getting new data to store on their client (a PC or mobile device).</p>
+<p dir="ltr">Server changes are significantly easier for players because they don’t affect their machines directly. But client changes require data changing in the local environment. A player’s computer needs to download the graphics files for the sick new skins (client change) but it’s easy to adjust damage ratios (server change). </p>
+<p dir="ltr">Another important note - server data is stored in two places, Lua and our <a href="https://technology.riotgames.com/news/content-efficiency-game-data-server" target="_blank">Game Data Server</a>. Lua holds logic content, like how abilities happen and when to apply damage, while GDS holds raw numbers. </p>
+<p dir="ltr">To illustrate the difference between these types of information even further - art assets are stored on a player’s <strong>client</strong>, because otherwise downloading them during the game would be slow. And although a savvy user can manipulate their own client, changing client data like art assets shouldn’t negatively impact other players. </p>
+<p dir="ltr">On the other hand, game data isn’t manipulated by other players, so we store it on the <strong>server</strong>. </p>
+<h2 dir="ltr">The Different Kinds of Patches</h2>
+<p dir="ltr">Now that we have a general idea of the two kinds of changes - server and client - we can take a closer look at the patch options we have. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/tftbugs_1.png"/></p>
+<p dir="ltr"><strong>Full patch: </strong>These are for <em>client changes</em>, the more extensive kind of download. We release at least one of these every 2 weeks to patch and balance the game. This is required for any kind of large change such as art assets or champion additions. </p>
+<p dir="ltr"><strong>Micropatch: </strong>These are for <em>server changes</em>, the easier kind of adjustment. These changes override existing data on the server. This is great for things like changing tooltips or any ability-related number (damage, health regen, mana, etc) which, as mentioned above, are based on data coming from the server.</p>
+<p dir="ltr"><strong>Mobile Submissions</strong>: If you had asked me 3 years ago, “How hard could mobile deploys be?” I’d be like… “There are what, 10 types of phones out there? Those are the ones I’ve seen ads for, anyway.” In today’s reality, though, there are hundreds of phones with wildly ranging specs, which can make a huge difference when it comes to app submissions, which we do through third party stores, like the Google Store or the Apple Store. </p>
+<p dir="ltr">These have their own requirements and submission processes that we need to keep in mind while building out patches for mobile. And because <em>TFT</em> has <a href="https://en.wikipedia.org/wiki/Cross-platform_play" target="_blank">cross-play</a>, we need to consider how these different versions of applications all interact with each other, especially when we’re changing version or game data numbers with micropatches. Luckily, our mobile game does pull from the same servers as the PC versions, so micropatches - which are based on the server - <em>do impact mobile as well</em>. </p>
+<p dir="ltr">Ultimately, when we think about these kinds of deploys, we have to keep a global perspective to fully understand how we’re impacting our players. A full patch - which requires downloading new information - may be pretty simple for someone playing from the PC at home… but what about PC bangs? Or countries with slower download speeds? These kinds of considerations pile up, and heavily impact any bug-related decision making.</p>
+
+<p dir="ltr">Fun fact - micropatches are actually a pretty recent feature that we’ve been able to leverage in the past, oh, four years or so. The ability to make small adjustments that affect any device with limited player impact - PC, Apple, Android, it doesn’t matter - is a total <em>game-changer</em>.</p>
+<p dir="ltr">But micropatching in Summoner’s Rift can be pretty different from micropatching in <em>TFT </em>- a simple port of the systems in our initial builds highlighted the ways these game modes process data differently. </p>
+<p dir="ltr">To tell this story, I’d like to introduce you to Gavin Jenkins, <em>TFT</em> engineering manager extraordinaire. I’ll see you again in a few paragraphs for bug-catching time.</p>
+<hr/>
+<h2 dir="ltr">From SR To TFT</h2>
+<p dir="ltr">Hey everyone, I’m Gavin Jenkins, and I’m an engineering manager on <em>TFT</em>. The story of how we translated <em>League</em> micropatches to <em>TFT </em>patches is pretty interesting, from both a technical and social POV. </p>
+<p dir="ltr">So, remember, we can micropatch two things - Lua scripts and GDS data. Micropatches take that binary data and base 64 encode it, and create a long string which is put in a file on the server. When the game server runs, it loads that file, decodes the string, and checks to see if there’s a micropatch key for the property it’s loading. If so, it overrides the data from the original installation with the micropatched data. </p>
+<p dir="ltr">Ultimately a pretty straightforward override system ported directly from <em>League</em>. Or, it should have been, but here’s the catch - data within <em>TFT </em>interacts with other data in <em>TFT </em>in totally new ways. </p>
+<p dir="ltr">For example, a change to the carousel would impact multiple systems at the same time. When you upload micropatches for scripts, you have to upload the entire file, effectively locking out any other changes to that script file. Now consider the fact these systems were all originally created by a fleet of designers defining a web of interconnected game systems in script files to accomplish quick iteration to build out <em>TFT</em>. That means that unlike <em>League</em>, there are a large number of systems in script, so a change to the carousel - which would include multiple champions and items - ends up being a pretty huge set of script file changes that are now locked to any other changes. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/tftbugs_2.png"/></p>
+<p dir="ltr"><em>The carousel from the Fates set. That’s a lot of items and champs!</em></p>
+<p dir="ltr">With this kind of system, you have to base 64-encode the entire file for micropatches. If you wanted to make a <em>second</em> micropatch that involves a change to that file, you must again base 64-encode the entire file. But which base 64-encoded representation of that Lua file do you want the game to use as the override? The answer is, well, neither. In order to get both fixes you must base 64-encode the version of the file that has both fixes in it, and have the game use<em> that </em>as the override.</p>
+<p>In other words, if there are two competing micropatches affecting the same file… who wins? What order is it loaded in? What is overwriting what?</p>
+<h2 dir="ltr">Building Awareness</h2>
+<p dir="ltr">This whole new world of data interactions meant we had to really investigate to figure out what was wrong. At first, it would look like new bugs would be fixed while also bringing back old bugs. We realized pretty quickly that we’d need to overhaul scripts by treating them more like how engineers structure code - using computer science principles like <a href="https://www.geeksforgeeks.org/difference-between-abstraction-and-encapsulation-in-java-with-examples/#:~:text=Abstraction%20is%20the%20method%20of,to%20protect%20information%20from%20outside.&amp;text=Whereas%20encapsulation%20can%20be%20implemented,i.e.%20private%2C%20protected%20and%20public." target="_blank">abstraction and encapsulation</a>, <a href="https://en.wikipedia.org/wiki/Separation_of_concerns#:~:text=In%20computer%20science%2C%20separation%20of,section%20addresses%20a%20separate%20concern.&amp;text=When%20concerns%20are%20well%2Dseparated,%2C%20reuse%2C%20and%20independent%20development" target="_blank">data separation</a>, and <a href="https://en.wikipedia.org/wiki/Separation_of_concerns#:~:text=In%20computer%20science%2C%20separation%20of,section%20addresses%20a%20separate%20concern.&amp;text=When%20concerns%20are%20well%2Dseparated,%2C%20reuse%2C%20and%20independent%20development" target="_blank">staying DRY</a>, to optimize the code structure and how we handle scripts to prevent bug regressions. </p>
+<p dir="ltr">And equally important - we needed to socialize the problem among all designers and engineers on the team, because it would require a pretty drastic shift in how we saw patches and data structure in scripts.</p>
+<p dir="ltr">This resulted in some pretty funny lunchtime conversations between <em>TFT</em> and <em>League </em>engineers, where <em>TFT </em>devs would be discussing the complexity and problem with micropatches, and <em>League</em> devs would be pretty confused, considering how simple and straightforward <em>League </em>micropatches are. </p>
+<h2 dir="ltr">Sustainable Structure</h2>
+<p dir="ltr">There’s a computer science principle called <a href="https://en.wikipedia.org/wiki/Separation_of_concerns#:~:text=In%20computer%20science%2C%20separation%20of,section%20addresses%20a%20separate%20concern.&amp;text=When%20concerns%20are%20well%2Dseparated,%2C%20reuse%2C%20and%20independent%20development" target="_blank">the separation of concerns</a> which states the need to create distinct concern-based sections to avoid monolithic structural dilemmas. The well-defined core gameplay loop of SR means there’s already a pretty clear separation of concerns with champion scripting, which doesn’t exactly work for a system like the <em>TFT </em>carousel. So a critical step in our port of the micropatching tool included reframing what concerns we were basing our separation on. </p>
+<p dir="ltr">Once we reached this understanding, it was a pretty straightforward path to extracting bits that didn’t need to be monolithic and separating the Lua files for ease of micropatching. All of this led us to our current micropatching process, which lets us make informed decisions around different kinds of patches - and also improved maintainability of scripts and <em>TFT </em>game systems in general. </p>
+<p dir="ltr">Passing this back to you, Alex, to finish up with a deep dive into two bugs that demonstrate the power of patches… and the effectiveness of our micropatching tool.</p>
+<hr/>
+
+<p dir="ltr">Alex here! Now that we’ve got an understanding of some of the backend considerations and a bit of a history of our micropatching tool, let’s see these solutions in action with two recent bugs.</p>
+<h2 dir="ltr">Bug 1: Micropatching Mor-evil-lonomicon</h2>
+<p dir="ltr">Decimals are the bane of all existence. When Mor-evil-lonomicon was patched recently, the burn damage wasn’t correctly tracking the ticks per second. Instead of dealing 4% damage every 1.0 second, it tried to deal 4% damage every 100.0 seconds. Battles never last that long, so the damage was just never applied.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/tftbugs_3.png"/></p>
+<p dir="ltr"><em>The bug as described to players.</em></p>
+<h3 dir="ltr">The Solution</h3>
+<p dir="ltr">Remember earlier when we mentioned that game data like damage ratios are stored on the server? That means this bug is the perfect candidate for a micropatch. We used our sweet micropatching tool to quickly swap around decimals so the damage ratios would be correct. It only took about an hour for us to get that change going, so many players didn’t even encounter the issue.</p>
+<h4 dir="ltr">Changing Things in Script</h4>
+<p dir="ltr">Back in the day, this kind of mistake would require a ticker message explaining the broken item until a fix could be deployed. With our micropatching tool, a fix is a matter of hours, not days. </p>
+<h2 dir="ltr">Bug 2: Mobile Art Assets</h2>
+<p dir="ltr">Now let’s take a look at something that can’t be micropatched, and some of the considerations we have to take into account for mobile deploys.</p>
+<p dir="ltr">With the new radiant items in 11.15, the armory is getting restocked with new items to replace the shadow thematic from the first half of the set. An art asset change ended up being applied to both our live patch and a future patch. This meant a double overlay of items, with both the shadow and radiant art assets layered on top of each other on mobile apps.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/tftbugs_4.png"/></p>
+<p dir="ltr"><em>Well, that’s not right.</em></p>
+<h3 dir="ltr">The Solution</h3>
+<p dir="ltr">In this case, we do have to do a full patch because assets are stored on <strong>player clients</strong> and not in our servers. Because this issue only affected mobile, we only had to redeploy the patch for Apple and Android.</p>
+<h4 dir="ltr">Game Versions with Mobile</h4>
+<p dir="ltr">The sneaky bit here is that we have to make sure that server and game clients can still communicate. In this case, mobile apps got a new version number, but PC didn’t. To ensure cross-play would still function, we did several tests to validate that the game clients could still communicate properly. By setting up a 1v1 in our testing environment, my testing partner and I were able to run a suite of tests to confirm cross-play was still possible.</p>
+
+<p dir="ltr"><em>TFT</em>’s<em> </em>development timeline required extensive communication, validation, and a testing mindset across all teams. We continue to think about how we can improve the player<em> </em>experience, especially in ways that the game mode diverges from <em>League</em> loops.</p>
+<p dir="ltr">Patching is something we take really seriously. It can make or break the game… literally. By focusing on customizing tools like the micropatch tool to increase usability and collaboration between designers, QA, engineering, and art, we can hit our quality standards without restricting creativity. </p>
+<p dir="ltr">Thanks for reading! Post any comments or questions below.</p>
+</div></div>]]></content:encoded>
+      <author>Alex Sherrell and Gavin Jenkins</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/126/tftheader.png" length="0" type="image/png"></enclosure>
+      <pubDate>Fri, 30 Jul 2021 17:42:30 +0000</pubDate>
+    </item>
+    <item>
+      <title>Leveling Up Networking for A Multi-Game Future</title>
+      <link>https://technology.riotgames.com/news/leveling-networking-multi-game-future</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/125/rdheader.png&#34; width=&#34;1600&#34; height=&#34;611&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;Heyo! We’re Cody Haas and Ivan Vidal, and we’re engineers on the Riot Direct team. It’s been a while since you’ve heard from our team. So in this article, we’re going to tell you a bit about what we’ve done to reinforce consistent and stable connections, reduce latency, and improve the overall player experience for our entire multi-game portfolio.&lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div property="content:encoded"><p dir="ltr">Heyo! We’re Cody Haas and Ivan Vidal, and we’re engineers on the Riot Direct team. Our team is responsible for maintaining Riot’s global network - you may remember us from this <a href="https://technology.riotgames.com/news/riot-direct-video" target="_blank">awesome video</a> and this <a href="https://technology.riotgames.com/news/fixing-internet-real-time-applications-part-i" target="_blank">series of articles</a>.</p>
+<p dir="ltr">Riot Direct exists because playing a game where someone has lag or high latency completely ruins the experience. Next to Wi-Fi, one of the biggest causes of lag and latency is the uncertainties of the internet. Riot Direct’s solution is to bring Riot’s network closer to our players by developing our own backbone network and collaborating with Internet Service Providers around the world. This has allowed us to limit these uncertainties and reduce lag and latency.</p>
+<p dir="ltr">It’s been a while since you’ve heard from our team. So in this article, we’re going to tell you a bit about what we’ve done to reinforce consistent and stable connections, reduce latency, and improve the overall player experience for our entire multi-game portfolio. </p>
+
+<p dir="ltr">When Riot Games was really just Riot Game, designing the network and everything inside it was less complicated.</p>
+<p dir="ltr">With a suddenly expanding set of games, we transitioned from a network designed for:</p>
+<ul dir="ltr">
+<li>One game</li>
+<li>Game servers located in a specific place per region and per shard</li>
+<li>Primarily one protocol</li>
+<li>One latency threshold</li>
+</ul>
+<p dir="ltr">To:</p>
+<ul dir="ltr">
+<li>Multiple games</li>
+<li>Multiple locations for game servers for each region</li>
+<li>Multiple different protocols</li>
+<li>Multiple latency thresholds</li>
+</ul>
+<p dir="ltr">Moving to a multi-game environment while still supporting<em> League of Legends</em> meant we had to redesign the network while trying to avoid player pain.</p>
+<p dir="ltr">Keep in mind - each game is not just a game server, but the platform, services, and people required for both the game and the infrastructure supporting it. All of that translates into more capacity and new features.</p>
+<p dir="ltr">Doing all of this while dealing with daily operations was a major challenge.</p>
+<h2 dir="ltr">What We’re Working With</h2>
+<p dir="ltr">Riot Direct has been around since 2014, so at this point, we’re pretty robust. This is a great place to start - now we needed to take this <em>League</em>-only network and <a href="https://technology.riotgames.com/news/engineering-esports-tech-powers-worlds" target="_blank">its esports productions</a> and adapt + extend it to properly support future games and potentially their esports.</p>
+<p dir="ltr">Not all games are the same when it comes to networking. They have different requirements for protocols, latency, and server location. </p>
+<p dir="ltr"><strong>Protocol: </strong>Fast-paced games like<em> League of Legends </em>and <em>VALORANT </em>rely on the speed of UDP at the expense of reliability, while a slower-paced game like<em> Legends of Runeterra</em> relies on the slower but more reliable TCP protocol.</p>
+<p dir="ltr"><strong>Latency:</strong>  Even though we all want that sub-15 millisecond ping for <em>League of Legends,</em> the game is still very playable at around 60ms latency on average. <em>LoR</em> can be played at even higher levels of latency. If you tried to play <em>VALORANT</em> with over 60ms latency, that would be pretty rough, so <em>VALORANT </em>optimized for a larger number of game servers.</p>
+<p dir="ltr"><strong>Server Location:</strong> <em>VALORANT </em>game servers are located all around the globe. <em>League of Legends </em>game servers, however, are located in Chicago, Amsterdam, Tokyo, Seoul, São Paulo, Santiago, Istanbul, Miami, and Sydney.  </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/rd2021_1.png"/></p>
+<p dir="ltr"><em>VALORANT game server locations across the globe.</em></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/rd20213.png"/></p>
+<p dir="ltr"><em>League game server locations across the globe.</em></p>
+<p dir="ltr"><a href="https://en.wikipedia.org/wiki/IPv4_address_exhaustion" target="_blank"><strong>IPv4 Address Exhaustion</strong></a>: IPv4 addresses are stored in a 32-bit unsigned integer, which means there are approximately 4,294,967,296 possible addresses. The number of available publicly routable addresses is even lower, because there are sets of rules that state which address blocks can be routed over the internet.</p>
+<p><strong>Denial of Service:</strong> It feels pretty awful when games are compromised due to a <a href="https://en.wikipedia.org/wiki/Denial-of-service_attack" target="_blank">DDoS</a>. While building out our networking solutions, we always have to keep these attacks in mind, because as we add more games, we increase our exposure.  </p>
+<p dir="ltr">All of these pieces combined meant that to support new games with individual server setups and network requirements, the original network designed for a centralized game server (like <em>League</em> and <em>LoR</em>) needed to also accommodate games with decentralized game servers (like <em>VALORANT</em>). All during an unexpected, unprecedented global pandemic.</p>
+<p dir="ltr"><strong>COVID-19: </strong>The COVID-19 pandemic meant we had to accomplish all of this without the ability to work and collaborate in an office. We also had to manage the effect on hardware deliveries, which impacted our Points of Presence (PoPs) - and more server locations meant more PoPs. </p>
+
+<h2 dir="ltr">A Quick Overview</h2>
+<p dir="ltr">Riot Direct is basically a web of cables and routers specifically used for Riot’s packets, including packets for critical game-running processes. </p>
+<p dir="ltr">To provide a little context, internet service providers (ISPs) default to <strong>hot-potato routing</strong> - this means they want to get customer traffic out of their network as soon as possible using the most cost-effective exit point. The way this impacts their customers (our players) varies widely based on the application they’re running and its overall bandwidth requirements. </p>
+<p dir="ltr">The internet is a complicated place where we can’t just connect two points with a straight line. Each region is built based on individual geography, politics, and community policies, and whether via land or sea, we always need to adapt to their infrastructure. </p>
+<p dir="ltr">By having Riot Direct present around the globe in key locations, we’re close to other ISPs, so we can connect directly using <a href="https://aws.amazon.com/blogs/architecture/internet-routing-and-traffic-engineering/" target="_blank">Private Network Interconnecting</a> (PNIs) or via <a href="https://en.wikipedia.org/wiki/Internet_exchange_point" target="_blank">internet exchanges</a>. This way, ISPs can fully offload traffic going to our games close to the source, so we avoid the internet as much as possible. Each one of these locations is called a point of presence (PoP).</p>
+<p dir="ltr">Once traffic is inside Riot Direct, we use <strong>cold-potato routing</strong> - we use the best possible path back to players by keeping traffic inside our backbone for as long as necessary. To achieve this, we need to create specific policies that take into consideration all the carriers we peer with as well as the geographical constraints of each available path. </p>
+<p dir="ltr">Here’s how it works. When someone decides to play one of Riot’s games, their client receives an address it needs to send packets to. The packets leave the player’s computer and travel onto their local network to an internet service provider’s (ISP) network. Ideally, the packets quickly leave the ISP’s network and enter Riot Direct’s network at one of our PoPs.</p>
+<p>So basically, the PoP says “Hey, if you’ve got traffic trying to get to these addresses, hand it all to me, because I know the way there.” Traffic can then quickly and easily travel through one of Riot Direct’s dedicated fibers to the correct game server. </p>
+<h2 dir="ltr">League of Legends Implementation</h2>
+<p dir="ltr"><em>League of Legends </em>was Riot’s first game, so our Riot Direct network was originally specifically tailored to run <em>League</em> games. Here’s a quick overview of how this works. </p>
+<p dir="ltr"><em>League</em>’s servers are all located in the same place for each region - in North America, for example, this is Chicago - so the original Riot Direct network was designed to route traffic to this single location. The game servers all have public IPv4 addresses - this impacts scalability due to IPv4 address exhaustion and increased financial cost.</p>
+<p dir="ltr">Another important piece is that <em>League</em>’s return traffic will try to use the <strong>best path back, </strong>and will succeed most of the time. This means traffic has several options. Sometimes it’ll travel Riot Direct’s fibers back to the original PoP, and sometimes it exits the game server’s location to ride the internet back. Network-wise, the best path is always calculated based on the point-of-view of the servers.</p>
+<p dir="ltr">Return traffic is based on BGP best path selection. For us, the quality of the path is determined by how close we are. A PNI, for example, is always preferred over a transit (regular internet)  because we peer directly with them. Not just logically, but also physically - there’s an actual dedicated fiber between us, while a transit is an indirect connection over another ISP (which is different from home ISPs).</p>
+<h2 dir="ltr">VALORANT Implementation</h2>
+<p dir="ltr">Riot’s first person shooter, <em>VALORANT</em>, may look similar to <em>League</em> from a competitive point of view, but it has a drastically different set of networking needs. The <em>VALORANT</em> team’s early focus on high performance meant they deploy in multiple locations with many game servers to reduce lag, which can be absolutely game-changing in a first person shooter. </p>
+<p dir="ltr">We worked closely with the <em>VALORANT</em> team to support these goals, which meant creating a totally new strategy that could work with any future game with a similar network setup. Put simply, our solution was to bring our network and servers closer to players. We accomplished this with a variety of strategies, including leveraging anycast networking, and solving for the IPv4 exhaustion that we were already dealing with for <em>League</em>.</p>
+<h2 dir="ltr">Anycast Overview</h2>
+<p dir="ltr">When a player starts a <em>VALORANT</em> game, the platform determines their location and assigns a relevant game server IP. Unlike with <em>League</em>, this public IP does <strong>not</strong> originate from the game server, but from each PoP - these PoPs are distributed around a region. Each PoP within a region advertises the same IP address so players can reach the address from several locations, always ending up at the closest PoP - this networking strategy is called <a href="https://en.wikipedia.org/wiki/Anycast" target="_blank">anycast</a>. </p>
+<h4 dir="ltr">Taking A Closer Look With Some Examples</h4>
+<p dir="ltr">Let’s say we have a <em>VALORANT</em> player located in Virginia, USA, and they receive an address of 192.207.0.1, entering Riot Direct’s network at our Virginia PoP. A week later, that player decides to take a trip to sunny Los Angeles, and logs on to <em>VALORANT</em> from their LA hotel. That SoCal match will still get the IP 192.207.0.1, but this time it’ll enter into Riot Direct’s network from our Los Angeles PoP.</p>
+<p dir="ltr">By decoupling the subnet from the game server and moving the region selection to the platform, we can focus on optimal subnet use based on the internet topology in any given area. </p>
+<p dir="ltr">For <em>League of Legends</em>, we had to use different subnets for the North America and Latin America North shards, which was a hard requirement on our end. But for <em>VALORANT</em>, we use the same anycast subnet for North and Central Americas. </p>
+<p dir="ltr">To compare, the Latin America South and Brazil shards had two different subnets for <em>League. </em>We decided to also use two for <em>VALORANT</em> because if players were located in some regions in northern Argentina, the underlying internet infrastructure tended to route to Brazil instead of Santiago. So if we used the same anycast IP for both of these, it would be difficult from a routing perspective to determine what a player’s ISP would do. And since it’s the same IP, the platform has no control over where it’ll land. By having two anycast IPs we give the platform and players the flexibility to choose the best option.</p>
+<h3 dir="ltr">Benefits of Anycast</h3>
+<p dir="ltr">While we have plenty of servers in strategic locations around the globe to ensure the lowest possible latency to all players, that doesn’t mean we have one server per PoP. Anycast origination is not tied to the game server itself, so internally we need to find the best solution for returning traffic between our edge and the game server. </p>
+<p dir="ltr"><strong>Increasing Speed:</strong> Anycast networking means we can leverage the internet to choose the closest ingress point into our network. Player traffic is always pinned to its ingress point on the way back.</p>
+<p dir="ltr"><strong>Avoiding IPv4 Exhaustion:</strong> With our implementation of anycast networking, we added Network Address Translation (NAT) to our game flow, which allows game servers to use private IP addresses instead of public ones. Private IPs don’t need to be unique like public ones do. This means we can add more game servers closer to players, reducing latency even more. </p>
+<p dir="ltr"><strong>Optimizing Packet Return: </strong>NATing also guarantees a return from the server via Riot Direct’s network. So when packets return from the server to the player, they always go back to the PoP they entered at via our dedicated cables. </p>
+<p dir="ltr">This resolves a major challenge we have with <em>League </em>routing - each routing decision between the edge and the game server is based on all available paths from the point of view of the server. With careful engineering, we can get it right most of the time, but due to the nature of the internet, sometimes it’s out of our hands.</p>
+<p dir="ltr"><strong>Soaking Up DoS Traffic:</strong> When Denial of Service (DoS) or Distributed Denial of Service (DDoS) traffic is sent to the anycast address in any region, it’s distributed across each PoP that uses that specific location, soaking up the attack attempt. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/rd2021_2.png"/></p>
+<p dir="ltr"><em>Riot Direct’s edge soaking a 500Gb/s DDoS attack on VALORANT’s game servers.</em></p>
+<p dir="ltr">Ultimately, lag and latency often depend on the highly variable public internet. By bringing more PoPs closer to players, we aim to reduce the uncertainty to ensure a consistent and excellent experience.</p>
+<h3 dir="ltr">What About IPv6 Support?</h3>
+<p dir="ltr">So… where’s the IPv6 support? IPv6 would solve our IPv4 address exhaustion problem, so we’re currently working on adding IPv6 anycast addresses. We’ll still keep the IPv4 anycast addresses, but adding IPv6 will give players with public IPv6 addresses native support, saving them from latency by avoiding ISP carrier grade NATs. The IPv4 and IPv6 anycast addresses will work together to ensure as many players as possible have native end-to-end support for their Internet Protocol versions.</p>
+
+<p dir="ltr">I know what you’re thinking. Wow, that<em> VALORANT </em>implementation seems pretty sweet - why not just do it for <em>League?</em></p>
+<p dir="ltr">While we’d love to just copy and paste our solutions over, it’s not quite that simple. <em>League </em>predates Riot Direct - its systems were already in place when Riot Direct was first formed. <em>League</em> is also an entirely different game, with its own client, backend, connections, and live player audience. We were able to collaborate with our friends over on <em>VALORANT</em> to build this new network routing much earlier in their development process. </p>
+<p dir="ltr">Rest assured, this is only the beginning. The changes to Riot Direct described in this article are just the foundations for our multi-game future. Riot Direct exists to help our game teams create and support the best possible player experience, and each new game enables us to learn more and create better tools for <em>all </em>of our games. </p>
+<p dir="ltr">Thanks for reading! If you have any questions, please post them in the section below. </p>
+</div></div>]]></content:encoded>
+      <author>Cody Haas and Ivan Vidal</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/125/rdheader.png" length="0" type="image/png"></enclosure>
+      <pubDate>Wed, 30 Jun 2021 01:06:51 +0000</pubDate>
+    </item>
+    <item>
+      <title>The Legends of Runeterra CI/CD Pipeline</title>
+      <link>https://technology.riotgames.com/news/legends-runeterra-cicd-pipeline</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/124/lorpipelineheader.png&#34; width=&#34;1600&#34; height=&#34;611&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p dir=&#34;ltr&#34;&gt;Hi, I’m Guy Kisel, and I’m a software engineer on &lt;a href=&#34;https://playruneterra.com/en-us/&#34; target=&#34;_blank&#34;&gt;&lt;em&gt;Legends of Runeterra&lt;/em&gt;&lt;/a&gt;’s &lt;a href=&#34;https://shopify.engineering/why-shopify-moved-to-the-production-engineering-model&#34; target=&#34;_blank&#34;&gt;Production Engineering&lt;/a&gt;: Shared Tools, Automation, and Build team (PE:STAB for short). My team is responsible for solving cross-team shared client technology issues and increasing development efficiency. In this article I’m going to share some details about how we build, test, and deploy &lt;a href=&#34;https://www.youtube.com/watch?v=Mbq8lgzXCxQ&#34; target=&#34;_blank&#34;&gt;&lt;em&gt;Legends of Runeterra&lt;/em&gt;&lt;/a&gt;, a digital &lt;a href=&#34;https://en.wikipedia.org/wiki/Collectible_card_game&#34; target=&#34;_blank&#34;&gt;collectible card game&lt;/a&gt;. &lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><p dir="ltr">Our workflow does result in a lot of branches and test environments, so we have an automated branch cleanup job. Each branch has an associated JIRA ticket, and when the JIRA ticket is closed, we delete the branch and any related test environments automatically.</p><p dir="ltr">Unfortunately, it can take over an hour for a change to progress through our full pipeline. This is something we definitely want to resolve, as it ends up taking our engineers out of their flow state while they either wait for the results, or switch context to work on a different problem. To make sure we&#39;re being as efficient as possible, we&#39;ve made some optimizations.</p><p dir="ltr"><em>One of our CI/CD metrics dashboards in New Relic. We track detailed pipeline metrics to keep an eye on current and historical build health and pipeline performance.</em></p><p dir="ltr">The simplest version of a build pipeline builds every artifact every time. However, some of our artifacts take a long time and a lot of resources to build. Many of the artifacts also don’t change from commit to commit or branch to branch - for example, if an artist changes some images, there’s no need to rebuild our audio files. To save time, at the start of the build, we compute hashes for the artifacts to see what has actually changed. The result is a JSON file that lists all of the artifacts in a given build, their hashes, and whether any of those hashes are dirty, indicating the artifact needs to be built. This is similar to <a href="https://docs.bazel.build/versions/master/remote-caching.html" target="_blank">Bazel’s Remote Caching</a> (I sometimes dream about porting our pipeline to Bazel).</p><div>
+<h3 dir="ltr">Iteration Builds vs Merge Readiness Builds</h3>
+<p dir="ltr">A full build, including all assets and game clients for three different platforms and potentially several game versions (the currently shipping content plus different sets of work-in-progress future content), game servers, validation steps, and deploys can consume a lot of build farm resources and take over an hour to run. When a developer just wants to iterate on a single feature and maybe do some playtests, they might only need Windows builds for just a single game version, and they might not care that much yet about breaking other features, especially if they’re just experimenting. </p>
+<p dir="ltr">To make this quicker and less painful, we introduced a concept we call<strong> Iteration builds</strong>, where the pipeline just builds a single platform and skips all extra validation steps, and renamed our full build to Merge Readiness to indicate devs must run a <strong>Merge Readiness build</strong> prior to merge. Even if an Iteration build succeeds, the <a href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks" target="_blank">GitHub commit status</a> still gets set as a failure to encourage developers to make sure they run a Merge Readiness build. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline6.png"/></p>
+<p dir="ltr"><em>GitHub commit status for an Iteration build</em></p>
+
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline_7.png"/></p>
+<p dir="ltr"><em>Jenkins Blue Ocean view for an Iteration build</em></p>
+
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline_8.png"/></p>
+<p dir="ltr"><em>Jenkins Blue Ocean view for a Merge Readiness build on the same branch as above. Note the additional validation steps.</em></p>
+<h3 dir="ltr">Git LFS Slow on Windows</h3>
+<p dir="ltr">A full clone of our game monorepo is about a hundred gigabytes and nearly a million files. Given a pre-existing workspace on a build node, a Git (plus LFS) sync takes one to two minutes (in Windows, for a t3.2xlarge AWS instance). This is pretty fast, but it could be even faster!</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline9.png"/></p>
+<p dir="ltr"><em>A look at our monorepo using </em><em><a href="https://github.com/ariccio/altWinDirStat" target="_blank">altWinDirStat</a></em></p>
+<p dir="ltr">Why is our repo so big? Video games have a lot of assets - art, sound effects, etc. To simplify developer environment setup, we’ve also vendored most of our tools. For example, we’ve <a href="https://stackoverflow.com/questions/26217488/what-is-vendoring" target="_blank">vendored</a> Python binaries for Windows, macOS, and Linux, along with all of our Python dependencies. Instead of needing to install a bunch of tools, devs just sync the repo and have everything immediately available.</p>
+<p dir="ltr">Our pipeline contains many separate steps, each of which can run on a different build node. Each of these steps needs a workspace with our Git repo. We maintain persistent workspaces on long-lived build VMs that already have the repo checked out for speed (we’d like to eventually move to ephemeral build nodes that mount volumes that already contain our repo, but of course this is yet more complexity in an already complex system).</p>
+<p dir="ltr">Even so, on Windows we were experiencing <a href="https://github.com/git-lfs/git-lfs/issues/931" target="_blank">slow Git LFS syncs</a>. To save time, at the start of each build, in parallel with computing our build plan, we sync the repo to a workspace and then upload the entire repo (minus the .git directory) to the same <a href="https://technology.riotgames.com/news/supercharging-data-delivery-new-league-patcher" target="_blank">chunking patcher</a> we use for distributing our games. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline10.png"/><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline10.png"/><img alt="" src="https://technology.riotgames.com/sites/default/files/lorepipeline_10.png"/></p>
+<p dir="ltr"><em>Repo upload to the patcher</em></p>
+<p dir="ltr">In all subsequent steps of the pipeline, we use the patcher to sync our workspaces. We benefit from this in two ways. First, because we’re not doing any Git bookkeeping and we’re not copying the .git directory, we don’t get the performance hit from updating Git metadata. Second, the patcher is <em>fast</em>, and because it copies data from a <a href="https://en.wikipedia.org/wiki/Content_delivery_network" target="_blank">CDN</a>, we don’t need to worry about accidentally <a href="https://en.wikipedia.org/wiki/Denial-of-service_attack" target="_blank">DDOSing</a> our Artifactory LFS repo from running too many parallel builds.</p>
+<p dir="ltr">You might wonder why we don’t just use <a href="https://en.wikipedia.org/wiki/Rsync" target="_blank">rsync</a> or something similar for this instead of our patcher. There are a few reasons:</p>
+<ul>
+<li dir="ltr">
+<p dir="ltr">The patcher is well-optimized on Windows.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">rsync might overload the source machine if we’re syncing to multiple machines at the same time, while the patcher syncs from a very scalable CDN.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">The patcher has advanced features, like release metadata that lets us fetch particular versions of the repo.</p>
+</li>
+</ul>
+<p dir="ltr">Using the patcher, our sync times for a pre-existing workspace drop to about ten to fifteen seconds, which is a nice improvement over the one to two minutes it takes with Git, especially when we’re doing up to a few dozen workspace syncs per run of the pipeline. </p>
+<p dir="ltr">Note that in the rare cases we need to sync a fresh empty workspace, even with the patcher it still takes quite a long time, because it’s simply a lot of data to move.</p>
+<p dir="ltr">We’ve also started moving our vendored tools from Git LFS directly into the patcher. For some of our larger tools, like Unity itself, we upload the entire tool to the patcher, and then in the repo we have a dependency downloader script plus pointer files listing the latest patcher release ID for each tool. When I launch Unity on my work PC, it actually first runs the downloader script to see if there’s a newer version available. This is especially helpful for remote work - it’s much faster to pull down tools from a CDN than to try to download them over a VPN.</p>
+
+<h2 dir="ltr">Challenge: <a href="https://technology.riotgames.com/news/automated-testing-league-legends" target="_blank">Video Game Testing</a> is Difficult and Time-Consuming</h2>
+<p dir="ltr">Our automated validation in CI includes:</p>
+<ul dir="ltr">
+<li><a href="https://github.com/guykisel/inline-plz" target="_blank">Static analysis</a></li>
+<li>Rerunning Git <a href="https://pre-commit.com/" target="_blank">pre-commit</a> hooks to make sure people didn’t skip them locally</li>
+<li>Asset validation (for example all images must be square PNGs with power-of-two resolutions)</li>
+<li>C# <a href="https://xunit.net/" target="_blank">Xunit</a> tests</li>
+<li>Automated performance tests to ensure we don’t go over our mobile memory budget</li>
+<li>Automated functional tests (using pytest) that can test game servers on their own (<em>LoR</em> is game-server authoritative) or clients + game servers (we usually run the clients <a href="https://en.wikipedia.org/wiki/Headless_computer" target="_blank">headless</a> in functional tests for faster testing)​</li>
+</ul>
+<h2 dir="ltr">Solution: Built-In QA Tooling</h2>
+<p dir="ltr">To enable our automated tests, debug builds of the game include an HTTP server that provides direct control of the game, including a bunch of handy cheats and dev-only test cards. By controlling the game directly through HTTP calls, we avoid brittle UI-based testing. Instead of trying to write tests that click buttons, we can just tell the game to play a card, attack, concede, etc. We use <a href="https://pytest.org/" target="_blank">pytest</a> to create test cases for much of our game logic. </p>
+<p dir="ltr">For our functional tests we normally run either just a game server on its own or a headless game client in a VM. For convenience, we launch the test game servers in the same docker swarm we use for running containerized build steps. For performance tests, we run headed on <a href="https://en.wikipedia.org/wiki/Bare-metal_server" target="_blank">bare metal</a> to ensure realistic results. To improve test speed, we reuse a single game server for each set of tests. The game server is designed to host many concurrent matches anyway, so hosting many concurrent tests is no problem, and this is much faster than launching a new game server for each test case. We can run several hundred functional tests in just a few minutes by running the game at 10x speed and parallelizing our tests. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline11.png"/></p>
+<pre><code>def test_hecarim_level_one(server, clients):
+    &#34;&#34;&#34;
+    test that hecarim summons 2 spectral riders on attack
+    &#34;&#34;&#34;
+    player_one, player_two, *_ = clients
+
+    game_id = player_one.enter_game()
+    player_two.enter_game(game_id)
+
+    player_one.accept_hand()
+    player_two.accept_hand()
+
+    server.clear_all_cards(game_id)
+    server.set_turn_timer(game_id, False)
+    server.unlock_base_mana(game_id, 0)
+
+    hecarim = server.create_card_by_card_code(player_one, &#34;01SI042&#34;, RegionType.BackRow)[0]
+    player_one.attack(hecarim)
+    player_one.submit()
+    cards_in_attack = card_helper.get_cards_in_region(player_one, RegionType.Attack)
+    assert len(cards_in_attack) == 3
+    assert card_helper.check_card_code(player_one, cards_in_attack[1], &#34;01SI024&#34;)
+    assert card_helper.check_card_code(player_one, cards_in_attack[2], &#34;01SI024&#34;)</code></pre><p>
+<video controls="controls" height="600" id="video202142813720" poster="" width="800"><source src="https://technology.riotgames.com/sites/default/files/lorpipelinevideo.mp4" type="video/mp4"/>Your browser doesn&#39;t support video.<br/>
+Please download the file: <a href="https://technology.riotgames.com/sites/default/files/lorpipelinevideo.mp4">video/mp4</a></video>
+</p>
+<p><em>A video demonstration of our tests running</em></p>
+
+<h2 dir="ltr">Challenge: Non-Technical Folks Using Git</h2>
+<p dir="ltr">Version control is hard. <a href="https://github.com/k88hudson/git-flight-rules" target="_blank">Git is hard</a>. I’ve been using Git for years as a software engineer and I still make mistakes all the time. For game designers, artists, and other folks who are probably only using Git because we’re forcing them to use it, Git can be intimidating, unfriendly, and unforgiving. We used to have people use various <a href="https://git-scm.com/downloads/guis" target="_blank">Git GUI clients</a>, since a GUI can be a bit more user friendly than the Git CLI, but even the most user friendly Git GUIs are meant for general purpose software development and have feature-rich user interfaces with a lot of buttons and options that can be overwhelming.</p>
+<h2 dir="ltr">Solution: Custom GUI Tool To Reduce User-Facing Complexity</h2>
+<p dir="ltr">To improve our <em>LoR</em> developer user experience, we built a custom GUI tool just for <em>LoR </em>(inspired by a similar tool created for <em>LoL</em>) that’s specialized for our workflow. Because our tool is narrowly scoped to just one project and one repo, we can make a lot of assumptions that reduce user-facing complexity. Additionally, we’ve integrated our Git workflow with our JIRA and Jenkins workflows. We call this tool LoRST (Legends of Runeterra Submit Tool). It’s built using Python with <a href="https://pypi.org/project/PySide2/" target="_blank">PySide2</a>.</p>
+<p dir="ltr">From this one tool, <em>LoR</em> devs can create new branches (complete with test environments, build jobs, JIRA tickets, and auto-merge configurations), commit and push changes, trigger Iteration builds and Merge Readiness builds, open pull requests, and resolve most merge conflicts.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline--12.png"/></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline--13.png"/></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline14.png"/></p>
+
+<h2 dir="ltr">Challenge: Complicated Pipelines Can Fail in Confusing Ways</h2>
+<p dir="ltr">Our pipeline has dozens of steps, each of which could fail in a wide variety of ways. Understanding how and why a build failed can be difficult. The pipeline depends on about fifty different services, such as <a href="https://sentry.io/" target="_blank">Sentry</a>, AWS, and various internal tools. If any of these fail, our pipeline could fail. Even if all these services work perfectly, a mistake by a developer could still cause a failure. Providing useful build failure feedback is critical to helping the team work efficiently.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline--15.png"/></p>
+<h2 dir="ltr">Solution: Build Failure Notifications</h2>
+<p dir="ltr">We’ve gone through several iterations of build failure notifications in an attempt to provide better failure feedback. Our first attempt was to redirect <a href="https://en.wikipedia.org/wiki/Standard_streams#Standard_error_(stderr)" target="_blank">stderr</a> from our Python scripts to a temporary text file. If the script failed, we’d dump the stderr text file into the failure notification. This sometimes provided useful info, but only if the Python script had effective logging. Our next attempt was to use the <a href="https://plugins.jenkins.io/build-failure-analyzer/" target="_blank">Jenkins Build Failure Analyzer plugin</a>, which uses <a href="https://en.wikipedia.org/wiki/Regular_expression" target="_blank">regular expressions</a> to match known failure causes against logs.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline16.png"/></p>
+<p dir="ltr"><em>Our older build notifications. A bit overwhelming.</em></p>
+<p dir="ltr">The BFA plugin has some limitations - log scanning runs on the central Jenkins server, which can be a significant performance hit. The plugin also only scans the build’s console logs, but some of our tools output extremely verbose logs that we usually redirect to separate text files. I wrote a Python log scanner script that runs in our Jenkins Docker swarm to download all log files from a given build and scan them all. This solved the performance issue and the console log issue.</p>
+<p dir="ltr">The Python log scanner still had a significant false positive rate which resulted in ambiguous or confusing failure notifications. It also stored all the failure causes as a large JSON file in a central location. Gabriel Preston, an engineering manager on the Riot Developer Experience: Continuous Service Delivery team, set up a conversation with <a href="https://twitter.com/utsav_sha" target="_blank">Utsav Shah</a>, one of his former teammates at Dropbox, where they had built their own sophisticated build failure analysis system. Utsav mentioned that for each failure, they created and saved a JSON file with metadata about the failure for later analysis. Inspired by this system, we redesigned our failure analysis to define failures right where they happen in our build scripts, which makes failures more maintainable and understandable and reduces the false positive rate. It also means we don’t usually need to do any log scanning. When something fails, we create a JSON file with failure metadata, and then later capture the failure JSON file to send telemetry to New Relic as well as a Slack notification.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline17.png"/></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline18.png"/></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline19.png"/></p>
+<p dir="ltr"><em>A few of our newer failure notifications. Much more concise.</em></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline20.png"/></p>
+<p dir="ltr"><em>Failure handler usage examples from our readme</em></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/lorpipeline21.png"/></p>
+<p dir="ltr"><em>Our failure metrics dashboard in New Relic</em></p>
+
+<p dir="ltr">Now that you’ve seen some of our past challenges and solutions, take a look at our next batch! Here are a few challenges we’re thinking about now. If any of these kinds of problems strike you as intriguing or exciting, take a look at our <a href="https://www.riotgames.com/en/work-with-us#product=Legends%20of%20Runeterra" target="_blank">open roles</a> and shoot us over an application!</p>
+<p dir="ltr">A few items from our to-do list:</p>
+<ul dir="ltr">
+<li>If we have ~50 dependencies, and each of those dependencies has 99% uptime, our pipeline has only .99 ^ 50 = 60% reliability even before code changes.</li>
+<li>Could we switch to ephemeral build nodes? How would we bootstrap the workspace data? Could we switch to Linux-based Unity builds?</li>
+<li>Improving iteration speed on the pipeline itself.</li>
+</ul>
+<p dir="ltr">Thanks for reading! Feel free to post comments or questions below.</p>
+</div></div>]]></content:encoded>
+      <author>Guy Kisel</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/124/lorpipelineheader.png" length="0" type="image/png"></enclosure>
+      <pubDate>Mon, 31 May 2021 17:26:34 +0000</pubDate>
+    </item>
+    <item>
+      <title>Strategies for Working in Uncertain Systems</title>
+      <link>https://technology.riotgames.com/news/strategies-working-uncertain-systems</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/123/uncertainsystemsheader.png&#34; width=&#34;1600&#34; height=&#34;611&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;My name is Brian &#34;Bizaym&#34; Teschke. I&#39;m a software engineer on a central technology team at Riot Games called Developer Connections and we’ve seen all kinds of system instability issues. My team is responsible for solving common problems across game teams so they can just focus on making awesome games. We often have to write programs that interface with several APIs and libraries - both internal and external - each with their own quirks and inconsistencies. This has allowed us to see patterns of both issues and resolutions, which I’m looking forward to outlining for you in this post. &lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div property="content:encoded"><p dir="ltr">Imagine yourself in this situation.</p>
+<p dir="ltr">You sit down at your computer, ready to begin the work day. A steaming cup of coffee rests beside your keyboard and your next task is on the monitor in front of you. You start to write a program that must hit a third party URL over the internet every time you run it. The hours pass and you feel content with the progress you’ve made so far.  </p>
+<p dir="ltr">Suddenly things start breaking. You debug for an hour and you’ve collected some data: a dozen crashes, a handful of different HTTP error codes, several uncaught exceptions, and at least one 60 second timeout. Your requests only get through half the time and you’re getting responses back that don’t match the little documentation you could find. As you twirl the lock of hair you just yanked out of your head, you wonder: What happened?</p>
+<p dir="ltr">My name is Brian &#34;Bizaym&#34; Teschke. I&#39;m a software engineer on a central technology team at Riot Games called Developer Connections and we’ve seen all kinds of system instability issues. My team is responsible for solving common problems across game teams so they can just focus on making awesome games. We often have to write programs that interface with several APIs and libraries - both internal and external - each with their own quirks and inconsistencies. This has allowed us to see patterns of both issues and resolutions, which I’m looking forward to outlining for you in this post. </p>
+<p dir="ltr">Ultimately, I hope to answer this question:</p>
+<blockquote><p dir="ltr"><em>How can I hope to write a system more reliable than the services that power it?</em></p>
+</blockquote>
+<p dir="ltr">In this article, I&#39;ll explain some tips and tricks my team has used to overcome or avoid cases like the one above, and how we figure out why they happen in the first place. I&#39;ll be taking the perspective of working with a third-party&#39;s REST API for most of my examples, but these techniques can also be applied to a library package that interfaces with an online service. For each category of issue, I’ll provide a short example, a breakdown of common causes I’ve run into, and the solution for my example that applies these learnings.</p>
+
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/uncertainsystems_1.png"/></p>
+<h2 dir="ltr">Example: Slow Build Transfers</h2>
+<p dir="ltr">I once worked with a service we used for processing builds of our game binaries, the first step of which was to transfer the build (often large files of +3GB) - we would trigger workflows several times a day. For the most part, my files would transfer fine, but sometimes it would run 10 times slower, and I would frequently get errors, usually near the end of my workday. Luckily, it was always fast on Fridays so I could get off on time for the weekend. But why? </p>
+<h2 dir="ltr">Pattern Breakdown</h2>
+<p dir="ltr">It’s very hard to keep a service running perfectly <strong>forever</strong>, and much easier to have one that only <em>mostly</em> works. You might see a timeout, an HTTP error code, or maybe a friendly “<em>Try again later</em>” message. There are many causes of outages - some of them completely out of the developer’s control, such as a hardware failure or bandwidth saturation. Sometimes the changes are intentional and planned, like an update during a maintenance window or the rollout of a new version.</p>
+<p dir="ltr">While still mid-development, it’s a good idea to save at least one good response from a dependent service and use those in case of an outage. Continue working on your program and use the static response to ensure that the code works until the real service is back up. <em>Pro tip</em>: put this in a folder called <strong>Unit Tests</strong> and run it <em>constantly</em>. Your peers and future self will thank you.  </p>
+<p dir="ltr">This works when you’re still developing your program, but what if this happens in production?</p>
+<p dir="ltr">Typically the solution most often proposed for intermittent service errors is to simply retry the request. Maybe it’ll work next time, right? This works for short term failures... but what if it&#39;s a longer outage? Hopefully you implemented an exponential backoff so you aren’t just hammering your third party while they try to come back online! Maybe there’s an underlying reason why this outage happens. Do some digging and see if you can find a pattern.</p>
+<h2 dir="ltr">Solution</h2>
+<p dir="ltr">In the story above, I took my unreliable upload scripts and went looking for reasons why it was slow at specific times of the day. It turns out that the external service I was using had a lot of customers from Asia that would use their systems early in the morning which, with the time zone difference, is around late afternoon on the US Pacific Coast. My Friday would be their Saturday, so there wouldn’t be any peak traffic then! I scheduled all my upload tasks to run outside those peak times and error rates went way down.</p>
+
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/uncertainsystems_2.png"/></p>
+<h2 dir="ltr">Example: Datetime Struggles</h2>
+<p dir="ltr">My team at Riot was working on a service that allowed game teams to run test scenarios on remote hardware. The third-party company hosting the remote hardware was also in the process of developing improvements to their solution to meet Riot&#39;s unique needs. There wasn&#39;t a lot of rigor around communicating API updates, so we would often test a feature in the morning that would hit breaking changes in the afternoon. I once experienced an odd crash when parsing what should have been a standard datetime string but instead got this interesting (but not necessarily incorrect) response:</p>
+<pre><code>{
+  ...
+  &#34;starttime&#34;: &#34;2021-02-10T00:28:58+00:00&#34;
+  &#34;endtime&#34;: &#34;Processing...&#34;
+  ...
+}</code></pre>
+<p dir="ltr">I supported many different date formats but that was not a response I was expecting.</p>
+<h2 dir="ltr">Pattern Breakdown</h2>
+<p dir="ltr">We’ve covered the case where a service goes down, but what about when a service changes unexpectedly? It could be that the endpoints are moved around on you, the request structure changes, or even the data types are now different. This happens most often while using a system still under active development, like a pre-release version. Take a look at the packages in your dependency tree that have a version less than 1.0. You might be surprised by how many there are!</p>
+<p dir="ltr">Sudden changes can happen often with APIs that already have a frontend offering (such as a website or app) controlling them. This is because the owner can release changes to both the frontend and backend to ensure breaking changes aren’t seen by the typical user.  Except maybe you’re not a typical user and you are hitting the backend directly and those breaking changes now affect you. So what can you do?</p>
+<p dir="ltr">The first step is to set up some tests that will show what’s breaking. Run them automatically during your off hours and you might have a list of <em>To Do</em>s when you start work in the morning... instead of finding out while you’re in the zone, where they can derail your train of thought. These kinds of tests are especially important if you run a production service and have customers of your own you need to support. Finding the problems before they do and informing them with a warning message or banner can go a long way to improving the relationship and confidence your customers have in you and your systems.</p>
+<p dir="ltr">Change is inevitable, and if it’s frequently breaking your code, you might want to think about setting up some mechanisms to reduce its impact. The <a href="https://en.wikipedia.org/wiki/Adapter_pattern" target="_blank"><strong>adapter</strong></a> pattern is a great fit. Write a single file that handles all the communication between this problematic third-party API and the rest of your system.</p>
+<p dir="ltr">This has several benefits:</p>
+<ol>
+<li dir="ltr">
+<p dir="ltr">You only have to fix bugs in one file if there are changes.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">You can capture any failures here so that they don’t bring down your entire system.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">It keeps your system pristine, consistent, and isolated from the changes out of your control.</p>
+</li>
+</ol>
+<p dir="ltr">Keep a clean separation by inspecting all information coming in from the external API; don’t make blind assumptions and pass around nested objects or you risk introducing bugs all over your code. Use the objects that make the most sense in your language and environment (i.e. a built-in timestamp class) and make the necessary translations to or from the third-party data (i.e. from a date formatted string) in your adapter if necessary.</p>
+<p dir="ltr">You can get even more power by applying the <a href="https://en.wikipedia.org/wiki/Strategy_pattern" target="_blank"><strong>strategy</strong></a> pattern on top of your adapters.  Ask yourself if there are other APIs out there that suit your needs. Write an adapter in front of those APIs too and switch between them when one isn’t working. You give your system the flexibility to stay operational while you prioritize the breaking updates with your other critical work. This opens the door for adding more potential benefits to your application, such as cross-referencing your data, managing requests around rate-limits, or replacing a paid service with multiple free offerings.</p>
+<p dir="ltr">Sometimes a breaking change is a feature you weren’t expecting. For example, if you suddenly get an array when you expect a single object, it could be an enhancement that allows the caller to query multiple records at once and the single object response is just the simplest case. Ensure your code can handle requests that could return one or more objects.</p>
+<h2 dir="ltr">Solution</h2>
+<p dir="ltr">Once in a while you just run into an edge case that the original author simply hadn&#39;t thought about. In my example above, I discovered from the developer that there was a window between when the task completes and when their backend updates their database. Which is where my status call could sneak in and get a stale value (ever heard of something being <a href="https://en.wikipedia.org/wiki/Eventual_consistency" target="_blank">eventually consistent</a>?). This field was left as an unexpected default value when it was returned to me. I made my adapter functions more fault-tolerant. It now catches cases like this where data from an API is missing or malformed, but a default value (like <strong>null</strong>) will now be handled just fine in the rest of my program.</p>
+
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/uncertainsystems_3"/></p>
+<h2 dir="ltr">Example: Outdated Docs</h2>
+<p dir="ltr">What about when it&#39;s not the <em>service</em> changing that causes you frustration but that the user guide you&#39;re following seems to conflict with reality? </p>
+<p dir="ltr">I once had a colleague approach me about a library I owned that could parse a project file into a data structure that was easier to work with in a program. This colleague was particularly irritated at me for how the documentation seemed to make no sense and contradicted itself. Parts of it referenced features that didn&#39;t seem to exist, arguments were incorrect, and even some examples were using a different programming language.</p>
+<h2 dir="ltr">Pattern Breakdown</h2>
+<p dir="ltr">Documentation is often one of the last steps before releasing a service. During development, you don’t want to go back and update the docs every time you have to make changes. Unfortunately, this also means it’s often an area where corners are cut to meet deadlines, and it’s one of the last places to get updated as newer versions are rolled out. It could have errors in its details, completely undocumented features, or have been poorly translated from another language. </p>
+<p dir="ltr">On the opposite end of the spectrum, you could be looking at enormous amounts of text covering every change on every microversion of the platform. Your searches could yield millions of results over several years across a wide community and you&#39;ll find it impossible to identify a solution to your problem that works in your specific set of circumstances.</p>
+<p dir="ltr">Try to reach out to the author if possible. Submit a support ticket, open an issue on Github, join the company’s public Slack channel, or send a good old-fashioned email. Besides simply answering your questions, they could give you some insight into their project roadmap. You might be the only user of a feature they thought about dropping and now you can influence its priority. They could have newer, unpublished documentation or a beta version of the service they can give you access to use. In some cases you might even be able to help contribute to the project for the benefit of everyone.</p>
+<p dir="ltr">And if that doesn’t work, and you’re stuck with the original documentation? See if you can do some exploratory investigation. Try a GET request on as many relevant nouns you can think of.  Maybe you’ll get lucky and find a crucial model’s data structure. Can&#39;t figure out what fields a search query for<code>/transactions</code> expects? Try a GET on <code>/item</code>, <code>/sku</code>, <code>/store</code>, <code>/employee</code>&gt; and see what fields are available on them.</p>
+<p>PUT <code>/person</code> not working? Try a POST instead if other models are using that method.  Developers tend to be consistent, so follow the patterns in functionality. Other endpoints use plural nouns?  Try <code>/persons</code> or <code>/people</code>. There are a lot of words that mean the same thing that are not necessarily standard programming concepts, and this can be particularly confusing for an author whose first language is not English.  Instead of <code>person</code>, it could be <code>user</code>, <code>customer</code>, <code>client</code>, or even <code>shopper</code>.</p>
+<p>Great developers often build solutions that cover a wider range of problems than asked for. The program’s requirements only ask for a single record, but we know it’s better to process things in bulk when we can, so maybe you’re passing in a single user where the service expects an array instead. Put yourself in the shoes of the author and imagine how you would write this feature. Search the internet for popular implementations for, as an example, a login endpoint. There’s a good chance the author did something similar and this can shed some light on how you need to pass your credentials.</p>
+<h2 dir="ltr">Solution</h2>
+<p dir="ltr">It so happened that my project was based off an abandoned open source project that itself was also based off an older open source project from another language. I had also merged in some new features from other public forks of the old project, and in doing so, completely scrambled the documentation folder with bits from all contributors. I took some time to clean up the different parts that were merged together, updated the parts where I added new features, and translated the old parts into the new language.</p>
+
+<p dir="ltr">Let’s face it. None of us are perfect developers. As good as our intentions are to build the best solutions we can, we sometimes fall short of our own expectations. You may be thinking of some systems you yourself have written that you wish you had more time to go back and improve. It’s the reality of the world we live and work in.</p>
+<p dir="ltr">Remember that every challenge is an opportunity in disguise. I hope these tips from the kinds of problems I’ve seen over the years will help you crush those bugs before they even appear in your code, level up your craft, and boost your customer&#39;s experience. </p>
+<p dir="ltr">Look towards long-term solutions instead of quick fixes and you end up saving more time.  Robust solutions often grow their own influence, by being the shining example for future features or being that solid foundation for yet another young developer to rely on for their next great project.</p>
+<p dir="ltr">Key strategies:</p>
+<ul>
+<li dir="ltr">
+<p dir="ltr">Write <strong>unit tests</strong> using static responses to keep you working when systems are down.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Rely on the <strong>adapter</strong> pattern to keep external changes isolated.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Don&#39;t be afraid to<strong> reach out</strong> if the documentation seems iffy.</p>
+</li>
+</ul>
+<p dir="ltr">The next time you run across an API or third-party plugin that frustrates you, remember that it was written by a programmer just like yourself. Forgive the quirks and inconsistencies of the author’s code and remember that you have techniques in your back pocket to help you get through this.</p>
+<p dir="ltr">Thanks for reading! If you have any questions, feel free to post them below.</p>
+</div></div>]]></content:encoded>
+      <author>Brian Teschke</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/123/uncertainsystemsheader.png" length="0" type="image/png"></enclosure>
+      <pubDate>Tue, 27 Apr 2021 17:32:04 +0000</pubDate>
+    </item>
+    <item>
+      <title>Improving the Developer Experience for Operating Services</title>
+      <link>https://technology.riotgames.com/news/improving-developer-experience-operating-services</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/122/consoleheader.png&#34; width=&#34;1600&#34; height=&#34;611&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p dir=&#34;ltr&#34;&gt;Hello! I’m James “WxWatch” Glenn and I’m a software engineer on the Riot Developer Experience: Operability (RDX:OP) team. My team focuses on providing tools for Riot engineers and operations teams that help them better understand the state of their live services across the globe. Some of these tools include Riot’s service metrics, logging, and alerting pipelines. In this article, I’ll be talking about our one-stop-shop application for Rioters operating services - Console.&lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div property="content:encoded"><p dir="ltr">Hello! I’m James “WxWatch” Glenn and I’m a software engineer on the Riot Developer Experience: Operability (RDX:OP) team. My team focuses on providing tools for Riot engineers and operations teams that help them better understand the state of their live services across the globe. </p>
+<p dir="ltr">Some of these tools include Riot’s service metrics, logging, and alerting pipelines. In this article, I’ll be talking about our one-stop-shop application for Rioters operating services - Console.</p>
+
+<p dir="ltr">Building Console has allowed us to deprecate and remove many of the standalone custom tools that we discussed in a <a href="https://technology.riotgames.com/news/running-online-services-riot-part-v" target="_blank">previous blog post</a>. But before we get into the details of Console, let’s set the context of this problem space using an example of a troubleshooting experience an engineer would have had using these tools prior to the creation of Console.</p>
+<p dir="ltr">For this example, we’ll use a service my team owns called the “opmon.collector” -  this service is the primary interface that services at Riot use to send logs and metrics to our monitoring platform. The opmon.collector is deployed in datacenters across the globe.</p>
+<p>In this case, an alert triggers for opmon.collector and we need to figure out why. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console1.png"/></p>
+<p dir="ltr"><em>A map to guide you through this example.</em></p>
+<p dir="ltr">To view the alert details, we’ll need to open up a browser, navigate to our alerting tool, and enter the service name and location to view the active alerts. From the active alerts, we see an alert saying we’re exceeding our allowed number of API timeouts, so let’s go check the logs to see if we can pinpoint the issue further. </p>
+<p dir="ltr">To view the logs, we’ll log in to our monitoring platform log viewer and type in the service name and location, only to discover that there are no logs for this service instance in our monitoring platform! Since the service’s logs are not making it to our monitoring system, we&#39;ll need to look at the container logs directly. </p>
+<p dir="ltr">To do this, we turn to our container visualizer, Toolbox. Inside Toolbox, we once again drill down to the appropriate cluster, find the service and open it up. Looking at container logs, we’re able to see that our issue is that the service is unable to connect to a dependency service. To further diagnose this, we need to look into our service’s network rules.</p>
+<p dir="ltr">Navigating to our Network Viewer, we again have to search for the service. Once found we can open up the network rules and, upon inspection, discover that our service is missing a rule to allow it to communicate with a dependency. From here, we can add that rule and resolve the issue. </p>
+<p dir="ltr">Great! We were able to use these tools to identify the issue. Each new tool we used, however, required us to reestablish the context of our search, which, in this case, was our service’s name and location. A more subtle inconvenience is that it required us to know the existence of (and have access to) all these tools in order to uncover the cause of our issue. Over time, this adds up to a significant amount of inconvenience, not only day-to-day as an engineer, but for one-time events like onboarding. </p>
+
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console_logo.png"/></p>
+<p dir="ltr">We built Console to solve these inconveniences. We took the core functionality of these bespoke tools (and many more) and bundled them into a single tool with a unified context and UI. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console2.png"/></p>
+<p dir="ltr">This means that you find your service once via the search bar and everything you view is within that context. In addition to removing many of the tools that were mentioned in the previous section, we’ve been able to include features that would be nearly impossible to manage across multiple tools (e.g. Console has Dark Mode).</p>
+<p dir="ltr">To illustrate this, let’s go through the same example as the section above, but this time we’ll use Console.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console3.png"/></p>
+<p dir="ltr"><em>Treasure obtained in a fraction of the time.</em></p>
+<p dir="ltr">First, let’s check logs:</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console4.png"/></p>
+<p dir="ltr">As before, we see there&#39;s a network issue. Let’s check out the network rules, where we see that our service does not have the necessary network rule to other.service, as before.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/console5.png"/></p>
+<p dir="ltr">These are the same triage steps as before, but because of Console, we&#39;re able to easily navigate between the features we needed and more quickly determine the cause of the problem.</p>
+
+<p dir="ltr">Combining all these tools into a common interface was not as straightforward as it initially seemed. To get the best experience, there were two main goals we needed to accomplish. First, we needed to distill all the useful features from every tool while leaving behind or rethinking the features that typically went unused. And second, we needed to provide a way for other teams to get their data and features into Console.</p>
+<p dir="ltr">To accomplish this first task, we followed a “player experience first” mindset. My team’s audience - our version of “players” - are Riot engineers across the entire company, from game developers to infrastructure teams. If we can improve their experience by decreasing the amount of friction when using tooling, then we’re increasing the amount of time they have to work on features and games for players. To figure out everyone’s wants and needs, we just, well, asked them. We created design documents and wireframes and interviewed and surveyed engineers across Riot. This gave us a solid picture of what was (and wasn’t) important to developers.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console6.png"/></p>
+<p dir="ltr"><em>An early Console wireframe</em></p>
+<p dir="ltr">Providing a straightforward path for other teams to build features in Console boiled down to one major hurdle: Not all teams have dedicated front-end engineers, and teams don’t want to spend a lot of time designing and building a user interface. The manifestation of this hurdle in the past was the collection of pre-Console tools we talked about earlier - they were typically built using whichever JS framework (React, Angular, etc) and UI framework (Material, Bootstrap, etc) the team decided on at the time, meaning no two tools looked or felt the same. </p>
+<h2 dir="ltr">Technology and Template Time</h2>
+<p dir="ltr">Now that we know what we wanted to accomplish with Console, let’s talk about how we did it. Console’s back-end is a Golang service that gathers data from services across Riot, caches it, and communicates it to the front-end via REST APIs. Console also provides a proxy that the front-end can use to communicate with other services directly, in the case where no additional processing is required on the back-end. This eliminates the need for an engineer to write boilerplate APIs simply to fetch data from services. Console’s front-end is a React application using Typescript for type checking (we initially used Flow but recently migrated to Typescript) and <a href="https://ant.design" target="_blank">Ant Design</a> for its UI components.</p>
+<p dir="ltr">This architecture allows us to focus on having a consistent UI across the entire application. To help maintain consistency, we built a series of templates that teams can use when integrating their own features into Console. These templates give teams a framework to work with and allows engineers with less front-end experience to still be able to quickly build out good, consistent UIs within Console. It also lowers the barrier to entry, as it eliminates the need for engineers to come up with content from scratch.</p>
+<p dir="ltr">Consistency alone isn’t good enough though. We knew we needed to prioritize a good overall user experience so people would be motivated to use Console. It‘s a tool that engineers use every day, so any inconveniences - no matter how small - add up over time, generating a lot of pain and annoyance. Because of this, we focused on making sure Console not only has the right data, but also is easy to navigate and understand. For navigation, each feature in Console is scoped to specific service types and is only visible when viewing a service of that type, ensuring relevant features are easily accessible. Also, since Console collects data from different sources, we help the user understand the origin of the data they’re viewing by providing unobtrusive tooltips that display the data’s source.</p>
+
+<p dir="ltr">Now that we have all the data in one place, we can begin to correlate data that we weren’t able to previously. For example, since Console knows if a service is alerting, it can display that alert as a notification on the service summary page. </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console7.png"/></p>
+<p dir="ltr">Console has many additional features that aren’t covered in this article:</p>
+<ul>
+<li dir="ltr">
+<p dir="ltr">Ability to view service specification and deployment status/logs</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Configuration view, including when a configuration value was last changed</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Kill/Restart individual instances of a service</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Ability to schedule service deployments</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Service health viewer</p>
+</li>
+</ul>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/console8.png"/></p>
+<p dir="ltr"><em>Deployment logs for our service</em></p>
+
+<p dir="ltr">To ensure our investments have paid off, we look at analytics and metrics. When we first launched, Console only had a couple dozen users each month. Now, we’re up to well over 300 engineers per month!</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/consolechart.png"/></p>
+<p dir="ltr">In addition to these metrics, we also conduct periodic surveys and interviews with users to gather direct feedback on the current state of Console. We engage with relevant engineers when we’re considering future features and improvements we have planned. My team wants to make sure we’re always working on the features that teams and engineers need most. </p>
+<p dir="ltr">The two themes of Console moving forward will be integrating more teams’ features into Console and correlating the data that Console already has in useful ways.</p>
+<p dir="ltr">Here are a few concepts we’re interested in further exploring in the future:</p>
+<h2 dir="ltr">Efficiency Tool</h2>
+<p dir="ltr">Currently in beta, the Efficiency Tool measures how efficiently a service is using its resources. It uses a combination of CPU, memory, and other usage metrics to give an overall score (out of 100) to a service. This will help teams know if their services are requesting too many resources from the cluster or not. Metrics like these can also help with auto-scaling, load testing, and capacity planning.</p>
+<h2 dir="ltr">Personalization</h2>
+<p dir="ltr">Console knows who users are (because they have to log in) and which services they’ve looked at recently (so they can quickly navigate back to where they’ve been) but doesn’t do anything else with that data. Personalization, however, could allow Console to immediately show you services that your team owns, any messages, alerts, or other issues that are present, and let a user favorite any services or other entities.</p>
+<h2 dir="ltr">Dependency Correlation</h2>
+<p dir="ltr">Every service at Riot has services that it depends on and, conversely, services that depend on it. With dependency correlation, Console, in the event of a service with an outage or other issue, could show users of other services within the afflicted service’s dependency chain that there is an active issue. This could assist engineers when triaging their own services, as well as allow operations teams to better understand the effects of issues on other services and products at Riot.</p>
+
+<p dir="ltr">As you can see, Console has become a highly usable one-stop-shop for Riot engineers. Throughout its development we’ve prioritized feedback from engineers and teams across Riot, and as we look to the future, we continue to integrate input from the audience that will use our tools daily. As more teams add features, Console will continue to improve, and we’re invested in ensuring an excellent experience for developers across Riot so they can focus on what they do best.</p>
+<p dir="ltr">Thanks for reading! If you have questions or comments, feel free to post them below.</p>
+</div></div>]]></content:encoded>
+      <author>James Glenn</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/122/consoleheader.png" length="0" type="image/png"></enclosure>
+      <pubDate>Tue, 30 Mar 2021 17:47:57 +0000</pubDate>
+    </item>
+    <item>
+      <title>Keeping Legacy Software Alive: A Case Study</title>
+      <link>https://technology.riotgames.com/news/keeping-legacy-software-alive-case-study</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/119/legacysoftwarealiveheader.jpg&#34; width=&#34;1999&#34; height=&#34;798&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;Hi all, Brian &#34;Penrif&#34; Bossé here with a fresh batch of gory, nerdy details surrounding an outage for &lt;em&gt;League&lt;/em&gt;. Today we&#39;ll be going through why the EU West shard was out to lunch for just over five hours on January 22, 2021. We don&#39;t always write these things up - they take time to do and the reasons for outages aren&#39;t always that interesting - but this one was particularly painful as it was quite long and on the heels of some other, unrelated outages so figured it&#39;d be worth a dive.&lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div property="content:encoded"><p dir="ltr">Hi all, Brian &#34;Penrif&#34; Bossé here with a fresh batch of gory, nerdy details surrounding an outage for <em>League</em>. Today we&#39;ll be going through why the EU West shard was out to lunch for just over five hours on January 22, 2021. We don&#39;t always write these things up - they take time to do and the reasons for outages aren&#39;t always that interesting - but this one was particularly painful as it was quite long and on the heels of some other, unrelated outages so figured it&#39;d be worth a dive. Hopefully by the end, you&#39;ll have a better idea of what&#39;s going on behind the scenes when <em>League</em> is down and what problems we are tackling to reduce the frequency and severity of our outages.</p>
+
+<p dir="ltr">So here&#39;s a rough graph of the incident - the purple line is the number of players logged in to the client and the green is the number of players currently in a game. Clearly, something terrible happened at 5:25 and the data goes poof (red dotted line), but attempts a recovery just before 6:00. At that point, we took the shard down for a reboot, after which you can see a very sporadic amount of data coming in with clear trend lines of folks logging in, but not many actual games happening, which continues &#39;til 8:15ish (yellow dotted line). After that, the data becomes more solid, but doesn&#39;t look remotely healthy (green dotted line), and everything hits the floor again at 9:10, when we rebooted the shard a second time. A slow recovery period follows (pink dotted line), and we&#39;re back at it by 11:00.</p>
+<p dir="ltr">Now that you have a general idea of what things looked like from our status monitors, we can take a look at both the technical breakdown and the human element of the incident response.</p>
+
+<p dir="ltr">In short, a database primary serving some non-critical functions experienced a hardware failure. These things happen.</p>
+<h2 dir="ltr">Wait, but like that&#39;s normal, why didn&#39;t it fail over?</h2>
+<p dir="ltr">We haven&#39;t set up automatic failover to secondary for that database.</p>
+<h2 dir="ltr">Um, why not?!</h2>
+<p dir="ltr">Priorities. This whole area of our backend is the old legacy tech - the Platform - that we&#39;ve been spending a lot of effort in the past few years moving away from. A lot has been moved from there, but some things remain - some of them critical. But this database in particular wasn&#39;t critical, and it was assumed a failure would not cause significant outage.</p>
+<h2 dir="ltr">Well.</h2>
+<p dir="ltr">Yeah, about that. The primary reason we&#39;re moving away from this old monolithic setup is because of how tightly coupled absolutely everything was inside of it is, so that irregularities in one corner of the system don&#39;t blow up totally unrelated systems. Like some non-critical database blowing up, you know, the whole shard. Unspoken dependencies are a huge problem in software architecture, and this incident is rife with them. I don&#39;t mean to rag on monolithic software here by default - it is completely feasible to manage a monolith in such a way that separation of concerns exists and errors don&#39;t cause systemic problems. It&#39;s just that <strong>our</strong> monolith wasn&#39;t managed that way at all. It&#39;s the tight, implicit coupling that&#39;s the enemy here, so let&#39;s dig into what those were.</p>
+<p dir="ltr">First up - all database connections from the Platform process go through connection pooling. This is a great pattern that allows for separation between connections to different databases, so that problems with one don&#39;t affect others. Sounds great, right? Well, the problem is, all of those connection pools utilize the same thread pool, and <strong>that</strong> got starved by operations that couldn&#39;t complete against the failed database. This is a sneaky problem; it feels like you&#39;re practicing separations of concerns well, &#39;cause you&#39;re handling the problem of connection management separated from the rest of the business logic and in isolated pools. However, implicitly sharing the underlying threads gave a route for a single, unimportant database failure to cause an exhaustion of a shared resource needed by the entirety of the system to function. It&#39;s like the classic <a href="https://en.wikipedia.org/wiki/Dining_philosophers_problem" target="_blank">Dining Philosophers synchronicity problem</a>, except one philosopher just up and stole all the forks and went home. Nobody havin&#39; pasta tonight.</p>
+<p dir="ltr">Here&#39;s where the human element of incident response comes into play - nobody in the response team understood that old piece of software well enough that they could pinpoint that fact in the middle of a crisis triage. When your software&#39;s down and folks are screaming to have it back up, you need a stone-cold understanding of exactly how all of your systems and the systems they interface with work. Without it, you start latching on to narratives that make sense in the moment based on intuition. With the complexity of everything that goes into making this game run, no single human can possibly have that amount of understanding over the whole ecosystem, so red herrings get chased. Common narratives become guilty until proven innocent, and they take precious time to prove false.</p>
+<p dir="ltr">In this particular case, the red herrings took a <strong>long</strong> time to prove false. We had recently been dealing with <a href="https://twitter.com/Riot_Penrif/status/1352376251239993345" target="_blank">malicious network attacks</a> and there was some hardware maintenance going on that had caused minor impacts in other parts of the world, so the early incident response focused almost completely on determining if those factors were in play or not. Between that strong focus and an absolute flood of alerts from many services being degraded, the alert regarding the failed database was not noticed until about an hour into the outage. Unfortunately, that was <strong>after</strong> a time-intensive soft restart of the platform software had been completed.</p>
+<h2 dir="ltr">Flying Blind</h2>
+<p dir="ltr">At this point, we have a restarted platform that booted up on top of a failed database. Once identified, we were quick to get that database moved over to its secondary and healthy, but it was unclear whether the platform was in a functional state or not. Metrics were trickling in very slowly - you can see from the graph above we were getting reports from it very sporadically. Without that visibility it was exceedingly difficult to make confident decisions on how to proceed. This brings us to the second implicit coupling that plagued this incident - that all systems are running on the same JVM. As the soft-restarted software struggled to recover itself while taking on the load of players trying to log back in, garbage collection began taking significant chunks of time, essentially pausing the normal operations of the process for seconds at a time. Metrics reporting was not tolerant to those pauses, leaving giant holes in the data.</p>
+<p dir="ltr">Ultimately, the only thing we could really trust was that games weren&#39;t starting at the rate we would expect given how many people were logged in. Most of the component systems that exist along that critical path were reporting to be at least <strong>partially</strong> healthy, with maybe some nodes in a bad state - but nothing that should itself cause a system-wide failure.</p>
+<p dir="ltr">As time dragged on and we weren&#39;t getting clear answers, we made the call to do a hard reboot of the cluster on the belief that the cascading effects of the failed database caused some form of systemic contagion that could not be recovered from. We suspect the core problem was a failure to isolate resources in our in-memory database cache solution, another source of implicit dependency - but lacked the data to be certain.</p>
+<h2 dir="ltr">Turn It Off And Back On Again</h2>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/legacysoftwarealive_1_0.png"/></p>
+<p dir="ltr">Hey, it works. Be it your home router or the backend for a video game, when a complex system starts acting irrationally, nuking the state and starting from a known good is very effective. The downside to doing so as a large shard like EUW comes into peak is that you get a lot of synchronized actions as players rush to log in once it&#39;s back up. What&#39;s normally a steady stream of mixed traffic all of a sudden lines up as you return to service from a cold start. The only effective way to mitigate that is via a login queue, and we&#39;ve got one of those!</p>
+<p dir="ltr">Unfortunately, it misbehaved, and didn&#39;t really respect the limits we had on it which caused a lot more spikey of a flow than we were after:</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/legacysoftwarealive_2.png"/></p>
+<p dir="ltr">Every time we raised the limit, a rush of players would be let in, but then it would restrict it back down to a very small number. This gave us a false sense of security as we were watching the health of the cluster and seeing good things, assuming that the rate of players coming in was roughly the rate we had set. Ultimately, that resulted in false confidence which led to us effectively removing the limit in two large gulps, and nearly took us back down again. Thankfully, other than our metrics horking themselves some more, nothing went boom and the incident was fully resolved.</p>
+
+<p dir="ltr">Clearly there&#39;s some core problems we need to address here. At the root, our databases need to be more fault tolerant. Walking up the chain, our systems need to become more resilient and less reliant on implicitly shared dependencies. Finally, our incident response must become crisper and more capable of ruling out potential factors. That&#39;s a tough problem to crack because you&#39;re simultaneously dealing with an information management problem with high scope and the need for near-instant retrieval, and with figuring out how to predict what information will be useful in circumstances that were definitionally not foreseen.</p>
+<p dir="ltr">I&#39;m quite pleased to be able to share with everyone that we&#39;ve already got efforts well underway to address the root cause of this incident, by way of a BONUS INCIDENT REPORT!</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/legacysoftwarealive_3.png"/></p>
+<h2 dir="ltr">Bonus Incident Report</h2>
+<p dir="ltr">That&#39;s right, two for the price of one!</p>
+<p dir="ltr">At 4am PST, February 2, the hardware servicing EUNE&#39;s core Platform database experienced a hardware failure. This database is central to many mission-critical functions performed by the legacy Platform software. Immediately, login events dropped, and it was clear the Platform was beginning to fail. Forty seconds into the incident, the automatic failover procedure had the database instance restarted, and the complete failover process was finished 68 seconds after the initial failure. Platform software almost completely recovered on its own, requiring intervention only to clear a minor non-impacting issue.</p>
+<p dir="ltr">In addition to logins being unavailable for about a minute, approximately 5,000 players experienced a disconnection from the shard, but were able to immediately reconnect.</p>
+<p dir="ltr">Players got to play, devs got to sleep - that&#39;s what living in the future looks like.</p>
+
+<p dir="ltr">Thanks for coming along for this ride with me, I hope it gave you some insight into the work that our behind the scenes teams are doing to increase the stability and reliability of <em>League</em>. Our “to do” list is long and challenging, but we’re highly motivated by turning fragile systems capable of multi-hour outages into robust setups that blip at the worst. If the wins keep comin&#39;, then we keep goin&#39;.  </p>
+<p dir="ltr">If that sort of work sounds interesting to you and the idea of replacing the engine on a plane while it&#39;s at 30,000 ft frightens you in an exciting way, head over <a href="https://www.riotgames.com/en/work-with-us#craft=engineering" target="_blank">to our jobs page</a> and check out available positions.</p>
+</div></div>]]></content:encoded>
+      <author>Brian Bossé</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/119/legacysoftwarealiveheader.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 23 Feb 2021 19:21:37 +0000</pubDate>
+    </item>
+    <item>
+      <title>Engineering Tools for Designers with Legends of Runeterra</title>
+      <link>https://technology.riotgames.com/news/engineering-tools-designers-legends-runeterra</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/118/puffcapheader.png&#34; width=&#34;1640&#34; height=&#34;624&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;We’re Patrick Conaboy and Jeff Brock and we’re senior software engineers on the &lt;em&gt;Legends of Runeterra&lt;/em&gt; Card Design team. The engineers on our team are responsible for building tools, writing game logic, and supporting card designers. In this article, we’ll be covering how engineers on &lt;em&gt;LoR&lt;/em&gt; built out a new scripting system that enables designers to iterate and experiment with new card ideas easily. &lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><p dir="ltr">The main problem had to do with champion abilities. <em>League</em> had defined really clear blocks for its needs - for example, abilities can be put into a subset of blocks like inflicting a status effect, causing a knock-up, or dealing damage. But for a card game, we found ourselves needing a looser set of rules for actions, because cards often intentionally break rules by doing things like shuffling decks or completing actions at future turns. </p><div>
+<p dir="ltr">Basically, designers would keep coming up with cool ideas, and then get bottlenecked because they needed an engineer to create a specific custom block in our visual scripting language. This turnaround became a growing limitation as the design team expanded and more designers wanted to experiment with new playstyles. </p>
+<h2 dir="ltr">Leveraging IronPython for Flexibility</h2>
+<p dir="ltr">Our engineering team iterated on some ideas, and eventually landed on a scripting-based solution for designers, integrating with <a href="https://ironpython.net/" target="_blank">IronPython</a>. </p>
+<p dir="ltr">A huge benefit of IronPython is that we can access C# objects and call C# methods directly from a script. It’s the glue that connects our C# game engine to our Python card scripts. If a designer has a unique, new gameplay action they&#39;d like to try out, they don&#39;t need an engineer to build something first.</p>
+<h3 dir="ltr">Example: Accessing Logic</h3>
+<p dir="ltr">When a buff is applied to a card, designers have access to:</p>
+<ul>
+<li dir="ltr">
+<p dir="ltr">which card is getting the buff</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">which card is applying the buff</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">what is the buff being applied</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">what is the entire state of the game when that buff is applied</p>
+</li>
+</ul>
+<p dir="ltr">Let’s take a look at a specific example - the K/DA “Out of the Way” card. </p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/puffcap1.png"/></p>
+<p dir="ltr">In this case, a designer wants to create a card that makes all allied buffs permanent. With our Python implementation, they can see all the necessary objects directly. </p>
+<p dir="ltr">Since they have all that data in their scripting language, they can listen for buffs being added, and directly change the duration with just two lines of code:</p>
+<pre><code>## EventMutateEffectBeforeAdd
+
+buffEffect.Duration = duration.Indefinite</code></pre><p dir="ltr">For all you Python programmers out there, the &#34;##&#34; is how our engine understands that this card is listening for an event - in this case, EventMutateEffectBeforeAdd.</p>
+<p dir="ltr">This allows us to keep that card&#39;s &#34;allied buffs are permanent&#34; gameplay logic out of the C# game engine by storing it in a place where designers can tweak and balance.</p>
+<div>
+<h3 dir="ltr">Example: Building Libraries</h3>
+<p dir="ltr">In the past, if a designer wanted certain functionality in a library, they needed to wait for an engineer to have time to build it out in the game engine. With our Python solution, designers build code libraries that live entirely within the script, so they can create entire gameplay systems without ever needing to get another developer involved.</p>
+<p dir="ltr">For example, designers spun up the history system that tracks everything that happens over the course of a game. This history system is a Python script that tracks events and stores data that can be referenced later. It also exposes an API for designers to directly retrieve that data and use it in card scripts. This is important for complicated cards like champions, which often require keeping a count of values like “how many spells have been cast?” </p>
+<div>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/puffcap2.png"/></p>
+<p dir="ltr"><em>A card that relies on the “history” value.</em></p>
+<p dir="ltr">The tradeoff here is that designers need to be more technical - at many studios, designers only use visual scripting systems and rarely need to dive into the code. We found it incredibly helpful to work with particularly technical designers, who ended up training other designers and onboarding new hires quickly.</p>
+<div>
+<h2 dir="ltr">General Architecture</h2>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/puffcap3.png"/></p>
+<p dir="ltr">Each card has its own small Python script associated with it. We’re able to call Python from C# and pass along C# object references. </p>
+<p dir="ltr">We also have markup in the C# code, and a separate script that generates fake Python that we use for autocomplete when the Python script writers deal with these alien C# objects. Without this bit, they wouldn&#39;t know what methods they were allowed to call on the C# objects without reading the code directly.</p>
+<p dir="ltr">Finally, we wrote a plugin for Visual Studio Code that gives designers direct access to available methods. This gives them handy references for stuff like game events they might want to reference, and quick access to all other script files.</p>
+<p dir="ltr">Within each card script, designers call out events they’re interested in. For example, if a card needs to make you draw a card whenever anyone takes damage, then you can have the script listen for when damage is dealt and add modifiers. </p>
+<p dir="ltr">This is a very simple 2-line script file:</p>
+<pre><code>## EventDoDamage
+
+game.Draw()</code></pre><p dir="ltr">Note that “game” here is a reference to our C# game state that was passed to Python.</p>
+<h2 dir="ltr">Everything Is <s>A Minion</s> On Cards</h2>
+<p dir="ltr">A foundational aspect of our scripting system is how we handle card storage. Designers store everything on cards - kind of like that joke about how <a href="https://technology.riotgames.com/news/taxonomy-tech-debt" target="_blank">everything in <em>League</em> is a minion</a>, everything in <em>LoR</em> is stored on cards. For example, the Nexus is actually a card, and it stores the history tracking we mentioned earlier. When a unit is played, the Nexus has a script that listens and increments the count on its own storage, and those values can be referenced by other cards.  </p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/puffcap4.png"/></p>
+<p dir="ltr"><em>You’re saying those tiny things store WHAT?</em></p>
+<p dir="ltr">This is a hugely critical piece of how <em>LoR</em> stores data. Designers can synthesize entirely new gameplay mechanics without requiring engineers to build anything new, because they can trigger off of any change in the game state, store any value in card storage, and have access to all of the basic blocks of game state manipulation that engineers do (moveCard, doDamage, attachScript, etc).</p>
+<h2 dir="ltr">Story Time: Making the Transition </h2>
+<p dir="ltr">Switching an underlying game system is a massive undertaking. Our new scripting system definitely lived up to our expectations, but the transition had a couple bumps along the way. </p>
+<p dir="ltr">One story that really demonstrates the complexity of shifting an underlying system happened around three years ago during a big internal playtest. We had just wrapped up getting a build of the game working with Python, but those code paths were only taken when there were actually Python scripts to load. This was done so that it wouldn’t impact the playtest, which was still running on the original <em>League </em>block system. We kicked off a deploy of the block script build, and walked over to visit the playtest presentation in person, confident that the build was stable and the Python-based system was separate on our testing environments. </p>
+<p dir="ltr">Imagine this - the presentation wraps up, right, and a crowd of Rioters are heading back to their desks to play, when someone says, “hey, uh… everything is broken.” Total nightmare material. This made no sense, because nobody had actually made any changes - we had just done a rebuild and redeploy of existing content we had tested already.</p>
+<p dir="ltr">So what happened? </p>
+<p dir="ltr">We have a set number of shared build nodes that we reuse, and try to only clean up what’s strictly necessary to avoid copying over duplicate assets every time. The Python builds had been running on a couple of them because we were iterating earlier, but once the Python build had run on the node, it effectively infected it, leaving the Python scripts behind. The block script-based rebuild/redeploy we did for the playtest happened to run on the nodes that had been polluted by the Python build. So some of the cards were loading Python scripts, and some of the cards were loading block scripts, and some did both so nothing would happen. </p>
+<p dir="ltr">Once we remoted in and realized there was both Python and block data, it just took a few hours to patch up and the playtest went on. But it was definitely a spooky event that demonstrated the complexity involved when transitioning over an underlying system in a live game. </p>
+<p dir="ltr">Our biggest takeaway? While it can be an elegant solution to use the existence of new data to control which system is activated, <strong>sometimes just having a good ol’ toggle is an important safeguard when replacing a legacy system</strong>. </p>
+
+<p dir="ltr">Teemo and his related Puffcap mushroom cards presented complex technical challenges that really highlighted the impact of our new scripting system. </p>
+<p dir="ltr">This set of cards is based on a gameplay system that exists almost entirely in our Python scripting environment. Designers are able to quickly iterate on these kinds of ideas - like Puffcaps being objects placed on existing cards instead of individual cards placed in a deck. We built up a Python library of Puffcap functions which defined a really clear API for how cards could plant mushrooms into an opponent’s deck. The Puffcap’s representation in the game, how to add them, and what they do are <em>all defined within the Python scripting system</em>.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/puffcap5.png"/></p>
+<h2 dir="ltr">Iterating on Shrooms</h2>
+<p dir="ltr">We had a couple Puffcap iterations as Teemo’s shrooms became cooler and cooler over time. As we moved from spells in our block system to spells in Python, designers were increasingly able to resolve bugs themselves instead of requiring engineering time. </p>
+<p dir="ltr">The Puffcap cards were originally planted in your deck by Teemo or his followers, and when you drew the cards, they’d cast a spell and you’d take damage. The Teemo level 2 card doubles the number of existing Puffcaps in a deck - which is simultaneously very exciting and <em>very</em> dangerous - so the Puffcap cards had the ability to crash entire games if enough were placed into a deck. With the new Python scripting language, we were able to port over the Puffcap system smoothly and simultaneously do some code cleanup, making it possible to switch the Puffcaps from individual cards to traps on existing cards.</p>
+<div>
+<h3 dir="ltr">Not So Funsmith</h3>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/puffcap6.png"/></p>
+<p dir="ltr">One example of a problem with the original card iteration had to do with other cards that amplified damage. The card Funsmith from the original Foundations base set would increase any damage from spells or skills. But if you had a Funsmith and an enemy put a Puffcap in your deck, you&#39;d be the one drawing the card - in other words, the source of the damage was technically you, so the damage would be amplified. Turning the Puffcaps into traps on specific cards gave us the chance to do some damage source redirection, which we use to clarify that this damage comes from the enemy and is not self-inflicted.</p>
+<div>
+<h3 dir="ltr">Performance</h3>
+<p dir="ltr">Once we had switched the Puffcaps into traps on cards, we ran into another issue - performance. The original Puffcap system would plant traps into the enemy’s deck, and the game would go through each Puffcap one by one, randomly generating a number between 0 and the deck size, and placing the trap on that card specifically. This resulted in totally random distribution, which was great. </p>
+<p dir="ltr">But as we were preparing for the Friend Challenge, we realized that if two friends can play against each other, there will probably be players who want to work together to see how many Puffcaps can possibly be placed in a deck. This would cause the server to fall over due to the sheer amount of shrooms that needed to be assigned a number, so one game could feasibly crash all the other games running on that server. We tweaked the Puffcap insertion algorithm to instead go card by card in the deck and estimate how many mushrooms should be planted on each card. </p>
+<p dir="ltr">An easy way to calculate this would have been to just divide the number of shrooms by the number of cards and fudge the number a bit so it feels random, even though they’re evenly dispersed. We knew that would feel really bad and go against the intended sense of randomness that Puffcap cards promise, so we looked at statistical models to figure out what a more realistically random system would be. </p>
+<p dir="ltr">To accomplish this, we generate a standard distribution for how many Puffcaps should be planted on each card, and then we randomly pick a point on that curve for each card. After that, we do some slight tweaking to make sure the number of Puffcaps we placed equals the total number of intended Puffcaps.</p>
+<h2 dir="ltr">Future Proofing</h2>
+<p dir="ltr">As we went through the transition to the new Python system, we were able to do a lot of code cleanup. For example, at one point, the traps themselves were a first class citizen in the C# game engine, as they were their own type of card. For just one mechanic that was unique to Teemo and his followers, that was pretty overkill. </p>
+<p dir="ltr">While removing the Puffcap cards and turning them into traps, we thought a lot about future-proofing. If designers later want multiple trap-type cards that mimic the Puffcap mechanic of actions that live on other cards in a deck, they can easily iterate on their ideas by extending the “traps” Python library we’ve built out. </p>
+
+<p dir="ltr">One of the best parts about working on<em> LoR</em> is how integrated engineering and design are. The development environment is heavily collaborative, which allows engineers to get a better sense of what designers will need in the future. We can be more creative with our solutions; we’re not just handed a tech spec, we’re part of the conversation about the problem that needs to be solved.</p>
+<p dir="ltr">The ratio of engineers vs designers on a card team really reflects this. Early on, we had two designers and four engineers. This shifted over time as we built out tools that could better support the designers - we now have around 15 designers and just three engineers.</p>
+<p dir="ltr">Engineers on <em>LoR</em> are constantly measuring our progress against this goal - make designers’ lives easier. With early prototyping, it’s clear how many ways artists and designers rely on tooling tech to be able to do their jobs... and how this can slow them down. We need to build tools and processes to make things go smoothly, reducing engineering bottlenecks and encouraging creativity and experimentation. It’s their job to find the fun, and it’s our job to build enough highly usable tech that designers only have to talk to us when they want to.</p>
+<p dir="ltr">Thanks for reading! If you have any questions or just want to tell us about your favorite cards, feel free to comment below.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></div>]]></content:encoded>
+      <author>Jeff Brock and Patrick Conaboy</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/118/puffcapheader.png" length="0" type="image/png"></enclosure>
+      <pubDate>Tue, 26 Jan 2021 18:10:56 +0000</pubDate>
+    </item>
+    <item>
+      <title>Scalability and Load Testing for VALORANT</title>
+      <link>https://technology.riotgames.com/news/scalability-and-load-testing-valorant</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/117/loadtestingheaderfinal.png&#34; width=&#34;1640&#34; height=&#34;624&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;When &lt;em&gt;VALORANT&lt;/em&gt; was still early in development, we had high hopes that in the future we’d launch with high initial popularity. From the beginning, we prioritized scalability to make sure we could support the number of players we were hoping for. Once &lt;em&gt;VALORANT&lt;/em&gt; entered full production, we began working in earnest on a load test framework to prove out our tech. After many months of work, we successfully ran a load test of two million simulated players against one of our test shards, giving us the confidence we needed for a smooth launch. This article explains how we load tested our platform, and how we tackled the scaling challenges we encountered along the way. &lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div property="content:encoded"><p dir="ltr">Hi, I’m Keith Gunning, lead engineer on the Core Services team for <em>VALORANT</em>. My team is responsible for making sure <em>VALORANT</em>’s platform can scale to support our growing playerbase, with high uptime and sufficient monitoring to quickly detect and fix problems.</p>
+<p dir="ltr">When <em>VALORANT</em> was still early in development, we had high hopes that in the future we’d launch with high initial popularity. From the beginning, we prioritized scalability to make sure we could support the number of players we were hoping for. Once <em>VALORANT</em> entered full production, we began working in earnest on a load test framework to prove out our tech. After many months of work, we successfully ran a load test of two million simulated players against one of our test shards, giving us the confidence we needed for a smooth launch. This article explains how we load tested our platform, and how we tackled the scaling challenges we encountered along the way. </p>
+
+<p dir="ltr">Two key pieces of <em>VALORANT</em>’s infrastructure allow us to support a large number of players - the<strong> game server executable</strong> and the <strong>platform</strong>. </p>
+<p dir="ltr">The game server executable controls the frame-to-frame gameplay of in-progress matches. To run a large number of games simultaneously, we need to run thousands of these game server executables, one for each running match. <a href="https://technology.riotgames.com/news/valorants-128-tick-servers" target="_blank">This Tech Blog post</a> by Brent Randall from the <em>VALORANT</em> Gameplay Integrity team explains the efforts made to hyper-optimize the game server executable, allowing it to run over three 128-tick games of <em>VALORANT</em> per CPU core, minimizing the number of total CPUs necessary to host every game.</p>
+<p dir="ltr">The second piece of infrastructure, which I’ll refer to as the <em>VALORANT</em> platform, is a collection of microservices that handles every other part of <em>VALORANT</em> besides moment-to-moment gameplay. </p>
+<p dir="ltr">Here&#39;s a list of services the platform includes:</p>
+<ul>
+<li dir="ltr">
+<p dir="ltr">party membership</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">matchmaking</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Agent selection</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">provisioning matches to datacenters based on ping</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">processing and storage of game results when games are finished</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">unlocking Agent contracts and Battlepasses</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">store purchases</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">loadout selection</p>
+</li>
+</ul>
+<p dir="ltr">These platform services, together with the game provisioner pods, form a <em>VALORANT </em>shard.</p>
+<p dir="ltr"><em><img alt="" src="https://technology.riotgames.com/sites/default/files/loadtesting-1.png"/>Each shard&#39;s platform manages a set of geographically distributed game server pods</em></p>
+<h2 dir="ltr">A Closer Look At The <em>VALORANT</em> Platform</h2>
+<p dir="ltr">Each piece of the platform’s functionality is encapsulated in a microservice, a small program responsible for only its own specific <em>VALORANT</em> feature. For example, the personalization service stores the list of gun skins, sprays, and gun buddies players currently have equipped, and not much else. Some features require several microservices to communicate with each other. For example, when a party queues up for a ranked game, the parties service will ask the skill ratings service to verify that the players in the party are within the allowed rank spread to play a competitive match together. If so, it will then ask the matchmaking service to add the party to the competitive queue.</p>
+<p dir="ltr"><em>VALORANT</em> chose to create a platform composed of microservices based on what we had learned from <em>League of Legends</em>. In the early days of <em>League</em>, the platform was a monolithic service that could do everything. This made development and deployment simple, but came at a cost. A bug in one subsystem could bring down the whole platform. There was less flexibility to independently scale up individual subsystems, and individual subsystems couldn’t be built, tested, and deployed independently. <em>League</em> has since upgraded to <a href="https://technology.riotgames.com/news/running-online-services-riot-part-i" target="_blank">a more flexible microservices model</a> to address these problems. Following in <em>League’s</em> footsteps, <em>VALORANT</em> avoided the pitfalls of a monolithic architecture by splitting functionality into smaller microservices from the start.</p>
+<h3 dir="ltr">Microservices</h3>
+<p dir="ltr">The <em>VALORANT</em> platform consists of over 30 microservices. Each shard needs a certain number of instances of each microservice to handle peak numbers of players. Some microservices are busier and require more instances than others to distribute the load. For example, the parties service does a lot of work, since players are constantly joining, leaving, and changing the state of their parties. We have many instances of the parties service running. The store’s microservice requires fewer instances, since players buy from the store much less frequently than they join parties.</p>
+<p dir="ltr">To support the high load we were hoping for on launch day, we needed to answer several questions. How many instances of each microservice would be necessary? Did any microservice have a serious performance problem that couldn’t be solved by just deploying more instances of the service? Did any service have a bug that only manifested when handling large numbers of player requests at the same time? We also needed to make sure that we weren’t wasting money by overprovisioning too many instances of services that didn’t need it.</p>
+<h4 dir="ltr">Microservice Testing</h4>
+<p dir="ltr">Each of our microservices has its own tests to validate the correctness of its functionality. But because player actions can require complex chains of calls between services, testing each service by itself in a vacuum isn’t enough to prove that the platform as a whole can handle the load generated by all the various types of player requests. The only way to know for sure that the platform can handle load from real players is to test it holistically with real player requests. And since it was infeasible to get millions of human players to test our still in-development game, we decided to do the next best thing: Simulate virtual players that would mimic the behaviors of actual players. </p>
+
+<p dir="ltr">When <em>VALORANT</em> first entered production, we had only tested with about 100 players simultaneously. Based on stats from<em> League of Legends</em>, optimistic estimates from our publishing team, and our future plans to expand into many regions, we decided that we wanted to make sure we could support at least two million concurrent players on each shard.</p>
+<p dir="ltr">Running two million instances of the actual <em>VALORANT</em> client that real players use wasn’t a feasible solution. Even if we disabled all graphical rendering, the overhead of creating this many processes was still excessive. We also wanted to avoid cluttering the client with all the extra code needed to run simulated automated tests. To maximize performance and ease of maintenance, we instead created a simulated mock client called the load test harness, specifically designed for simulating large numbers of players.</p>
+<h2 dir="ltr">Load Test Harness</h2>
+<p dir="ltr">The load test harness needed to make all the same requests to the <em>VALORANT</em> platform that a real player would. But it didn’t need to simulate any of the game logic or rendering, since we already had the <a href="https://technology.riotgames.com/news/valorants-128-tick-servers" target="_blank">game server load test</a> to validate those pieces. The need to efficiently simulate large numbers of concurrent network requests was the key requirement that informed our technical decisions when designing the load test harness.</p>
+<h3 dir="ltr">Writing in Go</h3>
+<p dir="ltr">We chose to write the harness in <a href="https://golang.org/" target="_blank">Go</a> for a few reasons. First, its concurrency model allows for large numbers of routines to run concurrently and efficiently on a small number of threads, letting us simplify implementation of player behaviors by running parallel routines for every simulated player. Second, Go’s network I/O model that automatically handles blocking network calls using asynchronous ones under the hood allows us to easily run a large number of concurrent blocking http requests on a limited number of threads. And finally, Go is a <a href="https://technology.riotgames.com/news/leveraging-golang-game-development-and-operations" target="_blank">widely supported language at Riot</a> that our team has expertise in. In fact, almost all of the services composing the <em>VALORANT</em> platform are written in Go for these same reasons.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/loadtesting2.png"/></p>
+<p dir="ltr"><em>Go&#39;s scheduler distributes lightweight routines across a smaller number of hardware threads to reduce overhead</em></p>
+<h2 dir="ltr">Harness Components</h2>
+<p dir="ltr">There are three main components to the load test harness: a simulated player, a scenario, and a player pool. Let’s take a look at how each of these work.</p>
+<p dir="ltr">The first component of our harness is a <strong>simulated player</strong>. This simulated player aims to mimic the load of a single real <em>VALORANT</em> client as closely as possible. The player runs the same background polling loops that a regular client would run. Some examples of this background polling include login token refreshing, dynamic configuration polling, and matchmaking queue configuration polling. The player also includes helper functions to run discrete operations that might be performed by a real player, such as buying from the store, equipping a gun skin, joining a party, queueing for a match, and selecting an Agent.</p>
+<p dir="ltr">The second component of the harness is a <strong>scenario</strong>. A scenario defines a set of actions commonly performed by players in sequence. For example, the MatchmakingScenario contains logic instructing a simulated player to queue for a match, join an Agent selection lobby when the queue pops, select an available Agent, lock in the Agent, and connect to the game server when it’s provisioned. The StorePurchase scenario fetches the store catalog and then purchases an available offer. The LoadoutEdit scenario equips some gun skins. </p>
+<p dir="ltr">The third key component of the harness is the <strong>player pool</strong>. The pool creates new player objects at a configurable rate, meant to approximate the login rate of real players. Logged in players are added to a pool of idle players. Idle players are pulled out of the pool at a configurable rate and assigned to perform scenarios. Once a player finishes its assigned scenario, it returns itself to the idle pool. Before launch, we used data from <em>League of Legends</em> to estimate how frequently we expected players to perform operations like queueing for matches and buying content, and we configured our player pool to assign these operations to idle players at that same rate.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/loadtesting-3.png"/></p>
+<p dir="ltr"><em>Each concurrently running scenario reserves a number of players from the pool depending on the scenario type and configuration</em></p>
+<h2 dir="ltr">Prepping for Tests</h2>
+<p dir="ltr">Our first load tests involved just a single harness. We deployed one instance of the harness and ramped up the number of players to see how many we could simulate. After some careful optimizing and tweaking, we found that we could simulate 10,000 players on one harness process running on four physical CPUs. To simulate two million players, we would need 200 harness processes. We asked Riot’s Infrastructure Platform team to provision a compute cluster that could handle this for us. With <a href="https://aws.amazon.com/" target="_blank">Amazon AWS</a>, they deployed a new instance of the Riot Container Engine, a piece of Riot tech that uses <a href="http://mesos.apache.org/" target="_blank">Apache Mesos</a> to schedule <a href="https://www.docker.com/" target="_blank">Docker</a> containers on top of heavy-duty <a href="https://aws.amazon.com/ec2/" target="_blank">Amazon EC2</a> compute nodes. Thanks to this cluster, we were able to provision 200 Docker containers of our harness, allowing us to test at the concurrency numbers we were looking for.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/loadtesting-4.png"/></p>
+<p dir="ltr"><em>Our load test environment uses Amazon AWS, Riot Container Engine, and Docker to deploy a large number of load test harness processes into the cloud</em></p>
+<h3 dir="ltr">Simulating Game Servers</h3>
+<p dir="ltr">Before we could run a full-scale load test with multiple harnesses, there was one final piece we needed to put in place - the game servers. </p>
+<p dir="ltr">We had already set up a test environment including enough instances of our platform services to begin testing against. Our harnesses were ready to simulate two million clients. But actually running two million players’ worth of game servers would prove to be a challenge. Several factors made it impractical for us to use real game servers in our load testing environment. </p>
+<ul>
+<li dir="ltr">
+<p dir="ltr">Reimplementing gameplay logic and network protocols in the load test harness to interface with real game servers would be complicated and time consuming. </p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Sending and receiving all that additional network traffic would significantly increase the networking and computing resources needed by the harness, reducing the number of players we could simulate.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Deploying that many real game servers would require many thousands of cloud CPUs, which we wanted to avoid having to provision if possible. </p>
+</li>
+</ul>
+<p dir="ltr">So instead, we created a simple mock game server, written in Go, which could emulate the same provisioning process and end-of-game results recording that a real game server could, without any of the actual gameplay logic. Because these mock servers were so lightweight, we could simulate over 500 mock games on a single core. When a party of simulated players requested to start a game on the load test environment, they simply connected to the mock game server and did nothing for a configurable amount of time before ending the game.</p>
+<p dir="ltr">In this way, we simulated every part of the game provisioning flow without relying on real game servers.</p>
+<h2 dir="ltr">Building Out &amp; Running The Load Tests</h2>
+<p dir="ltr">With all these pieces in place, we were ready to run a load test. For our very first load test, we ran one thousand simulated players, recorded all the performance issues we ran into, and set out to address them. Once we resolved those issues and this test passed, we doubled the player count for subsequent tests, and repeated the process of identifying and fixing issues. After enough cycles of doubling our target player count, we eventually reached our two million player goal. </p>
+<p dir="ltr">Reaching this goal was a huge accomplishment. It was also a huge relief, since platform scale validation was the final hurdle we had to clear before we could announce our launch. Watching real players get their hands on the game was incredibly exciting - it felt so good to see our work pay off. Our relatively smooth launch day was proof of the quality of the tech we had built.</p>
+<p dir="ltr">So how did we get there? Let’s take a look at some of the issues we encountered as we increased our scale targets, how we identified them, and how we addressed them.</p>
+<h3 dir="ltr">Extensive Monitoring</h3>
+<p dir="ltr">Because simulated players can’t talk or file bug reports, the first step to identifying our scale issues was to set up extensive monitoring, dashboarding, and alerting to let us monitor the health of our platform. Each of our microservices emit metrics events for successes and failures of all operations, runtimes for all operations, CPU and memory levels, and other information. We store all these metrics in <a href="https://newrelic.com/" target="_blank">New Relic</a>, and use <a href="https://grafana.com/" target="_blank">Grafana</a> to create dashboards displaying the data. We also set up New Relic alerting rules that will send us Slack messages if any of our metrics go outside our expected thresholds. For each load test, we counted the test as a pass only if every metric stayed within bounds for the full duration.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/loadtesting-dashboard.png"/></p>
+<p dir="ltr"><em>A portion of our dashboards showing the results of a successful two million player, three hour load test</em></p>
+<h3 dir="ltr">Scalable Databases</h3>
+<p dir="ltr">One topic that came up early on as a potential performance concern was our need for scalable databases. <em>VALORANT</em> needs to reliably store a lot of information about player accounts, like skill ratings, match histories, loadout selections, and Battlepass progress. </p>
+<p dir="ltr">The easiest way to store all this data would be to put all player info into a single database. This would be easy to implement, very safe because updating all the info at once in an all-or-nothing manner makes it easy to avoid data corruption, and scalable up to a point by just upgrading to bigger and better database server hardware when available. Unfortunately, there’s a limit to how far this strategy can scale. Once you’ve bought the biggest hardware available and it’s still not enough, there are few options left. We decided not to go with a single database because we wanted to make sure we could scale horizontally, meaning we could increase our capacity by adding more smaller servers, rather than trying to further upgrade one big one. </p>
+<h4 dir="ltr">Layers of Horizontal Scaling</h4>
+<p dir="ltr">The first part of our strategy for horizontal scaling is to split a player’s data such that each piece of data was owned by a single service. For example, the match history service saves the data for a player’s match history, and only that data. The loadouts for that player are stored separately in another database, owned by the loadout service. Spreading the data out like this gives each service the opportunity to scale up its database independently. It also reduces the impact of issues by isolating data owned by each service; an issue with the store database may slow down the store, but won’t affect match history performance. </p>
+<p dir="ltr">Doing things this way does come at a cost. Because data isn’t collocated, we can no longer rely on atomic transactions to update multiple pieces of data at once. Safely updating each of these multiple data sets in a single operation requires ledgers for in-progress operations, <a href="https://en.wikipedia.org/wiki/Idempotence#:~:text=Idempotence%20(UK%3A%20%2F%CB%8C%C9%AA,result%20beyond%20the%20initial%20application." target="_blank">idempotence </a>to retry operations on failure, intermediate lock states, and other such complexities. But the added complexity is worth it to allow us to scale further.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/loadtesting5.png"/></p>
+<p dir="ltr"><em>Player data is split across multiple tables in multiple databases to allow for horizontal scaling.</em></p>
+<p dir="ltr">For extremely high numbers of players, even splitting data by the service type that owns it isn’t enough to ensure horizontal scaling. When an individual service can’t performantly handle saving the data for all of its players in a single database, we split the data again, such that each individual database needs to handle only a segment of players. Each <em>VALORANT</em> player has a unique ID, so in the simplest case, we can reduce our database load by half by storing odd-numbered players on one database, and even-numbered players on a second database. In practice, we ended up segmenting players into one of 64 tables by hashing each player’s ID and using the <a href="https://en.wikipedia.org/wiki/Modulo_operation" target="_blank">modulo</a> of that hash to determine their table index. We don’t need nearly 64 databases per service, but by segmenting players into 64 tables ahead of time, it’s very easy for us to horizontally scale by just adding more databases and moving tables from one database to another. For example, we can again halve our database load by switching from storing 32 tables on each of two databases, to 16 tables on each of four databases.</p>
+<h4 dir="ltr">Load Balancing Across Service Instances</h4>
+<p dir="ltr">Splitting load by segmenting players by ID is a strategy we repeated again for load balancing across service instances. <em>VALORANT</em> microservices are stateless, meaning that any instance of a service can handle a request from any player. This is a useful property, as it allows us to load balance incoming requests by assigning them to services round-robin. It also lets our services run without needing large amounts of memory. </p>
+<p dir="ltr">One challenge, though, is how to handle player processing that doesn’t originate from an explicit request from a client. As an example, our session service needs to change a player’s state to offline if that player suddenly stopped sending heartbeats without explicitly disconnecting, perhaps because they crashed or lost power. Which session service instance should measure the duration of non-responsiveness for each player and change their state to offline when that duration reaches a threshold? We answer this by assigning players into one of 256 shares based on the modulo of their player ID hash. We store a list of the 256 shares in a Redis shared memory cache. As services start up, they will check this list, and claim a portion of the shares by registering their own instance ID in the list. When new service instances are deployed to further spread out load, the new instances will steal shares from existing instances until each instance owns a roughly equal number of shares. Each service will then handle the background processing for all the players in the shares that it owns.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/loadtesting6.png"/></p>
+<p dir="ltr"><em>Each app reserves its own segment of players from a central list so that each player&#39;s background processing happens exactly once</em></p>
+<h4 dir="ltr">Caching</h4>
+<p dir="ltr">Another important technique we applied to improve our scalability was caching. We cache the result of certain computations in several places to avoid having to repeat them when we know the result will be the same each time. </p>
+<p dir="ltr">There were several places where we introduced caches. Each service that frequently returns the same results has a caching layer in its http response handler, which can save the result of calls and return the previously saved result instead of recomputing it. Additionally, services that call other services to fetch data include a cache on the calling end. If a service needed to query the same data twice, it checks its own cache of previously returned results and uses those instead if available. We can even cache at our network edge before requests enter our platform at all. Before reaching our platform, requests from clients first flow through <a href="https://www.cloudflare.com/" target="_blank">Cloudflare</a>, and then through an <a href="https://www.nginx.com/" target="_blank">nginx</a> server for load balancing. We can optionally enable caching at these layers to reduce the number of requests that reach our platform at all. In practice, we found few cases where we needed to rely on network edge caching. In most cases we were able to hit our performance goals with our own in-app caching alone, making the logic for cache eviction much simpler.</p>
+
+<p dir="ltr">It took us many months to scale the platform up to our desired levels, and we cut it close on our deadline. We had less than two weeks to go until launch when we hit our first successful 2-million CCU loadtest. Nonetheless, the load test results gave us the confidence we needed to ship our game. We scaled up our live shards to the same presets that we had landed on in the load test environment and prepared for launch day. </p>
+<p dir="ltr">So, how did we do? It turns out, pretty well. Aside from a minor issue with parties and matchmaking that required a small code fix to address, <em>VALORANT</em>’s launch day went smoothly. Our hard work paid off!</p>
+<p dir="ltr">Making a scalable platform takes more than just one team. Reaching our scalability goals was only achieved thanks to every single feature team on <em>VALORANT</em> contributing to making their microservices performant. The biggest value of our load tests and dashboards was that they empowered all our devs to make informed decisions about how to build their own services.</p>
+<p dir="ltr">I want to also thank all the central teams at Riot who maintain the technology and infrastructure that we use to deploy our services. <em>VALORANT</em> couldn’t have launched without support from them.</p>
+<p dir="ltr">Thanks for reading!</p>
+</div></div>]]></content:encoded>
+      <author>Keith Gunning</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/117/loadtestingheaderfinal.png" length="0" type="image/png"></enclosure>
+      <pubDate>Tue, 15 Dec 2020 18:14:24 +0000</pubDate>
+    </item>
+    <item>
+      <title>Leveraging Golang for Game Development and Operations</title>
+      <link>https://technology.riotgames.com/news/leveraging-golang-game-development-and-operations</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/116/golangheader.png&#34; width=&#34;1999&#34; height=&#34;758&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;Hi, my name is Aaron Torres and I’m an engineering manager for the Riot Developer Experience team. We accelerate how game teams across Riot develop, deploy, and operate their backend microservices at scale - globally. I’ve been at the company for a little over 3 years and I’ve been writing Go code that entire time. In this article, we’ll be specifically looking at how a few different teams use Go. I’ll be tagging in two technologists - Chad Wyszynski from RDX Operability and Justin O’Brien from &lt;em&gt;VALORANT - &lt;/em&gt;to discuss how they use Go for their projects.&lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><p dir="ltr">At Riot, our two primary languages for services are Java and Go. As a result, both languages are viewed as first class citizens in terms of support - and because we deploy using containers, both are interoperable and relatively easy to package and deploy. We love Go at Riot for a number of reasons including:</p><p dir="ltr">There’s also been a recent movement within the tech industry around Go, especially with regards to microservices, and it helps being able to tap into that interest and drive in the developer space. It’s also becoming increasingly popular in the system space for software like <a href="https://etcd.io/" target="_blank">etcd</a>, <a href="https://www.docker.com/" target="_blank">Docker</a>, <a href="https://kubernetes.io/" target="_blank">Kubernetes</a>, <a href="https://prometheus.io/" target="_blank">Prometheus</a>, and much more. There are excellent libraries for <a href="https://github.com/sirupsen/logrus" target="_blank">structured logging</a>, <a href="https://github.com/hashicorp/raft" target="_blank">consensus algorithms</a>, and <a href="https://github.com/gorilla/websocket" target="_blank">websockets</a>. Additionally, the standard library includes things like <a href="https://golang.org/pkg/crypto/tls/" target="_blank">TLS</a> and <a href="https://golang.org/pkg/database/sql/" target="_blank">SQL</a> support, so you can be very productive in Go very quickly.</p><div>
+
+<p dir="ltr">The Service Lifecycle team’s primary project is our deployment tool, which is used to deploy and manage the lifecycle of services running in our Docker runtime. If you’ve read our earlier <a href="https://technology.riotgames.com/news/running-online-services-riot-part-i" target="_blank">&#34;Running Online Services&#34; series</a> you’ll get a better idea of the problem space we’re working in. Our deployment tool is written in Go because it enables us to quickly roll out updates, onboard new engineers to our tech stack, and quickly iterate from early development to production. It is backed by MySQL and a single instance can target multiple datacenter locations. There are a number of challenges that Go makes it easier for us to solve including:</p>
+<ul>
+<li dir="ltr">
+<p dir="ltr">JSON/YAML support</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">HTTP client</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Network connectivity</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">API integration</p>
+</li>
+</ul>
+<h2 dir="ltr">JSON/YAML support</h2>
+<p dir="ltr">Our deployment tool operates on a custom YAML specification that describes what an app needs to run. There are several third party Go libraries which implement <a href="https://json-schema.org/implementations.html#validator-go" target="_blank">JSONSchema</a> for us. Go also provides native support for Marshaling and Unmarshaling Go structs into JSON as well as third party support for YAML.</p>
+<p dir="ltr"><img src="https://technology.riotgames.com/sites/default/files/golang1.png"/></p>
+<p dir="ltr"><em>A structured YAML schema that the deployment tool might consume.</em></p>
+<h2 dir="ltr">HTTP Client</h2>
+<p dir="ltr">Our tool connects with a number of other microservices for things like service discovery, logging, alerts, configuration management, provisioning databases, and more. The primary method of communication is HTTP requests. This means we often have to consider things such as the lifecycle of the request, internet blips, timeouts, and more. Fortunately, Go provides a very solid <a href="https://golang.org/pkg/net/http/#Client" target="_blank">HTTP client</a> with some defaults you’ll definitely want to tweak. For example, the client will never timeout by default.</p>
+<p dir="ltr"><img src="https://technology.riotgames.com/sites/default/files/golang2.png"/></p>
+<p dir="ltr"><em>Performing an HTTP request and printing the body of the response.</em></p>
+<h2 dir="ltr">Network Connectivity</h2>
+<p dir="ltr">Oftentimes data centers can be isolated through additional layers of security, especially when working with partner regions. One very useful aspect of Go we’ve used for multiple projects is the Go <a href="https://golang.org/pkg/net/http/httputil/#ReverseProxy" target="_blank">httputil reverse proxy</a>. This allows us to quickly proxy requests, add middleware for the lifecycle of requests to inject additional authentication or headers, and make everything relatively transparent to clients.</p>
+<h2 dir="ltr">API Libraries</h2>
+<p dir="ltr">At Riot, we must interface with a variety of third party services including Hashicorp <a href="https://www.vaultproject.io/" target="_blank">Vault</a>, <a href="https://dcos.io/" target="_blank">DCOS</a>, <a href="https://aws.amazon.com/sdk-for-go/" target="_blank">AWS</a>, and <a href="https://kubernetes.io/" target="_blank">Kubernetes</a>. Most of these solutions provide native API client libraries for use by Go applications. Sometimes we use or fork third party libraries depending on our need as well. In all cases, we’ve been able to find adequate support for our needs.</p>
+<p dir="ltr">Additionally, during development, it’s easy for us to recompile and run a local version of our deployment tool for quick testing or <a href="https://github.com/go-delve/delve" target="_blank">debugging</a>. It also allows us to easily share code and libraries with other teams in our space.</p>
+<p dir="ltr">Now that we’ve taken a look at how my team uses Go for deployment, let’s take a look at two other examples.</p>
+
+<p dir="ltr">Hi, I&#39;m Chad Wyszynski from the RDX Operability team, and I’d like to show you how my team uses Go to minimize request latency in our operational monitoring pipeline. Most of Riot&#39;s logs and metrics flow through my team&#39;s monitoring service. It’s a constant, high volume of traffic that spikes higher when something goes wrong, so the service must maintain high throughput and low latency. Who wants to wait seconds to log an error? Go channels help us meet these requirements.</p>
+<p dir="ltr">The operational monitoring service exists for one purpose: to forward logs and metrics to backend observability platforms, such as New Relic. The service first transforms request data into the format expected by the backend platform, then it forwards the transformed data to that platform. Both of these steps are time consuming. Instead of forcing clients to wait, the service places request data into a bounded channel for processing by another Goroutine. This allows the service to respond to the client almost immediately.</p>
+<p dir="ltr">But what happens when the bounded channel is full? By default, a Goroutine will block until the channel can accept data. We use Go&#39;s time.After to bound this wait. If the channel can&#39;t accept request data before the timeout, the service 503&#39;s. Clients can retry the request later, hopefully after some exponential backoff.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/golang3.png"/></p>
+<p dir="ltr">The real win with the channel-based design came when migrating from one observability backend to another. Riot recently <a href="https://newrelic.com/resources/case-studies/riot-games" target="_blank">moved all metrics and logs from a hand-rolled pipeline to New Relic</a>. The operational monitoring service had to forward data to both backends while teams configured dashboards and alerts on the new platform. Thanks to Go channels, dual-sending added essentially no latency to client requests. Our service just added request data to another bounded channel. The max server response time, then, was based on the time a Goroutine waited to put data onto a destination channel, not how long it took a destination server to respond.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/golang4.png"/></p>
+<p dir="ltr">I was new to Go when I joined Riot, so I was excited to see a practical use case for channels and Goroutines. My colleague Ayse Gokmen designed the original workflow; I’m stoked to share our work.</p>
+
+<p dir="ltr">Justin O’Brien here from the Competitive team on Valorant! My team uses Go for all our backend services - as do all feature teams on Valorant. Our entire backend microservice architecture is built using Golang. This means that everything from spinning up and managing a game server process to purchasing items is all done using services written in Go. Though there have been many benefits to using Golang for all our services, I’m going to talk about three specific language features: concurrency primitives, implicit interfaces, and package modularity.</p>
+<h2 dir="ltr">Concurrency Primitives</h2>
+<p dir="ltr">We leverage Golang concurrency primitives in order to add back pressure when operations start slowing down, to parallelize independent operations, and to run background processes within our applications. One example of this is we often find ourselves in a chain of execution on a match but need to do something for each player, loading skin data for each player when starting a match for example. Our requirements for a shared function to accomplish this were to return once all subroutines were finished executing and return back a list of any errors that occurred.</p>
+<pre><code>func Execute(funcList []func() error) []error</code></pre><p dir="ltr">We accomplished this by using two channels and a waitgroup. One channel was to capture the errors as each <a href="https://en.wikipedia.org/wiki/Thunk" target="_blank">thunk</a> executed, while the other was a finished channel that a Goroutine sent on when the waitgroup finished. The language features made this very common pattern straightforward to implement.</p>
+<h2 dir="ltr">Implicit Interfaces</h2>
+<p dir="ltr">Another language feature we use extensively is implicit interfaces. We leverage them pretty heavily to test our code and as a tool to create modular code. For example, we set out early on that we would have a common datastore interface in all our services. This is an interface that every one of our services use in order to interact with a data source.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/golang5.png"/></p>
+<p dir="ltr">This simple interface allowed us to implement many different backends in order to accomplish different things. We typically use an in-memory implementation for most of our tests and the small interface makes it very lightweight to implement inline in a test file for unique cases like access counts or to test our error handling. We also use a mixture of SQL and Redis for our services and have an implementation for both using this interface. This makes attaching a datastore to a new service particularly easy and also makes the ability to add more specific cases, like a write-through in memory cache backed by redis, also very possible.</p>
+<h2 dir="ltr">Package Modularity</h2>
+<p dir="ltr">Lastly, something I would like to call out that isn’t necessarily a language feature is the wide selection of available third party packages that often can be used interchangeably with common builtin packages. This has helped us make changes that I would expect to be a larger refactor very small because of the modular nature of golang packages. For example, a few of our services were spending a lot of CPU cycles serializing and deserializing JSON. We used Golang’s out-of-the-box <a href="https://golang.org/pkg/encoding/json/" target="_blank">json package</a> when first writing all our services. This works for 95% of use cases and typically JSON serialization does not show up on a flame graph (which now that I think of it golang’s built-in profiling tools are top notch as well). There were a few cases specifically around serializing large objects where a lot of a service’s time was spent in the json serializer. We set out to optimize and turns out there are many alternative third-party JSON packages that are compatible with the built in package. This made the change as easy as changing this line:</p>
+<pre><code>import &#34;json&#34;</code></pre><p dir="ltr">to :</p>
+<pre><code>import &#34;github.com/custom-json-library/json&#34;</code></pre><p dir="ltr">Afterwards, any calls to the JSON library used the third-party library which made profiling and testing different packages easy.</p>
+
+<p dir="ltr">Aaron back again! Now that we’ve taken a look at some Golang use cases across Riot, I’d like to show you how we’re all connected. The flexibility teams have when choosing tech stacks relies on the collaborative environment of Rioter technologists. </p>
+<p dir="ltr">Riot Games is a very social company, and our <a href="https://www.riotgames.com/en/work-with-us/disciplines/engineering/riots-tech-community" target="_blank">Tech department encourages Rioters</a> to engage with learning and development communities. For example, our various Communities of Practice enable groups of Rioters with common interests to gather regularly to learn and share together. One of most active technical communities is the Go community, which I currently run. There’s a Slack channel to discuss new proposals, and we have a monthly meetup where members present either a topic they’re aware of or learning about, or Riot projects written in Go. </p>
+<p dir="ltr">We also aspire to involve the community outside of Riot with talks from open source library maintainers. The CoP is also a place to coordinate changes that impact multiple teams such as discussions around security when the <a href="https://blog.golang.org/module-mirror-launch" target="_blank">module mirror</a> launched. There are also discussions around bumping build containers, dealing with gotchas that we may encounter, or asking general questions about approach, tooling, or libraries to seek out individual expertise in another part of the org.</p>
+<p dir="ltr">I personally love having a channel consisting of Go enthusiasts across teams and disciplines to bounce ideas, discuss language changes, and share libraries we come across. This channel was the central point of discussion as we transitioned from old dependency solutions to Go modules and it’s a great way to meet engineers who are passionate about the language. </p>
+<p dir="ltr"><img src="https://technology.riotgames.com/sites/default/files/golang6.png"/></p>
+<p dir="ltr"><em>The Go CoP’s flier.</em></p>
+
+<p dir="ltr">At Riot, a number of teams maintain services and tools written in the Go language. Go provides a robust standard library and great third party community support to help satisfy our development needs. </p>
+<p dir="ltr">Our Community of Practice is a great way for developers to contribute to Go use at Riot and share their learnings and experiences. We’re excited about the future of Go at Riot, with the ability to stay flexible and highly communicative across the entire company.</p>
+<p dir="ltr">Thanks for reading! Feel free to post any questions or comments below.</p>
+</div></div>]]></content:encoded>
+      <author>Aaron Torres with Chad Wyszynski &amp; Justin O’Brien</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/116/golangheader.png" length="0" type="image/png"></enclosure>
+      <pubDate>Fri, 06 Nov 2020 18:09:11 +0000</pubDate>
+    </item>
+    <item>
+      <title>How Riot Games Uses Slack</title>
+      <link>https://technology.riotgames.com/news/how-riot-games-uses-slack</link>
+      <description>&lt;img typeof=&#34;foaf:Image&#34; src=&#34;https://technology.riotgames.com/sites/default/files/articles/115/slackriotheader2.png&#34; width=&#34;1640&#34; height=&#34;624&#34; alt=&#34;&#34; /&gt;&#xA;&lt;p&gt;I’m Byron Dover, engineering manager for information technology at Riot, and I lead the team responsible for developing enterprise software at Riot - or as we sometimes call it, Riot’s Operating System. I’m excited to share a look at how Riot integrates with Slack to support the game development lifecycle.&lt;/p&gt;</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div property="content:encoded"><p dir="ltr">Hello!</p>
+<p dir="ltr">I’m Byron Dover, engineering manager for information technology at Riot, and I lead the team responsible for developing enterprise software at Riot - or as we sometimes call it, Riot’s Operating System. I’m excited to share a look at how Riot integrates with Slack to support the game development lifecycle.</p>
+<p dir="ltr">I recently spoke at the Slack Frontiers conference on this topic - the video is <a href="https://youtu.be/EXBpY5xTpbE?t=1163" target="_blank">available on YouTube</a>.</p>
+
+<p dir="ltr">Slack adoption at Riot goes back several years, and started with small pockets of organic usage by Rioters in 2014. Interest quickly grew, and we officially adopted Slack as our primary real-time communications platform in 2015, replacing Atlassian HipChat and IRC at the time.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack1.png"/></p>
+<p dir="ltr">In 2017, we became one of Slack’s very first <a href="https://slack.com/enterprise" target="_blank">Enterprise Grid</a> customers, after an extensive early adopter alpha and beta testing period. Since then, our Slack usage has grown dramatically in both raw numbers and complexity, and today we’ll provide a little more insight into some of the ways we’re using Slack to accelerate game development at Riot.</p>
+
+<p dir="ltr">Riot supports more than 6,000 Slack users globally, and nearly 1,000 installed apps and integrations. The majority of Riot employees and external partners rely on Slack communication to do their jobs every day.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack2.png"/></p>
+<p dir="ltr">Our Slack app and integrations ecosystem is vast. We rely heavily on custom integrations which meet our strict information security requirements, along with a handful of heavily vetted marketplace apps (like <a href="https://slack.com/apps/A6NL8MJ6Q-google-drive" target="_blank">Google Drive</a>).</p>
+<p dir="ltr">Slack is also a key part of Riot’s enterprise strategy, in support of our player-focused company mission. It helps us streamline game development through a rich ecosystem of apps and integrations, and expedites incident response, triaging, and issue resolution.</p>
+
+<p dir="ltr">Slack plays an important role in engineering productivity at Riot. Investing in deeper and richer integrations has reduced mean time to resolution (MTTR) times and increased developer velocity.</p>
+<p dir="ltr">Let’s dive into how engineering teams at Riot use Slack to increase build pipeline speed and visibility.</p>
+<h2 dir="ltr">JENKINS PIPELINE INTEGRATIONS</h2>
+<p dir="ltr">Our first developer highlight comes from our <em>Legends of Runeterra</em> team.<em> </em><a href="https://playruneterra.com/" target="_blank"><em>Legends of Runeterra</em></a> is a free-to-play digital collectible card game that supports PC, Android, and iOS cross-play. Internally we’ve developed a <a href="https://technology.riotgames.com/news/revisiting-docker-and-jenkins" target="_blank">sophisticated build and release pipeline</a> for this game to ensure new versions are available to players simultaneously across all platforms.</p>
+<p dir="ltr">Behind the scenes, <em>Legends of Runeterra</em> build pipelines are powered by <a href="https://technology.riotgames.com/news/thinking-inside-container" target="_blank">Docker</a> and <a href="https://slack.com/apps/A0F7VRFKN-jenkins-ci" target="_blank">Jenkins</a>. Riot engineers rely on custom Slack apps to provide insight and visibility into game builds and deploys in real time.</p>
+<p dir="ltr">When a <em>Legends of Runeterra</em> build starts, a new message is posted to a shared Slack channel. When a build fails, an alert is automatically posted to Slack which includes a detailed accounting of what went wrong. It even @ mentions the developer responsible for the latest code changes to begin immediate triage.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack3_0.png"/></p>
+<p dir="ltr">These Slack applications and integrations can be highly interactive, with specific actions available to developers at every step in the form of buttons, dialogs, screens, and workflows.</p>
+<p dir="ltr">In this way, Slack provides a single pane of glass into the build and deployment lifecycle for our engineers, reducing the need to context switch between a myriad of different continuous integration tools just to understand the status of game builds and releases.</p>
+<h2 dir="ltr">LEVERAGING DIRECT MESSAGES</h2>
+<p dir="ltr">Next up, a developer highlight from our <em>Teamfight Tactics</em> team. <a href="https://teamfighttactics.leagueoflegends.com/" target="_blank"><em>Teamfight Tactics</em></a> is a free-to-play auto-battler game. Like <em>Legends of Runeterra</em>, <em>Teamfight Tactics</em> also supports PC, Android, and iOS cross-play, and benefits from sharing much of the same infrastructure and build/release technology as <a href="https://leagueoflegends.com/" target="_blank"><em>League of Legends</em></a>.</p>
+<p dir="ltr">To reduce noise - and possibly some developer embarrassment - in public channels, we’ve developed a Slack app named Game Build and Deploy “GBaD” Bot, which sends engineers direct messages whenever they break a game build, and lets them know once they’ve fixed the issue.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack4.png"/></p>
+<p>This implementation is a favorite among our R&amp;D teams, who prefer to keep their build notifications out of public channels, and can still reap the benefits of automated build and deploy notifications and pipeline integrations via direct messages.</p>
+<p>We love the flexibility Slack provides when it comes to build and deploy pipeline integrations. Slack’s real-team communication platform allows Riot to mirror our organization in digital channels and workspaces, while the robust APIs and SDKs allow us to deeply integrate these channels with our source code repositories and work management tools to accelerate the game development lifecycle.</p>
+
+<p dir="ltr">Just as important as developing games is ensuring they’re up and running when players log on to play</p>
+<p dir="ltr">Let’s take a look at how Riot engineers use Slack to stay on top of operations and on-call support.</p>
+<h2 dir="ltr">MONITORING &amp; ALERTING</h2>
+<p dir="ltr">Many of our game teams integrate with <a href="https://slack.com/apps/A011MFBJEUU-sentry" target="_blank">Sentry</a> for robust crash analytics and diagnostics. Sentry provides a feature-rich marketplace application which integrates directly with Riot’s game operations and monitoring channels.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack5.png"/></p>
+<p dir="ltr">Sentry automatically captures an enormous amount of valuable information whenever a player experiences a game crash, including screenshots and the actions that occurred directly before a crash. A summary of these events is automatically posted to actively monitored Slack channels. On-call engineers can assign crashes to colleagues directly via Slack, or click through to learn more.</p>
+<p dir="ltr">Another Slack marketplace app we use heavily is <a href="https://slack.com/apps/A1FKYAUUX-pagerduty" target="_blank">PagerDuty</a>. PagerDuty provides excellent incident, service, and escalation policy management, which we ingest directly into Slack for central control and visibility.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack6.png"/></p>
+<p dir="ltr">We route PagerDuty alerts to dedicated notification channels created for each team at Riot. From there, teams can escalate as needed to a universal channel shared across all of our workspaces, which is actively monitored by Riot’s global Network Operations Center.</p>
+<h2 dir="ltr">PINNED BUTTONS</h2>
+<p dir="ltr">Pinned Buttons is a custom Slack app we built to help Rioters surface information and request help from other teams. Pinned Buttons attach themselves just above the message bar, giving Rioters contextual links and references before they send a message.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack7.png"/></p>
+<p dir="ltr">We want to give support teams an easy way to highlight the most common information that Rioters need to do their jobs. Whether it’s a link to a FAQ, a runbook, or a way to submit a ticket, teams can configure Pinned Buttons to highlight the most useful contextual information for their channels.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack8_0.png"/></p>
+<p dir="ltr">Pinned Buttons works by ensuring it’s always the latest message in the channel. The app listens to each channel in which it’s installed, and guarantees it’s always the bottom-most message by instantly posting itself again every time someone sends a new message (cleaning up its previous message each time).</p>
+<p dir="ltr">Pinned Buttons is configurable per channel, with a custom banner and up to three buttons. Simply inviting the app into a channel will present users with a configuration model. After the initial setup, Rioters can use the /pinned_buttons slash command to update their channel configurations. Lastly, if Pinned Buttons are no longer of use or teams want to pause the functionality, they can simply kick the bot out the channel.</p>
+<h2 dir="ltr">GOING CUSTOM</h2>
+<p dir="ltr">We’ve built hundreds of custom applications at Riot to augment everything from peer recognition to on-call support for engineering teams.</p>
+<p dir="ltr">One of our most popular custom apps is Riot’s dev team support app. This app works by listening for emoji reactions on messages in support channels, and then kicking off a triage workflow whenever the appropriate reactji is used.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack9.png"/></p>
+<p>Reporters are prompted to categorize the issue based on their original message - information which the Slack app uses to automatically notify an on-call engineer from the appropriate team. The app @ mentions the on-call engineer in a threaded reply, and the conversation continues between the two Rioters in that thread as normal.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack10.png"/></p>
+<p dir="ltr">On-call engineers don’t need to monitor or read every message in the support channel. They can trust the support app to @ mention them in any thread that requires their attention.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack11.png"/></p>
+<p dir="ltr">Once an issue is resolved, the app captures the entire threaded conversation in the appropriate incident management tool, and it even provides a link to the Slack thread for future reference.</p>
+
+<p dir="ltr">Let’s take a closer look at how we approach building custom Slack apps at Riot with PoroBot, one of our newest innovations in support request intake and management.</p>
+<p dir="ltr">PoroBot is a custom-built Slack AI that can be trained to answer questions in Slack channels, triage and classify support tickets, and provide useful information based on previously answered questions by that channel&#39;s on-call team.</p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack12-0.png"/><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack12-0.gif"/></p>
+<p dir="ltr">Adding PoroBot AI to a channel is self-service via /invite @porobot, and the app can be configured to create and manage tickets in either Jira and ServiceNow (via a pluggable work systems architecture). PoroBot uses extensible workflows behind the scenes, and leverages natural language processing (NLP) and machine learning (ML) models for pattern recognition and classification.<img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack13_0.gif"/></p>
+<h2 dir="ltr">DEVELOPER FRAMEWORK</h2>
+<p dir="ltr">PoroBot uses <a href="https://slack.dev/bolt-js/" target="_blank">@slack/bolt</a>, which provides a great abstraction layer and SDK for quickly building Slack apps and integrations.</p>
+<p dir="ltr">Bolt allows for quick bootstrapping while still leaving room for a high degree of customization and extensibility when we need to go deeper. The Bolt framework uses <a href="https://expressjs.com/" target="_blank">Express.js</a> to abstract Slack events into API routes. In doing so, it also provides a heap of handy and familiar functions for interacting with Slack. We typically organize the code according to a consistent design pattern which abstracts away and separates the listener service and event workflows from the commands and business logic they invoke.</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack14.png"/></p>
+<p dir="ltr">Using this approach with Bolt allows us to dive right into developing command and listener logic, without having to reinvent the wheel on event subscription mechanics or worrying about where we’re going to deploy the Slack app itself.</p>
+<p dir="ltr"><em>listeners.ts</em></p>
+<div dir="ltr">
+<pre><code>import { app } from &#39;@core/app&#39;;
+ 
+import { exportMessagesListener } from &#39;@commands/export_messages&#39;;
+import { notesListener } from &#39;@commands/notes&#39;;
+import { wordcloudListener } from &#39;@commands/wordcloud&#39;;
+import { authorizeListener, silentAckListener } from &#39;@core/listeners&#39;;
+ 
+// Register listeners
+app.command(&#39;/export_messages&#39;, authorizeListener, exportMessagesListener);
+app.command(&#39;/notes&#39;, silentAckListener, notesListener);
+app.command(&#39;/wordcloud&#39;, authorizeListener, wordcloudListener);
+ 
+// Export the completed app with listeners
+export const server = app;</code></pre>
+</div>
+<h2 dir="ltr">CODE DEPLOYMENT</h2>
+<p dir="ltr">Slack’s Bolt framework provides us with the flexibility to deploy Slack apps in a number of locations and contexts, including serverless compute, depending on the use case. Here are a few examples of how we can extract and extend Bolt’s built-in Express.js server to suit a variety of different deployment environments.</p>
+<p dir="ltr"><em>Local Development (Docker)</em></p>
+<div dir="ltr">
+<pre><code>// Start the app
+(async () =&gt; {
+  await initEnv();
+  const { server } = await import (&#39;../listeners&#39;);
+  await server.start(process.env.PORT || 3000);
+  console.log(&#39;⚡️ Bolt app is running!&#39;);
+})();</code></pre><p><em>AWS Lambda</em></p>
+</div>
+<pre><code>import { App, ExpressReceiver } from &#39;@slack/bolt&#39;
+import { APIGatewayEvent, Context, Callback } from &#39;aws-lambda&#39;
+import { createServer, proxy } from &#39;aws-serverless-express&#39;
+
+const expressReceiver = new ExpressReceiver({
+  signingSecret: process.env[&#39;SLACK_SIGNING_SECRET&#39;]
+})
+
+export const app = (event, context, callback) =&gt; {
+  const server = createServer(expressReceiver.app)
+
+  context.succeed = (response) =&gt; {
+    server.close()
+    callback(undefined, response)
+ }
+
+  return proxy(server, event, context)
+}</code></pre><p dir="ltr"><em>Google Cloud Functions (Firebase)</em></p>
+<div dir="ltr">
+<pre><code>import { ExpressReceiver } from &#39;@slack/bolt&#39;
+import { config, https } from &#39;firebase-functions&#39;
+
+const expressReceiver = new ExpressReceiver({
+  signingSecret: config().slack_signing_secret
+})
+
+export const slackapp = https.onRequest(expressReceiver.app)</code></pre><p>For security and transparency, custom Slack apps deployed at Riot proxy their events through a universal Slack apps router similar to <a href="https://eng.lyft.com/announcing-omnibot-a-slack-proxy-and-slack-bot-framework-d4e32dd85ee4" target="_blank">omnibot</a>.</p>
+</div>
+<h2 dir="ltr">MANAGING STATE</h2>
+<p dir="ltr">Bolt also handy provides contextual hooks for managing state. We take advantage of this by injecting custom middleware functions into Bolt, which PoroBot uses to gather data about the requesting user and their internal account details.</p>
+<ul>
+<li dir="ltr">
+<p dir="ltr"><strong>Conversation Store:</strong> We extend this to persist Slack conversation state beyond the original request. We do this with a Redis cache for short-lived workflows, and PostgreSQL for long-term storage.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr"><strong>Context:</strong> A shallow object which we can read/write to as needed between function calls.</p>
+</li>
+</ul>
+<p dir="ltr">PoroBot hydrates state via middleware hooks, and provides that data as appropriate to the specific workflows being initialized. Workflows are built using a simple finite state machine triggered by Slack events (e.g. messages, button clicks, etc.) and containing metadata attached during middleware hydration (auto-response classifications, work system IDs, etc.).</p>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack15_0.gif"/></p>
+<h2 dir="ltr">PUSHING THE BOUNDARIES WITH MACHINE LEARNING</h2>
+<p dir="ltr">When a message enters a channel, PoroBot automatically attempts to classify it to determine whether or not to trigger an auto-response. Improving the classification model involves two distinct components: Patterns and Annotations.</p>
+<ol>
+<li dir="ltr">
+<p dir="ltr"><strong>Patterns</strong>: Analyze channel content and identify popular or common patterns of speech, then use this to create a list of source messages which are distilled into a generic syntax for the way questions are being asked. This syntax can be translated into patterns for deep learning with <a href="https://spacy.io/" target="_blank">SpaCy</a> <em>PatternMatcher</em>.<br/>
+Essentially, patterns are Slack messages that have been reduced to only the words that create meaning. We typically analyze and store 10–50 patterns per topic to make sure we have adequate coverage.<br/>
+Using patterns is adequate for most use cases.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr"><strong>Annotations</strong>: Once patterns have been battle-tested, annotation tools help label the data which we then use to train a convolutional neural network (CNN) text classifier using SpaCy.<br/>
+This method is generally used when there are similar question classifications that aren’t easily targeted with patterns. We use <a href="http://prodigy.ai/" target="_blank">Prodigy</a> as an aid in annotating the data, which allows us to train and correct the model in real time.</p>
+</li>
+</ol>
+<p><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack16.png"/></p>
+<p dir="ltr">PoroBot and similar Slack AIs are still relatively new at Riot, and we’re excited to continue to push the envelope of what’s possible with Slack integrations to improve the game development lifecycle for Riot designers and engineers.</p>
+
+<p dir="ltr">As we’ve seen, Slack enables a rich ecosystem of integrations which allows Rioters to spend more time focused on delivering delightful player experiences.</p>
+<p dir="ltr">Here are our key learnings and takeaways from managing the Slack ecosystem at Riot:</p>
+<ol>
+<li dir="ltr">
+<p dir="ltr">Adopt best-in-class Slack apps like <a href="https://slack.com/apps/A011MFBJEUU-sentry" target="_blank">Sentry</a> and <a href="https://slack.com/apps/A1FKYAUUX-pagerduty" target="_blank">PagerDuty</a> to reduce incident resolution time.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Give your developers a single pane of glass into their build pipelines to reduce context switching.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Automate support intake and on-call assignments so the rest of the dev team stays focused on feature delivery.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Leverage buttons, dialogs and workflows to enable your developers take action directly from Slack.</p>
+</li>
+<li dir="ltr">
+<p dir="ltr">Balance use of public channel and direct message integrations to improve focus and reduce noise.</p>
+</li>
+</ol>
+<h2 dir="ltr">COMMUNITY AND ENGAGEMENT</h2>
+<p dir="ltr">Developing video games doesn’t just involve code, it requires humans working together on teams to design and create incredible player experiences. These human systems by nature involve a lot of complexity, which Slack helps us navigate by providing convenient and accessible locations to have the important conversations.</p>
+<p dir="ltr">We have a discussion channel where our Diversity &amp; Inclusion teams share insights into what they&#39;re working on, and encourage open dialogue about diversity at Riot. Our GG Bot Slack app allows Rioters to recognize their peers, highlighting the specific Riot values exemplified by colleagues. We also have a vibrant social workspace where Rioters bond over thousands of different interests and hobbies - from pets and plants to boba and motorcycles, and everything in between.</p>
+<p dir="ltr">To help keep our communication (and memes) strong, we also have a rich custom emoji culture. There are currently over 17,500 emojis at Riot! It’s a language all on its own, with reactions on messages being used in our development processes to initiate support requests and acknowledge when something is done. Fun fact: in the early days of Slack, we managed to accidentally DoS crash Slack’s emoji upload API while attempting a bulk emoji transfer between workspaces.</p>
+<p dir="ltr">Slack has scaled up a lot since then, meanwhile our emoji game remains as strong as ever. <img src="https://technology.riotgames.com/sites/default/files/riotslack17.png"/></p>
+<p dir="ltr"><img alt="" src="https://technology.riotgames.com/sites/default/files/riotslack18-0.gif"/></p>
+<p dir="ltr">Thanks for reading! If you have any questions or comments, please post them below.</p>
+</div></div>]]></content:encoded>
+      <author>Byron Dover</author>
+      <enclosure url="https://technology.riotgames.com/sites/default/files/articles/115/slackriotheader2.png" length="0" type="image/png"></enclosure>
+      <pubDate>Tue, 13 Oct 2020 17:00:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>
