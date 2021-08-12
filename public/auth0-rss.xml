@@ -4,6 +4,104 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Async Await in Swift</title>
+      <link>https://auth0.com/blog/async-await-in-swift/</link>
+      <description>A guide to fully understand the new concurrency system in Swift.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>This year, WWDC came with a bunch of new features and updates. Maybe one of the most expected was the introduction of the new concurrency system by using async/await syntax. This is a huge improvement in the way that we write asynchronous code. </p><h2 id="Before-Async-Await">Before Async/Await</h2><p>Imagine that we are working on an app for a grocery store and, we want to display its list of products. We are probably going to have something like this:</p><pre><code><span>func</span> <span>fetchProducts</span><span>(</span><span>_</span> completion<span>:</span> @<span>escaping</span><span>(</span><span>[</span><span>Product</span><span>]</span><span>)</span> <span>-</span><span>&gt;</span> <span>Void</span><span>)</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span>
+
+<span>var</span> products <span>=</span> <span>[</span><span>Product</span><span>]</span><span>(</span><span>)</span>
+fetchProducts <span>{</span> <span>[</span><span>weak</span> <span>self</span><span>]</span> products <span>in</span>
+    <span>guard</span> <span>let</span> strongSelf <span>=</span> <span>self</span> <span>else</span> <span>{</span> <span>return</span> <span>}</span>
+    strongSelf<span>.</span>products<span>.</span><span>append</span><span>(</span>contentsOf<span>:</span> products<span>)</span>
+<span>}</span></code></pre><p>A pretty standard and well-known code using completion blocks. Now suppose that the grocery store has, once in a while, some kind of offers for some products (e.g., &#34;Take 2, pay 1&#34;). And, we want to hold a list with these offers. Let&#39;s adjust our code by creating a new function to retrieve a String with the promotion text, given a specific product.</p><pre><code><span>func</span> <span>fetchProducts</span><span>(</span><span>_</span> completion<span>:</span> @<span>escaping</span><span>(</span><span>[</span><span>Product</span><span>]</span><span>)</span> <span>-</span><span>&gt;</span> <span>Void</span><span>)</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span>
+<span>func</span> <span>getOffer</span><span>(</span><span>for</span> product<span>:</span> <span>Int</span><span>,</span> @<span>escaping</span><span>(</span><span>String</span><span>)</span> <span>-</span><span>&gt;</span> <span>Void</span><span>)</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span>
+
+<span>typealias</span> <span>ProductOffer</span> <span>=</span> <span>(</span>productId<span>:</span> <span>Int</span><span>,</span> offer<span>:</span> <span>String</span><span>)</span>
+<span>var</span> products <span>=</span> <span>[</span><span>Product</span><span>]</span><span>(</span><span>)</span>
+<span>var</span> offers <span>=</span> <span>[</span><span>ProductOffer</span><span>]</span><span>(</span><span>)</span>
+
+fetchProducts <span>{</span> <span>[</span><span>weak</span> <span>self</span><span>]</span> products <span>in</span>
+    <span>guard</span> <span>let</span> strongSelf <span>=</span> <span>self</span> <span>else</span> <span>{</span> <span>return</span> <span>}</span>
+
+    <span>for</span> product <span>in</span> products <span>{</span>
+        strongSelf<span>.</span>products<span>.</span><span>append</span><span>(</span>product<span>)</span>
+
+        <span>getOffer</span><span>(</span><span>for</span><span>:</span> product<span>.</span>id<span>)</span> <span>{</span> <span>[</span><span>weak</span> <span>self</span><span>]</span> offerText <span>in</span>
+            <span>guard</span> <span>let</span> strongSelf <span>=</span> <span>self</span> <span>else</span> <span>{</span> <span>return</span> <span>}</span>
+            <span>let</span> productOffer <span>=</span> <span>ProductOffer</span><span>(</span>productId<span>:</span> product<span>.</span>id<span>,</span> offer<span>:</span> offerText<span>)</span>
+            strongSelf<span>.</span>offers<span>.</span><span>append</span><span>(</span>productOffer<span>)</span>
+        <span>}</span>
+    <span>}</span>
+<span>}</span></code></pre><p>We only have two nested closures for a simple feature, and you can see that our code starts to get a little messed up.</p><h2 id="Async-Await">Async/Await</h2><p>From Swift 5.5 onwards, we can start using async/await functions to write asynchronous code without using completion handlers to returns values. Instead, we are allowed to return the values in the return object directly.</p><p>To mark a function as asynchronous, we only have to put the keyword <strong>async</strong> before the return type.</p><pre><code><span>func</span> <span>fetchProducts</span><span>(</span><span>)</span> async <span>-</span><span>&gt;</span> <span>[</span><span>Product</span><span>]</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span>
+<span>func</span> <span>getOffer</span><span>(</span><span>for</span> product<span>:</span> <span>Int</span><span>)</span> async <span>-</span><span>&gt;</span> <span>String</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span></code></pre><p>This is much easier and simple to read, but the best part comes from the caller&#39;s side. When we want to use the result of a function marked as <strong>async,</strong> we need to make sure that its execution is already completed. To make this possible, we need to write the <strong>await</strong> keyword in front of the function call. By doing this, the current execution will be paused until the result is available for its use.</p><pre><code><span>let</span> products <span>=</span> await <span>fetchProducts</span><span>(</span><span>)</span>
+
+<span>for</span> product <span>in</span> products <span>{</span>
+    <span>let</span> offerText <span>=</span> await <span>getOffer</span><span>(</span><span>for</span><span>:</span> product<span>.</span>id<span>)</span>
+
+    <span>if</span> <span>!</span>offerText<span>.</span><span>isEmpty</span> <span>{</span>
+        <span>let</span> productOffer <span>=</span> <span>ProductOffer</span><span>(</span>productId<span>:</span> product<span>.</span>id<span>,</span> offer<span>:</span> offerText<span>)</span>
+        offers<span>.</span><span>append</span><span>(</span>productOffer<span>)</span>
+    <span>}</span>
+<span>}</span></code></pre><p>Although, if we want to execute other tasks while the async function is being executed, we should put the keyword <strong>async</strong> in front of the variable (or let) declaration. In this case, the <strong>await</strong> keyword will need to be placed in front of the variable (or let) where we are accessing the result of the async function.</p><pre><code>async <span>let</span> products <span>=</span> <span>fetchProducts</span><span>(</span><span>)</span>
+<span>.</span><span>.</span><span>.</span>
+<span>// Do some work</span>
+<span>.</span><span>.</span><span>.</span>
+<span>print</span><span>(</span>await products<span>)</span></code></pre><h3 id="Parallel-Asynchronous-Functions">Parallel Asynchronous Functions</h3><p>Now imagine that in our app, we want to fetch products by category—for example, just the frozen products. Let&#39;s go ahead and make the adjustments to our code.</p><pre><code><span>enum</span> <span>ProductCategory</span> <span>{</span>
+    <span>case</span> frozen
+    <span>case</span> meat
+    <span>case</span> vegetables
+    <span>.</span><span>.</span><span>.</span>
+<span>}</span>
+
+<span>func</span> <span>fetchProducts</span><span>(</span>fromCategory category<span>:</span> <span>ProductCategory</span><span>)</span> async <span>-</span><span>&gt;</span> <span>[</span><span>Product</span><span>]</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span>
+
+<span>let</span> frozenProducts <span>=</span> await <span>fetchProducts</span><span>(</span>fromCategory<span>:</span> <span>.</span>frozen<span>)</span>
+<span>let</span> meatProducts <span>=</span> await <span>fetchProducts</span><span>(</span>fromCategory<span>:</span> <span>.</span>meat<span>)</span>
+<span>let</span> vegetablesProducts <span>=</span> await <span>fetchProducts</span><span>(</span>fromCategory<span>:</span> <span>.</span>vegetals<span>)</span></code></pre><p>This is ok, but the code will run in serial mode,  which means that we won&#39;t start fetching the meat products until the frozen products are retrieved. Same for the vegetables. Remember, we write the <strong>await</strong> keyword if we want to pause our execution until the function completes its work. However, in this particular scenario, we could start fetching the three categories at the same time, running in parallel.</p><p>In order to accomplish this, we need to write the <strong>async</strong> keyword in front of the var (or let) declaration and use the <strong>await</strong> keyword when we want to use it.</p><pre><code>async <span>let</span> frozenProducts <span>=</span> await <span>fetchProducts</span><span>(</span>fromCategory<span>:</span> <span>.</span>frozen<span>)</span>
+async <span>let</span> meatProducts <span>=</span> await <span>fetchProducts</span><span>(</span>fromCategory<span>:</span> <span>.</span>meat<span>)</span>
+async <span>let</span> vegetablesProducts <span>=</span> await <span>fetchProducts</span><span>(</span>fromCategory<span>:</span> <span>.</span>vegetables<span>)</span> 
+
+<span>.</span><span>.</span><span>.</span><span>.</span>
+
+<span>let</span> products <span>=</span> await <span>[</span>frozenProducts<span>,</span> meatProducts<span>,</span> vegetablesProducts<span>]</span></code></pre><h3 id="Error-handlers">Error handlers</h3><p>Our fetching functions might have some errors that make it impossible to return the expected data values. How do we handle this in our async/await context?</p><p>We have a couple of options. The first one is to return the well-known Result object.</p><pre><code><span>func</span> <span>fetchProducts</span><span>(</span><span>)</span> async <span>-</span><span>&gt;</span> <span>Result</span><span>&lt;</span><span>[</span><span>Product</span><span>]</span><span>,</span> <span>Error</span><span>&gt;</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span>
+
+<span>let</span> result <span>=</span> <span>try</span> await <span>fetchProducts</span><span>(</span><span>)</span>
+<span>switch</span> result <span>{</span>
+    <span>case</span> <span>.</span><span>success</span><span>(</span><span>let</span> products<span>)</span><span>:</span>
+        <span>// Handle success</span>
+    <span>case</span> <span>.</span><span>failure</span><span>(</span><span>let</span> error<span>)</span><span>:</span>
+        <span>// Handle error</span>
+<span>}</span></code></pre><p>Another one is to use the try/catch approach.</p><pre><code><span>func</span> <span>fetchProducts</span><span>(</span><span>)</span> async <span>throws</span> <span>-</span><span>&gt;</span> <span>[</span><span>Product</span><span>[</span> <span>{</span><span>.</span><span>.</span><span>.</span><span>}</span>
+<span>.</span><span>.</span><span>.</span>
+<span>do</span> <span>{</span>
+    <span>let</span> products <span>=</span> <span>try</span> await <span>fetchProducts</span><span>(</span><span>)</span>
+<span>}</span> <span>catch</span> <span>{</span>
+    <span>// Handle the error</span>
+<span>}</span></code></pre><p>The main benefit that we had when using the Result type was to improve our completion handlers. In addition to that, we got a cleaner code at the moment we used the result, being able to switch between success and failure cases.</p><p>On the other hand, the use of throw errors adds extra readability in the function&#39;s definition because we only need to put the result type that the function will return. The errors handling is hidden in the function&#39;s implementation.</p><h3 id="Asynchronous-Sequences">Asynchronous Sequences</h3><p>Let&#39;s say that we have a requirement to load a list of products from some .csv file. A traditional way to do this is to load all the lines at once and then start processing them. But, what happens if we want to start doing some work as soon as we have one of the lines available? We can now do this using an asynchronous sequence.</p><pre><code><span>let</span> url <span>=</span> <span>URL</span><span>(</span>string<span>:</span> <span>&#34;http://www.grocery.com/products.csv&#34;</span><span>)</span>
+<span>for</span> <span>try</span> await <span>in</span> url<span>.</span>lines <span>{</span>
+    <span>// Do some work</span>
+<span>}</span></code></pre><p>Using this new feature also allows us to handle this particular case (reading a file) in a simpler way than before. You can check this <a href="https://stackoverflow.com/questions/24581517/read-a-file-url-line-by-line-in-swift" target="_blank" rel="noreferrer noopener">stackoverflow discussion</a> to see how we had to do this and see the advantages that this approach has over the previous one.</p><h3 id="Async-Await-vs--Completion-Handlers">Async/Await vs. Completion Handlers</h3><p>As we saw in the previous sections, the use of async/await syntax comes with a lot of improvements in contrast with using completion blocks. Let&#39;s make a quick recap.</p><h4 id="Advantages">Advantages</h4><ul><li>Avoid the Pyramid of Doom problem with nested closures</li><li>Reduction of code</li><li>Easier to read</li><li>Safety. With async/await, a result is guaranteed, while completion blocks might or might not be called.</li></ul><h4 id="Disadvantages">Disadvantages</h4><ul><li>It&#39;s only available from Swift 5.5 and iOS 15 onwards.</li></ul><h2 id="Actors">Actors</h2><p>Take a look at the following example, just a simple Order class in which we will be adding products and eventually make the checkout.</p><pre><code><span>class</span> <span>Order</span> <span>{</span>
+    
+    <span>var</span> products <span>=</span> <span>[</span><span>Product</span><span>]</span><span>(</span><span>)</span>
+    <span>var</span> finalPrice <span>=</span> <span>0</span>
+
+    <span>func</span> <span>addProduct</span><span>(</span><span>_</span> product<span>:</span> <span>Product</span><span>)</span> <span>{</span>
+        products<span>.</span><span>append</span><span>(</span>product<span>)</span>
+        finalPrice <span>+</span><span>=</span> product<span>.</span>price
+    <span>}</span>
+<span>}</span></code></pre><p>If we are in a single-thread application, this code is just fine. But what happens if we have multiple threads that can access our order&#39;s final price? </p><ol start="1"><li>We are on the product list and add some specific products to our order. The app will call the <strong>addProduct</strong> function.</li><li>The product is added to our order&#39;s product list</li><li>Before the final price gets updated, the user tries to checkout.</li><li>The app will read the final price of our order</li><li>The <strong>addProduct</strong> function completes and updates the final price. But the user already checkout and paid less than they should.</li></ol><p>This problem is known as <a href="https://en.wikipedia.org/wiki/Race_condition" target="_blank" rel="noreferrer noopener"><strong>Data Races</strong></a> when some particular resource could be accessed from multiple parts of the app&#39;s code.</p><p>Actors, also introduced in Swift 5.5 and iOS 15, resolve this problem for us. An Actor is basically like a class but with a few key differences that make them <em>thread-safe</em>:</p><ul><li>Only allow accessing their state by one task at a time</li><li>Stored properties and functions can only be access from outside the Actor if the operation is performed asynchronously.</li><li>Stored properties can&#39;t be written from outside the Actor.</li></ul><p>On the downside:</p><ul><li>Actors do not support inheritance</li></ul><p>You can think about the Actors like a similar solution of the <a href="https://en.wikipedia.org/wiki/Semaphore_(programming" target="_blank" rel="noreferrer noopener">semaphores</a>) concept.</p><p>To create one, we just need to use the <strong>actor</strong> keyword.</p><pre><code>actor <span>Order</span> <span>{</span>
+    
+    <span>var</span> products <span>=</span> <span>[</span><span>Product</span><span>]</span><span>(</span><span>)</span>
+    <span>var</span> finalPrice <span>=</span> <span>0</span>
+
+    <span>func</span> <span>addProduct</span><span>(</span><span>_</span> product<span>:</span> <span>Product</span><span>)</span> <span>{</span>
+        products<span>.</span><span>append</span><span>(</span>product<span>)</span>
+        finalPrice <span>+</span><span>=</span> product<span>.</span>price
+    <span>}</span>
+<span>}</span></code></pre><p>And we can create an instance using the same initializer syntax as structures and classes. If we want to access the final price, we must do it using the keyword await (because outside the actor&#39;s scope, we are only allowed to access the properties asynchronously).</p><pre><code><span>print</span><span>(</span>await order<span>.</span>finalPrice<span>)</span></code></pre><h2 id="Conclusion">Conclusion</h2><p>Definitely <strong>async/await</strong> brings to the table an easier way to write asynchronous code, removing the need to use completion blocks. In addition, we get more readable and flexible code if our application starts scaling up. </p><p>However, the minimum iOS deployment target will be an entry barrier for most of us unless you start a project from scratch, in which case is highly recommended to wait until the official release of iOS 15 + Xcode 13 + Swift 5.5  to take full advantage of the new concurrency system.</p></div></div>]]></content:encoded>
+      <pubDate>Thu, 12 Aug 2021 15:07:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Build and Secure an API with Spring Boot and Kotlin</title>
       <link>https://auth0.com/blog/build-and-secure-an-api-with-spring-boot/</link>
       <description>See how easy it is to bootstrap a CRUD API with Spring Initializr, build it with Spring Boot and Kotlin, and secure it with Auth0.</description>
