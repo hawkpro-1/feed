@@ -4,6 +4,311 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>State Management in Svelte Applications</title>
+      <link>https://auth0.com/blog/state-management-in-svelte-applications/</link>
+      <description>A tutorial on how to use the Svelte state management store to manage state in Svelte applications.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><strong>TL;DR:</strong> As a Front-end developer, one of the most crucial skills to possess is how to manage state in your applications. The ability to synchronize application state with data changes and manage shared state amongst different components is a strong requirement in building modern frontend applications. Several state management libraries have been developed with certain frameworks having a de-facto state management library that they naturally work well with (e.g., <a href="https://redux.js.org/" target="_blank" rel="noreferrer noopener">Redux</a> for <a href="https://reactjs.org/" target="_blank" rel="noreferrer noopener">Reactjs</a>).</p><p>In this tutorial, you will learn how to perform state management in <a href="https://svelte.dev/" target="_blank" rel="noreferrer noopener">Svelte</a> applications using Svelte&#39;s built-in state management <a href="https://svelte.dev/tutorial/writable-stores" target="_blank" rel="noreferrer noopener">Stores</a>.</p><h2 id="What-We-ll-Build">What We&#39;ll Build</h2><p>In this tutorial, you will be implementing state management in a shopping cart built with Svelte. You will begin with a pre-built e-commerce application that sells different types of wares. However, this application is not yet complete, as its shopping features for adding products to the cart and managing cart items have not been implemented. Using the Svelte store, you will be adding the following features to the application:</p><ul><li>Load the products from a central state store</li><li>Add items to the shopping cart</li><li>Display items added to the shopping cart</li><li>Calculate the total price of items in the cart</li><li>Increase and decrease the quantity of the items in the cart</li><li>Remove items from the cart</li></ul><h2 id="Prerequisites">Prerequisites</h2><p>There are a few requirements to follow along with this exercise:</p><ul><li><a href="https://nodejs.org" target="_blank" rel="noreferrer noopener">Node.js</a> installed on your system. You can visit the website and install a suitable version for your operating system <a href="https://nodejs.org/" target="_blank" rel="noreferrer noopener">here</a>.</li><li>Basic knowledge of <a href="https://svelte.dev" target="_blank" rel="noreferrer noopener">Svelte</a> and using <a href="https://svelte.dev/tutorial/nested-components" target="_blank" rel="noreferrer noopener">Svelte components</a>.</li></ul><p>With all these in place, you can proceed with the exercise.</p><h2 id="Cloning-the-Demo-E-commerce-Project">Cloning the Demo E-commerce Project</h2><p>To begin, you will clone the starting point for the project and run it. Run the following command to clone a copy of the e-commerce project unto your machine:</p><pre><code><span>git</span> clone --single-branch --branch base-project https://github.com/coderonfleek/svelte-store</code></pre><p>Once you have the project on your system, go into the root of the project and install the dependencies with the following commands:</p><pre><code><span>cd</span> svelte-store
+<span>npm</span> <span>install</span></code></pre><p>With all dependencies installed, you can then run the project using the following command:</p><pre><code><span>npm</span> run dev</code></pre><p>This command will boot up a local development server at <a href="http://localhost:5000" target="_blank" rel="noreferrer noopener"><code>http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>5000</span></code></a>. Navigate to this address on your browser, and you will see the page displayed below:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/nwLSAkqqjS7tFnYJhSUB5/eb8586b16288ada93d2c56fbf3fb00a2/svelte_01.jpg" alt="&#34;Homepage - E-commerce App&#34;"/></p><p>At the moment, when you click <code>Add to Cart</code> on any of the products, the button does nothing. The source code for the homepage is located in the file <code>src<span>/</span>views<span>/</span>Home<span>.</span>svelte</code>. The products are currently loaded from a <code>products</code> array on the page using a <code>Product</code> component to display the products:</p><pre><code><span><span><span>&lt;</span>main</span><span>&gt;</span></span>
+  <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>home container<span>&#34;</span></span><span>&gt;</span></span>
+    <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>row<span>&#34;</span></span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>col-md-9 pt-5<span>&#34;</span></span><span>&gt;</span></span>
+        <span><span><span>&lt;</span>div</span>
+          <span>class</span><span><span>=</span><span>&#34;</span>row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-3<span>&#34;</span></span>
+        <span>&gt;</span></span>
+          {#each products as product}
+          <span><span><span>&lt;</span>Product</span> <span>{product}</span> <span>/&gt;</span></span>
+          {/each}
+        <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+      <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>col-md-3 pt-5<span>&#34;</span></span><span>&gt;</span></span>
+        <span><span><span>&lt;</span>Cart</span> <span>/&gt;</span></span>
+      <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+    <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+  <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+<span><span><span>&lt;/</span>main</span><span>&gt;</span></span></code></pre><p>On the right column, a <code>Cart</code> component is used to display items that have been added to the cart and their respective quantities, which is also hard-coded into the component at the moment. The <code>Cart</code> component also consists of a <code>Checkout</code> button which will navigate to the full shopping cart details page shown below when clicked:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5sW3mmLvYraDwX9d71RZQY/0582cbbb68c9e9c1c697473e8779237e/svelte_02.jpg" alt="&#34;Cart details page - E-commerce App&#34;"/></p><p>The cart details page source code can be found in <code>src<span>/</span>views<span>/</span>ShoppingCart<span>.</span>svelte</code>. It uses a <code>CartItem</code> component to display any item added to the cart with buttons to increase or decrease the quantity of the item in the cart or remove it completely. The <code>Cart</code> component is also displayed on the right column, just as it was on the homepage. At the moment, these buttons do nothing when clicked.</p><pre><code><span><span><span>&lt;</span>main</span><span>&gt;</span></span>
+  <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>home container<span>&#34;</span></span><span>&gt;</span></span>
+    <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>row<span>&#34;</span></span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>col-md-8 pt-5<span>&#34;</span></span><span>&gt;</span></span>
+        {#each cart as product}
+        <span><span><span>&lt;</span>CartItem</span> <span>{product}</span> <span>/&gt;</span></span>
+        {/each}
+      <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>col-md-4 pt-5<span>&#34;</span></span><span>&gt;</span></span>
+        <span><span><span>&lt;</span>Cart</span> <span>/&gt;</span></span>
+      <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+    <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+  <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+<span><span><span>&lt;/</span>main</span><span>&gt;</span></span></code></pre><p>The cart items displayed on this page are loaded from a <code>cart</code> array and are currently hard-coded on the page. What&#39;s more, clicking any of the buttons does nothing at the moment. All components used in the application are contained in the <code>src<span>/</span>components</code> folder.</p><h2 id="Creating-the-State-Management-Store">Creating the State Management Store</h2><p>To begin implementing the features listed in the above section, you will need to set up a central state management store in the application. Create a <code>store<span>.</span>js</code> file inside the <code>src</code> folder, then add the following code:</p><pre><code><span>import</span> <span>{</span> writable<span>,</span> derived <span>}</span> <span>from</span> <span>&#34;svelte/store&#34;</span><span>;</span>
+
+<span>export</span> <span>const</span> products <span>=</span> <span>writable</span><span>(</span><span>[</span>
+  <span>{</span>
+    id<span>:</span> <span>1</span><span>,</span>
+    name<span>:</span> <span>&#34;Chelsea Shoes&#34;</span><span>,</span>
+    price<span>:</span> <span>200</span><span>,</span>
+    shortdesc<span>:</span> <span>&#34;Best Drip in the Market&#34;</span><span>,</span>
+    url<span>:</span> <span>&#34;images/chelsea-shoes.png&#34;</span>
+  <span>}</span><span>,</span>
+  <span>{</span>
+    id<span>:</span> <span>2</span><span>,</span>
+    name<span>:</span> <span>&#34;Kimono&#34;</span><span>,</span>
+    price<span>:</span> <span>50</span><span>,</span>
+    shortdesc<span>:</span> <span>&#34;Classy, Stylish, Dope&#34;</span><span>,</span>
+    url<span>:</span> <span>&#34;images/kimono.png&#34;</span>
+  <span>}</span><span>,</span>
+  <span>{</span>
+    id<span>:</span> <span>3</span><span>,</span>
+    name<span>:</span> <span>&#34;Watch&#34;</span><span>,</span>
+    price<span>:</span> <span>2500</span><span>,</span>
+    shortdesc<span>:</span> <span>&#34;Elegance built in&#34;</span><span>,</span>
+    url<span>:</span> <span>&#34;images/rolex.png&#34;</span>
+  <span>}</span><span>,</span>
+  <span>{</span>
+    id<span>:</span> <span>4</span><span>,</span>
+    name<span>:</span> <span>&#34;Wallet&#34;</span><span>,</span>
+    price<span>:</span> <span>80</span><span>,</span>
+    shortdesc<span>:</span> <span>&#34;Sleek, Trendy, Clean&#34;</span><span>,</span>
+    url<span>:</span> <span>&#34;images/wallet.png&#34;</span>
+  <span>}</span><span>,</span>
+  <span>{</span>
+    id<span>:</span> <span>5</span><span>,</span>
+    name<span>:</span> <span>&#34;Lady Handbags&#34;</span><span>,</span>
+    price<span>:</span> <span>230</span><span>,</span>
+    shortdesc<span>:</span> <span>&#34;Fabulous, Exotic, Classy&#34;</span><span>,</span>
+    url<span>:</span> <span>&#34;images/handbag.png&#34;</span>
+  <span>}</span><span>,</span>
+  <span>{</span>
+    id<span>:</span> <span>6</span><span>,</span>
+    name<span>:</span> <span>&#34;Casual Shirts&#34;</span><span>,</span>
+    price<span>:</span> <span>30</span><span>,</span>
+    shortdesc<span>:</span> <span>&#34;Neat, Sleek, Smart&#34;</span><span>,</span>
+    url<span>:</span> <span>&#34;images/shirt.png&#34;</span>
+  <span>}</span>
+<span>]</span><span>)</span><span>;</span>
+
+<span>export</span> <span>const</span> cart <span>=</span> <span>writable</span><span>(</span><span>[</span><span>]</span><span>)</span><span>;</span></code></pre><p>The store above contains two writable properties:</p><ul><li>The <code>products</code> property holds all products contained in the e-commerce application. In a production scenario, you would want to load products from a remote API.</li><li>The <code>cart</code> property is an array that holds the items a user adds to their cart. This is empty by default.</li></ul><p>These properties are all that is needed to implement the features listed above.</p><h2 id="Loading-Products-to-the-Home-Page-from-the-Store">Loading Products to the Home Page from the Store</h2><p>The first task is to ensure that the products are loaded from the store instead of being hard-coded on the <code>Home<span>.</span>svelte</code> homepage. Locate <code>src<span>/</span>views<span>/</span>Home<span>.</span>svelte</code> and replace its content with the following code:</p><pre><code><span>&lt;</span>script<span>&gt;</span>
+  <span>import</span> Product <span>from</span> <span>&#34;../components/Product.svelte&#34;</span><span>;</span>
+  <span>import</span> Cart <span>from</span> <span>&#34;../components/Cart.svelte&#34;</span><span>;</span>
+  <span>import</span> <span>{</span> products <span>}</span> <span>from</span> <span>&#34;../store&#34;</span><span>;</span>
+<span>&lt;</span><span>/</span>script<span>&gt;</span>
+
+<span>&lt;</span>main<span>&gt;</span>
+  <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;home container&#34;</span><span>&gt;</span>
+    <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;row&#34;</span><span>&gt;</span>
+      <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-9 pt-5&#34;</span><span>&gt;</span>
+        <span>&lt;</span>div
+          <span>class</span><span>=</span><span>&#34;row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-3&#34;</span>
+        <span>&gt;</span>
+          <span>{</span>#each $products <span>as</span> product<span>}</span>
+            <span>&lt;</span>Product <span>{</span>product<span>}</span> <span>/</span><span>&gt;</span>
+          <span>{</span><span>/</span>each<span>}</span>
+        <span>&lt;</span><span>/</span>div<span>&gt;</span>
+      <span>&lt;</span><span>/</span>div<span>&gt;</span>
+      <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-3 pt-5&#34;</span><span>&gt;</span>
+        <span>&lt;</span>Cart <span>/</span><span>&gt;</span>
+      <span>&lt;</span><span>/</span>div<span>&gt;</span>
+    <span>&lt;</span><span>/</span>div<span>&gt;</span>
+  <span>&lt;</span><span>/</span>div<span>&gt;</span>
+<span>&lt;</span><span>/</span>main<span>&gt;</span></code></pre><p>In the update above, the <code>products</code> variable has now been replaced with store property <code>products</code> that references the store to load the products. Now refresh your homepage, and you will not see any change, but you know that your products are now being loaded from the store.</p><p>The next task is to implement the functionality that allows users to click <code>Add to Cart</code> on a product on the homepage and see it added to the cart widget on the right column. As mentioned earlier, products displayed on the page are managed using a <code>Product</code> component. Locate this component at <code>src<span>/</span>components<span>/</span>Product<span>.</span>svelte</code> and replace its content with the following code:</p><pre><code><span>&lt;</span>script<span>&gt;</span>
+  <span>import</span> <span>{</span> cart <span>}</span> <span>from</span> <span>&#34;../store&#34;</span><span>;</span>
+  <span>export</span> <span>let</span> product<span>;</span>
+
+  <span>let</span> inCart <span>=</span> <span>false</span><span>;</span>
+
+  $<span>:</span> <span>{</span>
+    $cart<span>.</span><span>forEach</span><span>(</span><span>(</span><span>item</span><span>)</span> <span>=&gt;</span> <span>{</span>
+      <span>if</span> <span>(</span>item<span>.</span>id <span>==</span> product<span>.</span>id<span>)</span> <span>{</span>
+        inCart <span>=</span> <span>true</span><span>;</span>
+      <span>}</span>
+    <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>function</span> <span>addToCart</span><span>(</span><span>)</span> <span>{</span>
+    <span>if</span> <span>(</span><span>!</span>inCart<span>)</span> <span>{</span>
+      <span>let</span> updatedCart <span>=</span> <span>[</span><span>...</span>$cart<span>,</span> <span>{</span> <span>...</span>product<span>,</span> quantity<span>:</span> <span>1</span> <span>}</span><span>]</span><span>;</span>
+
+      cart<span>.</span><span>set</span><span>(</span>updatedCart<span>)</span><span>;</span>
+    <span>}</span> <span>else</span> <span>{</span>
+      <span>alert</span><span>(</span><span>&#34;Item already added to Cart&#34;</span><span>)</span><span>;</span>
+    <span>}</span>
+  <span>}</span>
+<span>&lt;</span><span>/</span>script<span>&gt;</span>
+
+<span>&lt;</span>main<span>&gt;</span>
+  <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col mb-4&#34;</span><span>&gt;</span>
+    <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;card&#34;</span><span>&gt;</span>
+      <span>&lt;</span>img src<span>=</span><span>{</span>product<span>.</span>url<span>}</span> <span>class</span><span>=</span><span>&#34;card-img-top&#34;</span> alt<span>=</span><span>&#34;...&#34;</span> <span>/</span><span>&gt;</span>
+      <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;card-body&#34;</span><span>&gt;</span>
+        <span>&lt;</span>h5 <span>class</span><span>=</span><span>&#34;card-title&#34;</span><span>&gt;</span><span>{</span>product<span>.</span>name<span>}</span><span>&lt;</span><span>/</span>h5<span>&gt;</span>
+        <span>&lt;</span>p <span>class</span><span>=</span><span>&#34;card-text&#34;</span><span>&gt;</span>
+          $<span>{</span>product<span>.</span>price<span>}</span>
+          <span>&lt;</span>br <span>/</span><span>&gt;</span>
+          <span>&lt;</span>small<span>&gt;</span>
+            <span>{</span>product<span>.</span>shortdesc<span>}</span>
+          <span>&lt;</span><span>/</span>small<span>&gt;</span>
+        <span>&lt;</span><span>/</span>p<span>&gt;</span>
+        <span>&lt;</span>button
+          on<span>:</span>click<span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span> <span>addToCart</span><span>(</span><span>)</span><span>}</span>
+          <span>class</span><span>=</span><span>&#34;btn btn-primary&#34;</span>
+          disabled<span>=</span><span>{</span>inCart<span>}</span><span>&gt;</span><span>{</span>inCart <span>?</span> <span>&#34;Added&#34;</span> <span>:</span> <span>&#34;Add to Cart&#34;</span><span>}</span><span>&lt;</span><span>/</span>button
+        <span>&gt;</span>
+      <span>&lt;</span><span>/</span>div<span>&gt;</span>
+    <span>&lt;</span><span>/</span>div<span>&gt;</span>
+  <span>&lt;</span><span>/</span>div<span>&gt;</span>
+<span>&lt;</span><span>/</span>main<span>&gt;</span></code></pre><p>The updates to this file add two properties to the component:</p><ul><li>A reference to the <code>cart</code> property in the store</li><li>The <code>inCart</code> checks if the product using this component has been added to the store or not</li></ul><p>The <code>addToCart</code> function adds an item to the cart when the <code>Add to Cart</code> button is clicked by updating the <code>cart</code> property in the store with the new item. This function first checks if the product is already in the cart. If so, an alert is displayed indicating that the product has already been added. If not, the product is added to the cart.</p><p>The <code>inCart</code> property is also used in the template to disable the <code>Add to Cart</code> button if the product has already been added.</p><p>Next, the <code>Cart</code> component needs to display the products that have been added to the cart and also the total price. Locate the <code>src<span>/</span>components<span>/</span>Cart<span>.</span>svelte</code> file and replace its content with the following code:</p><pre><code><span>&lt;</span>script<span>&gt;</span>
+  <span>import</span> <span>{</span> link <span>}</span> <span>from</span> <span>&#34;svelte-spa-router&#34;</span><span>;</span>
+  <span>import</span> <span>{</span> cart <span>}</span> <span>from</span> <span>&#34;../store&#34;</span><span>;</span>
+
+  $<span>:</span> totalPrice <span>=</span> $cart<span>.</span><span>reduce</span><span>(</span><span>(</span><span>total<span>,</span> next</span><span>)</span> <span>=&gt;</span> <span>{</span>
+    console<span>.</span><span>log</span><span>(</span>$cart<span>)</span><span>;</span>
+    <span>return</span> total <span>+</span> next<span>.</span>quantity <span>*</span> next<span>.</span>price<span>;</span>
+  <span>}</span><span>,</span> <span>0</span><span>)</span><span>;</span>
+<span>&lt;</span><span>/</span>script<span>&gt;</span>
+
+<span>&lt;</span>main<span>&gt;</span>
+  <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;card&#34;</span><span>&gt;</span>
+    <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;card-body&#34;</span><span>&gt;</span>
+      <span>&lt;</span>h5 <span>class</span><span>=</span><span>&#34;card-title&#34;</span><span>&gt;</span>Your Cart<span>&lt;</span><span>/</span>h5<span>&gt;</span>
+      <span>{</span>#<span>if</span> $cart<span>.</span>length <span>==</span> <span>0</span><span>}</span>
+        <span>&lt;</span>p<span>&gt;</span>Your Cart is Empty<span>&lt;</span><span>/</span>p<span>&gt;</span>
+      <span>{</span><span>/</span><span>if</span><span>}</span>
+    <span>&lt;</span><span>/</span>div<span>&gt;</span>
+    <span>&lt;</span>ul <span>class</span><span>=</span><span>&#34;list-group list-group-flush&#34;</span><span>&gt;</span>
+      <span>{</span>#each $cart <span>as</span> item<span>}</span>
+        <span>&lt;</span>li
+          <span>class</span><span>=</span><span>&#34;list-group-item d-flex justify-content-between align-items-center&#34;</span>
+        <span>&gt;</span>
+          <span>{</span>item<span>.</span>name<span>}</span>
+          <span>&lt;</span>span <span>class</span><span>=</span><span>&#34;badge badge-primary badge-pill&#34;</span><span>&gt;</span><span>{</span>item<span>.</span>quantity<span>}</span><span>&lt;</span><span>/</span>span<span>&gt;</span>
+        <span>&lt;</span><span>/</span>li<span>&gt;</span>
+      <span>{</span><span>/</span>each<span>}</span>
+      <span>&lt;</span>li
+        <span>class</span><span>=</span><span>&#34;list-group-item d-flex justify-content-between align-items-center&#34;</span>
+      <span>&gt;</span>
+        Price <span>&lt;</span>b<span>&gt;</span>$<span>{</span>totalPrice<span>}</span><span>&lt;</span><span>/</span>b<span>&gt;</span>
+      <span>&lt;</span><span>/</span>li<span>&gt;</span>
+    <span>&lt;</span><span>/</span>ul<span>&gt;</span>
+
+    <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;card-body&#34;</span><span>&gt;</span>
+      <span>&lt;</span>a use<span>:</span>link href<span>=</span><span>&#34;/shop&#34;</span> <span>class</span><span>=</span><span>&#34;btn btn-primary btn-block&#34;</span><span>&gt;</span>Checkout<span>&lt;</span><span>/</span>a<span>&gt;</span>
+    <span>&lt;</span><span>/</span>div<span>&gt;</span>
+  <span>&lt;</span><span>/</span>div<span>&gt;</span>
+<span>&lt;</span><span>/</span>main<span>&gt;</span></code></pre><p>The update to this file first replaces the hard-coded cart items with reference to that <code>cart</code> state in the store. A <code>totalPrice</code> property is also used to evaluate the total cost of all items currently added to the shopping cart. In the template, the length of <code>cart</code> is used to display a message to the user to add items to the shopping cart when the cart is empty.</p><p>Return to the browser and reload the homepage if it hasn&#39;t been reloaded. You will see the view below. Notice the new look of the cart widget on the right column:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3OzDAoyWDYhkPpma41kAlK/34958e5b49a984b65df3857f763f9cc3/svelte_03.jpg" alt="&#34;Updated Cart - E-commerce App&#34;"/></p><p>Now click on <code>Add to Cart</code> to add at least 2 items to the cart and observe the cart widget update based on your selections like below:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/UyhS5wLpRtIr7zRjiOXsT/cacc42d088fe9417a084e78e76a8f3e7/svelte_04.jpg" alt="&#34;Items selection - E-commerce App&#34;"/></p><h2 id="Changing-Items-Quantity-and-Removing-Items-from-the-Cart">Changing Items Quantity and Removing Items from the Cart</h2><p>Notice how the default quantity of each product added to the cart is set to one (1)? This is because every count has to start from 1. In a proper shopping cart application, users should be allowed to increase the quantity of each selected item.</p><p>The next task is to add features for increasing and decreasing the number of cart items. You will also add the ability to completely remove an item from the cart.</p><p>From the shopping cart details page shown earlier, each cart item displayed with buttons to manage its quantity uses the <code>CartItem</code> component. Locate this component at <code>src<span>/</span>components<span>/</span>CartItem<span>.</span>svelte</code> and replace the code in it with the following:</p><pre><code><span>&lt;</span>script<span>&gt;</span>
+  <span>import</span> Product <span>from</span> <span>&#34;../components/Product.svelte&#34;</span><span>;</span>
+  <span>import</span> <span>{</span> cart <span>}</span> <span>from</span> <span>&#34;../store&#34;</span><span>;</span>
+
+  <span>export</span> <span>let</span> product<span>;</span>
+
+  <span>let</span> itemQuantity <span>=</span> <span>0</span><span>;</span>
+
+  $<span>:</span> <span>{</span>
+    <span>let</span> get_product <span>=</span> $cart<span>.</span><span>filter</span><span>(</span><span>(</span><span>item</span><span>)</span> <span>=&gt;</span> item<span>.</span>id <span>==</span> product<span>.</span>id<span>)</span><span>;</span>
+
+    itemQuantity <span>=</span> get_product<span>[</span><span>0</span><span>]</span><span>.</span>quantity<span>;</span>
+  <span>}</span>
+
+  <span>function</span> <span>changeQuantity</span><span>(</span>action <span>=</span> <span>&#34;add&#34;</span><span>)</span> <span>{</span>
+    <span>if</span> <span>(</span>action <span>==</span> <span>&#34;add&#34;</span><span>)</span> <span>{</span>
+      product<span>.</span>quantity <span>=</span> product<span>.</span>quantity <span>+</span> <span>1</span><span>;</span>
+
+      <span>updateCart</span><span>(</span>product<span>)</span><span>;</span>
+    <span>}</span> <span>else</span> <span>{</span>
+      <span>if</span> <span>(</span>product<span>.</span>quantity <span>&gt;</span> <span>1</span><span>)</span> <span>{</span>
+        product<span>.</span>quantity <span>=</span> product<span>.</span>quantity <span>-</span> <span>1</span><span>;</span>
+        <span>updateCart</span><span>(</span>product<span>)</span><span>;</span>
+      <span>}</span> <span>else</span> <span>{</span>
+        <span>//Remove the item</span>
+
+        <span>removeItem</span><span>(</span>product<span>)</span><span>;</span>
+      <span>}</span>
+    <span>}</span>
+  <span>}</span>
+
+  <span>function</span> <span>removeItem</span><span>(</span><span>product</span><span>)</span> <span>{</span>
+    <span>let</span> removedItemCart <span>=</span> $cart<span>.</span><span>filter</span><span>(</span><span>(</span><span>cartItem</span><span>)</span> <span>=&gt;</span> <span>{</span>
+      <span>return</span> cartItem<span>.</span>id <span>!=</span> product<span>.</span>id<span>;</span>
+    <span>}</span><span>)</span><span>;</span>
+
+    cart<span>.</span><span>set</span><span>(</span>removedItemCart<span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>function</span> <span>updateCart</span><span>(</span><span>product</span><span>)</span> <span>{</span>
+
+    <span>let</span> updatedCart <span>=</span> $cart<span>.</span><span>map</span><span>(</span><span>(</span><span>cartItem</span><span>)</span> <span>=&gt;</span> <span>{</span>
+      <span>if</span> <span>(</span>cartItem<span>.</span>id <span>==</span> product<span>.</span>id<span>)</span> <span>{</span>
+        <span>return</span> product<span>;</span>
+      <span>}</span>
+
+      <span>return</span> cartItem<span>;</span>
+    <span>}</span><span>)</span><span>;</span>
+
+    cart<span>.</span><span>set</span><span>(</span>updatedCart<span>)</span><span>;</span>
+  <span>}</span>
+<span>&lt;</span><span>/</span>script<span>&gt;</span>
+
+<span>&lt;</span>main<span>&gt;</span>
+  <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;row cart-item-row&#34;</span><span>&gt;</span>
+    <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-6&#34;</span><span>&gt;</span>
+      <span>&lt;</span>Product <span>{</span>product<span>}</span> <span>/</span><span>&gt;</span>
+    <span>&lt;</span><span>/</span>div<span>&gt;</span>
+    <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-4&#34;</span><span>&gt;</span>
+      <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;row&#34;</span><span>&gt;</span>
+        <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-5&#34;</span><span>&gt;</span>
+          <span>&lt;</span>button
+            on<span>:</span>click<span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span> <span>changeQuantity</span><span>(</span><span>)</span><span>}</span>
+            <span>class</span><span>=</span><span>&#34;btn btn-primary btn-block&#34;</span><span>&gt;</span><span>+</span><span>&lt;</span><span>/</span>button
+          <span>&gt;</span>
+        <span>&lt;</span><span>/</span>div<span>&gt;</span>
+        <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-2 text-center&#34;</span><span>&gt;</span><span>{</span>product<span>.</span>quantity<span>}</span><span>&lt;</span><span>/</span>div<span>&gt;</span>
+        <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-5&#34;</span><span>&gt;</span>
+          <span>&lt;</span>button
+            on<span>:</span>click<span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span> <span>changeQuantity</span><span>(</span><span>&#34;remove&#34;</span><span>)</span><span>}</span>
+            <span>class</span><span>=</span><span>&#34;btn btn-warning btn-block&#34;</span><span>&gt;</span><span>-</span><span>&lt;</span><span>/</span>button
+          <span>&gt;</span>
+        <span>&lt;</span><span>/</span>div<span>&gt;</span>
+      <span>&lt;</span><span>/</span>div<span>&gt;</span>
+      <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;row cart-remove-button&#34;</span><span>&gt;</span>
+        <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-12&#34;</span><span>&gt;</span>
+          <span>&lt;</span>button on<span>:</span>click<span>=</span><span>{</span><span>(</span><span>)</span> <span>=&gt;</span> <span>removeItem</span><span>(</span><span>)</span><span>}</span> <span>class</span><span>=</span><span>&#34;btn btn-danger btn-block&#34;</span>
+            <span>&gt;</span>Remove Item<span>&lt;</span><span>/</span>button
+          <span>&gt;</span>
+        <span>&lt;</span><span>/</span>div<span>&gt;</span>
+      <span>&lt;</span><span>/</span>div<span>&gt;</span>
+    <span>&lt;</span><span>/</span>div<span>&gt;</span>
+  <span>&lt;</span><span>/</span>div<span>&gt;</span>
+<span>&lt;</span><span>/</span>main<span>&gt;</span>
+
+<span>&lt;</span>style scoped<span>&gt;</span>
+  <span>.</span>cart<span>-</span>item<span>-</span>row <span>{</span>
+    border<span>-</span>bottom<span>:</span> <span>1</span>px solid #ccc<span>;</span>
+    margin<span>-</span>top<span>:</span> <span>20</span>px<span>;</span>
+  <span>}</span>
+  <span>.</span>cart<span>-</span>remove<span>-</span>button <span>{</span>
+    margin<span>-</span>top<span>:</span> <span>10</span>px<span>;</span>
+  <span>}</span>
+<span>&lt;</span><span>/</span>style<span>&gt;</span></code></pre><p>This update adds two computed properties, <code>cart</code>, which is a reference to the <code>cart</code> state property in the store, and <code>itemQuantity</code>, which gets the current quantity of the item in the shopping cart.</p><p>Three methods are also added which do the following:</p><ul><li><code>changeQuantity</code>: takes in an <code>action</code> argument that is either set to <code>add</code> or <code>decrease</code> to determine whether to increase or decrease the item quantity by 1. If the current quantity is 1 and the function is asked to decrease the item, the item would be removed completely.</li><li><code>removeItem</code>: completely removes an item from the shopping cart.</li><li><code>updateCart</code>: A utility function for reusing the update logic for <code>cart</code> in the store</li></ul><p>Next, locate the shopping cart details page at <code>src<span>/</span>views<span>/</span>ShoppingCart<span>.</span>svelte</code> and replace its content with the following code:</p><pre><code><span>&lt;</span>script<span>&gt;</span>
+  <span>import</span> Cart <span>from</span> <span>&#34;../components/Cart.svelte&#34;</span><span>;</span>
+  <span>import</span> CartItem <span>from</span> <span>&#34;../components/CartItem.svelte&#34;</span><span>;</span>
+
+  <span>import</span> <span>{</span> cart <span>}</span> <span>from</span> <span>&#34;../store&#34;</span><span>;</span>
+<span>&lt;</span><span>/</span>script<span>&gt;</span>
+
+<span>&lt;</span>main<span>&gt;</span>
+  <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;home container&#34;</span><span>&gt;</span>
+    <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;row&#34;</span><span>&gt;</span>
+      <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-8 pt-5&#34;</span><span>&gt;</span>
+        <span>{</span>#each $cart <span>as</span> product<span>}</span>
+          <span>&lt;</span>CartItem <span>{</span>product<span>}</span> <span>/</span><span>&gt;</span>
+        <span>{</span><span>/</span>each<span>}</span>
+      <span>&lt;</span><span>/</span>div<span>&gt;</span>
+      <span>&lt;</span>div <span>class</span><span>=</span><span>&#34;col-md-4 pt-5&#34;</span><span>&gt;</span>
+        <span>&lt;</span>Cart <span>/</span><span>&gt;</span>
+      <span>&lt;</span><span>/</span>div<span>&gt;</span>
+    <span>&lt;</span><span>/</span>div<span>&gt;</span>
+  <span>&lt;</span><span>/</span>div<span>&gt;</span>
+<span>&lt;</span><span>/</span>main<span>&gt;</span></code></pre><p>This update replaces the hard-coded cart items with reference to the <code>cart</code> property in the store.</p><h2 id="Running-the-Application">Running the Application</h2><p>With these changes, your app should be reloaded once again. Add a few items to the shopping cart if the reload has reset the cart back to being empty, then click &#34;Checkout&#34; to go to the shopping cart details page. On this page, increment and decrement some of the items in the cart and try removing one of them by clicking &#34;Remove&#34;. You will see the cart widget update accordingly on the right column like below:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7xFFbT1x3IfKUxCFT7IDvl/b42328e5782e261ffb3d1a454eba2a8c/svelte_05.jpg" alt="&#34;Update Cart Items - E-commerce App&#34;"/></p><p>Perfect!</p><h2 id="Conclusion">Conclusion</h2><p>In this tutorial, you have been able to implement state management in a Svelte application using a shopping cart demo application.</p><p>State management involves a design thinking process where you have to decide which state properties are global (reside in the store) and which state properties are to be localized to the respective components that make use of them. Knowing which state should be local and which state properties should reside in the central store will help you make good design decisions.</p><p>If any part of your demonstration is not working as expected, I advise you to go through the article once again to see if there is any step you may have missed. If you need additional help, feel free to reach out in the comments.</p><p>Happy coding :)</p></div></div>]]></content:encoded>
+      <pubDate>Tue, 17 Aug 2021 15:01:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Auth0 Marketplace Now Offers netID Solution</title>
       <link>https://auth0.com/blog/auth0-marketplace-now-offers-netid-solution/</link>
       <description>Auth0 integrates netID to support customer privacy needs in Europe</description>
