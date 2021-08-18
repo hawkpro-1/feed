@@ -4,6 +4,13 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Auth0 Publishes Documentation to Help with New Standard Contractual Clauses</title>
+      <link>https://auth0.com/blog/auth0-publishes-documentation-to-help-with-new-standard-contractual-clauses/</link>
+      <description>Enabling Auth0 customers to comply with dynamic privacy requirements</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div id="post-content" itemprop="articleBody"><p>At Auth0, our continuing mission is to secure the world’s identities so innovators can innovate. The core to delivering this mission is trust, including Auth0’s commitment to security and privacy.</p><p>Following our post in June, we are pleased to announce we have updated our Data Processing Agreement (DPA) to include the new <a href="https://auth0.com/blog/auth0-statement-on-new-standard-contractual-clauses-issued-by-european-commission/" target="_blank" rel="noreferrer noopener">Standard Contractual Clauses</a> (“new SCCs”) to support our customers with European users. We’ve also made changes to our Subscription Agreement, including adding a direct reference to our updated DPA, and clarifying some of the language related to our personal data processing.</p><p>The new clauses and information about the changes can be found here <a href="http://auth0.com/legal" target="_blank" rel="noreferrer noopener">auth0.com/legal</a>.</p><p>All new customers can take advantage of these new terms immediately.</p><p>For existing customers – your Tenant Administrators will receive a notification about how you can transition to the updated DPA and new SCCs. If you have any questions or have not received this notification, please contact your account manager, or if you are a self service customer, reach out to the Self Service Team at <a href="mailto:selfserviceteam@auth0.com" target="_blank" rel="noreferrer noopener">selfserviceteam@auth0.com</a>.</p><p>At Auth0, we know that privacy regulation is complex and changing rapidly. We are working to help our customers respond to this dynamic and fast-paced environment by continuously improving the resources and information we make available.</p></div></div>]]></content:encoded>
+      <pubDate>Wed, 18 Aug 2021 14:54:00 +0000</pubDate>
+    </item>
+    <item>
       <title>State Management in Svelte Applications</title>
       <link>https://auth0.com/blog/state-management-in-svelte-applications/</link>
       <description>A tutorial on how to use the Svelte state management store to manage state in Svelte applications.</description>
