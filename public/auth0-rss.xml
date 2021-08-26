@@ -4,6 +4,146 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Introduction to Async Programming in C#</title>
+      <link>https://auth0.com/blog/introduction-to-async-programming-in-csharp/</link>
+      <description>Most languages and frameworks support asynchronous programming. But, what is it exactly? Learn about async programming and how to implement it in C#.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>You probably already read about asynchronous programming. <code><span>async</span></code> and <code><span>await</span></code> words are used everywhere, no matter which programming language we choose. Talking about .NET framework, and C# in particular, we have some native functions, classes, and reserved words that we can use to implement asynchronous tasks and workflows in our projects.</p><p>In this article, we will talk about synchronism, parallelism, concurrency, and how to implement asynchronous algorithms in our C# applications.</p><h2 id="Synchronous-and-Asynchronous-Tasks">Synchronous and Asynchronous Tasks</h2><p>As a developer, you surely faced scenarios where certain actions or operations took a considerable amount of time to execute. We regularly have to do long-running tasks such as reading a file, calling an API, or downloading a big file. We could wait for one of these tasks to be finished before executing another task. If that&#39;s the case, we say we are working in a &#34;synchronous&#34; way. By doing this, the whole application gets blocked and stops responding until the whole task is completed, and we can move on to a new one.</p><p>In some cases, we don&#39;t have any alternative. If we have Task1 and Task2 that depend on the result of the first action, we will have to wait until Task1 finishes executing to start Task2. But we could have the scenario where the subsequent tasks (or some of them) don&#39;t depend on the result of the previous long-running task. If that&#39;s the case, we have different strategies and approaches that we could take to make our application faster and in a more performant way.</p><p>For example, we could have an application that runs concurrent tasks internally. There is a button and a task executed when it is clicked. Right after the user clicks on the button, the application can trigger a separate thread to run the requested task. In the meantime, the main thread becomes available to execute other actions while the button&#39;s task is executed in the background. Doing this, we keep the UI responsive in case the user wants to interact with it.</p><p>Another scenario would be needing to run multiple copies of a certain group of actions or instructions. An example of this would be uploading many files at the same time. In this case, our application could trigger one thread per file and execute the necessary code inside of them. Doing this, we would be processing the files in a &#34;parallel&#34; way. In a nutshell, here is the difference between the two concepts: concurrency means the application is making progress on more than one task at the same time, while parallelism is about running multiple tasks simultaneously.</p><p>But let&#39;s say we have to read a big file, call an API, and do some complex calculations. There is no dependency between the three tasks, but we need the result of all of them to continue the execution of our application and update the UI. In this case, we could execute our tasks &#34;asynchronously&#34; with the three ones running simultaneously and wait for their result to do the subsequent tasks.</p><h2 id="What-Is-Asynchronous-Programming-">What Is Asynchronous Programming?</h2><p>We could define asynchronous programming as the way of executing programming code in a thread without having to wait for an I/O-bound or CPU-bound task to finish. I/O-bound operations could be file-system accesses, HTTP requests, API calls, or database queries. And CPU-bound operations would be actions like encrypting data, complex calculations, image or document management.</p><p>One of the ideas of asynchronous programming is to divide our logic into <em>awaitable</em> tasks so that we don&#39;t block the execution of our application. We can call an async method and get a task object that represents it. In the meantime, we can do some not related and not dependant work. After we execute those operations, we await the async task, which may already be finished or not. If the execution is finished, we will get the resulting value from the task and use it in the next dependant operations.</p><h3 id="Benefits">Benefits</h3><p>Some of the benefits we have working with asynchronous tasks are:</p><ul><li>We keep the UI of our app responsive.</li><li>We improve the performance of our application.</li><li>We avoid <a href="https://medium.com/criteo-engineering/net-threadpool-starvation-and-how-queuing-makes-it-worse-512c8d570527" target="_blank" rel="noreferrer noopener">thread pool starvation</a>.</li></ul><h3 id="Drawbacks">Drawbacks</h3><p>Although, there are some drawbacks when working with async programming:</p><ul><li>Code gets more complex and harder to maintain.</li><li>There is increased memory allocation, as some objects have to stay alive longer while awaiting other code to be executed.</li><li>It can get hard to find bugs occurring in asynchronous tasks.</li><li>When we&#39;re writing an asynchronous piece of code, all our application code tends to become asynchronous.</li></ul><h2 id="Asynchronous-Programming-Patterns">Asynchronous Programming Patterns</h2><p>To perform asynchronous operations in .NET, we can follow three different patterns:</p><p><strong>Asynchronous Programming Model (APM)</strong>: Let&#39;s say we have two methods, and we name them <code>BeginOperation</code> and <code>EndOperation</code>. After calling <code>BeginOperation</code>, our application can continue executing tasks on the calling thread while the async task is executed on a different thread. For each call to <code>BeginOperation</code>, our app should also call <code>EndOperation</code> method to get the results. In .NET, it can be implemented using <code>IAsyncResult</code>. Let&#39;s see an example of this model:</p><pre><code><span>using</span> <span>System</span><span>;</span>
+<span>using</span> <span>System<span>.</span>IO</span><span>;</span>
+<span>using</span> <span>System<span>.</span>Threading</span><span>;</span>
+<span>public</span> <span>sealed</span> <span>class</span> <span>Program</span>
+<span>{</span>
+    <span>public</span> <span>static</span> <span><span>void</span></span> <span>Main</span><span>(</span><span>)</span>
+    <span>{</span>
+        <span><span>var</span></span> buffer <span>=</span> <span>new</span> <span><span>byte</span></span><span>[</span><span>100</span><span>]</span><span>;</span>
+        <span><span>var</span></span> fs <span>=</span> <span>new</span> <span>FileStream</span><span>(</span><span>&#34;bigFile.txt&#34;</span><span>,</span> FileMode<span>.</span>Open<span>,</span> FileAccess<span>.</span>Read<span>,</span> FileShare<span>.</span>Read<span>,</span> <span>1024</span><span>,</span> FileOptions<span>.</span>Asynchronous<span>)</span><span>;</span>
+
+        <span>IAsyncResult</span> result <span>=</span> fs<span>.</span><span>BeginRead</span><span>(</span>buffer<span>,</span> <span>0</span><span>,</span> buffer<span>.</span>Length<span>,</span> <span>null</span><span>,</span> <span>null</span><span>)</span><span>;</span>
+
+        <span>// Do other things...</span>
+
+        <span><span>int</span></span> numBytes <span>=</span> fs<span>.</span><span>EndRead</span><span>(</span>result<span>)</span><span>;</span>
+        fs<span>.</span><span>Close</span><span>(</span><span>)</span><span>;</span>
+
+        Console<span>.</span><span>WriteLine</span><span>(</span><span>&#34;Read {0}  Bytes:&#34;</span><span>,</span> numBytes<span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p><strong>Event-based Asynchronous Pattern (EAP)</strong>: We start an async method that will trigger a <code>Completed</code> event when the task is completed, making the result available to our application. This would be an example of this model:</p><pre><code><span>public</span> <span>class</span> <span>ExampleHandler</span>
+<span>{</span>
+    <span>public</span> <span>event</span> <span>EventHandler</span> OnTriggerCompleted<span>;</span>
+
+    <span>public</span> <span><span>void</span></span> <span>Start</span><span>(</span><span><span>int</span></span> timeout<span>)</span>
+    <span>{</span>
+        <span><span>var</span></span> timer <span>=</span> <span>new</span> <span>Timer</span><span>(</span><span>new</span> <span>TimerCallback</span><span>(</span><span>(</span>state<span>)</span> <span>=&gt;</span>
+        <span>{</span>
+            OnTriggerCompleted<span>?.</span><span>Invoke</span><span>(</span><span>null</span><span>,</span> <span>null</span><span>)</span><span>;</span>
+        <span>}</span><span>)</span><span>)</span><span>;</span>
+
+        timer<span>.</span><span>Change</span><span>(</span>timeout<span>,</span> <span>0</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span>
+
+<span>class</span> <span>Program</span>
+<span>{</span>
+    <span>private</span> <span>static</span> <span><span>void</span></span> <span>Main</span><span>(</span><span>)</span>
+    <span>{</span>
+        <span><span>var</span></span> handler <span>=</span> <span>new</span> <span>ExampleHandler</span><span>(</span><span>)</span><span>;</span>
+
+        handler<span>.</span>OnTriggerCompleted <span>+=</span> <span>(</span>sender<span>,</span> e<span>)</span> <span>=&gt;</span>
+        <span>{</span>
+            Console<span>.</span><span>WriteLine</span><span>(</span><span><span>$&#34;Triggered at: </span><span><span>{</span><span> DateTime<span>.</span>Now<span>.</span><span>ToLongTimeString</span><span>(</span><span>)</span></span><span>}</span></span><span>&#34;</span></span><span>)</span><span>;</span>
+        <span>}</span><span>;</span>
+
+        handler<span>.</span><span>Start</span><span>(</span><span>3000</span><span>)</span><span>;</span>
+
+        Console<span>.</span><span>WriteLine</span><span>(</span><span><span>$&#34;Start waiting at </span><span><span>{</span><span>DateTime<span>.</span>Now<span>.</span><span>ToLongTimeString</span><span>(</span><span>)</span></span><span>}</span></span><span>&#34;</span></span><span>)</span><span>;</span>
+        Console<span>.</span><span>WriteLine</span><span>(</span><span><span>$&#34;Processing...&#34;</span></span><span>)</span><span>;</span>
+        Console<span>.</span><span>ReadLine</span><span>(</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p><strong>Task-based Asynchronous Pattern (TAP)</strong>: We have an <code>OperationAsync</code> method that returns a <code>Task</code> object, as in the following example:</p><pre><code><span>class</span> <span>ClassName</span>
+<span>{</span>
+    <span>public</span> <span>Task</span> <span>OperationAsync</span><span>(</span><span><span>byte</span> <span>[</span><span>]</span></span> buffer<span>,</span> <span><span>int</span></span> offset<span>,</span> <span><span>int</span></span> count<span>)</span><span>;</span>
+<span>}</span></code></pre><p>We can await that method, using <code><span>async</span></code> and <code><span>await</span></code> keywords. We will go deeper into this approach in a while.</p><blockquote><p>Keep in mind that <strong>the APM and EAP approaches are legacy models and they are no longer recommended</strong>. Microsoft recommends using the <em>Task-based Asynchronous Pattern</em> to implement async programming in our applications.</p></blockquote><h2 id="Asynchronous-Programming-in-C-">Asynchronous Programming in C#</h2><p>As we mentioned, async programming in C# can be accomplished by implementing the <em>Task-based Asynchronous Pattern</em>. We will have methods that return a <code>Task</code> or <code>Task<span>&lt;</span><span>T</span><span>&gt;</span></code> object. Defining those methods as async operations will enable us to await them and keep using the same execution thread to run other operations that are not linked to the awaited task.</p><p>C# provides us two keywords to handle <code>Task</code> objects in an easier way: <code><span>async</span></code> and <code><span>await</span></code>. Adding the keyword <code><span>async</span></code> to a method signature allows us to use the <code><span>await</span></code> keyword inside the method while instructs the compiler to create a state machine to handle the asynchronicity. On the other hand, the <code><span>await</span></code> keyword is used to pause the execution of a method and asynchronously wait for a <code>Task</code> to finish, while the current thread is sent back to the thread pool instead of keeping it in a blocked state. Everything happens in the background, avoiding us to implement and maintain the complexity of thread management and the state of the calls.</p><p>Let&#39;s analyze this piece of code:</p><pre><code><span>public</span> <span>async</span> <span>Task<span>&lt;</span>User<span>&gt;</span></span> <span>GetLoggedUserEmailAsync</span><span>(</span><span>)</span>
+<span>{</span>
+  <span><span>int</span></span> userId <span>=</span> <span>GetId</span><span>(</span><span>)</span><span>;</span>
+  <span><span>string</span></span> email <span>=</span> <span>await</span> <span>GetEmailAsync</span><span>(</span>userId<span>)</span><span>;</span>
+  <span>User</span> user <span>=</span> <span>GetUserByEmail</span><span>(</span>email<span>)</span><span>;</span>
+  <span>return</span> user<span>;</span>
+<span>}</span>
+
+<span>public</span> <span>async</span> <span>Task<span>&lt;</span><span>string</span><span>&gt;</span></span> <span>GetEmailAsync</span><span>(</span><span><span>int</span></span> userId<span>)</span>
+<span>{</span>
+  <span>// Do something</span>
+<span>}</span></code></pre><p>An async method should return <code><span>void</span></code>, <code>Task</code>, or <code>Task<span>&lt;</span><span>T</span><span>&gt;</span></code>, where <code><span>T</span></code> is the return data type that we need. Returning <code><span>void</span></code> is normally used for event handlers. The keyword <code><span>async</span></code> enables us to use the command <code><span>await</span></code> within the method so that we can wait for the asynchronous method processing as expected.</p><p>Notice that the methods end with &#34;Async&#34;. Although it is not mandatory, there is a naming convention that an asynchronous method name should end with the word &#34;Async&#34;. This convention aims to make it clear to the consumer of the functionality that the method won&#39;t complete all of its work synchronously.</p><p>In our previous example, <code><span>GetId</span><span>(</span><span>)</span></code> is called synchronously. When the execution thread encounters the <code><span>await</span></code> keyword on <code><span>await</span> <span>GetEmailAsync</span><span>(</span>userId<span>)</span></code>, it creates a <code>Task<span>&lt;</span>User<span>&gt;</span></code> that contains the remainder of the <code>GetLoggedUserEmailAsync</code> method. This task is executed asynchronously after the <code>Task<span>&lt;</span>string<span>&gt;</span></code> returned by <code>GetEmailAsync</code>. So, the <code>User</code> object is returned from the <code>Task<span>&lt;</span>User<span>&gt;</span></code> created by the <code><span>await</span></code> keyword.</p><h2 id="Asynchronous-Code-in-Action">Asynchronous Code in Action</h2><p>Let&#39;s see a short example to review the concepts previously explained. Having the following console application:</p><pre><code><span>using</span> <span>System</span><span>;</span>
+<span>using</span> <span>System<span>.</span>IO</span><span>;</span>
+<span>using</span> <span>System<span>.</span>Threading<span>.</span>Tasks</span><span>;</span>
+
+<span>class</span> <span>Program</span>
+<span>{</span>
+   <span>static</span> <span>async</span> <span>Task</span> <span>Main</span><span>(</span><span><span>string</span><span>[</span><span>]</span></span> args<span>)</span>
+   <span>{</span>
+       <span><span>string</span></span> filePath <span>=</span> <span>&#34;bigFile.txt&#34;</span><span>;</span>
+
+       <span>// Create a big file</span>
+       <span>FileStream</span> fs <span>=</span> <span>new</span> <span>FileStream</span><span>(</span>filePath<span>,</span> FileMode<span>.</span>CreateNew<span>)</span><span>;</span>
+       fs<span>.</span><span>Seek</span><span>(</span><span>1024</span> <span>*</span> <span>1024</span><span>,</span> SeekOrigin<span>.</span>Begin<span>)</span><span>;</span>
+       fs<span>.</span><span>WriteByte</span><span>(</span><span>0</span><span>)</span><span>;</span>
+       fs<span>.</span><span>Close</span><span>(</span><span>)</span><span>;</span>
+
+       <span><span>var</span></span> task <span>=</span> <span>ReadFileAsync</span><span>(</span>filePath<span>)</span><span>;</span>
+
+       Console<span>.</span><span>WriteLine</span><span>(</span><span>&#34;A synchronous message&#34;</span><span>)</span><span>;</span>
+
+       <span><span>int</span></span> length <span>=</span> <span>await</span> task<span>;</span>
+
+       Console<span>.</span><span>WriteLine</span><span>(</span><span>&#34;Total file length: &#34;</span> <span>+</span> length<span>)</span><span>;</span>
+       Console<span>.</span><span>WriteLine</span><span>(</span><span>&#34;After reading message&#34;</span><span>)</span><span>;</span>
+       Console<span>.</span><span>ReadLine</span><span>(</span><span>)</span><span>;</span>
+   <span>}</span>
+
+   <span>static</span> <span>async</span> <span>Task<span>&lt;</span><span>int</span><span>&gt;</span></span> <span>ReadFileAsync</span><span>(</span><span><span>string</span></span> file<span>)</span>
+   <span>{</span>
+       Console<span>.</span><span>WriteLine</span><span>(</span><span>&#34;Start reading file&#34;</span><span>)</span><span>;</span>
+
+       <span><span>int</span></span> length <span>=</span> <span>0</span><span>;</span>
+
+       <span>using</span><span>(</span><span>StreamReader</span> reader <span>=</span> <span>new</span> <span>StreamReader</span><span>(</span>file<span>)</span><span>)</span>
+       <span>{</span>
+           <span><span>string</span></span> fileContent <span>=</span> <span>await</span> reader<span>.</span><span>ReadToEndAsync</span><span>(</span><span>)</span><span>;</span>
+           length <span>=</span> fileContent<span>.</span>Length<span>;</span>
+       <span>}</span>
+
+       Console<span>.</span><span>WriteLine</span><span>(</span><span>&#34;Finished reading file&#34;</span><span>)</span><span>;</span>
+
+       <span>return</span> length<span>;</span>
+   <span>}</span>
+<span>}</span></code></pre><p>In this application, we read a big file, count the number of characters it has, and print different messages in the console. The method that triggers the file reading operation is defined as asynchronous, and it&#39;s the one that starts the asynchronous thread reading the text. While the message &#34;A synchronous message&#34; is printed, the reading of the file continues. If we execute the application, we can see how the execution thread behaves based on the output messages:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6QF3i0BPAoDOSdF0T1jm07/269b11a895d0f74b415d49aa5b23d106/async-program-console.png" alt="Asynchronous sample application output"/></p><h2 id="Summary">Summary</h2><p>In this article, we talked about how we can manage and organize the tasks in our application based on the dependency and order of execution. We talked about synchronism, parallelism, concurrency, and asynchronism. We described async programming, its benefits, and how we can implement it in our C# applications. You can find the code shown in this article in <a href="https://github.com/auth0-blog/c-sharp-async-intro" target="_blank" rel="noreferrer noopener">this GitHub repository</a>.</p><p>If you want to learn more about asynchronous programming in C# and what advanced features we have available, you can go to:</p><ul><li><a href="https://docs.microsoft.com/en-us/dotnet/standard/async-in-depth" target="_blank" rel="noreferrer noopener">Async in depth</a> by Microsoft.</li><li><a href="https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/" target="_blank" rel="noreferrer noopener">Asynchronous programming with async and await</a> by Microsoft.</li><li><a href="https://github.com/davidfowl/AspNetCoreDiagnosticScenarios/blob/master/AsyncGuidance.md" target="_blank" rel="noreferrer noopener">Asynchronous Programming Guidance</a> by David Fowler.</li><li><a href="https://docs.microsoft.com/en-us/archive/msdn-magazine/2013/march/async-await-best-practices-in-asynchronous-programming" target="_blank" rel="noreferrer noopener">Async/Await - Best Practices in Asynchronous Programming</a> by Microsoft.</li></ul><div><h2 id="Aside--Securing-ASP-NET-Core-with-Auth0">Aside: Securing ASP.NET Core with Auth0</h2><p>Securing ASP.NET Core applications with Auth0 is easy and brings a lot of great features to the table. With <a href="https://auth0.com/" target="_blank" rel="noreferrer noopener">Auth0</a>, you only have to write a few lines of code to get a solid <a href="https://auth0.com/user-management" target="_blank" rel="noreferrer noopener">identity management solution</a>, <a href="https://auth0.com/docs/sso/single-sign-on" target="_blank" rel="noreferrer noopener">single sign-on</a>, support for <a href="https://auth0.com/docs/identityproviders" target="_blank" rel="noreferrer noopener">social identity providers (like Facebook, GitHub, Twitter, etc.)</a>, and support for <a href="https://auth0.com/enterprise" target="_blank" rel="noreferrer noopener">enterprise identity providers (like Active Directory, LDAP, SAML, custom, etc.)</a>.</p><p>On ASP.NET Core, you need <a href="https://auth0.com/docs/apis" target="_blank" rel="noreferrer noopener">to create an API in your Auth0 Management Dashboard</a> and change a few things on your code. To create an API, you need to <a href="https://auth0.com/signup" data-amp-replace="CLIENT_ID" data-amp-addparams="anonId=CLIENT_ID(cid-scope-cookie-fallback-name)" target="_blank" rel="noreferrer noopener">sign up for a free Auth0 account</a>. After that, you need to go to <a href="https://manage.auth0.com/#/apis" target="_blank" rel="noreferrer noopener">the API section of the dashboard</a> and click on &#34;Create API&#34;. On the dialog shown, you can set the <em>Name</em> of your API as &#34;Books&#34;, the <em>Identifier</em> as &#34;<a href="http://books.mycompany.com" target="_blank" rel="noreferrer noopener">http://books.mycompany.com</a>&#34;, and leave the <em>Signing Algorithm</em> as &#34;RS256&#34;.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6HrObJ2eGY7YehLzbBM0sH/066be814a124d98f03224d9b177caa22/net-core-2_creating-api-on-auth0.png" alt="Creating API on Auth0"/></p><p>After that, you have to add the call to <code>services<span>.</span><span>AddAuthentication</span><span>(</span><span>)</span></code> in the <code><span>ConfigureServices</span><span>(</span><span>)</span></code> method of the <code>Startup</code> class as follows:</p><pre><code><span><span>string</span></span> authority <span>=</span> <span><span>$&#34;https://</span><span><span>{</span><span>Configuration<span>[</span><span>&#34;Auth0:Domain&#34;</span><span>]</span></span><span>}</span></span><span>/&#34;</span></span><span>;</span>
+<span><span>string</span></span> audience <span>=</span> Configuration<span>[</span><span>&#34;Auth0:Audience&#34;</span><span>]</span><span>;</span>
+
+services<span>.</span><span>AddAuthentication</span><span>(</span>options <span>=&gt;</span>
+<span>{</span>
+  options<span>.</span>DefaultAuthenticateScheme <span>=</span> JwtBearerDefaults<span>.</span>AuthenticationScheme<span>;</span>
+  options<span>.</span>DefaultChallengeScheme <span>=</span> JwtBearerDefaults<span>.</span>AuthenticationScheme<span>;</span>
+<span>}</span><span>)</span><span>.</span><span>AddJwtBearer</span><span>(</span>options <span>=&gt;</span>
+<span>{</span>
+  options<span>.</span>Authority <span>=</span> authority<span>;</span>
+  options<span>.</span>Audience <span>=</span> audience<span>;</span>
+<span>}</span><span>)</span><span>;</span></code></pre><p>In the body of the <code><span>Configure</span><span>(</span><span>)</span></code> method of the <code>Startup</code> class, you also need to add an invocation to <code>app<span>.</span><span>UseAuthentication</span><span>(</span><span>)</span></code> and <code>app<span>.</span><span>UseAuthorization</span><span>(</span><span>)</span></code> as shown below:</p><pre><code>app<span>.</span><span>UseRouting</span><span>(</span><span>)</span><span>;</span>
+app<span>.</span><span>UseAuthentication</span><span>(</span><span>)</span><span>;</span>
+app<span>.</span><span>UseAuthorization</span><span>(</span><span>)</span><span>;</span>
+app<span>.</span><span>UseEndpoints</span><span>(</span>endpoints <span>=&gt;</span>
+<span>{</span>
+    endpoints<span>.</span><span>MapControllers</span><span>(</span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>;</span></code></pre><blockquote><p>Make sure you invoke these methods in the order shown above. It is essential so that everything works properly.</p></blockquote><p>Finally, add the following element to the <code>appsettings<span>.</span>json</code> configuration file:</p><pre><code><span>{</span>
+  <span>&#34;Logging&#34;</span><span>:</span> <span>{</span>
+    <span>// ...</span>
+  <span>}</span><span>,</span>
+  <span>&#34;Auth0&#34;</span><span>:</span> <span>{</span>
+    <span>&#34;Domain&#34;</span><span>:</span> <span>&#34;YOUR_DOMAIN&#34;</span><span>,</span>
+    <span>&#34;Audience&#34;</span><span>:</span> <span>&#34;YOUR_AUDIENCE&#34;</span>
+  <span>}</span>
+<span>}</span></code></pre><blockquote><p><strong>Note</strong>: Replace the placeholders <code><span>YOUR_DOMAIN</span></code> and <code><span>YOUR_AUDIENCE</span></code> with the actual values for the domain that you specified when creating your Auth0 account and the <em>Identifier</em> you assigned to your API.</p></blockquote></div></div></div>]]></content:encoded>
+      <pubDate>Thu, 26 Aug 2021 14:55:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Auth0 No-Code Actions Integrations Now Available in Beta</title>
       <link>https://auth0.com/blog/auth0-no-code-actions-integrations-now-available-in-beta/</link>
       <description>Actions Integrations reduce the amount of custom code you need to write, maintain, and update.</description>
