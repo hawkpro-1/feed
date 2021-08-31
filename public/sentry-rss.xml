@@ -4,6 +4,125 @@
     <link>https://blog.sentry.io/feed.xml</link>
     <description></description>
     <item>
+      <title>Guest Post: Performance Monitoring in GraphQL</title>
+      <link>https://blog.sentry.io/2021/08/31/guest-post-performance-monitoring-in-graphql/</link>
+      <description>A quick cheat sheet to integrate Sentry Performance in your Apollo Server.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><em><a href="https://www.linkedin.com/in/efueyo/">Enrique Fueyo Ramírez</a> is the Co-founder and CTO of <a href="http://lang.ai/">Lang.ai</a>. Here’s a post on how him and his team at Lang.ai instrumented performance monitoring for GraphQL resolvers.</em></p>
+<h2 id="tech-stack"><a href="#tech-stack" aria-label="tech stack permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Tech Stack</h2>
+<ul>
+<li>At <a href="http://lang.ai">Lang.ai</a> we use <a href="https://sentry.io/">Sentry</a> in our systems for Error Monitoring and recently added Performance Monitoring</li>
+<li><a href="https://lang.ai/">Lang.ai</a>’s User Interface is a React App using a <a href="https://graphql.org/">GraphQL</a> API.</li>
+<li>We use <a href="https://www.apollographql.com/">Apollo</a> to connect the frontend and the GraphQL backend.</li>
+</ul>
+<h2 id="problem"><a href="#problem" aria-label="problem permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Problem</h2>
+<ul>
+<li>Some months ago we started experiencing some degradation in a few graphql queries. The queries were complex (big) queries and it was tricky to debug which part of the request was slowing down the response.</li>
+</ul>
+<h2 id="goal"><a href="#goal" aria-label="goal permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Goal</h2>
+<ul>
+<li>We wanted to monitor the performance of each <a href="https://www.apollographql.com/docs/apollo-server/data/resolvers/">Graphql Resolver</a>.</li>
+<li>Ideally, we wanted to monitor the performance of every resolver without explicitly adding it (we didn’t want to proactively add a start and stop lines of code all around our functions’ bodies).</li>
+</ul>
+<h2 id="solution"><a href="#solution" aria-label="solution permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Solution</h2>
+<ul>
+<li>Create a Sentry transaction for each graphql request.</li>
+</ul>
+<p>Each Sentry transaction is initialized with its own <a href="https://docs.sentry.io/platforms/javascript/enriching-events/context/">context</a>. <a href="https://docs.sentry.io/platforms/javascript/performance/instrumentation/custom-instrumentation/">Create a Transaction</a></p>
+<div data-language="javascript"><pre><code><span>import</span> <span>{</span> Transaction <span>}</span> <span>from</span> <span>&#34;@sentry/types&#34;</span>
+
+<span>export</span> <span>interface</span> <span>Context</span> <span>{</span>
+  <span>// ... other context fields for your context</span>
+  transaction<span>:</span> Transaction
+<span>}</span>
+
+<span>export</span> <span>async</span> <span>function</span> <span>createContext</span><span>(</span><span>)</span><span>:</span> Promise<span>&lt;</span>Context<span>&gt;</span> <span>{</span> <span>{</span>
+  <span>// ... create other context fields</span>
+  <span>const</span> transaction <span>=</span> Sentry<span>.</span><span>startTransaction</span><span>(</span><span>{</span>
+    op<span>:</span> <span>&#34;gql&#34;</span><span>,</span>
+    name<span>:</span> <span>&#34;GraphQLTransaction&#34;</span><span>,</span> <span>// this will be the default name, unless the gql query has a name</span>
+  <span>}</span><span>)</span>
+  <span>return</span> <span>{</span> transaction <span>}</span><span>;</span>
+<span>}</span></code></pre></div>
+<ul>
+<li>Add a span for each resolver</li>
+</ul>
+<p>To intercept the life-cycle of each resolver and create and finish a span, we needed to create an Apollo Plugin.</p>
+<div data-language="javascript"><pre><code><span>import</span> <span>{</span> ApolloServerPlugin <span>}</span> <span>from</span> <span>&#34;apollo-server-plugin-base&#34;</span>
+<span>import</span> <span>{</span> Context <span>}</span> <span>from</span> <span>&#34;./context&#34;</span>
+
+<span>const</span> plugin<span>:</span> ApolloServerPlugin<span>&lt;</span>Context<span>&gt;</span> <span>=</span> <span>{</span>
+  <span>requestDidStart</span><span>(</span><span><span>{</span> request<span>,</span> context <span>}</span></span><span>)</span> <span>{</span>
+    <span>if</span> <span>(</span><span>!</span><span>!</span>request<span>.</span>operationName<span>)</span> <span>{</span> <span>// set the transaction Name if we have named queries</span>
+      context<span>.</span>transaction<span>.</span><span>setName</span><span>(</span>request<span>.</span>operationName<span>!</span><span>)</span>
+    <span>}</span>
+    <span>return</span> <span>{</span>
+      <span>willSendResponse</span><span>(</span><span><span>{</span> context <span>}</span></span><span>)</span> <span>{</span> <span>// hook for transaction finished</span>
+        context<span>.</span>transaction<span>.</span><span>finish</span><span>(</span><span>)</span>
+      <span>}</span><span>,</span>
+      <span>executionDidStart</span><span>(</span><span>)</span> <span>{</span>
+        <span>return</span> <span>{</span>
+          <span>willResolveField</span><span>(</span><span><span>{</span> context<span>,</span> info <span>}</span></span><span>)</span> <span>{</span> <span>// hook for each new resolver</span>
+            <span>const</span> span <span>=</span> context<span>.</span>transaction<span>.</span><span>startChild</span><span>(</span><span>{</span>
+              op<span>:</span> <span>&#34;resolver&#34;</span><span>,</span>
+              description<span>:</span> <span><span>`</span><span><span>${</span>info<span>.</span>parentType<span>.</span>name<span>}</span></span><span>.</span><span><span>${</span>info<span>.</span>fieldName<span>}</span></span><span>`</span></span><span>,</span>
+            <span>}</span><span>)</span>
+            <span>return</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span> <span>// this will execute once the resolver is finished</span>
+              span<span>.</span><span>finish</span><span>(</span><span>)</span>
+            <span>}</span>
+          <span>}</span><span>,</span>
+        <span>}</span>
+      <span>}</span><span>,</span>
+    <span>}</span>
+  <span>}</span><span>,</span>
+<span>}</span>
+
+<span>export</span> <span>default</span> plugin</code></pre></div>
+<ul>
+<li>And then we have to connect all the pieces on server initialization</li>
+</ul>
+<div data-language="javascript"><pre><code><span>import</span> <span>{</span> ApolloServer <span>}</span> <span>from</span> <span>&#34;apollo-server-micro&#34;</span>
+
+<span>import</span> <span>{</span> createContext <span>}</span> <span>from</span> <span>&#34;./context&#34;</span>
+<span>import</span> SentryPlugin <span>from</span> <span>&#34;./sentry-plugin&#34;</span>
+
+<span>const</span> apolloServer <span>=</span> <span>new</span> <span>ApolloServer</span><span>(</span><span>{</span>
+  <span>// ... your ApolloServer options</span>
+  <span>// Create context function</span>
+  <span>context</span><span>:</span> <span>(</span><span><span>{</span> req<span>,</span> connection <span>}</span></span><span>)</span> <span>=&gt;</span> <span>createContext</span><span>(</span><span>{</span> req<span>,</span> connection <span>}</span><span>)</span><span>,</span>
+  <span>// Add our sentry plugin</span>
+  plugins<span>:</span> <span>[</span>SentryPlugin<span>]</span><span>,</span>
+<span>}</span><span>)</span></code></pre></div>
+<p>Once your server starts receiving requests it will send every transaction info to your configured Sentry account. You should see something like this:</p>
+<p><img src="https://images.contentful.com/em6l9zw4tzag/7LQD8LXQalxSslyK1FztdP/5439d7eaeb10226421e07554cb142214/img1.png" alt="performance_lang.ai"/></p>
+<p>And you can also see the detail of each individual transaction with its resolvers:</p>
+<p><img src="https://images.contentful.com/em6l9zw4tzag/7FEo6JIEGrXsxhRIxHmCBN/7c5a8475ea9bc4d9f260152364840e81/img2.png" alt="spans_lang.ai"/></p>
+<h2 id="one-last-consideration"><a href="#one-last-consideration" aria-label="one last consideration permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>One last consideration</h2>
+<p>We could have created the transaction directly in the plugin, inside the <code>requestDidStart</code> function and omit any references to the <code>Context</code>. But, if we make the <code>transaction</code> accessible from the <code>Context</code>, each resolver can access it and we can create more <code>spans</code> inside the resolvers for more fine grained information.</p>
+<p>Accessing the transaction from the resolver should also be helpful for Sentry’s <a href="https://docs.sentry.io/product/performance/distributed-tracing/">Distributed Tracing</a>.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/3IsaoRlm059mQ43DRNC4bP/8a32928dc38d7450c312e981358a92b4/performance1-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 31 Aug 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Mobile Vitals - Four Metrics Every Mobile Developer Should Care About</title>
       <link>https://blog.sentry.io/2021/08/23/mobile-vitals-four-metrics-every-mobile-developer-should-care-about/</link>
       <description>Slow apps frustrate users, which leads to bad reviews, or customers that swipe left to competition. Unfortunately, seeing and solving…</description>
