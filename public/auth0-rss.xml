@@ -4,6 +4,163 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>State Pattern in Python</title>
+      <link>https://auth0.com/blog/state-pattern-in-python/</link>
+      <description>Learn to implement state pattern and finite state machines using Python.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><a href="https://en.wikipedia.org/wiki/Software_design_pattern" target="_blank" rel="noreferrer noopener">Design patterns</a> are conventional solutions to common challenges in software development using <a href="https://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank" rel="noreferrer noopener">Object-oriented programming</a>. One of the famous design patterns for developing scalable and flexible software is the state pattern. You&#39;ll learn about the state pattern and how to apply it to improve your software project in this article.</p><h2 id="Finite-State-Machine">Finite State Machine</h2><p>Let&#39;s define a <a href="https://en.wikipedia.org/wiki/Finite-state_machine" target="_blank" rel="noreferrer noopener">finite state machine</a> (FSM) before moving on to the state design pattern. It is well known that the concepts of state patterns and finite-state machines have a close relationship. An FSM is something that behaves differently depending on its internal state. In computer programming, the behavior of an object in an application varies depending on its state. A switch and a lightbulb are simple examples of FSM. &#34;ON&#34; and &#34;OFF&#34; are the two possible states of the light bulb. To change the state of the bulb &#39;ON&#39; or &#39;OFF&#39;, simply flip the switch. Transition is the process of moving from one state to another. Transition is affected by several factors. In the case of the light bulb, it is dependent on the input from the switch. The state diagram, which is shown below, graphically depicts the states and transitions.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6Y4Ljm8KBa45GF54np9a8i/b5bff5c1cf9b5a8ead644a110f9db059/01_bulb_state_diagram.png" alt="light bulb state diagram"/></p><p>We can implement the state machine using any programming language. Depending on a few factors, our code behaves differently. You can implement the preceding light bulb example as follows:</p><pre><code><span>class</span> <span>LightBulb</span><span>:</span>
+  _state <span>=</span> <span>&#39;OFF&#39;</span>    <span># initial state of bulb</span>
+  
+  <span>def</span> <span>onOff</span><span>(</span>self<span>,</span> switch<span>)</span><span>:</span>
+    <span>if</span> switch <span>==</span> <span>&#39;ON&#39;</span><span>:</span>
+        self<span>.</span>_state <span>=</span> <span>&#39;ON&#39;</span>
+    <span>elif</span> switch <span>==</span> <span>&#39;OFF&#39;</span><span>:</span>
+        self<span>.</span>_state <span>=</span> <span>&#39;OFF&#39;</span>
+    <span>else</span><span>:</span>
+        <span>continue</span>          <span># if we get wrong input</span></code></pre><p>For small systems, such as the one described above, the code appears to be straightforward and simple. However, if there are many states and transitions, our code will get flabby with conditional statements. The code becomes more extensive, and it won&#39;t be easy to maintain the application. If you want to add additional states or transitions to the program, you&#39;ll have to change the entire code base. You can use the <strong>State Design Pattern</strong> in these cases.</p><h2 id="State-Pattern">State Pattern</h2><p>It is a behavioral design pattern. You can use the state pattern to implement state-specific behavior in which objects can change their functionality at runtime. You can use it to avoid using conditional statements when changing an object&#39;s behavior based on its state. In the state pattern, you should <a href="https://en.wikipedia.org/wiki/Encapsulation_(computer_programming" target="_blank" rel="noreferrer noopener">encapsulate</a>) different states in separate <code>State</code> classes. The original class keeps a reference to a state object based on its current state rather than using conditional statements to implement state-dependent functionality.</p><h2 id="UML-Diagram">UML Diagram</h2><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7EXrJIISe60aDo65BUFXgW/caabc74e7fe1d13bc1150ce6baa98edb/02_UML_state_class.png" alt="UML class diagram of state pattern"/></p><p>1) <strong>Context</strong> - it is the original class of our application. It maintains a reference to one of the concrete states on which its behavior depends. It also has a method to modify the internal state.</p><p>2) <strong>State interface</strong> - All supported states share the same state interface. Only the state interface allows <em>Context</em> to communicate with state objects. <em>Context</em> can only communicate with state objects via the state interface.</p><p>3) <strong>Concrete states</strong> - For each state, these objects implement the &#39;State&#39; interface. These are the main objects which contain the state-specific methods.</p><h2 id="How-does-it-work-">How does it work?</h2><p><img src="https://images.ctfassets.net/23aumh6u8s0i/9jQ2UH5r4b4amneAHwIxG/fa3b9affd7c467bc6513b64cd1362114/03_UML_state_sequence.png" alt="UML sequence diagram of state pattern"/></p><p>Assume the <em>Context</em> is configured with an initial state, <code>concreteStateA</code>.  It behaves according to its initial state. The <em>Context</em> now implements the <code>doSomething</code> method according to <code>concreteStateA</code>. The concrete states should contain a back reference to call back and change <em>Context&#39;s</em> current state object. If a state transition occurs, the <em>Context&#39;s</em> <code>setSate</code> method is invoked, referencing the new state, <code>concreteStateB</code>. The <em>Context</em> changed its internal state and behavior. Now, it uses the <code>concreteStateB</code> to implement the <code>doSomething</code> method. The basic idea is that the states can change the context&#39;s state automatically. As a developer, you can modify the states by using any number of instances of <code>setState</code>.</p><p>If you want to add another state, simply create a new concrete state object without changing the <em>Context</em> of the application.</p><h2 id="Implementation">Implementation</h2><p>Let&#39;s take a step-by-step look at implementing the state pattern.</p><p>1) Find an existing class that contains state-dependent code, or create a suitable context class. It should include a reference to a specific state as well as a method for switching between states.</p><pre><code><span>from</span> __future__ <span>import</span> annotations
+<span>from</span> abc <span>import</span> ABC<span>,</span> abstractmethod
+
+<span># the context class contains a _state that references the concrete state and setState method to change between states.</span>
+<span>class</span> <span>Context</span><span>:</span>
+
+    _state <span>=</span> <span>None</span>
+
+    <span>def</span> <span>__init__</span><span>(</span>self<span>,</span> state<span>:</span> State<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        self<span>.</span>setState<span>(</span>state<span>)</span>
+
+    <span>def</span> <span>setState</span><span>(</span>self<span>,</span> state<span>:</span> State<span>)</span><span>:</span>
+
+        <span>print</span><span>(</span><span><span>f&#34;Context: Transitioning to </span><span><span>{</span><span>type</span><span>(</span>state<span>)</span><span>.</span>__name__<span>}</span></span><span>&#34;</span></span><span>)</span>
+        self<span>.</span>_state <span>=</span> state
+        self<span>.</span>_state<span>.</span>context <span>=</span> self
+
+    <span>def</span> <span>doSomething</span><span>(</span>self<span>)</span><span>:</span>
+        self<span>.</span>_state<span>.</span>doSomething<span>(</span><span>)</span></code></pre><p>2) Create a common State interface for all concrete states. The State interface specifies all of the methods that all Concrete States must implement and a backreference to the <em>Context</em> object. States can change the <em>Context</em> to another state by using this backreference.</p><pre><code><span>class</span> <span>State</span><span>(</span>ABC<span>)</span><span>:</span>
+    <span>@property</span>
+    <span>def</span> <span>context</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> Context<span>:</span>
+        <span>return</span> self<span>.</span>_context
+
+    <span>@context<span>.</span>setter</span>
+    <span>def</span> <span>context</span><span>(</span>self<span>,</span> context<span>:</span> Context<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        self<span>.</span>_context <span>=</span> context
+
+    <span>@abstractmethod</span>
+    <span>def</span> <span>doSomething</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>pass</span></code></pre><p>You should define the <em>Context</em> as a <a href="https://www.geeksforgeeks.org/protected-variable-in-python/" target="_blank" rel="noreferrer noopener">protected parameter</a>. Above, <a href="https://www.programiz.com/python-programming/property" target="_blank" rel="noreferrer noopener"><code>@property</code></a> decorator is used to make the <code><span>context</span><span>(</span><span>)</span></code> method as property and <code>@context<span>.</span>setter</code> decorator to another overload of the <code><span>context</span><span>(</span><span>)</span></code> method as property setter method. Now, <code>_context</code> is protected.</p><p>3) You can define the concrete states in the classes that implement the state interface. After the <code>doSomething</code> method is called, the state of the <em>Context</em> changes. You can also change the state by defining a specific method. The state transitions use the <code>setState</code> method of the <em>Context</em>.</p><pre><code><span>class</span> <span>ConcreteStateA</span><span>(</span>State<span>)</span><span>:</span>
+    <span>def</span> <span>doSomething</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;The context is in the state of ConcreteStateA.&#34;</span><span>)</span>
+        <span>print</span><span>(</span><span>&#34;ConcreteStateA now changes the state of the context.&#34;</span><span>)</span>
+        self<span>.</span>context<span>.</span>setState<span>(</span>ConcreteStateB<span>(</span><span>)</span><span>)</span>
+
+
+<span>class</span> <span>ConcreteStateB</span><span>(</span>State<span>)</span><span>:</span>
+    <span>def</span> <span>doSomething</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;The context is in the state of ConcreteStateB.&#34;</span><span>)</span>
+        <span>print</span><span>(</span><span>&#34;ConcreteStateB wants to change the state of the context.&#34;</span><span>)</span>
+        self<span>.</span>context<span>.</span>setState<span>(</span>ConcreteStateA<span>(</span><span>)</span><span>)</span></code></pre><p>4) You can now initiate your application with an initial state and execute the methods.</p><pre><code><span># sample application</span>
+app <span>=</span> Context<span>(</span>ConcreteStateA<span>(</span><span>)</span><span>)</span>
+app<span>.</span>doSomething<span>(</span><span>)</span>    <span># this method is executed as in state 1</span>
+app<span>.</span>doSomething<span>(</span><span>)</span>    <span># this method is executed as in state 2</span></code></pre><p>The output of the above code looks something like this:</p><pre><code>Context<span>:</span> Transitioning to ConcreteStateA
+The context is <span>in</span> the state <span>of</span> ConcreteStateA<span>.</span>
+ConcreteStateA now changes the state <span>of</span> the context<span>.</span>
+Context<span>:</span> Transitioning to ConcreteStateB
+The context is <span>in</span> the state <span>of</span> ConcreteStateB<span>.</span>
+ConcreteStateB wants to change the state <span>of</span> the context<span>.</span>
+Context<span>:</span> Transitioning to ConcreteStateA</code></pre><h2 id="Example">Example</h2><p>Let&#39;s create a simple state machine that represents a real-world scenario. Consider an elevator system with buttons in the elevator cabin that allow you to go up or down. Consider that this lift only travels between two floors to keep things simple. There are primarily two possible states for the elevator: <code><span>1</span>st floor</code> and <code><span>2</span>nd floor</code>. The input from the two buttons determines the transition between states. The elevator performs different actions based on its state.</p><p>The following code is the implementation of the elevator example. Follow along with the comments for more descriptions about each method.</p><pre><code><span>from</span> __future__ <span>import</span> annotations
+<span>from</span> abc <span>import</span> ABC<span>,</span> abstractmethod
+
+<span># The Elevator class is the context. It should be initiated with a default state.</span>
+<span>class</span> <span>Elevator</span><span>:</span>
+
+    _state <span>=</span> <span>None</span>
+
+    <span>def</span> <span>__init__</span><span>(</span>self<span>,</span> state<span>:</span> State<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        self<span>.</span>setElevator<span>(</span>state<span>)</span>
+
+    <span># method to change the state of the object</span>
+    <span>def</span> <span>setElevator</span><span>(</span>self<span>,</span> state<span>:</span> State<span>)</span><span>:</span>
+
+        self<span>.</span>_state <span>=</span> state
+        self<span>.</span>_state<span>.</span>elevator <span>=</span> self
+
+    <span>def</span> <span>presentState</span><span>(</span>self<span>)</span><span>:</span>
+        <span>print</span><span>(</span><span><span>f&#34;Elevator is in </span><span><span>{</span><span>type</span><span>(</span>self<span>.</span>_state<span>)</span><span>.</span>__name__<span>}</span></span><span>&#34;</span></span><span>)</span>
+
+    <span># the methods for executing the elevator functionality. These depends on the current state of the object.</span>
+    <span>def</span> <span>pushDownBtn</span><span>(</span>self<span>)</span><span>:</span>
+        self<span>.</span>_state<span>.</span>pushDownBtn<span>(</span><span>)</span>
+
+    <span>def</span> <span>pushUpBtn</span><span>(</span>self<span>)</span><span>:</span>
+        self<span>.</span>_state<span>.</span>pushUpBtn<span>(</span><span>)</span>
+
+    <span># if both the buttons are pushed at a time, nothing should happen</span>
+    <span>def</span> <span>pushUpAndDownBtns</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;Oops.. you should press one button at a time&#34;</span><span>)</span>
+
+    <span># if no button was pushed, it should just wait open for guests</span>
+    <span>def</span> <span>noBtnPushed</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;Press any button. Up or Down&#34;</span><span>)</span>
+
+
+<span># The common state interface for all the states</span>
+<span>class</span> <span>State</span><span>(</span>ABC<span>)</span><span>:</span>
+    <span>@property</span>
+    <span>def</span> <span>elevator</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> Elevator<span>:</span>
+        <span>return</span> self<span>.</span>_elevator
+
+    <span>@elevator<span>.</span>setter</span>
+    <span>def</span> <span>elevator</span><span>(</span>self<span>,</span> elevator<span>:</span> Elevator<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        self<span>.</span>_elevator <span>=</span> elevator
+
+    <span>@abstractmethod</span>
+    <span>def</span> <span>pushDownBtn</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>pass</span>
+
+    <span>@abstractmethod</span>
+    <span>def</span> <span>pushUpBtn</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>pass</span>
+
+
+<span># The concrete states</span>
+<span># We have two states of the elevator: when it is on the First floor and the Second floor</span>
+<span>class</span> <span>firstFloor</span><span>(</span>State<span>)</span><span>:</span>
+
+    <span># If the down button is pushed when it is already on the first floor, nothing should happen</span>
+    <span>def</span> <span>pushDownBtn</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;Already in the bottom floor&#34;</span><span>)</span>
+
+    <span># if up button is pushed, move upwards then it changes its state to second floor.</span>
+    <span>def</span> <span>pushUpBtn</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;Elevator moving upward one floor.&#34;</span><span>)</span>
+        self<span>.</span>elevator<span>.</span>setElevator<span>(</span>secondFloor<span>(</span><span>)</span><span>)</span>
+
+
+<span>class</span> <span>secondFloor</span><span>(</span>State<span>)</span><span>:</span>
+
+    <span># if down button is pushed it should move one floor down and open the door</span>
+    <span>def</span> <span>pushDownBtn</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;Elevator moving down a floor...&#34;</span><span>)</span>
+        self<span>.</span>elevator<span>.</span>setElevator<span>(</span>firstFloor<span>(</span><span>)</span><span>)</span>
+
+    <span># if up button is pushed nothing should happen</span>
+    <span>def</span> <span>pushUpBtn</span><span>(</span>self<span>)</span> <span>-</span><span>&gt;</span> <span>None</span><span>:</span>
+        <span>print</span><span>(</span><span>&#34;Already in the top floor&#34;</span><span>)</span>
+
+
+<span>if</span> __name__ <span>==</span> <span>&#34;__main__&#34;</span><span>:</span>
+    <span># The client code.</span>
+
+    myElevator <span>=</span> Elevator<span>(</span>firstFloor<span>(</span><span>)</span><span>)</span>
+    myElevator<span>.</span>presentState<span>(</span><span>)</span>
+
+    <span># Up button is pushed</span>
+    myElevator<span>.</span>pushUpBtn<span>(</span><span>)</span>
+
+    myElevator<span>.</span>presentState<span>(</span><span>)</span></code></pre><p>The output of the above code looks like this:</p><pre><code>Elevator is <span>in</span> firstFloor
+Elevator moving upward one floor<span>.</span>
+Elevator is <span>in</span> secondFloor</code></pre><p>You can implement many buttons and states elevator like in real-life one for the floor. Try using the state pattern to implement the light bulb example from the Finite state machine.</p><h2 id="Advantages-and-Disadvantages">Advantages and Disadvantages</h2><p>The state pattern, like any other programming concept, has a number of benefits as well as some drawbacks. You can avoid writing massive conditional blocks for switching between states by using the state pattern instead of hard-coding state-specific behavior. It allows you to develop a flexible and maintainable application. You can add new states and transitions to the <em>Context</em> without changing it.</p><p>It&#39;s a good idea to use the state pattern if the logic of each state is complex and the states change frequently. Otherwise, it complicates simple things by bringing a plethora of classes and objects. The state pattern adds another level of indirection by imposing clients to rely on a State object, and it extends the context class to allow State objects to change the state of the <em>Context</em>.</p><h2 id="Conclusion">Conclusion</h2><p>In this article, you learned how to use the state pattern in Python programming to design state machines. Without using larger conditional blocks to implement state-specific behavior, the state pattern makes the development process a lot easier. You can also add new states that are not dependent on other states, giving your application more flexibility. The state pattern is very similar to the <a href="https://en.wikipedia.org/wiki/Strategy_pattern" target="_blank" rel="noreferrer noopener">strategy pattern</a>, which alters strategies based on user choices. The main distinction is that concrete states are aware of other states, whereas the strategies do not. Why do we say that states are aware of other states? because each state has to know to which state they should move. For example, the first-floor state knows that they should change to the second-floor state. Another important difference with strategy pattern is that in the case of Strategy pattern, it&#39;s the client, which provides a different strategy to Context, on State pattern, the state transition is managed by Context or State itself. Try to make use of the state pattern in your software to make the development process go more smoothly.</p></div></div>]]></content:encoded>
+      <pubDate>Thu, 02 Sep 2021 15:02:00 +0000</pubDate>
+    </item>
+    <item>
       <title>TinyGo: Good Things Come in Small Packages</title>
       <link>https://auth0.com/blog/tinygo-good-things-come-in-small-packages/</link>
       <description>A beginners guide into the world of IoT with TinyGo.</description>
