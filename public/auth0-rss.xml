@@ -4,6 +4,319 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Testing AWS Chalice Applications</title>
+      <link>https://auth0.com/blog/testing-aws-chalice-applications/</link>
+      <description>A tutorial to learn how to write unit tests and integration tests for REST APIs in AWS Chalice. Additionally, we will see how to measure test coverage.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><strong>TL;DR:</strong> In this tutorial, we will learn how to write unit tests and integration tests with Pytest in AWS Chalice applications. We will also learn how to measure test coverage.</p><h2 id="Introduction">Introduction</h2><p><a href="https://aws.github.io/chalice/" target="_blank" rel="noreferrer noopener">AWS Chalice</a> is a Python-based web micro-framework that leverages on the <a href="https://aws.amazon.com/lambda/" target="_blank" rel="noreferrer noopener">AWS Lambda</a> and <a href="https://aws.amazon.com/api-gateway/" target="_blank" rel="noreferrer noopener">API Gateway</a> services. It is used to create serverless applications. The Chalice experience is <a href="https://flask.palletsprojects.com/en/2.0.x/" target="_blank" rel="noreferrer noopener">Flask</a>-like by way of features like semantics and syntax. For more details on creating and deploying Chalice applications, you can go through the article on <a href="https://auth0.com/blog/how-to-create-crud-rest-api-with-aws-chalice/" target="_blank" rel="noreferrer noopener">how to create CRUD REST API with AWS Chalice</a>.</p><p>When building applications, there is a need to <a href="https://en.wikipedia.org/wiki/Software_testing" target="_blank" rel="noreferrer noopener">test</a> the code to avoid shipping bugs and unstable code. It also saves one a lot of debugging hours and makes deployments less stressful.</p><p>Common forms of tests in software development include:</p><ol start="1"><li><a href="https://en.wikipedia.org/wiki/Unit_testing" target="_blank" rel="noreferrer noopener">Unit test</a>: This tests a particular function, component, or logic in the code. This way, edge cases can easily be identified, isolated, and fixed. Unit tests usually involve inspecting the output of a function against a known or expected output.</li><li><a href="https://en.wikipedia.org/wiki/Integration_testing" target="_blank" rel="noreferrer noopener">Integration Test</a>: examines multiple parts or the entire application in an end-to-end manner. It considers how each function or component works with the other.</li></ol><p>However, Chalice currently provides a test client for just unit tests. Therefore, the integration tests are written in a manner similar to unit tests with no major difference other than the fact that integration tests consist of multiple unit tests.</p><h2 id="Where-to-Write-Tests">Where to Write Tests</h2><p>In Python-based applications, tests are usually housed in <code>test<span>.</span>py</code> files. These are the test files that will import the application logic to be tested.</p><p>Let&#39;s assume we have a simple Chalice application with a folder structure that looks like the following:</p><pre><code>├── app.py
+├── .chalice
+├── requirements.txt
+└── test.py</code></pre><p>However, as the application becomes bigger, a single <code>test<span>.</span>py</code> file would become bulky and can become difficult to work with. Hence, it is necessary to create a folder of tests called <code>tests</code> and then split the tests into multiple test files inside the test folder.</p><p>Now, we&#39;ll need to create a new folder called <code>tests</code> and an empty <code>__init__<span>.</span>py</code> file inside the folder. The <code>__init__<span>.</span>py</code> will allow Python to recognize the test directory as a package that could be run:</p><pre><code><span>mkdir</span> tests <span>&amp;&amp;</span> <span>cd</span> tests
+<span>touch</span> __init__.py</code></pre><p>Now, let&#39;s create a test file for our application inside the test folder:</p><pre><code><span>touch</span> test_unit.py</code></pre><p>Then, the folder structure will look like this:</p><pre><code>├── app.py
+├── .chalice
+├── requirements.txt
+└── tests
+    ├── __init__.py
+    └── test_unit.py</code></pre><p>We can then create as many test files as we need in the <code>tests</code> folder.</p><h2 id="How-to-Do-Unit-Tests">How to Do Unit Tests</h2><p>Since the release of v.1.17.0, AWS Chalice has shipped with a test client that serves as a test runner to write tests in Chalice applications. We no longer need to set up boilerplates and logic for testing. We only need to import the test client into our test file.</p><p>Let&#39;s assume we have our Chalice application has an <code>app<span>.</span>py</code> file that looks like the following:</p><pre><code><span>from</span> chalice <span>import</span> Chalice
+
+app <span>=</span> Chalice<span>(</span>app_name<span>=</span><span>&#39;chalice-api-sample&#39;</span><span>)</span>
+
+
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/&#39;</span><span>)</span>
+<span>def</span> <span>index</span><span>(</span><span>)</span><span>:</span>
+    <span>return</span> <span>{</span><span>&#39;hello&#39;</span><span>:</span> <span>&#39;world&#39;</span><span>}</span></code></pre><p>Now, we&#39;ll modify the <code>test_unit<span>.</span>py</code> file as follows:</p><pre><code><span>import</span> app
+<span>from</span> chalice<span>.</span>test <span>import</span> Client</code></pre><p>In the above code, we have just imported the <code>app<span>.</span>py</code> and the chalice test Client. Let&#39;s add the following test code:</p><pre><code><span>.</span><span>.</span><span>.</span>
+
+<span>def</span> <span>test_index</span><span>(</span><span>)</span><span>:</span>
+    <span>with</span> Client<span>(</span>app<span>.</span>app<span>)</span> <span>as</span> client<span>:</span>
+        response <span>=</span> client<span>.</span>http<span>.</span>get<span>(</span><span>&#39;/&#39;</span><span>)</span>
+        <span>assert</span> response<span>.</span>status_code <span>==</span> <span>200</span>
+        <span>assert</span> response<span>.</span>json_body <span>==</span> <span>{</span><span>&#39;hello&#39;</span><span>:</span> <span>&#39;world&#39;</span><span>}</span></code></pre><p>In the above test code:</p><ol start="1"><li>we instantiated the test Client to be used within the context of the particular test function. That implies that whenever we run the test, a test environment with resources and environment variables will be set up and then cleaned up after running the test.</li><li>We made a <code><span>GET</span></code> request via HTTP using the <code>client<span>.</span>http</code> attribute.</li><li>We assert that a <code><span>200</span></code> status code is returned in the response with a JSON response body—<code><span>{</span><span>&#39;hello&#39;</span><span>:</span> <span>&#39;world&#39;</span><span>}</span></code>.</li></ol><p>We will install <a href="https://docs.pytest.org/en/6.2.x/getting-started.html" target="_blank" rel="noreferrer noopener">Pytest</a> runner to run our test:</p><pre><code>pip <span>install</span> pytest</code></pre><p>Then, we will run with the following command:</p><pre><code>py.test tests/test_unit.py</code></pre><p>We should get a response that looks like the following:</p><pre><code><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span> <span>test</span> session starts <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span>
+platform win32 -- Python <span>3.7</span>.7, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+rootdir: C:<span>\</span>aws-chalice-api-sample
+collected <span>1</span> item
+
+tests<span>\</span>test_unit.py <span>.</span>                                                                           <span>[</span><span>100</span>%<span>]</span>
+
+<span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>1</span> passed <span>in</span> <span>0</span>.11s <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span></code></pre><h3 id="Creating-mocks">Creating mocks</h3><p>We can try to <a href="https://en.wikipedia.org/wiki/Mock_object" target="_blank" rel="noreferrer noopener">mock</a> an external API in order to learn how to <a href="https://docs.python.org/3/library/unittest.mock.html" target="_blank" rel="noreferrer noopener">test with mock variables</a>. We will test a request from our app to an endpoint of <a href="https://jsonplaceholder.typicode.com/" target="_blank" rel="noreferrer noopener">JSONPlaceholder</a> API data service to get a list of dummy posts. Firstly, let us install the Python requests module:</p><pre><code>pip <span>install</span> requests</code></pre><p>Then, let&#39;s add a function inside <code>app<span>.</span>py</code> file to make a <code><span>GET</span></code> request to the <code><span>/</span>post</code> endpoint of JSONPlaceholder and return a list of posts:</p><pre><code><span>.</span><span>.</span><span>.</span>
+<span>import</span> requests
+
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/post&#39;</span><span>)</span>
+<span>def</span> <span>get_post</span><span>(</span><span>)</span><span>:</span>
+    response <span>=</span> requests<span>.</span>get<span>(</span><span>&#34;https://jsonplaceholder.typicode.com/posts/1&#34;</span><span>)</span>
+    <span>if</span> response<span>.</span>ok<span>:</span>
+        <span>return</span> response<span>.</span>json<span>(</span><span>)</span>
+    <span>else</span><span>:</span>
+        <span>return</span> <span>None</span>
+<span>.</span><span>.</span><span>.</span></code></pre><p>In the above code, we wrote a function called <code>get_post</code> that makes an HTTP request to the DummyAPI server and returns the response of the request in JSON form.</p><p>So, we&#39;ll add a mock inside the <code>test_unit<span>.</span>py</code> file:</p><pre><code><span>.</span><span>.</span><span>.</span>
+<span>from</span> unittest<span>.</span>mock <span>import</span> patch
+
+<span>.</span><span>.</span><span>.</span>
+
+<span>@patch</span><span>(</span><span>&#39;app.requests.get&#39;</span><span>)</span>
+<span>def</span> <span>test_get_post</span><span>(</span>mock_get<span>)</span><span>:</span>
+    <span>&#34;&#34;&#34;Mocking with the patch decorator to get a post from an External API&#34;&#34;&#34;</span>
+    mock_get<span>.</span>return_value<span>.</span>ok <span>=</span> <span>True</span>
+    response <span>=</span> app<span>.</span>get_post<span>(</span><span>)</span>
+    <span>assert</span> response<span>.</span>ok</code></pre><p>In the above code, we imported the patch function of the mock module. Then, we defined the patch function as a decorator with reference to the project&#39;s <code>request<span>.</span>get</code>. Then, we created a function called <code>test_get_post</code> with a parameter called <code>mock_get</code> to test the <code>get_post</code> function inside the <code>app<span>.</span>py</code> file. If the returned status of <code>mock_get</code> is <code>ok</code>, then a fake request to the JSONPlaceholder is made, after which an assertion of the status code of the response to the request is made. We ensured that the mock acts like it is making a real <code>request<span>.</span>get</code> request to the JSONPlaceholder server, whereas it is a fake request. This allows us to test our code without dependence on the JSONPlaceholder external API server. </p><p>If we run our test again with the following bash command:</p><pre><code>py.test tests/test_unit.py</code></pre><p>We should get an output similar to the following:</p><pre><code><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>test</span> session starts <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span>
+platform win32 -- Python <span>3.7</span>.7, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+rootdir: C:<span>\</span>aws-chalice-api-sample
+plugins: cov-2.12.1
+collected <span>2</span> items
+
+tests<span>\</span>unit<span>\</span>test_unit.py <span>..</span>                                                                     <span>[</span><span>100</span>%<span>]</span>
+
+<span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>2</span> passed <span>in</span> <span>0</span>.85s <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span></code></pre><p>How can we test when the desired response is not returned? That&#39;s why we have an <code><span>else</span></code> statement in the <code><span>get_post</span><span>(</span><span>)</span></code> function inside the <code>app<span>.</span>py</code> file, right? To accommodate situations when no post is returned when we request for a post from JSONPlaceholder. Therefore, we will add a test that will check when no post is returned. Let&#39;s add the following code in the <code>test_unit<span>.</span>py</code> file:</p><pre><code><span>.</span><span>.</span><span>.</span>
+<span>@patch</span><span>(</span><span>&#39;app.requests.get&#39;</span><span>)</span>
+<span>def</span> <span>test_no_get_post</span><span>(</span>mock_get<span>)</span><span>:</span>
+    <span>&#34;&#34;&#34;Mock testing to check when no post is returned&#34;&#34;&#34;</span>
+    mock_get<span>.</span>return_value<span>.</span>ok <span>=</span> <span>False</span>
+    response <span>=</span> app<span>.</span>get_post<span>(</span><span>)</span>
+    <span>assert</span> response <span>==</span> <span>None</span></code></pre><p>In the above file, we asked the test to check if the returned value of the mock <code><span>GET</span></code> request is not <code>ok</code> in the line <code>mock_get<span>.</span>return_value<span>.</span>ok <span>=</span> False</code>. We also asserted that a <code>None</code> response is returned. So, we have been able to handle situations where a post is not returned.</p><p>We can then run the <code>test_unit<span>.</span>py</code> file again as thus:</p><pre><code>py.test tests/test_unit.py</code></pre><p>We will get the following output:</p><pre><code><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>test</span> session starts <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> 
+platform win32 -- Python <span>3.7</span>.7, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+rootdir: <span>\</span>aws-chalice-api-sample
+plugins: cov-2.12.1
+collected <span>3</span> items
+
+tests<span>\</span>unit<span>\</span>test_unit.py <span>..</span>.                                                                    <span>[</span><span>100</span>%<span>]</span> 
+
+<span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>3</span> passed <span>in</span> <span>0</span>.17s <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span></code></pre><p>Cool!</p><p>The full code of the <code>test_unit<span>.</span>py</code> file is thus:</p><pre><code><span>from</span> unittest<span>.</span>mock <span>import</span> patch
+<span>import</span> app
+<span>from</span> chalice<span>.</span>test <span>import</span> Client
+<span>import</span> json
+
+
+<span>def</span> <span>test_index</span><span>(</span><span>)</span><span>:</span>
+    <span>with</span> Client<span>(</span>app<span>.</span>app<span>)</span> <span>as</span> client<span>:</span>
+        response <span>=</span> client<span>.</span>http<span>.</span>get<span>(</span><span>&#39;/&#39;</span><span>)</span>
+        <span>assert</span> response<span>.</span>status_code <span>==</span> <span>200</span>
+        <span>assert</span> response<span>.</span>json_body <span>==</span> <span>{</span><span>&#39;hello&#39;</span><span>:</span> <span>&#39;world&#39;</span><span>}</span>
+
+<span>@patch</span><span>(</span><span>&#39;app.requests.get&#39;</span><span>)</span>
+<span>def</span> <span>test_get_post</span><span>(</span>mock_get<span>)</span><span>:</span>
+    <span>&#34;&#34;&#34;Mocking with the patch decorator to get a post from an External API&#34;&#34;&#34;</span>
+    mock_get<span>.</span>return_value<span>.</span>ok <span>=</span> <span>True</span>
+    response <span>=</span> app<span>.</span>get_post<span>(</span><span>)</span>
+    <span>assert</span> response<span>.</span>ok
+
+<span>@patch</span><span>(</span><span>&#39;app.requests.get&#39;</span><span>)</span>
+<span>def</span> <span>test_no_get_post</span><span>(</span>mock_get<span>)</span><span>:</span>
+    <span>&#34;&#34;&#34;Mock testing to check when no post is returned&#34;&#34;&#34;</span>
+    mock_get<span>.</span>return_value<span>.</span>ok <span>=</span> <span>False</span>
+    response <span>=</span> app<span>.</span>get_post<span>(</span><span>)</span>
+    <span>assert</span> response <span>==</span> <span>None</span></code></pre><h2 id="How-to-Write-Integration-Tests">How to Write Integration Tests</h2><p>Integration tests check multiple components to see if they work together. These tests are usually written like unit tests, but they involve verifying multiple parts of the application at once. An integration test might require establishing a network connection, setting up a database, etc. These can be configured as fixtures. Fixtures are functions that set up the initial states/environment that you can create in your tests once and use multiple times.</p><p>It is a good habit to separate unit tests from integration tests by putting them in separate folders. Hence, we will create two folders inside the <code>test</code> directory and call them <code>unit</code> and <code>integration</code>, respectively. Then,</p><ul><li>we will move the <code>test_unit<span>.</span>py</code> file into the <code>unit</code> folder.</li><li>also, we will create a new <code>test_integration<span>.</span>py</code> file in the <code>integration</code> folder</li><li>next, we will create a <code>conftest<span>.</span>py</code> file in the <code>test</code> folder to house our fixtures.</li></ul><p>So, the folder structure will look like the following:</p><pre><code>├── app.py
+├── .chalice
+├── requirements.txt
+└── tests
+    ├── __init__.py
+    ├── conftest.py
+    ├── unit/
+    │   ├── __init__.py
+    │   └── test_unit.py
+    │
+    └── integration/
+        ├── __init__.py
+        └── test_integration.py</code></pre><p>To start with, we will create a fixture called <code>app</code>. This fixture will be the instance of our Chalice application. Let&#39;s go to the <code>conftest<span>.</span>py</code> file and change it thus:</p><pre><code><span>import</span> pytest
+<span>from</span> chalice <span>import</span> Chalice
+<span>import</span> app <span>as</span> chalice_app
+<span>from</span> chalice<span>.</span>test <span>import</span> Client
+
+
+<span>@pytest<span>.</span>fixture</span>
+<span>def</span> <span>app</span><span>(</span><span>)</span> <span>-</span><span>&gt;</span> Chalice<span>:</span>
+    <span>return</span> chalice_app
+
+
+<span>@pytest<span>.</span>fixture</span>
+<span>def</span> <span>test_client</span><span>(</span><span>)</span><span>:</span>
+    <span>with</span> Client<span>(</span>chalice_app<span>.</span>app<span>)</span> <span>as</span> client<span>:</span>
+        <span>yield</span> client</code></pre><p>In the code above, we&#39;ve abstracted an instance of our Chalice application as a fixture. We also created a fixture for our test client.</p><p>Going forward, let&#39;s assume that we have set up a REST API for a bookshelf application in the <code>app<span>.</span>py</code> with CRUD endpoints like the following:</p><pre><code><span>.</span><span>.</span><span>.</span>
+
+<span># POST endpoint to add books to the bookshelf</span>
+
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/book&#39;</span><span>,</span> methods<span>=</span><span>[</span><span>&#39;POST&#39;</span><span>]</span><span>)</span>
+<span>def</span> <span>create_book</span><span>(</span><span>)</span><span>:</span>
+    book_as_json <span>=</span> app<span>.</span>current_request<span>.</span>json_body
+    <span>try</span><span>:</span>
+        Item <span>=</span> <span>{</span>
+            <span>&#39;id&#39;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span>
+            <span>&#34;title&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;title&#39;</span><span>]</span><span>,</span>
+            <span>&#34;author&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;author&#39;</span><span>]</span>
+        <span>}</span>
+        <span>return</span> <span>{</span><span>&#34;id&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span> <span>&#34;title&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;title&#39;</span><span>]</span><span>,</span> <span>&#34;author&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;author&#39;</span><span>]</span><span>}</span>
+    <span>except</span> Exception <span>as</span> e<span>:</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>str</span><span>(</span>e<span>)</span><span>}</span>
+
+
+<span># PUT endpoint to update a book item based on the given ID</span>
+
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/book/{id}&#39;</span><span>,</span> methods<span>=</span><span>[</span><span>&#39;PUT&#39;</span><span>]</span><span>)</span>
+<span>def</span> <span>update_book</span><span>(</span><span>id</span><span>)</span><span>:</span>
+    book_as_json <span>=</span> app<span>.</span>current_request<span>.</span>json_body
+    <span>try</span><span>:</span>
+        Item <span>=</span> <span>{</span>
+            <span>&#34;id&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span>
+            <span>&#34;title&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;title&#39;</span><span>]</span><span>,</span>
+        <span>}</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>&#39;ok - UPDATED&#39;</span><span>,</span> <span>&#39;status&#39;</span><span>:</span> <span>201</span><span>}</span>
+    <span>except</span> Exception <span>as</span> e<span>:</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>str</span><span>(</span>e<span>)</span><span>}</span>
+
+
+<span># DELETE endpoint to delete a particular book based on the given ID</span>
+
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/book/{id}&#39;</span><span>,</span> methods<span>=</span><span>[</span><span>&#39;DELETE&#39;</span><span>]</span><span>)</span>
+<span>def</span> <span>delete_book</span><span>(</span><span>id</span><span>)</span><span>:</span>
+    book_as_json <span>=</span> app<span>.</span>current_request<span>.</span>json_body
+    <span>try</span><span>:</span>
+        Item <span>=</span> <span>{</span>
+            <span>&#34;id&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span>
+            <span>&#34;author&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;author&#39;</span><span>]</span>
+        <span>}</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>&#39;ok - DELETED&#39;</span><span>,</span> <span>&#39;status&#39;</span><span>:</span> <span>201</span><span>}</span>
+    <span>except</span> Exception <span>as</span> e<span>:</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>str</span><span>(</span>e<span>)</span><span>}</span></code></pre><p>The code above consists of:</p><ul><li><code><span>add_book</span><span>(</span><span>)</span></code>: function for <code><span>POST</span></code> method to add books to the catalog</li><li><code><span>update_book</span><span>(</span>id</code>: uses the <code><span>UPDATE</span></code> method to update a specified book entry with a new title</li><li><code><span>delete_book</span><span>(</span>id<span>)</span></code>: deletes a particular book entry from the catalog</li></ul><p>Now, we can write tests for them using the Chalice <a href="https://aws.github.io/chalice/api.html#Client.http" target="_blank" rel="noreferrer noopener">TestHTTPClient class</a> inside the <code>test_integration<span>.</span>py</code> file like the following:</p><pre><code><span>import</span> json
+
+<span>#  test for the create_book endpoint</span>
+<span>def</span> <span>test_add_book</span><span>(</span>test_client<span>)</span><span>:</span>
+    response <span>=</span> test_client<span>.</span>http<span>.</span>post<span>(</span>
+        <span>&#39;/book&#39;</span><span>,</span>
+        headers<span>=</span><span>{</span><span>&#39;Content-Type&#39;</span><span>:</span> <span>&#39;application/json&#39;</span><span>}</span><span>,</span>
+        body<span>=</span>json<span>.</span>dumps<span>(</span>
+            <span>{</span>
+                <span>&#34;id&#34;</span><span>:</span> <span>&#34;123&#34;</span><span>,</span>
+                <span>&#34;title&#34;</span><span>:</span> <span>&#34;Javascript Know It All&#34;</span><span>,</span>
+                <span>&#34;author&#34;</span><span>:</span> <span>&#34;Chukwuma Obinna&#34;</span><span>,</span>
+            <span>}</span><span>)</span>
+    <span>)</span>
+    <span>assert</span> response<span>.</span>json_body <span>==</span> <span>{</span>
+        <span>&#34;id&#34;</span><span>:</span> <span>&#34;123&#34;</span><span>,</span>
+        <span>&#34;title&#34;</span><span>:</span> <span>&#34;Javascript Know It All&#34;</span><span>,</span>
+        <span>&#34;author&#34;</span><span>:</span> <span>&#34;Chukwuma Obinna&#34;</span>
+    <span>}</span>
+
+
+<span>#  test for the update_book endpoint</span>
+<span>def</span> <span>test_update_book</span><span>(</span>test_client<span>)</span><span>:</span>
+    response <span>=</span> test_client<span>.</span>http<span>.</span>put<span>(</span>
+        <span>&#39;/book/{id}&#39;</span><span>,</span>
+        headers<span>=</span><span>{</span><span>&#39;Content-Type&#39;</span><span>:</span> <span>&#39;application/json&#39;</span><span>}</span><span>,</span>
+        body<span>=</span>json<span>.</span>dumps<span>(</span>
+            <span>{</span>
+                <span>&#34;id&#34;</span><span>:</span> <span>&#34;123&#34;</span><span>,</span>
+                <span>&#34;title&#34;</span><span>:</span> <span>&#34;Chalice Book&#34;</span><span>,</span>
+            <span>}</span><span>)</span>
+    <span>)</span>
+    <span>assert</span> response<span>.</span>json_body <span>==</span> <span>{</span>
+        <span>&#34;message&#34;</span><span>:</span> <span>&#34;ok - UPDATED&#34;</span><span>,</span>
+        <span>&#34;status&#34;</span><span>:</span> <span>201</span>
+    <span>}</span>
+
+
+<span>#  test for the delete_book endpoint</span>
+<span>def</span> <span>test_delete_book</span><span>(</span>test_client<span>)</span><span>:</span>
+    response <span>=</span> test_client<span>.</span>http<span>.</span>delete<span>(</span><span>&#39;/book/{id}&#39;</span><span>,</span>
+         headers<span>=</span><span>{</span><span>&#39;Content-Type&#39;</span><span>:</span> <span>&#39;application/json&#39;</span><span>}</span><span>,</span>
+         body<span>=</span>json<span>.</span>dumps<span>(</span>
+              <span>{</span>
+                    <span>&#34;id&#34;</span><span>:</span> <span>&#34;123&#34;</span><span>,</span>
+                    <span>&#34;author&#34;</span><span>:</span> <span>&#34;Chukwuma Obinna&#34;</span><span>,</span>
+              <span>}</span><span>)</span>
+    <span>)</span>
+    <span>assert</span> response<span>.</span>json_body <span>==</span> <span>{</span>
+        <span>&#34;message&#34;</span><span>:</span> <span>&#34;ok - DELETED&#34;</span><span>,</span>
+        <span>&#34;status&#34;</span><span>:</span> <span>201</span>
+    <span>}</span></code></pre><p>In the above code:</p><ul><li>We wrote the tests for each of our CRUD endpoints.</li><li>In each test function, we used the <code>test_client</code> that we defined as a fixture earlier on in the <code>conftest<span>.</span>py</code> file.</li><li>defined the header and body to be passed in each test request</li><li>We asserted known responses to the test requests</li></ul><p>Note: the database functionality is not included in the API used in order to simplify the example. Otherwise, we would have to write a fixture to setup a mock database for the integration test.</p><p>To run the above test, we&#39;d use the following command:</p><pre><code>py.test tests/test_integration.py</code></pre><p>We should get a response that looks like the following:</p><pre><code><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>test</span> session starts <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span>
+platform win32 -- Python <span>3.7</span>.7, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+cachedir: .pytest_cache
+rootdir: C:<span>\</span>aws-chalice-api-sample
+collected <span>4</span> items
+
+tests/integration/test_integration.py::test_index PASSED                                     <span>[</span> <span>25</span>%<span>]</span>
+tests/integration/test_integration.py::test_add_book PASSED                                  <span>[</span> <span>50</span>%<span>]</span>
+tests/integration/test_integration.py::test_update_book PASSED                               <span>[</span> <span>75</span>%<span>]</span>
+tests/integration/test_integration.py::test_delete_book PASSED                               <span>[</span><span>100</span>%<span>]</span>
+
+<span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>4</span> passed <span>in</span> <span>1</span>.01s <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span></code></pre><p>Generally, integration tests usually take a longer time to run than unit tests. Therefore, it is advisable to not run them every time but whenever one needs to deploy.</p><p>The full code of the <code>app<span>.</span>py</code> file is thus:</p><pre><code><span>from</span> requests<span>.</span>models <span>import</span> Response
+<span>from</span> chalice <span>import</span> Chalice
+<span>import</span> requests
+<span>import</span> json
+
+app <span>=</span> Chalice<span>(</span>app_name<span>=</span><span>&#39;aws-chalice-api-sample&#39;</span><span>)</span>
+
+
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/&#39;</span><span>)</span>
+<span>def</span> <span>index</span><span>(</span><span>)</span><span>:</span>
+    <span>return</span> <span>{</span><span>&#39;hello&#39;</span><span>:</span> <span>&#39;world&#39;</span><span>}</span>
+
+<span># Function to make External API Call</span>
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/post&#39;</span><span>)</span>
+<span>def</span> <span>get_post</span><span>(</span><span>)</span><span>:</span>
+    response <span>=</span> requests<span>.</span>get<span>(</span><span>&#34;https://jsonplaceholder.typicode.com/posts/1&#34;</span><span>)</span>
+    <span>if</span> response<span>.</span>ok<span>:</span>
+        <span>return</span> response<span>.</span>json<span>(</span><span>)</span>
+    <span>else</span><span>:</span>
+        <span>return</span> <span>None</span>
+
+<span># Function to make POST request to create a book</span>
+@ app<span>.</span>route<span>(</span><span>&#39;/book&#39;</span><span>,</span> methods<span>=</span><span>[</span><span>&#39;POST&#39;</span><span>]</span><span>)</span>
+<span>def</span> <span>create_book</span><span>(</span><span>)</span><span>:</span>
+
+    book_as_json <span>=</span> app<span>.</span>current_request<span>.</span>json_body
+    <span>try</span><span>:</span>
+        Item <span>=</span> <span>{</span>
+            <span>&#39;id&#39;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span>
+            <span>&#34;title&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;title&#39;</span><span>]</span><span>,</span>
+            <span>&#34;author&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;author&#39;</span><span>]</span>
+        <span>}</span>
+        <span>return</span> <span>{</span><span>&#34;id&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span> <span>&#34;title&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;title&#39;</span><span>]</span><span>,</span> <span>&#34;author&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;author&#39;</span><span>]</span><span>}</span>
+    <span>except</span> Exception <span>as</span> e<span>:</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>str</span><span>(</span>e<span>)</span><span>}</span>
+
+<span># Function to make POST request to update a book</span>
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/book/{id}&#39;</span><span>,</span> methods<span>=</span><span>[</span><span>&#39;PUT&#39;</span><span>]</span><span>)</span>
+<span>def</span> <span>update_book</span><span>(</span><span>id</span><span>)</span><span>:</span>
+    book_as_json <span>=</span> app<span>.</span>current_request<span>.</span>json_body
+    <span>try</span><span>:</span>
+        Item <span>=</span> <span>{</span>
+            <span>&#34;id&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span>
+            <span>&#34;title&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;title&#39;</span><span>]</span><span>,</span>
+        <span>}</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>&#39;ok - UPDATED&#39;</span><span>,</span> <span>&#39;status&#39;</span><span>:</span> <span>201</span><span>}</span>
+    <span>except</span> Exception <span>as</span> e<span>:</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>str</span><span>(</span>e<span>)</span><span>}</span>
+
+<span># Function to make POST request to delete a particular book a book</span>
+<span>@app<span>.</span>route</span><span>(</span><span>&#39;/book/{id}&#39;</span><span>,</span> methods<span>=</span><span>[</span><span>&#39;DELETE&#39;</span><span>]</span><span>)</span>
+<span>def</span> <span>delete_book</span><span>(</span><span>id</span><span>)</span><span>:</span>
+    book_as_json <span>=</span> app<span>.</span>current_request<span>.</span>json_body
+    <span>try</span><span>:</span>
+        Item <span>=</span> <span>{</span>
+            <span>&#34;id&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;id&#39;</span><span>]</span><span>,</span>
+            <span>&#34;author&#34;</span><span>:</span> book_as_json<span>[</span><span>&#39;author&#39;</span><span>]</span>
+        <span>}</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>&#39;ok - DELETED&#39;</span><span>,</span> <span>&#39;status&#39;</span><span>:</span> <span>201</span><span>}</span>
+    <span>except</span> Exception <span>as</span> e<span>:</span>
+        <span>return</span> <span>{</span><span>&#39;message&#39;</span><span>:</span> <span>str</span><span>(</span>e<span>)</span><span>}</span></code></pre><h2 id="Measuring-Code-Coverage">Measuring Code Coverage</h2><p><a href="https://en.wikipedia.org/wiki/Code_coverage" target="_blank" rel="noreferrer noopener">Code coverage</a> is simply a means of quantifying how much of our code is being tested. We will use <a href="https://pypi.org/project/pytest-cov/" target="_blank" rel="noreferrer noopener">pytest-cov</a> package to measure test coverage in this tutorial. It is a tool built off the <a href="https://coverage.readthedocs.io/en/coverage-5.5/" target="_blank" rel="noreferrer noopener">coverage.py</a> tool used in measuring coverage in Python code. Fortunately, pytest-cov works well with pytest.</p><p>Let&#39;s install pytest-cov:</p><pre><code>pip <span>install</span> pytest-cov</code></pre><p>Let&#39;s measure the test coverage by using the <code><span>-</span>cov</code> argument with pytest. We will measure the coverage over our source code in the <code>app<span>.</span>py</code> file:</p><pre><code>pytest --cov<span>=</span>app  --cov-report term-missing</code></pre><p>We used the <code><span>--</span>cov<span>-</span>report</code> <code>term<span>-</span>missing</code> command to specify that we want our coverage report to indicate the lines of code that are not covered by our tests.</p><p>We will get a terminal output that looks like this:</p><pre><code><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span> <span>test</span> session starts <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>=</span>
+platform win32 -- Python <span>3.7</span>.7, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+rootdir: <span>\</span>aws-chalice-api-sample
+plugins: cov-2.12.1
+collected <span>7</span> items
+
+tests<span>\</span>integration<span>\</span>test_integration.py <span>..</span><span>..</span>                                                    <span>[</span> <span>57</span>%<span>]</span> 
+tests<span>\</span>unit<span>\</span>test_unit.py <span>..</span>.                                                                   <span>[</span><span>100</span>%<span>]</span> 
+
+----------- coverage: platform win32, python <span>3.7</span>.7-final-0 -----------
+Name     Stmts   Miss  Cover   Missing
+--------------------------------------
+app.py      <span>33</span>      <span>6</span>    <span>82</span>%   <span>46</span>-47, <span>59</span>-60, <span>72</span>-73
+--------------------------------------
+TOTAL       <span>33</span>      <span>6</span>    <span>82</span>%
+
+<span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span> <span>7</span> passed <span>in</span> <span>2</span>.16s <span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span><span>==</span></code></pre><p>Note: The 6 missed exception statements in lines 46-47, 59-60, and 72-73 above are in the <code>app<span>.</span>py</code> file. The missing seemed to occur while running as a result of a pytest <a href="https://github.com/nedbat/coveragepy/issues/605" target="_blank" rel="noreferrer noopener">error</a>.</p><h2 id="Conclusion">Conclusion</h2><p>In this article, we have considered how to run unit and integration tests in Chalice applications and APIs. We also learned how to use Pytest for testing and Pytest-cov for measuring code coverage. We can now go ahead and build <a href="https://developer.ibm.com/devpractices/software-development/articles/5-steps-of-test-driven-development/" target="_blank" rel="noreferrer noopener">test-driven</a> Chalice applications with the knowledge gained.
+Thanks for following through. We&#39;d be glad to have your thoughts and suggestions in the comment section. Thanks.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 06 Sep 2021 14:48:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Welcome to the New Auth0 Careers Hub</title>
       <link>https://auth0.com/blog/welcome-to-the-new-auth0-careers-hub/</link>
       <description>Our redefined destination for exploring what makes Auth0 a great place to work.</description>
