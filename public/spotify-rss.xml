@@ -4,7 +4,7 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
-      <title>&#xA;                                            Introducing Pedalboard: Spotify’s Audio Effects Library for Python&#xA;                                        </title>
+      <title>&#xA;                                            Introducing Pedalboard: Spotify’s Audio Effects Library for Python&#xA;</title>
       <link>https://engineering.atspotify.com/2021/09/07/introducing-pedalboard-spotifys-audio-effects-library-for-python/</link>
       <description>We’ve just open sourced Pedalboard, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW). If you ask any music or podcast producer where they spend most of the</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
