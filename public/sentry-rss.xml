@@ -4,7 +4,7 @@
     <link>https://blog.sentry.io/feed.xml</link>
     <description></description>
     <item>
-      <title>Using Segment Explorer to improve App Performance </title>
+      <title>Using Segment Explorer to improve App Performance</title>
       <link>https://blog.sentry.io/2021/09/09/using-segment-explorer-to-improve-app-performance/</link>
       <description>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also user conditions of the slowest transactions, such as OS, browser type, and even connection type. When you’re looking at performance data, it can be hard to see the forest through the trees. Segment Explorer makes it easier to find specific performance issues, rule out user conditions outside your control, and in general have a better grasp of performance within your application. </p>
