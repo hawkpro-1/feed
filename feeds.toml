@@ -49,3 +49,8 @@ feedURL = true
 title = "Facebook"
 url = "https://engineering.fb.com/rss"
 feedURL = true
+
+[[feed]]
+title= "Figma"
+url = "https://www.figma.com/blog/feed/atom.xml"
+feedURL = true
