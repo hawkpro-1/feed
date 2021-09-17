@@ -190,7 +190,7 @@ Next, start using suspect tags to find latency issues in your app with <a href="
       <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>Use Suspect Tags to improve App Performance </title>
+      <title>Use Suspect Tags to improve App Performance</title>
       <link>https://blog.sentry.io/2021/09/09/use-suspect-tags-to-improve-app-performance/</link>
       <description>When you’re optimizing your application for performance, it helps to understand the user conditions where the slowest transactions occurred…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>When you’re optimizing your application for performance, it helps to understand the user conditions where the slowest transactions occurred, such as OS, browser type, and even connection type. However, with performance data, it can be hard to see the forest through the trees.  <a href="https://docs.sentry.io/product/performance/transaction-summary/#suspect-tags%20white_check_mark%20eyes%20raised_hands">Suspect Tags</a> make it easier to find specific performance issues, rule out user conditions outside your control, and in general, have a better grasp of performance within your application. </p>
@@ -4202,7 +4202,7 @@ https://images.ctfassets.net/em6l9zw4tzag/76mIKgxggz9oMuF1tIXkiL/a77233a58100997
       <pubDate>Thu, 10 Jun 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>Sentry Application Monitoring for Next.js </title>
+      <title>Sentry Application Monitoring for Next.js</title>
       <link>https://blog.sentry.io/2021/06/10/sentry-application-monitoring-for-next-js/</link>
       <description>As you could probably tell from the title, we shipped an SDK for Next.js. This means you can capture errors, measure performance, manage…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>As you could probably tell from the title, we shipped an <a href="https://docs.sentry.io/platforms/javascript/guides/nextjs/">SDK for Next.js</a>. This means you can capture errors, measure performance, manage releases, configure suspect commits, and automatically upload sourcemaps to view unminified JavaScript and TypeScript with zero(-ish) configuration. </p>
@@ -7402,7 +7402,7 @@ https://images.ctfassets.net/em6l9zw4tzag/2iW7jSnWPu3T1FDU06wAxj/afbc0ec6b7eb540
       <pubDate>Tue, 30 Mar 2021 15:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>A Sanity Listicle for Mobile Developers </title>
+      <title>A Sanity Listicle for Mobile Developers</title>
       <link>https://blog.sentry.io/2021/03/30/a-sanity-listicle-for-mobile-developers/</link>
       <description>Before we look to April, let’s recap some of our most notable mobile updates from this past month with a few tips on how to solve what matters faster and a sneak peek of what&#39;s coming next</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Just like that Mobile March Madness 2021 is almost in our rearview. Before we look to April, let’s recap some of our most notable mobile updates from this past month with a few tips on how to solve what matters faster and a sneak peek of what’s coming next. That’s right. We’re constantly improving our mobile monitoring solution independent of our alliteration-based marketing campaigns.</p>
@@ -7779,7 +7779,7 @@ https://images.ctfassets.net/em6l9zw4tzag/7o5tmxTHky3a2mH7uRmZES/95768a8804e2175
       <pubDate>Thu, 25 Mar 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>Using Sentry Performance To Make Sentry Performant </title>
+      <title>Using Sentry Performance To Make Sentry Performant</title>
       <link>https://blog.sentry.io/2021/03/25/using-sentry-performance-to-make-sentry-performant/</link>
       <description>Like many companies, Sentry uses feature flags to determine when certain users see certain features. Recently, we decided to switch our…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Like many companies, Sentry uses feature flags to determine when certain users see certain features. Recently, we decided to switch our feature flag software to an open-source system called <a href="https://github.com/checkr/flagr">Flagr</a>. And while implementing Flagr, we used our new <a href="https://blog.sentry.io/2020/07/14/see-slow-faster-with-performance-monitoring">Performance</a> tools to find — and ultimately fix — a serious issue in how we were fetching our flags. </p>
