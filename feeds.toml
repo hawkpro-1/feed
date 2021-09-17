@@ -45,10 +45,10 @@ title = "Auth0"
 url = "https://auth0.com/blog/rss.xml"
 feedURL = true
 
-[[feed]]
-title = "Facebook"
-url = "https://engineering.fb.com/rss"
-feedURL = true
+#[[feed]]
+#title = "Facebook"
+#url = "https://engineering.fb.com/rss"
+#feedURL = true
 
 [[feed]]
 title= "Figma"
