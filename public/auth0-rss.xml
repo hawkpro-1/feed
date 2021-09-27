@@ -4,6 +4,574 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Get Started with Custom Error Handling in Spring Boot (Java)</title>
+      <link>https://auth0.com/blog/get-started-with-custom-error-handling-in-spring-boot-java/</link>
+      <description>Learn how to implement custom error handling logic in Spring Boot. You will see two approaches based on the @ControllerAdvice annotation. Similarly, you will learn how to deal with authentication and access denied errors in Spring Security.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><strong>TL/DR:</strong> Let’s take a look at everything required to build custom error handling logic in both Spring Boot Web and Spring Boot Security</p><p>REST applications developed in Spring Boot automatically take advantage of its default error handling logic. Specifically, whenever an error occurs, a default response containing some information is returned. The problem is that this information may be poor or insufficient for the API callers to deal with the error properly. This is why implementing custom error handling logic is such a common and desirable task. Achieving it requires more effort than you might think, and you need to delve into a few essential Spring Boot notions. Let&#39;s see everything required to get started with custom error handling in Spring Boot and Java.</p><h2 id="Prerequisites">Prerequisites</h2><p>This is the list of all the prerequisites for following the article:</p><ul><li>Java &gt;= 1.8 (Java &gt;= 13 recommended)</li><li>Spring Boot &gt;= 2.5</li><li><a href="https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web" target="_blank" rel="noreferrer noopener">Spring Boot Starter Web</a> &gt;= 2.5</li><li><a href="https://mvnrepository.com/artifact/org.springframework.security/spring-security-core" target="_blank" rel="noreferrer noopener">Spring Security</a> &gt;= 5.5</li><li><a href="https://mvnrepository.com/artifact/org.projectlombok/lombok" target="_blank" rel="noreferrer noopener">Project Lombok</a> &gt;= 1.18</li><li>Gradle &gt;= 4.x or Maven 3.6.x</li></ul><h2 id="Default-Error-Handling-in-Spring-Boot">Default Error Handling in Spring Boot</h2><p>By default, Spring Boot offers a fallback error-handling page, as well as an error-handling response in case of REST requests. Particularly, Spring Boot looks for a mapping for the <code><span>/</span>error</code> endpoint during the start-up. This mapping depends on what is set on a <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/servlet/ViewResolver.html" target="_blank" rel="noreferrer noopener"><code>ViewResolver</code></a> class. When no valid mappings can be found, Spring Boot automatically configures a default fallback error page. This so-called <em>Whitelabel Error Page</em> is nothing more than a white HTML page containing the HTTP status code and a vague error message. This is what such a page looks like:</p><pre><code><span><span><span>&lt;</span>html</span><span>&gt;</span></span>
+   <span><span><span>&lt;</span>head</span><span>&gt;</span></span><span><span><span>&lt;/</span>head</span><span>&gt;</span></span>
+   <span><span><span>&lt;</span>body</span> <span>data-new-gr-c-s-check-loaded</span><span><span>=</span><span>&#34;</span>14.1026.0<span>&#34;</span></span> <span>data-gr-ext-installed</span><span><span>=</span><span>&#34;</span><span>&#34;</span></span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>h1</span><span>&gt;</span></span>Whitelabel Error Page<span><span><span>&lt;/</span>h1</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>p</span><span>&gt;</span></span>This application has no explicit mapping for /error, so you are seeing this as a fallback.<span><span><span>&lt;/</span>p</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>div</span> <span>id</span><span><span>=</span><span>&#34;</span>created<span>&#34;</span></span><span>&gt;</span></span>Sun Aug 15 14:32:17 UTC 2021<span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>div</span><span>&gt;</span></span>There was an unexpected error (type=Internal Server Error, status=500).<span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>div</span><span>&gt;</span></span><span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+   <span><span><span>&lt;/</span>body</span><span>&gt;</span></span>
+<span><span><span>&lt;/</span>html</span><span>&gt;</span></span></code></pre><p>This is what the <em>Whitelabel</em> HTML page looks like in your browser:
+<img src="https://images.ctfassets.net/23aumh6u8s0i/3uDV4oIkM9VkBKdc37xA9n/647cc2fc212b61a1aa3ff4d52a99c032/whitelabel-error-page.jpg" alt="The Spring Boot Whitelabel HTML Error Page" title="The Spring Boot Whitelabel HTML Error Page"/>
+</p><p><i>The Spring Boot Whitelabel HTML Error Page</i></p><p>Similarly, when dealing with REST requests, Spring Boot automatically returns a default JSON response in case of errors. This contains the same information as the aforementioned <em>Whitelabel</em> HTML error page and looks as follows:</p><pre><code><span>{</span>
+  <span>&#34;timestamp&#34;</span><span>:</span> <span>&#34;2021-15-08T14:32:17.947+0000&#34;</span><span>,</span>
+  <span>&#34;status&#34;</span><span>:</span> <span>500</span><span>,</span>
+  <span>&#34;error&#34;</span><span>:</span> <span>&#34;Internal Server Error&#34;</span><span>,</span>
+  <span>&#34;path&#34;</span><span>:</span> <span>&#34;/test&#34;</span>
+<span>}</span></code></pre><p>As you can see, the default Spring Boot error handling responses for REST does not provide much information. This can quickly become a problem, especially when trying to debug. It is also problematic for front-end developers, who need detailed information coming from API error response messages to be able to explain to the end users what happened properly. </p><p>Let’s see how to replace this default response with custom-defined messages. While this may appear like an easy task, this is actually a tricky one. To achieve it, you first need to know a few Spring Boot fundamentals. Let&#39;s learn more about them.</p><h2 id="Custom-Error-Handling-in-Spring-Boot">Custom Error Handling in Spring Boot</h2><p>You are about to see two different approaches to custom error handling in Spring Boot REST applications. Both are based on a <code>@ControllerAdvice</code> annotated class handling all exceptions that may occur. So, let’s first see what a <code>@ControllerAdvice</code> annotated class is, why to use it, how, and when. Then, you will learn how to implement the two different approaches in detail. Finally, the pros and cons of each method will be explained.</p><h2 id="Handling-Exceptions-with---ControllerAdvice-">Handling Exceptions with <code>@ControllerAdvice</code></h2><p>The <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/ControllerAdvice.html" target="_blank" rel="noreferrer noopener"><code>@ControllerAdvice</code></a> annotation was introduced in <a href="https://docs.spring.io/spring-framework/docs/3.2.8.RELEASE/changelog.txt" target="_blank" rel="noreferrer noopener">Spring 3.2</a> to make exception handling logic easier and entirely definable in one place. In fact, <code>@ControllerAdvice</code> allows you to address exception handling across the whole application. In other words, a single <code>@ControllerAdvice</code> annotated class can handle exceptions thrown from any place in your application. Thus, classes annotated with <code>@ControllerAdvice</code> are powerful and flexible tools. Not only do they allow you to centralize exception-handling logic into a global component, but also give you control over the body response, as well as the HTTP status code. This is especially important when trying to achieve custom error handling. Let’s see <code>@ControllerAdvice</code> in action.</p><p>Now, you are about to see everything required to implement two custom error handling approaches based on <code>@ControllerAdvice</code>. First, you should clone <a href="https://github.com/Tonel/spring-boot-custom-error-handling" target="_blank" rel="noreferrer noopener">the GitHub repository</a> supporting this article. By analyzing the codebase, going through this article will become easier. Also, you will be able to immediately see the two approaches in action.</p><p>So, clone the repository with the following command:</p><pre><code><span>git</span> clone https://github.com/Tonel/spring-boot-custom-error-handling</code></pre><p>Then, run the <code>DemoApplication</code> main class by following <a href="https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/using-boot-running-your-application.html" target="_blank" rel="noreferrer noopener">this guide from the Spring Boot official documentation</a>, and reach one of the following 4 endpoints to see the custom error handling responses:</p><ol start="1"><li><code>http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>8080</span><span>/</span>test<span>-</span>custom<span>-</span>data<span>-</span>not<span>-</span>found<span>-</span>exception</code></li><li><code>http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>8080</span><span>/</span>test<span>-</span>custom<span>-</span>parameter<span>-</span>constraint<span>-</span>exception<span>?</span>value<span>=</span><span>12</span></code></li><li><code>http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>8080</span><span>/</span>test<span>-</span>custom<span>-</span>error<span>-</span>exception</code></li><li><code>http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>8080</span><span>/</span>test<span>-</span>generic<span>-</span>exception</code></li></ol><p>The first two APIs apply the first approach to error handling you are about to see, while the third API uses the second approach. The fourth and last API shows the fallback error handling logic presented above in action. Now, let&#39;s delve into implementing these two approaches to custom error handling in Spring Boot.</p><p>Both of them rely on an <code>ErrorMessage</code> class representing the custom error body placed in an <code>error</code> package, containing everything needed to deal with custom error handling logic. This can be implemented as follows:</p><pre><code><span>// src/main/java/com/customerrorhandling/demo/errors/ErrorResponse.java</span>
+
+<span>package</span> <span>com<span>.</span>customerrorhandling<span>.</span>demo<span>.</span>errors</span><span>;</span>
+
+<span>import</span> <span>com<span>.</span>fasterxml<span>.</span>jackson<span>.</span>annotation<span>.</span></span><span>JsonFormat</span><span>;</span>
+<span>import</span> <span>lombok<span>.</span></span><span>Getter</span><span>;</span>
+<span>import</span> <span>lombok<span>.</span></span><span>Setter</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>HttpStatus</span><span>;</span>
+<span>import</span> <span>java<span>.</span>util<span>.</span></span><span>Date</span><span>;</span>
+
+<span>@Getter</span>
+<span>@Setter</span>
+<span>public</span> <span>class</span> <span>ErrorResponse</span> <span>{</span>
+    <span>// customizing timestamp serialization format</span>
+    <span>@JsonFormat</span><span>(</span>shape <span>=</span> <span>JsonFormat<span>.</span>Shape</span><span>.</span>STRING<span>,</span> pattern <span>=</span> <span>&#34;dd-MM-yyyy hh:mm:ss&#34;</span><span>)</span>
+    <span>private</span> <span>Date</span> timestamp<span>;</span>
+
+    <span>private</span> <span>int</span> code<span>;</span>
+
+    <span>private</span> <span>String</span> status<span>;</span>
+
+    <span>private</span> <span>String</span> message<span>;</span>
+
+    <span>private</span> <span>String</span> stackTrace<span>;</span>
+
+    <span>private</span> <span>Object</span> data<span>;</span>
+
+    <span>public</span> <span>ErrorResponse</span><span>(</span><span>)</span> <span>{</span>
+        timestamp <span>=</span> <span>new</span> <span>Date</span><span>(</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>ErrorResponse</span><span>(</span>
+            <span>HttpStatus</span> httpStatus<span>,</span>
+            <span>String</span> message
+    <span>)</span> <span>{</span>
+        <span>this</span><span>(</span><span>)</span><span>;</span>
+    
+        <span>this</span><span>.</span>code <span>=</span> httpStatus<span>.</span><span>value</span><span>(</span><span>)</span><span>;</span>
+        <span>this</span><span>.</span>status <span>=</span> httpStatus<span>.</span><span>name</span><span>(</span><span>)</span><span>;</span>
+        <span>this</span><span>.</span>message <span>=</span> message<span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>ErrorResponse</span><span>(</span>
+            <span>HttpStatus</span> httpStatus<span>,</span>
+            <span>String</span> message<span>,</span>
+            <span>String</span> stackTrace
+    <span>)</span> <span>{</span>
+        <span>this</span><span>(</span>
+                httpStatus<span>,</span>
+                message        
+        <span>)</span><span>;</span>
+
+        <span>this</span><span>.</span>stackTrace <span>=</span> stackTrace<span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>ErrorResponse</span><span>(</span>
+            <span>HttpStatus</span> httpStatus<span>,</span>
+            <span>String</span> message<span>,</span>
+        <span>String</span> stackTrace<span>,</span>
+            <span>Object</span> data
+    <span>)</span> <span>{</span>
+        <span>this</span><span>(</span>
+                httpStatus<span>,</span>
+                message<span>,</span>
+        stackTrace
+        <span>)</span><span>;</span>
+
+        <span>this</span><span>.</span>data <span>=</span> data<span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>The <a href="https://projectlombok.org/features/GetterSetter" target="_blank" rel="noreferrer noopener"><code>@Getter</code></a> and <a href="https://projectlombok.org/features/GetterSetter" target="_blank" rel="noreferrer noopener"><code>@Setter</code></a> annotations used in the code examples above are part of the <a href="https://projectlombok.org/" target="_blank" rel="noreferrer noopener"><code>Project Lombok</code></a>. They are used to automatically generate getters and setters. This is not mandatory and is just an additional way to avoid boilerplate code. Read <a href="https://auth0.com/blog/a-complete-guide-to-lombok/" target="_blank" rel="noreferrer noopener">this</a> article to find out more about Lombok.</p><p><code>ErrorResponse</code> carries information such as an HTTP status <code>code</code> and <code>name</code>, a <code>timestamp</code> indicating when the error occurred, an optional error <code>message</code>, an optional <a href="https://en.wikibooks.org/wiki/Java_Programming/Stack_trace" target="_blank" rel="noreferrer noopener"><code>exception stacktrace</code></a>, and an optional object containing any kind of <code>data</code>. You should try to provide values to the first three fields, while the latter should be used only when required. In particular, the <code>stackTrace</code> field should be valorized only in staging or development environments, as explained <a href="https://betterprogramming.pub/environment-based-error-handling-with-spring-boot-and-kotlin-b36b901135ad" target="_blank" rel="noreferrer noopener">here</a>. Similarly, the data field should be used only when additional data is required. Specifically, to explain in detail what happened or let the front-end better handle the error.</p><p>This class can be used to achieve a custom response when handling exceptions with <code>@ControllerAdvice</code> as below:</p><pre><code><span>// src/main/java/com/customerrorhandling/demo/errors/CustomControllerAdvice.java</span>
+
+<span>package</span> <span>com<span>.</span>customerrorhandling<span>.</span>demo<span>.</span>errors</span><span>;</span>
+
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomDataNotFoundException</span><span>;</span>
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomErrorException</span><span>;</span>
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomParameterConstraintException</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>HttpStatus</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>ResponseEntity</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>web<span>.</span>bind<span>.</span>annotation<span>.</span></span><span>ControllerAdvice</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>web<span>.</span>bind<span>.</span>annotation<span>.</span></span><span>ExceptionHandler</span><span>;</span>
+<span>import</span> <span>java<span>.</span>io<span>.</span></span><span>PrintWriter</span><span>;</span>
+<span>import</span> <span>java<span>.</span>io<span>.</span></span><span>StringWriter</span><span>;</span>
+
+<span>@ControllerAdvice</span>
+<span>class</span> <span>CustomControllerAdvice</span> <span>{</span>
+    <span>@ExceptionHandler</span><span>(</span><span>NullPointerException</span><span>.</span><span>class</span><span>)</span> <span>// exception handled</span>
+    <span>public</span> <span>ResponseEntity</span><span><span>&lt;</span><span>ErrorResponse</span><span>&gt;</span></span> <span>handleNullPointerExceptions</span><span>(</span>
+        <span>Exception</span> e
+    <span>)</span> <span>{</span>
+        <span>// ... potential custom logic</span>
+
+        <span>HttpStatus</span> status <span>=</span> <span>HttpStatus</span><span>.</span>NOT_FOUND<span>;</span> <span>// 404</span>
+
+        <span>return</span> <span>new</span> <span>ResponseEntity</span><span><span>&lt;</span><span>&gt;</span></span><span>(</span>
+            <span>new</span> <span>ErrorResponse</span><span>(</span>
+              status<span>,</span> 
+              e<span>.</span><span>getMessage</span><span>(</span><span>)</span>
+            <span>)</span><span>,</span>
+            status
+        <span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>// fallback method</span>
+    <span>@ExceptionHandler</span><span>(</span><span>Exception</span><span>.</span><span>class</span><span>)</span> <span>// exception handled</span>
+    <span>public</span> <span>ResponseEntity</span><span><span>&lt;</span><span>ErrorResponse</span><span>&gt;</span></span> <span>handleExceptions</span><span>(</span>
+        <span>Exception</span> e
+    <span>)</span> <span>{</span>
+        <span>// ... potential custom logic</span>
+
+        <span>HttpStatus</span> status <span>=</span> <span>HttpStatus</span><span>.</span>INTERNAL_SERVER_ERROR<span>;</span> <span>// 500</span>
+
+    <span>// converting the stack trace to String</span>
+    <span>StringWriter</span> stringWriter <span>=</span> <span>new</span> <span>StringWriter</span><span>(</span><span>)</span><span>;</span>
+    <span>PrintWriter</span> printWriter <span>=</span> <span>new</span> <span>PrintWriter</span><span>(</span>stringWriter<span>)</span><span>;</span>
+    e<span>.</span><span>printStackTrace</span><span>(</span>printWriter<span>)</span><span>;</span>
+    <span>String</span> stackTrace <span>=</span> stringWriter<span>.</span><span>toString</span><span>(</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>new</span> <span>ResponseEntity</span><span><span>&lt;</span><span>&gt;</span></span><span>(</span>
+            <span>new</span> <span>ErrorResponse</span><span>(</span>
+              status<span>,</span> 
+              e<span>.</span><span>getMessage</span><span>(</span><span>)</span><span>,</span> 
+              stackTrace <span>// specifying the stack trace in case of 500s</span>
+            <span>)</span><span>,</span>
+            status
+        <span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>As you can see, <code>@ControllerAdvice</code> works by employing the <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/ExceptionHandler.html" target="_blank" rel="noreferrer noopener"><code>@ExceptionHandler</code></a> method-level annotation. This annotation allows you to define which method should be called in case of an error. Specifically, the exception thrown is compared to the exceptions passed as parameters to <code>@ExceptionHandler</code> based on type. The first method where there is a match is called. If none matched, then the exception&#39;s parent class is tested, and so on. This is also why you should implement a fallback method to cover all remaining cases. You can achieve this by passing the <a href="https://docs.oracle.com/en/java/javase/13/docs/api/java.base/java/lang/Exception.html" target="_blank" rel="noreferrer noopener"><code>Exception</code></a> class to the <code>@ExceptionHandler</code> annotation, just like in the <code>handleExceptions</code> method. In fact, any exception in Java must have <code>Exception</code> as one of its ancestors in their inheritance chain. So, they all extend directly — or as subclasses — the <code>Exception</code> <a href="https://docs.oracle.com/javase/tutorial/java/IandI/subclasses.html" target="_blank" rel="noreferrer noopener">superclass</a>.</p><p>Then, each method handles the error and might even implement custom logic, such as logging. In this example, each exception is handled by returning a <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/ResponseEntity.html" target="_blank" rel="noreferrer noopener"><code>ResponseEntity</code></a> having the desired <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/HttpStatus.html" target="_blank" rel="noreferrer noopener"><code>HttpStatus</code></a>. This will be used as an HTTP status code associated with the error response. Similarly, the <code>ErrorResponse</code> instance passed to the <code>ResponseEntity</code> constructor will be automatically serialized in JSON and used as the message body. This way, custom error handling has just been achieved.</p><p>Now, you will dive into how to use <code>@ConfrollerAdvice</code> to implement two different approaches to custom error handling for REST in Spring Boot Web. The first one involves boilerplate code, but it is clean and best-practice based. In contrast, the second represents a good solution in terms of convenience, although it is a bit dirty.</p><h3 id="Defining-Many-Custom-Exceptions">Defining Many Custom Exceptions</h3><p>This approach involves having as many methods in your <code>@ControllerAdvice</code> as many HTTP error status codes you want to handle. These methods will be related to one or more exceptions and return an error message with a particular HTTP status code. Implementing such an approach required three steps. First, you have to think about all the HTTP error status codes you want your application to return. Then, you have to define a method for each of them in your <code>@ControllerAdvice</code> annotated class. Lastly, you have to associate these methods with their exceptions with the <code>@ExceptionHandler</code> annotation.</p><p>This means that all exceptions of a particular type will be traced back to their relative method in the <code>@ControllerAdvice</code> annotated class. This may represent a problem, especially considering some exceptions are more common than others, such as <a href="https://docs.oracle.com/en/java/javase/13/docs/api/java.base/java/lang/NullPointerException.html" target="_blank" rel="noreferrer noopener"><code>NullPointerException</code></a>. Since these exceptions can be thrown in many parts of your logic, they might have different meanings. Thus, they represent various errors and, therefore, other HTTP status codes.</p><p>The solution is to introduce new custom exceptions wrapping these frequent exceptions. For example, a <code>NullPointerException</code> can become a <code>CustomParameterConstraintException</code> exception at the controller layer, and a <code>CustomDataNotFoundException</code> at the DAO  (<a href="https://it.wikipedia.org/wiki/Data_Access_Object" target="_blank" rel="noreferrer noopener">Data Access Object</a>) layer. In this case, the first one can be associated with a <em>400 Bad Request</em>, and the second with a <em>404 Not Found</em> HTTP status. The idea behind these exceptions is to give the error that occurred a more specific meaning. This better characterizes the error and makes it more handleable in the <code>@ControllerAdvice</code> annotated class accordingly. So, you should define a custom exception for each particular error you want to handle. Also, using custom exception classes represents undoubtedly a clean code principle. Thus, by adopting it, you are going to have more than one benefit.</p><p>So, let’s see this approach in action through an example. Firstly, you have to define custom exceptions, as shown here:</p><pre><code><span>// src/main/java/exceptions/CustomParameterConstraintException.java</span>
+
+<span>package</span> <span>exceptions</span><span>;</span>
+
+<span>public</span> <span>class</span> <span>CustomParameterConstraintException</span> <span>extends</span> <span>RuntimeException</span> <span>{</span>  
+    <span>public</span> <span>CustomParameterConstraintException</span><span>(</span><span>)</span> <span>{</span>
+        <span>super</span><span>(</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>CustomParameterConstraintException</span><span>(</span><span>String</span> message<span>)</span> <span>{</span>
+        <span>super</span><span>(</span>message<span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><pre><code><span>// src/main/java/exceptions/CustomDataNotFoundException.java</span>
+
+<span>package</span> <span>exceptions</span><span>;</span>
+
+<span>public</span> <span>class</span> <span>CustomDataNotFoundException</span> <span>extends</span> <span>RuntimeException</span> <span>{</span>  
+    <span>public</span> <span>CustomDataNotFoundException</span><span>(</span><span>)</span> <span>{</span>
+        <span>super</span><span>(</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>CustomDataNotFoundException</span><span>(</span><span>String</span> message<span>)</span> <span>{</span>
+        <span>super</span><span>(</span>message<span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>Then, use them to wrap frequent exceptions, or to throw them in case of particular circumstances representing errors in your business logic. Let’s see how with two examples:</p><pre><code><span>// DAO-level method</span>
+<span>public</span> <span>Foo</span> <span>retrieveFooById</span><span>(</span>
+    <span>int</span> id
+<span>)</span> <span>{</span>
+    <span>try</span> <span>{</span>
+        <span>// data retrieving logic</span>
+    <span>}</span> <span>catch</span> <span>(</span><span>NullPointerException</span> e<span>)</span> <span>{</span>
+        <span>throw</span> <span>new</span> <span>CustomDataNotFoundException</span><span>(</span>e<span>.</span><span>getMessage</span><span>(</span><span>)</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>As shown above, a generic <code>NullPointerException</code> is turned into a more meaningful <code>CustomDataNotFoundException</code>.</p><pre><code><span>// controller-level method method</span>
+<span>public</span> <span>ResponseEntity</span><span><span>&lt;</span><span>Void</span><span>&gt;</span></span> <span>performOperation</span><span>(</span>
+    <span>int</span> numberOfAttempts
+<span>)</span> <span>{</span>
+    <span>if</span> <span>(</span>numberOfAttempts <span>&lt;=</span> <span>0</span> <span>||</span> numberOfAttempts <span>&gt;=</span> <span>5</span><span>)</span>
+        <span>throw</span> <span>new</span> <span>CustomParameterConstraintException</span><span>(</span><span>&#34;numberOfAttempts must be &gt;= 0 and &lt;= 5!&#34;</span><span>)</span><span>;</span>
+        
+    <span>// business logic</span>
+<span>}</span></code></pre><p>Here, a particular behavior that should not happen is intercepted. Then, the custom <code>CustomParameterConstraintException</code> exception describing it is thrown.</p><p>Finally, all you have to do is add two particular methods to your <code>@ControllerAdvice</code> annotated class, one for each specific error.</p><pre><code><span>// src/main/java/com/customerrorhandling/demo/errors/CustomControllerAdvice.java</span>
+
+<span>package</span> <span>com<span>.</span>customerrorhandling<span>.</span>demo<span>.</span>errors</span><span>;</span>
+
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomDataNotFoundException</span><span>;</span>
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomErrorException</span><span>;</span>
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomParameterConstraintException</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>HttpStatus</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>ResponseEntity</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>web<span>.</span>bind<span>.</span>annotation<span>.</span></span><span>ControllerAdvice</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>web<span>.</span>bind<span>.</span>annotation<span>.</span></span><span>ExceptionHandler</span><span>;</span>
+<span>import</span> <span>java<span>.</span>io<span>.</span></span><span>PrintWriter</span><span>;</span>
+<span>import</span> <span>java<span>.</span>io<span>.</span></span><span>StringWriter</span><span>;</span>
+
+<span>@ControllerAdvice</span>
+<span>class</span> <span>CustomControllerAdvice</span> <span>{</span>
+    <span>// ...</span>
+
+    <span>@ExceptionHandler</span><span>(</span><span>CustomDataNotFoundException</span><span>.</span><span>class</span><span>)</span>
+    <span>public</span> <span>ResponseEntity</span><span><span>&lt;</span><span>ErrorResponse</span><span>&gt;</span></span> <span>handleCustomDataNotFoundExceptions</span><span>(</span>
+        <span>Exception</span> e
+    <span>)</span> <span>{</span>
+        <span>HttpStatus</span> status <span>=</span> <span>HttpStatus</span><span>.</span>NOT_FOUND<span>;</span> <span>// 404</span>
+
+    <span>// converting the stack trace to String</span>
+    <span>StringWriter</span> stringWriter <span>=</span> <span>new</span> <span>StringWriter</span><span>(</span><span>)</span><span>;</span>
+    <span>PrintWriter</span> printWriter <span>=</span> <span>new</span> <span>PrintWriter</span><span>(</span>stringWriter<span>)</span><span>;</span>
+    e<span>.</span><span>printStackTrace</span><span>(</span>printWriter<span>)</span><span>;</span>
+    <span>String</span> stackTrace <span>=</span> stringWriter<span>.</span><span>toString</span><span>(</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>new</span> <span>ResponseEntity</span><span><span>&lt;</span><span>&gt;</span></span><span>(</span>
+            <span>new</span> <span>ErrorResponse</span><span>(</span>
+              status<span>,</span> 
+              e<span>.</span><span>getMessage</span><span>(</span><span>)</span><span>,</span>
+          stackTrace<span>,</span> <span>// assuming to be in staging environment, otherwise stackTrace should not be valorized</span>
+            <span>)</span><span>,</span>
+            status
+        <span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>@ExceptionHandler</span><span>(</span><span>CustomParameterConstraintException</span><span>.</span><span>class</span><span>)</span>
+    <span>public</span> <span>ResponseEntity</span><span><span>&lt;</span><span>ErrorResponse</span><span>&gt;</span></span> <span>handleCustomParameterConstraintExceptions</span><span>(</span>
+        <span>Exception</span> e
+    <span>)</span> <span>{</span>
+        <span>HttpStatus</span> status <span>=</span> <span>HttpStatus</span><span>.</span>BAD_REQUEST<span>;</span> <span>// 400</span>
+
+        <span>return</span> <span>new</span> <span>ResponseEntity</span><span><span>&lt;</span><span>&gt;</span></span><span>(</span>
+            <span>new</span> <span>ErrorResponse</span><span>(</span>
+              status<span>,</span> 
+              e<span>.</span><span>getMessage</span><span>(</span><span>)</span>
+            <span>)</span><span>,</span>
+            status
+        <span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>// ...</span>
+<span>}</span></code></pre><p>Et voilà! Both errors originally related to the same exception were first characterized and then handled accordingly.</p><p>Now, let&#39;s see the difference. This is what the default error response would look like on a 404 error:</p><pre><code><span>{</span>
+  <span>&#34;timestamp&#34;</span><span>:</span> <span>&#34;2021-15-08T14:32:17.947+0000&#34;</span><span>,</span>
+  <span>&#34;status&#34;</span><span>:</span> <span>404</span><span>,</span>
+  <span>&#34;error&#34;</span><span>:</span> <span>&#34;Not Found&#34;</span><span>,</span>
+  <span>&#34;path&#34;</span><span>:</span> <span>&#34;/test404&#34;</span>
+<span>}</span></code></pre><p>And this is what the custom error response just implemented looks like:</p><pre><code><span>{</span>
+  <span>&#34;timestamp&#34;</span><span>:</span> <span>&#34;2021-15-08 14:32:17&#34;</span><span>,</span>
+  <span>&#34;code&#34;</span><span>:</span> <span>404</span><span>,</span>
+  <span>&#34;status&#34;</span><span>:</span> <span>&#34;NOT_FOUND&#34;</span><span>,</span>
+  <span>&#34;message&#34;</span><span>:</span> <span>&#34;Resource not found&#34;</span><span>,</span>
+  <span>&#34;stackTrace&#34;</span><span>:</span> &#34;Exception in thread \&#34;main\&#34; com.example.demo.exceptions.CustomDataNotFoundException
+        at com.example.demo.AuthorController.getAuthor(AuthorController.java<span>:</span><span>16</span>)
+        at com.example.demo.AuthorService.getAuthor(AuthorService.java<span>:</span><span>37</span>)
+        at com.example.demo.AuthorDao.getById(AuthorDao.java<span>:</span><span>24</span>)&#34;
+<span>}</span></code></pre><h3 id="Defining-a-Single-Custom-Exception-Carrying-All-Data">Defining a Single Custom Exception Carrying All Data</h3><p>This approach involves defining a custom exception carrying the HTTP status to use, and all the data required to describe the error that occurred. The idea is to turn every exception you want to handle, or you would like to throw under special circumstances, into an instance of this particular exception. This way, you are spreading the error characterization logic into all your code. So, you will only have to add a new method in your <code>@ControllerAdvice</code> annotated class to handle this custom exception accordingly.</p><p>First, you have to define a custom error handling exception. This can be achieved as follows:</p><pre><code><span>// src/main/java/exceptions/CustomErrorException.java</span>
+
+<span>package</span> <span>exceptions</span><span>;</span>
+
+<span>import</span> <span>lombok<span>.</span></span><span>Getter</span><span>;</span>
+<span>import</span> <span>lombok<span>.</span></span><span>Setter</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>HttpStatus</span><span>;</span>
+
+<span>@Getter</span>
+<span>@Setter</span>
+<span>public</span> <span>class</span> <span>CustomErrorException</span> <span>extends</span> <span>RuntimeException</span> <span>{</span>
+    <span>private</span> <span>HttpStatus</span> status <span>=</span> <span>null</span><span>;</span>
+
+    <span>private</span> <span>Object</span> data <span>=</span> <span>null</span><span>;</span>
+
+    <span>public</span> <span>CustomErrorException</span><span>(</span><span>)</span> <span>{</span>
+      <span>super</span><span>(</span><span>)</span><span>;</span>
+    <span>}</span>
+
+   <span>public</span> <span>CustomErrorException</span><span>(</span>
+      <span>String</span> message
+   <span>)</span> <span>{</span> 
+      <span>super</span><span>(</span>message<span>)</span><span>;</span>
+   <span>}</span>
+
+    <span>public</span> <span>CustomErrorException</span><span>(</span>
+        <span>HttpStatus</span> status<span>,</span>
+        <span>String</span> message
+    <span>)</span> <span>{</span>
+        <span>this</span><span>(</span>message<span>)</span><span>;</span>
+        <span>this</span><span>.</span>status <span>=</span> status<span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>CustomErrorException</span><span>(</span>
+        <span>HttpStatus</span> status<span>,</span>
+        <span>String</span> message<span>,</span>
+        <span>Object</span> data
+    <span>)</span> <span>{</span>
+        <span>this</span><span>(</span>
+          status<span>,</span>
+      message
+        <span>)</span><span>;</span>
+        <span>this</span><span>.</span>data <span>=</span> data<span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>Again, the <a href="https://projectlombok.org/features/GetterSetter" target="_blank" rel="noreferrer noopener"><code>@Getter</code></a> and <a href="https://projectlombok.org/features/GetterSetter" target="_blank" rel="noreferrer noopener"><code>@Setter</code></a> annotations were used to avoid boilerplate code and are not mandatory. As you can see, the <code>CustomErrorException</code> class carries the same data used in the <code>ErrorResponse</code> class to better describe what happened and present the errors to the end-users.</p><p>So, you can use this exception to wrap other exceptions, or you can throw it in case of particular circumstances constituting errors in your business logic. Now, let’s see how with two examples:</p><pre><code><span>// DAO-level method</span>
+<span>public</span> <span>Foo</span> <span>retrieveFooById</span><span>(</span>
+    <span>int</span> id
+<span>)</span> <span>{</span>
+    <span>try</span> <span>{</span>
+        <span>// data retrieving logic</span>
+    <span>}</span> <span>catch</span> <span>(</span><span>NullPointerException</span> e<span>)</span> <span>{</span>
+        <span>throw</span> <span>new</span> <span>CustomErrorException</span><span>(</span>
+          <span>HttpStatus</span><span>.</span>NOT_FOUND<span>,</span>
+          e<span>.</span><span>getMessage</span><span>(</span><span>)</span><span>,</span>
+          <span>(</span><span>Integer</span><span>)</span> id
+        <span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>Here, an insufficiently significant <code>NullPointerException</code> is turned into a more detailed <code>CustomErrorException</code> containing all the data to describe why the error occurred.</p><pre><code><span>// controller-level method method</span>
+<span>public</span> <span>ResponseEntity</span><span><span>&lt;</span><span>Void</span><span>&gt;</span></span> <span>performOperation</span><span>(</span>
+    <span>int</span> numberOfAttempts
+<span>)</span> <span>{</span>
+    <span>if</span> <span>(</span>numberOfAttempts <span>&lt;=</span> <span>0</span> <span>||</span> numberOfAttempts <span>&gt;=</span> <span>5</span><span>)</span> <span>{</span>
+        <span>throw</span> <span>new</span> <span>CustomErrorException</span><span>(</span>
+          <span>HttpStatus</span><span>.</span>BAD_REQUEST<span>,</span>
+          <span>&#34;numberOfAttempts must be &gt;= 0 and &lt;= 5!&#34;</span><span>,</span>
+          <span>(</span><span>Integer</span><span>)</span> numberOfAttempts
+        <span>)</span><span>;</span>
+    <span>}</span>
+        
+    <span>// business logic</span>
+<span>}</span></code></pre><p>Similarly, a particular behavior that is not supposed to happen is intercepted. Consequently, a <code>CustomErrorException</code> exception containing all the useful data to represent the error is thrown.</p><p>Lastly, add one method to handle <code>CustomErrorException</code> exception instances to your <code>@ControllerAdvice</code> annotated class, as below:</p><pre><code><span>// src/main/java/com/customerrorhandling/demo/errors/CustomControllerAdvice.java</span>
+
+<span>package</span> <span>com<span>.</span>customerrorhandling<span>.</span>demo<span>.</span>errors</span><span>;</span>
+
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomDataNotFoundException</span><span>;</span>
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomErrorException</span><span>;</span>
+<span>import</span> <span>exceptions<span>.</span></span><span>CustomParameterConstraintException</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>HttpStatus</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>ResponseEntity</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>web<span>.</span>bind<span>.</span>annotation<span>.</span></span><span>ControllerAdvice</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>web<span>.</span>bind<span>.</span>annotation<span>.</span></span><span>ExceptionHandler</span><span>;</span>
+<span>import</span> <span>java<span>.</span>io<span>.</span></span><span>PrintWriter</span><span>;</span>
+<span>import</span> <span>java<span>.</span>io<span>.</span></span><span>StringWriter</span><span>;</span>
+
+<span>@ControllerAdvice</span>
+<span>class</span> <span>CustomControllerAdvice</span> <span>{</span>
+    <span>// ...</span>
+
+    <span>@ExceptionHandler</span><span>(</span><span>CustomErrorException</span><span>.</span><span>class</span><span>)</span>
+    <span>public</span> <span>ResponseEntity</span><span><span>&lt;</span><span>ErrorResponse</span><span>&gt;</span></span> <span>handleCustomErrorExceptions</span><span>(</span>
+            <span>Exception</span> e
+    <span>)</span> <span>{</span>
+        <span>// casting the generic Exception e to CustomErrorException</span>
+        <span>CustomErrorException</span> customErrorException <span>=</span> <span>(</span><span>CustomErrorException</span><span>)</span> e<span>;</span>
+
+        <span>HttpStatus</span> status <span>=</span> customErrorException<span>.</span><span>getStatus</span><span>(</span><span>)</span><span>;</span>
+
+        <span>// converting the stack trace to String</span>
+        <span>StringWriter</span> stringWriter <span>=</span> <span>new</span> <span>StringWriter</span><span>(</span><span>)</span><span>;</span>
+        <span>PrintWriter</span> printWriter <span>=</span> <span>new</span> <span>PrintWriter</span><span>(</span>stringWriter<span>)</span><span>;</span>
+        customErrorException<span>.</span><span>printStackTrace</span><span>(</span>printWriter<span>)</span><span>;</span>
+        <span>String</span> stackTrace <span>=</span> stringWriter<span>.</span><span>toString</span><span>(</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>new</span> <span>ResponseEntity</span><span><span>&lt;</span><span>&gt;</span></span><span>(</span>
+                <span>new</span> <span>ErrorResponse</span><span>(</span>
+                        status<span>,</span>
+                        customErrorException<span>.</span><span>getMessage</span><span>(</span><span>)</span><span>,</span>
+                        stackTrace<span>,</span>
+                        customErrorException<span>.</span><span>getData</span><span>(</span><span>)</span>
+                <span>)</span><span>,</span>
+                status
+        <span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>// ...</span>
+<span>}</span></code></pre><p>Note that <code>@ExceptionHandler</code> can accept more than one exception type. This means that the parameter of the method representing the exception must be downcasted. Otherwise, a <a href="https://docs.oracle.com/en/java/javase/13/docs/api/java.base/java/lang/ClassCastException.html" target="_blank" rel="noreferrer noopener"><code>ClassCastException</code></a> will be throw. So, upcast the exception <code>e</code> to <code>CustomErrorException</code> inside the method. Then, you will be able to access its particular fields and define a valid <code>ErrorResponse</code> instance.</p><p>Done! This way each error that occurs is encapsulated into an exception containing everything required to describe it.</p><p>Now, let&#39;s see the difference. This is what the default error response on a 404 error would look like:</p><pre><code><span>{</span>
+  <span>&#34;timestamp&#34;</span><span>:</span> <span>&#34;2021-15-08T14:32:17.947+0000&#34;</span><span>,</span>
+  <span>&#34;status&#34;</span><span>:</span> <span>404</span><span>,</span>
+  <span>&#34;error&#34;</span><span>:</span> <span>&#34;Not Found&#34;</span><span>,</span>
+  <span>&#34;message&#34;</span><span>:</span> <span>&#34;&#34;</span><span>,</span>
+  <span>&#34;path&#34;</span><span>:</span> <span>&#34;/test404&#34;</span>
+<span>}</span></code></pre><p>And this is what the custom error response just implemented looks like:</p><pre><code><span>{</span>
+  <span>&#34;timestamp&#34;</span><span>:</span> <span>&#34;2021-15-08 14:32:17&#34;</span><span>,</span>
+  <span>&#34;code&#34;</span><span>:</span> <span>404</span><span>,</span>
+  <span>&#34;status&#34;</span><span>:</span> <span>&#34;NOT_FOUND&#34;</span><span>,</span>
+  <span>&#34;message&#34;</span><span>:</span> <span>&#34;Resource not found&#34;</span><span>,</span>
+  <span>&#34;stackTrace&#34;</span><span>:</span> &#34;Exception in thread \&#34;main\&#34; com.example.demo.exceptions.CustomErrorException
+        at com.example.demo.AuthorController.getAuthor(AuthorController.java<span>:</span><span>16</span>)
+        at com.example.demo.AuthorService.getAuthor(AuthorService.java<span>:</span><span>37</span>)
+        at com.example.demo.AuthorDao.getById(AuthorDao.java<span>:</span><span>24</span>)&#34;
+<span>}</span></code></pre><h3 id="Pros-and-Cons-of-Each-Approach">Pros and Cons of Each Approach</h3><p>The first approach should be used when you do not want to spread error handling logic all over your codebase. In fact, the HTTP status code is only associated with errors in your <code>@ControllerAdvice</code> annotated class. This means that no layer knows how the error will be handled and presented to users. Although this should be the desired behavior because it respects the <a href="https://en.wikipedia.org/wiki/Principle_of_least_privilege" target="_blank" rel="noreferrer noopener">principle of least privilege</a>, it does involve boilerplate code. In fact, you may easily end up with dozens of custom exceptions, and define them is a tedious and not-scalable approach.</p><p>So, you may want a less restricting approach, and this is why the second approach was presented. Unfortunately, this one is definitely dirtier. In fact, it requires you to spread detail about error handling logic in many different points of your code. In contrast, it is scalable and quicker to be implemented. So, despite not being the cleanest approach, it allows you to achieve the desired result with little effort. Plus, it is more maintainable than the first approach because it involves only a custom exception.</p><h2 id="Custom-Error-Handling-in-Spring-Security">Custom Error Handling in Spring Security</h2><p><a href="https://spring.io/projects/spring-security" target="_blank" rel="noreferrer noopener">Spring Security</a> is a powerful and highly customizable framework that provides both authentication and authorization. It is one of the most widely used Spring dependencies and represents the de-facto standard for securing a Spring Boot application.</p><p>In case of authentication and authorization failures, <a href="https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/core/AuthenticationException.html" target="_blank" rel="noreferrer noopener"><code>AuthenticationException</code></a> and <a href="https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/access/AccessDeniedException.html" target="_blank" rel="noreferrer noopener"><code>AccessDeniedException</code></a> are thrown respectively. Then, Spring Security takes care of encapsulating them in default error handling responses. If you want to customize them, the two approaches presented above are of no use. This is because <code>@ControllerAdvice</code> can handle only exceptions thrown by controllers, but <code>AuthenticationException</code> and <code>AccessDeniedException</code> are thrown by the Spring Security <a href="https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/access/intercept/AbstractSecurityInterceptor.html" target="_blank" rel="noreferrer noopener"><code>AbstractSecurityInterceptor</code></a> component - which is not a controller. In other words, a <code>@ControllerAdvice</code> annotated class cannot catch them. Achieving this requires custom logic. </p><h3 id="Implementing-Custom-Error-Handling-Logic-in-Spring-Security">Implementing Custom Error Handling Logic in Spring Security</h3><p>Let’s take a look at how to implement custom error handling in Spring Security. Luckily, this is not too complex since you can easily provide Spring Security with two components to handle authentication and authorization errors, respectively. What you need to do is to provide the <a href="https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/web/authentication/AuthenticationFailureHandler.html" target="_blank" rel="noreferrer noopener"><code>AuthenticationFailureHandler</code></a> interface with implementation, as follows:</p><pre><code><span>// src/main/java/com/auth0/hotsauces/security/CustomAuthenticationFailureHandler.java</span>
+
+<span>package</span> <span>com<span>.</span>auth0<span>.</span>hotsauces<span>.</span>security</span><span>;</span>
+
+<span>import</span> <span>com<span>.</span>fasterxml<span>.</span>jackson<span>.</span>annotation<span>.</span></span><span>JsonFormat</span><span>;</span>
+<span>import</span> <span>com<span>.</span>fasterxml<span>.</span>jackson<span>.</span>databind<span>.</span></span><span>ObjectMapper</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>HttpStatus</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>core<span>.</span></span><span>AuthenticationException</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>web<span>.</span>authentication<span>.</span></span><span>AuthenticationFailureHandler</span><span>;</span>
+<span>import</span> <span>java<span>.</span>util<span>.</span></span><span>*</span><span>;</span>
+<span>import</span> <span>javax<span>.</span>servlet<span>.</span>http<span>.</span></span><span>HttpServletRequest</span><span>;</span>
+<span>import</span> <span>javax<span>.</span>servlet<span>.</span>http<span>.</span></span><span>HttpServletResponse</span><span>;</span>
+<span>import</span> <span>java<span>.</span>util<span>.</span></span><span>HashMap</span><span>;</span>
+
+<span>public</span> <span>class</span> <span>CustomAuthenticationFailureHandler</span> <span>implements</span> <span>AuthenticationFailureHandler</span> <span>{</span>
+    <span>// Jackson JSON serializer instance</span>
+    <span>private</span> <span>ObjectMapper</span> objectMapper <span>=</span> <span>new</span> <span>ObjectMapper</span><span>(</span><span>)</span><span>;</span>
+
+    <span>@Override</span>
+    <span>public</span> <span>void</span> <span>onAuthenticationFailure</span><span>(</span>
+      <span>HttpServletRequest</span> request<span>,</span>
+      <span>HttpServletResponse</span> response<span>,</span>
+      <span>AuthenticationException</span> exception
+    <span>)</span> <span>throws</span> <span>IOException</span><span>,</span> <span>ServletException</span> <span>{</span> 
+        <span>HttpStatus</span> httpStatus <span>=</span> <span>HttpStatus</span><span>.</span>UNAUTHORIZED<span>;</span> <span>// 401        </span>
+
+        <span>Map</span><span><span>&lt;</span><span>String</span><span>,</span> <span>Object</span><span>&gt;</span></span> data <span>=</span> <span>new</span> <span>HashMap</span><span><span>&lt;</span><span>&gt;</span></span><span>(</span><span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;timestamp&#34;</span><span>,</span> 
+          <span>new</span> <span>Date</span><span>(</span><span>)</span>
+        <span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;code&#34;</span><span>,</span> 
+          httpStatus<span>.</span><span>value</span><span>(</span><span>)</span><span>;</span>
+        <span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;status&#34;</span><span>,</span> 
+          httpStatus<span>.</span><span>name</span><span>(</span><span>)</span><span>;</span>
+        <span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;message&#34;</span><span>,</span> 
+          exception<span>.</span><span>getMessage</span><span>(</span><span>)</span>
+        <span>)</span><span>;</span>
+        
+        <span>// setting the response HTTP status code</span>
+        response<span>.</span><span>setStatus</span><span>(</span>httpStatus<span>.</span><span>value</span><span>(</span><span>)</span><span>)</span><span>;</span>
+        
+        <span>// serializing the response body in JSON</span>
+        response
+          <span>.</span><span>getOutputStream</span><span>(</span><span>)</span>
+          <span>.</span><span>println</span><span>(</span>
+              objectMapper<span>.</span><span>writeValueAsString</span><span>(</span>data<span>)</span>
+          <span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>This will be used to handle <code>AuthenticationExceptions</code>.</p><p>Similarly, you can provide the <a href="https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/web/access/AccessDeniedHandler.html" target="_blank" rel="noreferrer noopener"><code>AccessDeniedHandler</code></a> interface with implementation to handle <code>AccessDeniedExceptions</code>.</p><pre><code><span>// src/main/java/com/auth0/hotsauces/security/CustomAccessDeniedHandler.java</span>
+
+<span>package</span> <span>com<span>.</span>auth0<span>.</span>hotsauces<span>.</span>security</span><span>;</span>
+
+<span>import</span> <span>com<span>.</span>fasterxml<span>.</span>jackson<span>.</span>annotation<span>.</span></span><span>JsonFormat</span><span>;</span>
+<span>import</span> <span>com<span>.</span>fasterxml<span>.</span>jackson<span>.</span>databind<span>.</span></span><span>ObjectMapper</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>http<span>.</span></span><span>HttpStatus</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>core<span>.</span></span><span>AuthenticationException</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>web<span>.</span>authentication<span>.</span></span><span>AuthenticationFailureHandler</span><span>;</span>
+<span>import</span> <span>java<span>.</span>util<span>.</span></span><span>*</span><span>;</span>
+<span>import</span> <span>javax<span>.</span>servlet<span>.</span>http<span>.</span></span><span>HttpServletRequest</span><span>;</span>
+<span>import</span> <span>javax<span>.</span>servlet<span>.</span>http<span>.</span></span><span>HttpServletResponse</span><span>;</span>
+<span>import</span> <span>java<span>.</span>util<span>.</span></span><span>HashMap</span><span>;</span>
+
+<span>public</span> <span>class</span> <span>CustomAccessDeniedHandler</span> <span>implements</span> <span>AccessDeniedHandler</span> <span>{</span>
+    <span>// Jackson JSON serializer instance</span>
+    <span>private</span> <span>ObjectMapper</span> objectMapper <span>=</span> <span>new</span> <span>ObjectMapper</span><span>(</span><span>)</span><span>;</span>
+
+    <span>@Override</span>
+    <span>public</span> <span>void</span> <span>handle</span><span>(</span>
+      <span>HttpServletRequest</span> request<span>,</span>
+      <span>HttpServletResponse</span> response<span>,</span>
+      <span>AccessDeniedException</span> exception
+    <span>)</span> <span>throws</span> <span>IOException</span><span>,</span> <span>ServletException</span> <span>{</span> 
+        <span>HttpStatus</span> httpStatus <span>=</span> <span>HttpStatus</span><span>.</span>FORBIDDEN<span>;</span> <span>// 403        </span>
+
+        <span>Map</span><span><span>&lt;</span><span>String</span><span>,</span> <span>Object</span><span>&gt;</span></span> data <span>=</span> <span>new</span> <span>HashMap</span><span><span>&lt;</span><span>&gt;</span></span><span>(</span><span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;timestamp&#34;</span><span>,</span> 
+          <span>new</span> <span>Date</span><span>(</span><span>)</span>
+        <span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;code&#34;</span><span>,</span> 
+          httpStatus<span>.</span><span>value</span><span>(</span><span>)</span><span>;</span>
+        <span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;status&#34;</span><span>,</span> 
+          httpStatus<span>.</span><span>name</span><span>(</span><span>)</span><span>;</span>
+        <span>)</span><span>;</span>
+        data<span>.</span><span>put</span><span>(</span>
+          <span>&#34;message&#34;</span><span>,</span> 
+          exception<span>.</span><span>getMessage</span><span>(</span><span>)</span>
+        <span>)</span><span>;</span>
+        
+        <span>// setting the response HTTP status code</span>
+        response<span>.</span><span>setStatus</span><span>(</span>httpStatus<span>.</span><span>value</span><span>(</span><span>)</span><span>)</span><span>;</span>
+        
+        <span>// serializing the response body in JSON</span>
+        response
+          <span>.</span><span>getOutputStream</span><span>(</span><span>)</span>
+          <span>.</span><span>println</span><span>(</span>
+              objectMapper<span>.</span><span>writeValueAsString</span><span>(</span>data<span>)</span>
+          <span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>Now, you just need to register these two custom implementations as authentication and authorization error handlers. You can do this as below:</p><pre><code><span>// src/main/java/com/auth0/hotsauces/security/SecurityConfig.java</span>
+
+<span>package</span> <span>com<span>.</span>auth0<span>.</span>hotsauces<span>.</span>security</span><span>;</span>
+
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>beans<span>.</span>factory<span>.</span>annotation<span>.</span></span><span>Value</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>context<span>.</span>annotation<span>.</span></span><span>Bean</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>config<span>.</span>annotation<span>.</span>web<span>.</span>builders<span>.</span></span><span>HttpSecurity</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>config<span>.</span>annotation<span>.</span>web<span>.</span>configuration<span>.</span></span><span>EnableWebSecurity</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>config<span>.</span>annotation<span>.</span>web<span>.</span>configuration<span>.</span></span><span>WebSecurityConfigurerAdapter</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>oauth2<span>.</span>core<span>.</span></span><span>DelegatingOAuth2TokenValidator</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>oauth2<span>.</span>core<span>.</span></span><span>OAuth2TokenValidator</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>oauth2<span>.</span>jwt<span>.</span></span><span>*</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>oauth2<span>.</span>server<span>.</span>resource<span>.</span>web<span>.</span></span><span>BearerTokenAuthenticationFilter</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>web<span>.</span>access<span>.</span></span><span>AccessDeniedHandler</span><span>;</span>
+<span>import</span> <span>org<span>.</span>springframework<span>.</span>security<span>.</span>web<span>.</span>authentication<span>.</span></span><span>AuthenticationFailureHandler</span><span>;</span>
+
+<span>@EnableWebSecurity</span>
+<span>public</span> <span>class</span> <span>SecurityConfig</span> <span>extends</span> <span>WebSecurityConfigurerAdapter</span> <span>{</span>
+    <span>// ...</span>
+
+    <span>@Override</span>
+    <span>protected</span> <span>void</span> <span>configure</span><span>(</span><span>HttpSecurity</span> http<span>)</span> 
+      <span>throws</span> <span>Exception</span> <span>{</span>
+        http
+          <span>.</span><span>authorizeRequests</span><span>(</span><span>)</span>
+          <span>.</span><span>anyRequest</span><span>(</span><span>)</span>
+          <span>.</span><span>authenticated</span><span>(</span><span>)</span>
+          <span>.</span><span>and</span><span>(</span><span>)</span>
+          <span>.</span><span>formLogin</span><span>(</span><span>)</span>
+          <span>.</span><span>failureHandler</span><span>(</span><span>authenticationFailureHandler</span><span>(</span><span>)</span><span>)</span> 
+          <span>.</span><span>and</span><span>(</span><span>)</span>
+          <span>.</span><span>exceptionHandling</span><span>(</span><span>)</span>
+          <span>.</span><span>accessDeniedHandler</span><span>(</span><span>accessDeniedHandler</span><span>(</span><span>)</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>@Bean</span>
+    <span>public</span> <span>AuthenticationFailureHandler</span> <span>authenticationFailureHandler</span><span>(</span><span>)</span> <span>{</span>
+        <span>return</span> <span>new</span> <span>CustomAuthenticationFailureHandler</span><span>(</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>@Bean</span>
+    <span>public</span> <span>AccessDeniedHandler</span> <span>accessDeniedHandler</span><span>(</span><span>)</span> <span>{</span>
+        <span>return</span> <span>new</span> <span>CustomAccessDeniedHandler</span><span>(</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre><p>Et voilà! Custom error handling in Spring Boot has just been achieved thanks to the <code>failureHandler</code> and <code>accessDeniedHandler</code> methods, which allows you to register a custom authentication error handler and a custom authorization error handler.</p><h3 id="Spring-Security-Custom-Error-Handling-in-Action">Spring Security Custom Error Handling in Action</h3><p>Now, let’s see how to implement it in a real-world example. First, read <a href="https://auth0.com/blog/build-and-secure-an-api-with-spring-boot/" target="_blank" rel="noreferrer noopener">this</a> article on how to protect APIs with Spring Security and Auth0. In the demo application produced in that article, no custom error handling is implemented. So, by making a request to a protected API including a wrong access token, the default Spring Boot error handling logic is applied. Let’s test it out.</p><p>If you are a macOS or Linux user, enter this command into the terminal:</p><pre><code>curl <span>-</span>i <span>--</span>request <span>GET</span> \
+     <span>--</span>url http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>8080</span><span>/</span>api<span>/</span>hotsauces<span>/</span> \
+     <span>-</span><span>H</span> <span>&#34;Content-Type: application/json&#34;</span> \
+     <span>-</span><span>H</span> <span>&#34;authorization: Bearer wrong-token&#34;</span></code></pre><p>Otherwise, if you are a Windows user, enter this command into PowerShell:</p><pre><code>$accessToken <span>=</span> <span>&#34;wrong-token&#34;</span>
+$headers <span>=</span> @<span>{</span>
+    Authorization <span>=</span> <span>&#34;Bearer $accessToken&#34;</span>
+<span>}</span>
+$response <span>=</span> Invoke<span>-</span>RestMethod <span>&#34;http://localhost:8080/api/hotsauces/&#34;</span> `
+    <span>-</span>Headers $headers
+$response <span>|</span> ConvertTo<span>-</span>Json</code></pre><p>Then, the following response will be returned:</p><pre><code>Invoke<span>-</span>WebRequest<span>:</span> The remote server returned an error<span>:</span> <span>(</span><span>401</span><span>)</span> Unauthorized<span>.</span>
+At line<span>:</span><span>1</span> char<span>:</span><span>1</span>
+<span>+</span> Invoke<span>-</span>WebRequest <span>&#34;http://localhost:8080/api/hotsauces/&#34;</span>
+<span>+</span> <span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span>
+<span>+</span> CategoryInfo          <span>:</span> InvalidOperation<span>:</span> <span>(</span>System<span>.</span>Net<span>.</span>HttpWebRequest<span>:</span>HttpWebRequest<span>)</span> <span>[</span>Invoke<span>-</span>WebRequest<span>]</span><span>,</span> WebExc
+   eption
+<span>+</span> FullyQualifiedErrorId <span>:</span> WebCmdletWebResponseException<span>,</span>Microsoft<span>.</span>PowerShell<span>.</span>Commands<span>.</span>InvokeWebRequestCommand</code></pre><p>As you can see, a 401 error status code is returned, but with no details on what happened.</p><p>Now, let’s test the demo application extended with custom error handling logic. You can find it in <a href="https://github.com/Tonel/HotSauces" target="_blank" rel="noreferrer noopener">this GitHub repository</a>. The application is exactly the same as the previous one, except for the error handling logic. In particular, the aforementioned presented logic was implemented. </p><p>In this case, by launching the commands above, this message will be returned:</p><pre><code>Invoke<span>-</span>RestMethod <span>:</span> <span>{</span><span>&#34;code&#34;</span><span>:</span><span>401</span><span>,</span><span>&#34;message&#34;</span><span>:</span><span>&#34;An error occurred while attempting to decode the Jwt: Invalid JWT serialization: Missing dot delimiter(s)&#34;</span><span>,</span><span>&#34;timestamp&#34;</span><span>:</span><span>1629880611013</span><span>,</span><span>&#34;status&#34;</span><span>:</span><span>&#34;UNAUTHORIZED&#34;</span><span>}</span>
+At line<span>:</span><span>1</span> char<span>:</span><span>1</span>
+<span>+</span> $response <span>=</span> Invoke<span>-</span>RestMethod <span>&#34;http://localhost:8080/api/hotsauces/&#34;</span>  <span>...</span>
+<span>+</span> <span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span><span>~</span>
+<span>+</span> CategoryInfo          <span>:</span> InvalidOperation<span>:</span> <span>(</span>System<span>.</span>Net<span>.</span>HttpWebRequest<span>:</span>HttpWebRequest<span>)</span> <span>[</span>Invoke<span>-</span>WebRequest<span>]</span><span>,</span> WebExc
+   eption
+<span>+</span> FullyQualifiedErrorId <span>:</span> WebCmdletWebResponseException<span>,</span>Microsoft<span>.</span>PowerShell<span>.</span>Commands<span>.</span>InvokeWebRequestCommand</code></pre><p>As you can see, a JSON message representing the custom error handling logic was returned as expected. This contains the status code, the exception message, a timestamp, and the HTTP status code name, as follows:</p><pre><code><span>{</span>
+  <span>&#34;code&#34;</span><span>:</span> <span>401</span><span>,</span>
+  <span>&#34;message&#34;</span><span>:</span> <span>&#34;An error occurred while attempting to decode the Jwt: Invalid JWT serialization: Missing dot delimiter(s)&#34;</span><span>,</span>
+  <span>&#34;timestamp&#34;</span><span>:</span> <span>1629880611013</span><span>,</span>
+  <span>&#34;status&#34;</span><span>:</span> <span>&#34;UNAUTHORIZED&#34;</span>
+<span>}</span></code></pre><h2 id="Conclusion">Conclusion</h2><p>In this article, we looked at how to implement custom error handling logic when dealing with REST applications in Spring Boot. This is not as easy a task as it may seem, and it requires knowing a few Spring Boot fundamentals. First, we delved into default error handling in Spring Boot and saw how poor the responses are. Then, we looked at <code>@ControllerAdvice</code> and learn everything required to implement custom error handling logic. In particular, two different approaches were shown. Both allow you to define custom error handling responses but have specific pros and cons. Finally, we learned how to achieve the same result when dealing with Spring Boot Security errors, which requires specific logic. As shown, achieving custom error handling in Spring Boot is not easy but definitely possible, and explaining when, why, and how to do it was what this article was aimed at.</p><p>Thanks for reading! I hope that you found this article helpful. Feel free to reach out to me with any questions, comments, or suggestions.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 27 Sep 2021 15:29:00 +0000</pubDate>
+    </item>
+    <item>
       <title>ID Token and Access Token: What Is the Difference?</title>
       <link>https://auth0.com/blog/id-token-access-token-what-is-the-difference/</link>
       <description>Learn what ID and access tokens are and how to correctly use them in the OpenID Connect and OAuth context.</description>
@@ -263,222 +831,6 @@ I am instance number <span>3</span></code></pre><h2 id="Registering-Interfaces">
         <span>modules</span><span>(</span>goodbyeModule<span>)</span>
     <span>}</span></code></pre><p>We then create a new instance of the <code>GoodbyeApplication</code> class and call its <code>sayGoodbye</code> function. By implementing the <code>KoinComponent</code> interface, the <code>GoodbyeApplication</code> class can resolve its own dependencies from the global context and will resolve its <code>GoodbyeService</code> dependency in order to print a message to the console:</p><pre><code>    <span>GoodbyeApplication</span><span>(</span><span>)</span><span>.</span><span>sayGoodbye</span><span>(</span><span>)</span></code></pre><p>The <code>KoinComponent</code> interface is convenient, but be aware that it means your classes are now dependant on the Koin framework. Constructor-based injection is recommended when you wish to share code without any explicit dependency on Koin. </p><h2 id="Conclusion">Conclusion</h2><p>Koin is a lightweight dependency injection framework with a concise DSL taking advantage of Kotlin&#39;s modern syntax and features. In this post, we looked at how Koin creates singletons and factories, registers dependencies against their interfaces, and allows classes to resolve their own dependencies with delegated properties.</p></div></div>]]></content:encoded>
       <pubDate>Tue, 21 Sep 2021 17:05:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Get Started with Android Authentication Using Kotlin: Part 2</title>
-      <link>https://auth0.com/blog/get-started-with-android-authentication-using-kotlin-part-2/</link>
-      <description>Learn how to implement login, logout, and user profiles in Android apps using Kotlin and Auth0.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous section, you started an Android project that uses Auth0 for user login, logout, and reading and updating user metadata. You set up the project on both the Auth0 and app sides. In this section, you’ll complete the project and update it to ensure that it works in both portrait and landscape orientations.</p><h2 id="Write-the-code">Write the code</h2><p>Everything you’ve done so far in this exercise is just a preamble. It’s now time to write the actual code! This is the biggest task in the exercise, so let’s do it in small steps.​</p><p>🛠 Move to the <code>app<span>/</span>java<span>/</span>com<span>.</span>example<span>.</span>login</code> folder and open the main activity’s file, <code>MainActivity<span>.</span>kt</code>. Its contents should look like this:</p><pre><code><span>package</span> com<span>.</span>example<span>.</span>myapplication
-
-<span>import</span> androidx<span>.</span>appcompat<span>.</span>app<span>.</span>AppCompatActivity
-<span>import</span> android<span>.</span>os<span>.</span>Bundle
-
-<span>class</span> MainActivity <span>:</span> <span>AppCompatActivity</span><span>(</span><span>)</span> <span>{</span>
-    <span>override</span> <span>fun</span> <span>onCreate</span><span>(</span>savedInstanceState<span>:</span> Bundle<span>?</span><span>)</span> <span>{</span>
-        <span>super</span><span>.</span><span>onCreate</span><span>(</span>savedInstanceState<span>)</span>
-        <span>setContentView</span><span>(</span>R<span>.</span>layout<span>.</span>activity_main<span>)</span>
-    <span>}</span>
-<span>}</span></code></pre><h3 id="Import-the-necessary-libraries">Import the necessary libraries</h3><p>🛠 Add the following <code><span>import</span></code> statements to the ones already in the file:</p><pre><code><span>import</span> androidx<span>.</span>core<span>.</span>view<span>.</span>isVisible
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>Auth0
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>authentication<span>.</span>AuthenticationAPIClient
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>authentication<span>.</span>AuthenticationException
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>callback<span>.</span>Callback
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>management<span>.</span>ManagementException
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>management<span>.</span>UsersAPIClient
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>provider<span>.</span>WebAuthProvider
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>result<span>.</span>Credentials
-<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>result<span>.</span>UserProfile
-<span>import</span> com<span>.</span>google<span>.</span>android<span>.</span>material<span>.</span>snackbar<span>.</span>Snackbar</code></pre><p>Most of these <code><span>import</span></code> statements import classes from Auth0’s libraries. Here’s what those classes do:</p><ul><li><code>AuthenticationAPIClient</code>: Accesses the Auth0 Authentication API. The app uses this to retrieve the user’s profile information.</li><li><code>AuthenticationException</code>: Defines errors and exceptions that may arise during authentication.</li><li><code>Callback</code>: Defines an object containing “success” and “failure” callback functions that Auth0 should call after completing an API function.</li><li><code>ManagementException</code>: Defines errors and exceptions that <code>Callback</code> objects may have to handle.</li><li><code>UsersAPIClient</code>: Manages user information. The app uses this to retrieve the user’s profile information.</li><li><code>WebAuthProvider</code>: Provides Auth0’s web page-based login to the app. The app uses this to log the user in via a login page in a web browser and log the user out.</li><li><code>Credentials</code>: Stores the user’s credentials, including ID, access, and refresh tokens.</li><li><code>UserProfile</code>: Stores the user’s profile information, including their user ID, names, email address, and metadata.</li></ul><p>🛠 You’ll also need to import the <code>Activity</code> ’s auto-generated view binding library, which will make it possible for your code to reference views in the layout (or, to put it more simply: access the onscreen widgets). Do this by adding the following <code><span>import</span></code> statement, replacing <code><span>{</span><span>YOUR_PACKAGE_NAME_HERE</span><span>}</span></code> with the name of your app’s package, which you’ll find on the first line of the file:</p><pre><code><span>import</span> <span>{</span>YOUR_PACKAGE_NAME_HERE<span>}</span><span>.</span>databinding<span>.</span>ActivityMainBinding</code></pre><p>The package name for my app is <code>com<span>.</span>example<span>.</span>login</code>, so my <code><span>import</span></code> statement looks like this:</p><pre><code><span>import</span> com<span>.</span>example<span>.</span>login<span>.</span>databinding<span>.</span>ActivityMainBinding</code></pre><h3 id="Add-class-properties">Add class properties</h3><p>🛠 Add the following properties to <code>MainActivity</code> so that the start of the class looks like this:</p><pre><code><span>class</span> MainActivity <span>:</span> <span>AppCompatActivity</span><span>(</span><span>)</span> <span>{</span>
-
-    <span>private</span> <span>lateinit</span> <span>var</span> binding<span>:</span> ActivityMainBinding
-
-    <span>// Login/logout-related properties</span>
-    <span>private</span> <span>lateinit</span> <span>var</span> account<span>:</span> Auth0
-    <span>private</span> <span>var</span> cachedCredentials<span>:</span> Credentials<span>?</span> <span>=</span> <span>null</span>
-    <span>private</span> <span>var</span> cachedUserProfile<span>:</span> UserProfile<span>?</span> <span>=</span> <span>null</span>
-
-
-    <span>override</span> <span>fun</span> <span>onCreate</span><span>(</span>savedInstanceState<span>:</span> Bundle<span>?</span><span>)</span> <span>{</span>
-    
-    <span>..</span><span>.</span></code></pre><p>You’ll use the first property, <code>binding</code>, to access the widgets on the screen. The other three properties are related to logging in and out and are described in more detail below:</p><ul><li><code>account</code>: represents the app’s Auth0 account and is instantiated using the app’s client ID and the domain for the app’s Auth0 tenant. Let me make this clear: this isn’t the account of the user trying to log in, but the account of the developer or organization who is delegating the login/logout process to Auth0. In the case of this example, it’s <em>your</em> Auth0 developer account. <code>account</code>’s value is set in <code><span>onCreate</span><span>(</span><span>)</span></code> when the activity is instantiated.</li><li><code>cachedCredentials</code>: contains the user’s credentials that are returned from Auth0 after a successful login. Its value should be <code><span>null</span></code> when the user is <em>not</em> logged in. When the user is logged in, it should reference an instance of <code>Credentials</code>. A <code>Credentials</code> instance has the following properties:
-  <ul><li><code>idToken</code>: The <a href="https://auth0.com/docs/tokens/id-tokens" target="_blank" rel="noreferrer noopener">ID token</a>, which contains user information that the app can use to customize the user’s experience.</li><li><code>accessToken</code>: The <a href="https://auth0.com/docs/tokens/access-tokens" target="_blank" rel="noreferrer noopener">access token</a>, which is a credential that allows the app to access the Auth0 API.</li><li><code>refreshToken</code>: The <a href="https://auth0.com/docs/tokens/refresh-tokens" target="_blank" rel="noreferrer noopener">refresh token</a>, which can be used to request a new access token when the original access token expires, without requiring the user to re-authenticate.</li><li><code>type</code>: The type of the received access token.</li><li><code>expiresAt</code>: The date/time when the received access token expires.</li><li><code>scope</code>: The scopes granted to the access token. I’ll explain what scopes are in the next section, <em>The login method</em>.</li></ul></li><li><code>cachedUserProfile</code>: holds the user’s profile information. Its value should be <code><span>null</span></code> when the user is <em>not</em> logged in. When the user is logged in, it should reference an instance of <code>UserProfile</code>. A <code>UserProfile</code> instance has the following properties:
-<ul><li><code>email</code>: The email address corresponding to the user account.</li><li><code>isEmailVerified</code>: <code><span>true</span></code> if the user responded to the verification email sent by Auth0 after they registered themselves as a user.</li><li><code>name</code>: The user’s full name.</li><li><code>givenName</code>: The user’s given name, often referred to as their “first name” or “forename”.</li><li><code>familyName</code>: The user’s family name, often referred to as their “last name” or “surname”.</li><li><code>nickname</code>: The user’s nickname, sometimes referred to as thier “familiar name” or “moniker”.</li><li><code>PictureURL</code>: The URL where the user’s picture can be retrieved.</li><li><code>createdAt</code>: The creation date and time of the user’s account.</li></ul></li></ul><h3 id="Update-the--onCreate----method">Update the <code><span>onCreate</span><span>(</span><span>)</span></code> method</h3><p>First, let’s fill out the <code><span>onCreate</span><span>(</span><span>)</span></code> method that was automatically generated for the project and use it to initialize everything in the activity.</p><p>🛠 Update the <code><span>onCreate</span><span>(</span><span>)</span></code> method so that it looks like this:</p><pre><code><span>override</span> <span>fun</span> <span>onCreate</span><span>(</span>savedInstanceState<span>:</span> Bundle<span>?</span><span>)</span> <span>{</span>
-    <span>super</span><span>.</span><span>onCreate</span><span>(</span>savedInstanceState<span>)</span>
-
-    account <span>=</span> <span>Auth0</span><span>(</span>
-        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_client_id<span>)</span><span>,</span>
-        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_domain<span>)</span>
-    <span>)</span>
-
-    binding <span>=</span> ActivityMainBinding<span>.</span><span>inflate</span><span>(</span>layoutInflater<span>)</span>
-    <span>setContentView</span><span>(</span>binding<span>.</span>root<span>)</span>
-
-    binding<span>.</span>buttonLogin<span>.</span><span>setOnClickListener</span> <span>{</span> <span>login</span><span>(</span><span>)</span> <span>}</span>
-    binding<span>.</span>buttonLogout<span>.</span><span>setOnClickListener</span> <span>{</span> <span>logout</span><span>(</span><span>)</span> <span>}</span>
-    binding<span>.</span>buttonGet<span>.</span><span>setOnClickListener</span> <span>{</span> <span>getUserMetadata</span><span>(</span><span>)</span> <span>}</span>
-    binding<span>.</span>buttonSet<span>.</span><span>setOnClickListener</span> <span>{</span> <span>setUserMetadata</span><span>(</span><span>)</span> <span>}</span>
-<span>}</span></code></pre><p>This method:</p><ul><li>Defines the account object, which contains the necessary credentials to connect to your Auth0 account.</li><li>Creates a view binding object, which you’ll use to access the onscreen widgets.</li><li>Connects the <strong>Log in</strong>, <strong>Log out</strong>, <strong>Get</strong>, and <strong>Set</strong> buttons to the methods they should call when tapped.</li></ul><h3 id="Add-the--login----method">Add the <code><span>login</span><span>(</span><span>)</span></code> method</h3><p>The next step is to implement the method that gets called when the user taps the <strong>Log In</strong> button.</p><p>🛠 Add this to the class after <code><span>onCreate</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>login</span><span>(</span><span>)</span> <span>{</span>
-    WebAuthProvider
-        <span>.</span><span>login</span><span>(</span>account<span>)</span>
-        <span>.</span><span>withScheme</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_scheme<span>)</span><span>)</span>
-        <span>.</span><span>withScope</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_scopes<span>)</span><span>)</span>
-        <span>.</span><span>withAudience</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_audience<span>,</span> <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_domain<span>)</span><span>)</span><span>)</span>
-        <span>.</span><span>start</span><span>(</span><span>this</span><span>,</span> <span>object</span> <span>:</span> Callback<span>&lt;</span>Credentials<span>,</span> AuthenticationException<span>&gt;</span> <span>{</span>
-
-            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> AuthenticationException<span>)</span> <span>{</span>
-                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_failure_message<span>,</span> exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
-            <span>}</span>
-
-            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>credentials<span>:</span> Credentials<span>)</span> <span>{</span>
-                cachedCredentials <span>=</span> credentials
-                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_success_message<span>,</span> credentials<span>.</span>accessToken<span>)</span><span>)</span>
-                <span>updateUI</span><span>(</span><span>)</span>
-                <span>showUserProfile</span><span>(</span><span>)</span>
-            <span>}</span>
-        <span>}</span><span>)</span>
-<span>}</span></code></pre><p><code><span>login</span><span>(</span><span>)</span></code> uses the Auth0 SDK’s <code>WebAuthProvider</code> class, which gives the app the ability to use Auth0’s authentication service. The <code>WebAuthProvider</code> methods that you’ll use most often are its <code><span>login</span><span>(</span><span>)</span></code> and <code><span>logout</span><span>(</span><span>)</span></code> methods.</p><p>Although this method is formatted to span several lines, it’s just a single line of code. The single line is made of a call to a chain of <code>WebAuthProvider</code> ’s methods starting with <code><span>login</span><span>(</span><span>)</span></code>. If you ignore all the comments and parameters, the method chain looks like this:</p><pre><code>WebAuthProvider
-    <span>.</span><span>login</span><span>(</span><span>)</span>
-    <span>.</span><span>withScheme</span><span>(</span><span>)</span>
-    <span>.</span><span>withScope</span><span>(</span><span>)</span>
-    <span>.</span><span>withAudience</span><span>(</span><span>)</span>
-    <span>.</span><span>start</span><span>(</span><span>)</span></code></pre><p>This is the <a href="https://www.baeldung.com/kotlin/builder-pattern" target="_blank" rel="noreferrer noopener">Builder design pattern</a> in action. From <code><span>login</span><span>(</span><span>)</span></code> to <code><span>withAudience</span><span>(</span><span>)</span></code>, each method in the chain takes an argument that provides additional information about the login, using that information to creates a <code>WebAuthProvider</code> object that it passes to the next method in the chain. The final method in the chain, <code><span>start</span><span>(</span><span>)</span></code>, takes the resulting <code>WebAuthProvider</code> object as its argument and uses it to display the login page and define what should happen when the login succeeds and when it fails.</p><p>Let’s take a look at what each of the methods in the chain does.</p><p><code><span>login</span><span>(</span><span>)</span></code> initiates the login process and specifies the Auth0 account used by the application.</p><p><code><span>withScheme</span><span>(</span><span>)</span></code> specifies the scheme to use for the URL that Auth0 redirects to after a successful login. For web apps, the scheme is <code>http</code> or <code>https</code>. This value is arbitrary for native mobile apps, so we use <code>app</code> to make it clear to other developers and other people who may use the Auth0 settings for this app that the redirect is <em>not</em> to a web page.</p><p><code><span>withScope</span><span>(</span><span>)</span></code> specifies which sets of user data the app is authorized to use if the user logs in successfully. The OpenID Connect and OAuth frameworks, on which Auth0’s authentication and authorization are based, use the term <a href="https://auth0.com/docs/scopes/openid-connect-scopes" target="_blank" rel="noreferrer noopener"><em>scope</em></a> to represent the authorization to access user’s data and resources. The method takes a space-delimited string as its argument, where each “word” in the string specifies a different scope. The string used in this app contains these scopes:</p><ul><li><code>openid</code>: Indicates that application that uses OpenID Connect for authentication. This is the only required scope; all other scopes are optional.</li><li><code>profile</code>: Authorizes the application to access basic user profile information, including first name, surname, nickname, their photo or avatar, and so on.</li><li><code>email</code>: Authorizes the application to access the user’s email address.</li><li><code>read<span>:</span>current_user</code>: Authorizes the application with read-only access to the <code>current_user</code> claim.</li><li><code>update<span>:</span>current_user_metadata</code>: Authorizes the application with read and write  access to the <code>current_user_metadata</code> claim. This scope allows us to get and set the <code>country</code> value in the user’s metadata.</li></ul><p><code><span>withAudience</span><span>(</span><span>)</span></code> specifies the URL that the app will use to connect to Auth0’s login service. This URL is constructed using the domain of the Auth0 tenant used by the app and the endpoint for the Auth0 authentication API.</p><p><code><span>start</span><span>(</span><span>)</span></code> takes the <code>WebAuthProvider</code> object constructed by all the previous methods in the chain and opens the browser window to display the login page. It takes two parameters: a context (a reference to the <code>Activity</code> that’s initiating the browser window) and an anonymous object with two callback methods:</p><ul><li><code><span>onFailure</span><span>(</span><span>)</span></code>: Defines what should happen if the user returns from the browser login screen without successfully logging in. This typically happens when the user closes the browser login screen or taps the “back” button while on that screen. The app displays a <code>SnackBar</code> that notifies the user that login failed, followed by an error code.</li><li><code><span>onSuccess</span><span>(</span><span>)</span></code>: Defines what should happen if the user returns from the browser login screen after successfully logging in. The app processes the successful response, displays a <code>SnackBar</code> notifying the user that login was successful, and updates the UI to its “logged in” state.</li></ul><h3 id="Add-the--logout----method">Add the <code><span>logout</span><span>(</span><span>)</span></code> method</h3><p>You’ve probably guessed that if there’s a <code><span>login</span><span>(</span><span>)</span></code> method that’s called when the user presses the <strong>Log In</strong> button, there must also be a <code><span>logout</span><span>(</span><span>)</span></code> method that’s called when the user presses the <strong>Log Out</strong> button.</p><p>🛠 Add this method to the class after <code><span>login</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>logout</span><span>(</span><span>)</span> <span>{</span>
-    WebAuthProvider
-        <span>.</span><span>logout</span><span>(</span>account<span>)</span>
-        <span>.</span><span>withScheme</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_scheme<span>)</span><span>)</span>
-        <span>.</span><span>start</span><span>(</span><span>this</span><span>,</span> <span>object</span> <span>:</span> Callback<span>&lt;</span>Void<span>?</span><span>,</span> AuthenticationException<span>&gt;</span> <span>{</span>
-
-            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> AuthenticationException<span>)</span> <span>{</span>
-                <span>updateUI</span><span>(</span><span>)</span>
-                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
-                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
-            <span>}</span>
-
-            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>payload<span>:</span> Void<span>?</span><span>)</span> <span>{</span>
-                cachedCredentials <span>=</span> <span>null</span>
-                cachedUserProfile <span>=</span> <span>null</span>
-                <span>updateUI</span><span>(</span><span>)</span>
-            <span>}</span>
-
-        <span>}</span><span>)</span>
-<span>}</span></code></pre><p>As with <code><span>login</span><span>(</span><span>)</span></code>, <code><span>logout</span><span>(</span><span>)</span></code> also uses the Auth0 SDK’s <code>WebAuthProvider</code> class and is a one-liner that uses the Builder pattern. This time, that one line calls a shorter chain of <code>WebAuthProvider</code> ’s methods starting with <code><span>logout</span><span>(</span><span>)</span></code>. If you ignore all the parameters, the method chain looks like this:</p><pre><code>WebAuthProvider
-    <span>.</span><span>logout</span><span>(</span><span>)</span>
-    <span>.</span><span>withScheme</span><span>(</span><span>)</span>
-    <span>.</span><span>start</span><span>(</span><span>)</span></code></pre><p><code><span>logout</span><span>(</span><span>)</span></code> initiates the logout process and specifies the Auth0 account used by the application, which should be the same account as the one used to log in.</p><p><code><span>withScheme</span><span>(</span><span>)</span></code> specifies the scheme to use for the URL that Auth0 redirects to after successful logout. This should be the same scheme as the one used to log in.</p><p><code><span>start</span><span>(</span><span>)</span></code> takes the <code>WebAuthProvider</code> object constructed by all the previous methods in the chain to log the user out. It takes two parameters: a context (a reference to the <code>Activity</code> that’s initiating the logout process) and an anonymous object with two callback methods:</p><ul><li><code><span>onFailure</span><span>(</span><span>)</span></code>: Defines what should happen when the logout process fails. This rarely happens and usually indicates a network or server issue. In this example, the app updates the UI (which remains in the “logged in” state) and displays a <code>SnackBar</code> that notifies the user that logout failed, followed by an error code.</li><li><code><span>onSuccess</span><span>(</span><span>)</span></code>: Defines what should happen when the logout process succeeds. In this example, the app destroys its local copies of the user’s credentials and profile and updates the UI to its “logged out” state.</li></ul><h3 id="Add-the--showUserProfile----method">Add the <code><span>showUserProfile</span><span>(</span><span>)</span></code> method</h3><p>Every Auth0 user has a <em>user profile</em> associated with their account. The user profile contains the following basic information about the user:</p><ul><li>Names: The user’s full name, given name, surname, and nickname</li><li>Email info: The user’s email address, and whether it was verified</li><li>Picture: The location of an image that identifies the user</li><li>Creation date: The date and time when the user’s account was created</li></ul><p>When the user successfully logs in, the app should display their name and email onscreen. It does so by calling <code><span>showUserProfile</span><span>(</span><span>)</span></code> immediately after a successful login.</p><p>🛠 Add this method to the class after <code><span>logout</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>showUserProfile</span><span>(</span><span>)</span> <span>{</span>
-    <span>// Guard against showing the profile when no user is logged in</span>
-    <span>if</span> <span>(</span>cachedCredentials <span>==</span> <span>null</span><span>)</span> <span>{</span>
-        <span>return</span>
-    <span>}</span>
-
-    <span>val</span> client <span>=</span> <span>AuthenticationAPIClient</span><span>(</span>account<span>)</span>
-    client
-        <span>.</span><span>userInfo</span><span>(</span>cachedCredentials<span>!!</span><span>.</span>accessToken<span>!!</span><span>)</span>
-        <span>.</span><span>start</span><span>(</span><span>object</span> <span>:</span> Callback<span>&lt;</span>UserProfile<span>,</span> AuthenticationException<span>&gt;</span> <span>{</span>
-
-            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> AuthenticationException<span>)</span> <span>{</span>
-                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
-                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
-            <span>}</span>
-
-            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>profile<span>:</span> UserProfile<span>)</span> <span>{</span>
-                cachedUserProfile <span>=</span> profile
-                <span>updateUI</span><span>(</span><span>)</span>
-            <span>}</span>
-
-        <span>}</span><span>)</span>
-<span>}</span></code></pre><p>This method is the final task performed by the <code><span>onSuccess</span><span>(</span><span>)</span></code> callback method in  <code><span>loginWithBrowser</span><span>(</span><span>)</span></code>. It initializes the <code>cachedUserProfile</code> property, which contains the user’s profile information.</p><p>As a precaution, it returns immediately if the <code>cachedCredentials</code> property is <code><span>null</span></code>, which implies that no user is logged in, and therefore there isn’t any user profile to show.</p><p>In order to get this information, it does the following:</p><ul><li>It creates an instance of <code>AuthenticationAPIClient</code>, which retrieves Auth0 account information. Like the login and logout methods, this also uses the Builder pattern.</li><li>It uses <code>AuthenticationAPIClient</code> ’s <code><span>userInfo</span><span>(</span><span>)</span></code> method to specify that we want to retrieve user profile information from Auth0. This method requires a valid access token, which it extracts from the <code>cachedCredentials</code> property.</li><li>Finally, it defines callback methods for the cases where it failed and succeeded in retrieving the user profile information from Auth0. If the retrieval was successful, the profile information is stored in <code>cachedUserProfile</code>, and the UI is updated to display the user’s name and email address.</li></ul><h3 id="Add-the--getUserMetadata----and--setUserMetadata----methods">Add the <code><span>getUserMetadata</span><span>(</span><span>)</span></code> and <code><span>setUserMetadata</span><span>(</span><span>)</span></code> methods</h3><p>The user profile contains information that generally applies to <em>every</em> user account regardless of the type of application it’s being used for — name, email, photo, and date/time created. While this is necessary information, it’s probably not <em>all</em> the user information that you want to store in their profile.</p><p>That what the <em>user metadata</em> is for. Think of it as a key-value store where you can place additional user information that isn’t covered by the user profile. In this app, the user metadata will store just one additional piece of user information — their country — and it will allow the user to retrieve and update this information.</p><p>🛠 Add the following to the class after <code><span>showUserProfile</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>getUserMetadata</span><span>(</span><span>)</span> <span>{</span>
-    <span>// Guard against getting the metadata when no user is logged in</span>
-    <span>if</span> <span>(</span>cachedCredentials <span>==</span> <span>null</span><span>)</span> <span>{</span>
-        <span>return</span>
-    <span>}</span>
-
-    <span>val</span> usersClient <span>=</span> <span>UsersAPIClient</span><span>(</span>account<span>,</span> cachedCredentials<span>!!</span><span>.</span>accessToken<span>!!</span><span>)</span>
-
-    usersClient
-        <span>.</span><span>getProfile</span><span>(</span>cachedUserProfile<span>!!</span><span>.</span><span>getId</span><span>(</span><span>)</span><span>!!</span><span>)</span>
-        <span>.</span><span>start</span><span>(</span><span>object</span> <span>:</span> Callback<span>&lt;</span>UserProfile<span>,</span> ManagementException<span>&gt;</span> <span>{</span>
-
-            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> ManagementException<span>)</span> <span>{</span>
-                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
-                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
-            <span>}</span>
-
-            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>userProfile<span>:</span> UserProfile<span>)</span> <span>{</span>
-                cachedUserProfile <span>=</span> userProfile
-                <span>updateUI</span><span>(</span><span>)</span>
-
-                <span>val</span> country <span>=</span> userProfile<span>.</span><span>getUserMetadata</span><span>(</span><span>)</span><span>[</span><span>&#34;country&#34;</span><span>]</span> <span>as</span> String<span>?</span>
-                binding<span>.</span>edittextCountry<span>.</span><span>setText</span><span>(</span>country<span>)</span>
-            <span>}</span>
-
-        <span>}</span><span>)</span>
-<span>}</span>
-
-<span>private</span> <span>fun</span> <span>setUserMetadata</span><span>(</span><span>)</span> <span>{</span>
-    <span>// Guard against getting the metadata when no user is logged in</span>
-    <span>if</span> <span>(</span>cachedCredentials <span>==</span> <span>null</span><span>)</span> <span>{</span>
-        <span>return</span>
-    <span>}</span>
-
-    <span>val</span> usersClient <span>=</span> <span>UsersAPIClient</span><span>(</span>account<span>,</span> cachedCredentials<span>!!</span><span>.</span>accessToken<span>!!</span><span>)</span>
-    <span>val</span> metadata <span>=</span> <span>mapOf</span><span>(</span><span>&#34;country&#34;</span> <span>to</span> binding<span>.</span>edittextCountry<span>.</span>text<span>.</span><span>toString</span><span>(</span><span>)</span><span>)</span>
-
-    usersClient
-        <span>.</span><span>updateMetadata</span><span>(</span>cachedUserProfile<span>!!</span><span>.</span><span>getId</span><span>(</span><span>)</span><span>!!</span><span>,</span> metadata<span>)</span>
-        <span>.</span><span>start</span><span>(</span><span>object</span> <span>:</span> Callback<span>&lt;</span>UserProfile<span>,</span> ManagementException<span>&gt;</span> <span>{</span>
-
-            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> ManagementException<span>)</span> <span>{</span>
-                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
-                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
-            <span>}</span>
-
-            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>profile<span>:</span> UserProfile<span>)</span> <span>{</span>
-                cachedUserProfile <span>=</span> profile
-                <span>updateUI</span><span>(</span><span>)</span>
-
-                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_success_message<span>)</span><span>)</span>
-            <span>}</span>
-
-        <span>}</span><span>)</span>
-<span>}</span></code></pre><p>While <code><span>showUserProfile</span><span>(</span><span>)</span></code> uses an instance of <code>AuthenticationAPIClient</code> to get the user profile information, <code><span>getUserMetadata</span><span>(</span><span>)</span></code> and <code><span>setUserMetadata</span><span>(</span><span>)</span></code> use a different object type: <code>UsersAPIClient</code>.</p><p>Unlike <code>AuthenticationAPIClient</code>, which needs only an <code>Auth0</code> account object to be instantiated, you need both an <code>Auth0</code> account object and an access token to instantiate a <code>UsersAPIClient</code> object.</p><p><code><span>getUserMetadata</span><span>(</span><span>)</span></code> specifies the user profile using <code>UsersAPIClient</code> ’s <code><span>getProfile</span><span>(</span><span>)</span></code> method and the ID of the user, followed by the <code><span>start</span><span>(</span><span>)</span></code> method to attempt to get the user profile and define callback methods for failure and success.</p><p><code><span>getUserMetadata</span><span>(</span><span>)</span></code>’s <code><span>onSuccess</span><span>(</span><span>)</span></code> callback is almost the same as <code><span>showUserProfile</span><span>(</span><span>)</span></code>’s — it just has these two additional lines that extract the <code>country</code> value from the user’s metadata and display it onscreen:</p><pre><code><span>val</span> country <span>=</span> userProfile<span>.</span><span>getUserMetadata</span><span>(</span><span>)</span><span>[</span><span>&#34;country&#34;</span><span>]</span> <span>as</span> String<span>?</span>
-binding<span>.</span>edittextCountry<span>.</span><span>setText</span><span>(</span>country<span>)</span></code></pre><p><code><span>setUserMetadata</span><span>(</span><span>)</span></code> defines a <code>Map</code> with a single key-value pair, where the key is the string <code>country</code> and the corresponding value is the contents of the <code>EditText</code> where the user enters the name of their country. It then passes that <code>Map</code> along with the user’s ID to <code>UsersAPIClient</code> ’s <code><span>updateMetadata</span><span>(</span><span>)</span></code> method to specify the change to be made, followed by the <code><span>start</span><span>(</span><span>)</span></code> method to initiate the update and define callback methods for failure and success.</p><p><code><span>setUserMetadata</span><span>(</span><span>)</span></code>’s <code><span>onSuccess</span><span>(</span><span>)</span></code> callback is almost the same as <code><span>getUserMetadata</span><span>(</span><span>)</span></code>’s — but instead of updating the <code>EditText</code> where the user enters the name of their country, it simply displays a <code>SnackBar</code> notifying the user that it was successful in updating the metadata.</p><h3 id="Add-the-UI-methods">Add the UI methods</h3><p>The final step is to add the methods that present information to the user.</p><p>🛠 Add the following to the class after <code><span>getUserMetadata</span><span>(</span><span>)</span></code> and <code><span>setUserMetadata</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>updateUI</span><span>(</span><span>)</span> <span>{</span>
-    <span>val</span> isLoggedIn <span>=</span> cachedCredentials <span>!=</span> <span>null</span>
-
-    binding<span>.</span>textviewTitle<span>.</span>text <span>=</span> <span>if</span> <span>(</span>isLoggedIn<span>)</span> <span>{</span>
-        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>logged_in_title<span>)</span>
-    <span>}</span> <span>else</span> <span>{</span>
-        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>logged_out_title<span>)</span>
-    <span>}</span>
-    binding<span>.</span>buttonLogin<span>.</span>isEnabled <span>=</span> <span>!</span>isLoggedIn
-    binding<span>.</span>buttonLogout<span>.</span>isEnabled <span>=</span> isLoggedIn
-    binding<span>.</span>linearlayoutMetadata<span>.</span>isVisible <span>=</span> isLoggedIn
-
-    binding<span>.</span>textviewUserProfile<span>.</span>isVisible <span>=</span> isLoggedIn
-
-    <span>val</span> userName <span>=</span> cachedUserProfile<span>?</span><span>.</span>name <span>?:</span> <span>&#34;&#34;</span>
-    <span>val</span> userEmail <span>=</span> cachedUserProfile<span>?</span><span>.</span>email <span>?:</span> <span>&#34;&#34;</span>
-    binding<span>.</span>textviewUserProfile<span>.</span>text <span>=</span> <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>user_profile<span>,</span> userName<span>,</span> userEmail<span>)</span>
-
-    <span>if</span> <span>(</span><span>!</span>isLoggedIn<span>)</span> <span>{</span>
-        binding<span>.</span>edittextCountry<span>.</span><span>setText</span><span>(</span><span>&#34;&#34;</span><span>)</span>
-    <span>}</span>
-<span>}</span>
-
-<span>private</span> <span>fun</span> <span>showSnackBar</span><span>(</span>text<span>:</span> String<span>)</span> <span>{</span>
-    Snackbar
-        <span>.</span><span>make</span><span>(</span>
-        binding<span>.</span>root<span>,</span>
-        text<span>,</span>
-        Snackbar<span>.</span>LENGTH_LONG
-    <span>)</span><span>.</span><span>show</span><span>(</span><span>)</span>
-<span>}</span></code></pre><p>If you’ve made it this far, I have great news for you: you’ve written all the code for the app!</p><h2 id="See-the-App-in-Action">See the App in Action</h2><p>Run the app. You’ll see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7FSXqzXczgaNUC5NnY9q1F/d72b55833d1bf446c70d60488f7f4ae0/welcome_screen.png" alt="The app’s screen when launched."/></p><p>Tap the <strong>Log in</strong> button. The app will open a browser window that will display the login web page:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/53TEQjPR0HhmvGIC8BXW7a/e7b6205b7c401883c61b162c498a00f7/universal_login.png" alt="The Auth0 login web page."/></p><p>Log in using the email address and password of the user account you created earlier. Since this is the first time the account has logged into the app, the <strong>Authorize App</strong> page will appear in the browser window:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4AkDSwWeHROplHJV3KOFcg/98376afd920b0af2a2e732a06c7fb622/authorize_app.png" alt="The “Authorize App” screen. It says that the app is requesting access to your user account, particularly the “profile”, “current_user”, and “current_user_metadata” information."/></p><p>This page is asking you to authorize the app to access the following information in your user account:</p><ul><li>Profile: access to your profile and email</li><li>Current_user: read your current_user</li><li>Current_user_metadata: update your current_user_metadata</li></ul><p>If these items sound familiar, it’s because you’ve seen them recently. They’re the names of the scopes in the <code>login_scopes</code> string in the <code>strings<span>.</span>xml</code> resource...</p><pre><code><span><span><span>&lt;</span>string</span> <span>name</span><span><span>=</span><span>&#34;</span>login_scopes<span>&#34;</span></span><span>&gt;</span></span>
-    openid profile email read:current_user update:current_user_metadata
-<span><span><span>&lt;/</span>string</span><span>&gt;</span></span></code></pre><p>...which the call to <code><span>withScope</span><span>(</span><span>)</span></code> in the <code><span>login</span><span>(</span><span>)</span></code> method uses to specify which sets of user data the app is authorized to use. This additional step informs the user of this use of their data and gives them a choice to approve or decline.</p><p>Tap the <strong>Approve</strong> button. The browser will disappear, and you will return to the app, which will now look like this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6D4JdPU0s5tGuplX9gEE4g/cfb0e2c57ead91059a2d6a26d6efdf44/main_screen_1.png" alt="The app’s screen when the user is logged in."/></p><p>Tap the <strong>Get</strong> button. If you’ve never edited the value of the <code>country</code> field in the user’s metadata, the metadata text box will display the hint text “Enter country”.</p><p>Enter a country’s name (or any other text if you like) into the text box and tap the <strong>Set</strong> button. You’ll see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5NE22T6w25nAVecqCIZ7x7/3c913e712052570af8908e860da37d2a/main_screen_3.png" alt="The app’s screen, with the word “Morocco”, entered into the text field."/></p><p>Two things just happened:</p><ol start="1"><li>If the user’s metadata already had a <code>country</code> field, its value changed to whatever text you entered. If the user’s metadata didn’t have a <code>country</code> field, a <code>country</code> field was added to the metadata, and its value was set to whatever text you entered.</li><li>An Android pop-up message called a <a href="https://developer.android.com/reference/com/google/android/material/snackbar/Snackbar" target="_blank" rel="noreferrer noopener"><code>Snackbar</code></a> appeared at the bottom of the screen with the message “Success!”</li></ol><p>Log out of the app, then log in again. Tap the <strong>Get</strong> button. The app should fill the metadata text box with the value of the <code>country</code> metadata field.</p><p>Let’s look at the updated user metadata from the Auth0 side. In the Auth0 dashboard, go to the list of users. Do this by clicking <strong>User Management</strong> in the menu on the left side of the page, followed by clicking on <strong>Users</strong>. Select the user that is currently logged in on the app. You’ll be taken to that user’s <strong>Details</strong> page:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5nnVqPm4l6vVtgyvZpeYwI/db98ccbfb8b945ebde7ec7c8143724c5/user_details_page.png" alt="The Auth0 dashboard displaying the user’s “User Details” page. In the “user_metadata” field, a JSON object contains a single key-value pair with the key “country” and the value “Morocco”."/></p><p>Scroll down to the <strong>Metadata</strong> section of the page. You’ll see an area labeled <strong>user_metadata</strong>. If you filled out the <code>EditText</code> in the app, you’ll see it in the JSON object there:</p><pre><code><span>{</span>
-    <span>&#34;country&#34;</span><span>:</span> <span>{</span><span>WHATEVER_TEXT_YOU_ENTERED</span><span>}</span>
-<span>}</span></code></pre><p>Each Auth0 user account can store two kinds of metadata:</p><ul><li><strong>User metadata,</strong> which is meant for data intentionally provided by and controlled by the user. It’s typically used for storing information that the user wants to share with the app, such as their address, contact information, preferences, and similar data. Only data that the user can read and edit should be stored here.</li><li><strong>App metadata,</strong> which is meant for data provided by and controlled by the app. It’s typically used for storing information about the user that is primarily for the app’s use, such as the user’s roles, permissions, status, and similar data. There may be cases where the user can read this data, but you should not use app metadata to store data provided directly by the user.</li></ul><p>While a detailed look at the user account pages is beyond the scope of this article, you should explore them to see the kinds of data and functionality that are associated with user accounts.</p><h2 id="When-Things-Go-Sideways">When Things Go Sideways</h2><p>The expression “to go sideways” means “to go wrong” or “to not go according to plan.” In this section, I’ll show you what can go wrong when you’re writing an Android app and fail to account for what happens when the user turns their phone on its side. </p><h3 id="Inducing-app-amnesia">Inducing app amnesia</h3><p>Run the app and log in. You should see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6D4JdPU0s5tGuplX9gEE4g/cfb0e2c57ead91059a2d6a26d6efdf44/main_screen_1.png" alt="The app’s screen when the user is logged in, in portrait orientation."/></p><p>Rotate your device to landscape orientation:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/48FY3obLHoGHnHfugbSn7I/8bc142a3e3e69bde3deed3223e6d02d7/orientation_change.png" alt="The app screen viewed in landscape orientation. It has taken on the appearance of just having been launched."/></p><p>Notice what happened: </p><ul><li>The greeting text changed from “You’re logged in.” to “Welcome to the app!”, which is its state when the app is launched.</li><li>The buttons have also been returned to their initial state:  <strong>Log in</strong> is enabled, and <strong>Log out</strong> is disabled.</li></ul><p>It appears as if turning your device on its side has given your app amnesia and returned it to its initial state. What happened?</p><h3 id="Configuration-changes-and-reloading">Configuration changes and reloading</h3><p>To use a developer cliché: this isn’t a bug, but a feature.</p><p>Whenever it detects a configuration change, Android’s default response is to reload the current activity. There are many configuration changes, such as language, keyboard availability, or the change you made just now: screen orientation. Reloading an activity when a configuration change happens makes it run its initialization methods again and reload resources, allowing it to set itself up for the new configuration.</p><p>This behavior was designed for applications that present different interfaces in different orientations. YouTube is an example of such an app, which has different portrait and landscape UI setups:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4jHUrVT9Ekh5252HZc3T95/706f6ddb57bb1b6be1a37c82b1201297/youtube_portrait_and_landscape.png" alt="The YouTube app, shown in both orientations. In portrait orientation, it shows the video, ratings, and comments. In landscape orientation, the video takes up the entire screen."/></p><p>Changing the screen orientation reloaded the activity and restored the app to its initial state, but it <em>did not</em> change your “logged in” status. The <code><span>logout</span><span>(</span><span>)</span></code> method was not called when you turned your device on its side. You’re still logged in!</p><p>You can confirm your “logged in” status by tapping the <strong>Log in</strong> button. Note that there wasn’t an intermediate step where you had to enter your email address and password — you were taken straight to the app:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/01B8CQAD7K9uDYwkT7D1c7/08a21f19cdacc4ecdb065132cd2cf590/logged_in_sideways.png" alt="The app screen, viewed in landscape orientation, showing the user logged in. The bottom portion of the screen is not in sight."/></p><p>Note that that app never presented the login page. That’s because there wasn’t any need — you were still logged in. Let’s solve this problem.</p><h3 id="Curing-your-app-s-amnesia">Curing your app’s amnesia</h3><p>You can instruct Android <em>not</em> to reload Activities in the event of specified configuration changes in the app’s manifest. </p><p>🛠 Open <code>AndroidManifest<span>.</span>xml</code> and change the <code><span>&lt;</span>activity<span>&gt;</span></code> tag to the following:</p><pre><code><span><span><span>&lt;</span>activity</span>
-    <span><span>android:</span>name</span><span><span>=</span><span>&#34;</span>.MainActivity<span>&#34;</span></span>
-    <span><span>android:</span>exported</span><span><span>=</span><span>&#34;</span>true<span>&#34;</span></span>
-    <span><span>android:</span>configChanges</span><span><span>=</span><span>&#34;</span>orientation|screenSize<span>&#34;</span></span> <span>&gt;</span></span></code></pre><p>This change adds the attribute <code>android<span>:</span>configChanges<span>=</span> “orientation<span>|</span>screenSize”</code> to <code>MainActivity</code>, which tells Android that the activity should <em>not</em> reload if the device orientation or screen size changes. Instead of reloading the activity, Android uses a callback method to notify the app of the change. The assumption is that you’ll handle those configuration changes yourself. Since we’ll ignore this callback, the configuration change has no effect.</p><p>Run the app and log in. Change the screen orientation, going from portrait to landscape and back. It no longer causes the activity to reload.</p><h2 id="Conclusion">Conclusion</h2><p>You’ve just built a simple app that features basic username/password <em>authentication</em> — the ability to identify a known user. In addition to log a user in and out, you can also retrieve the information in their profile, and read and update their metadata.</p><p>You can find the code for the complete project for this article in <a href="https://github.com/auth0-blog/get-started-android-authentication-kotlin" target="_blank" rel="noreferrer noopener">this repository on the <em>Auth0 Blog Samples</em> GitHub account</a>. The only change that you’ll need to make in order to run it is to enter your app’s client ID and tenant’s domain in the <code>auth0<span>.</span>xml</code> resource file.</p><p>This is the first in a new series of articles on Android development with Auth0. Future articles will cover new developments in Android 12 and Android Studio, as well as deeper dives into authentication and authorization with Android and Auth0 and alternatives to the standard username-and-password approach. Watch this space!</p><p><a href="https://auth0.com/blog/get-started-with-android-authentication-using-kotlin-part-1" target="_blank" rel="noopener referrer">Next Step: Read the preview part here</a></p><p><a href="https://community.auth0.com/t/developing-a-secure-api-with-nestjs/33026" target="_blank" rel="noopener noreferrer">I ran into an issue</a></p></div></div>]]></content:encoded>
-      <pubDate>Mon, 20 Sep 2021 18:29:00 +0000</pubDate>
     </item>
     <item>
       <title>Get Started with Android Authentication Using Kotlin: Part 1</title>
@@ -788,6 +1140,222 @@ binding<span>.</span>buttonSubmit <span>=</span> <span>&#34;Tap me!&#34;</span><
     <span><span><span>&lt;/</span>ScrollView</span><span>&gt;</span></span>
 
 <span><span><span>&lt;/</span>androidx.constraintlayout.widget.ConstraintLayout</span><span>&gt;</span></span></code></pre><p>This XML above defines:</p><ul><li>A <a href="https://developer.android.com/reference/android/widget/ScrollView" target="_blank" rel="noreferrer noopener"><code>ScrollView</code></a> that encapsulates the entire user interface. It allows the user to scroll up and down when the device screen isn’t tall enough to display the entire activity at once.</li><li>A <a href="https://developer.android.com/reference/android/widget/LinearLayout" target="_blank" rel="noreferrer noopener"><code>LinearLayout</code></a> contained within the <code>ScrollView</code>. A <code>ScrollView</code> can contain only one child, so we’re using the <code>LinearLayout</code> to encapsulate all the views in the <code>ScrollView</code>.</li><li><code>textview_title</code>: A <a href="https://developer.android.com/reference/android/widget/TextView" target="_blank" rel="noreferrer noopener"><code>TextView</code></a> that displays a greeting message when the app launches and the user’s logged-in/out status afterward.</li><li><code>button_login</code> and <code>button_logout</code>: The <a href="https://developer.android.com/reference/android/widget/Button" target="_blank" rel="noreferrer noopener"><code>Button</code></a>s that the user taps to log in and out.</li><li><code>textview_user_profile</code>: A <code>TextView</code> that displays the name and email of the logged-in user.</li><li><code>layout_metadata</code>: A <code>LinearLayout</code> that encapsulates all the metadata-related controls.</li><li><code>textview_metadata_heading</code>: A <code>TextView</code> that displays the heading of the metadata section.</li><li><code>textview_metadata_country</code>: A <code>TextView</code> that instructions for editing the user’s country.</li><li><code>edittext_country</code>: An <a href="https://developer.android.com/reference/android/widget/EditText" target="_blank" rel="noreferrer noopener"><code>EditText</code></a> for displaying and editing the user’s country.</li><li><code>button_get</code> and <code>button_set</code>: The <code>Button</code>s to get and set the user’s country.</li></ul><p>Here’s the “blueprint view” of the resulting layout. I’ve labeled the controls in the layout with their <code>id</code>s:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4DF79VdhoNlyAKOKkmQOsa/f280540a8f0d8484ab55a08ac83c3c5a/app_layout.png" alt="“Blueprint view” of the app’s main activity layout showing the ids of its controls."/></p><p>At this point in the exercise, you’ve completed all the setup. You’ve registered the app with Auth0 and set up the app’s build files and user interface. In the next step, you’ll write the app’s code!</p><p><a href="https://auth0.com/blog/get-started-with-android-authentication-using-kotlin-part-2" target="_blank" rel="noopener referrer">Next Step: Read the second part here</a></p><p><a href="https://community.auth0.com/t/developing-a-secure-api-with-nestjs/33026" target="_blank" rel="noopener noreferrer">I ran into an issue</a></p></div></div>]]></content:encoded>
+      <pubDate>Mon, 20 Sep 2021 18:29:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Get Started with Android Authentication Using Kotlin: Part 2</title>
+      <link>https://auth0.com/blog/get-started-with-android-authentication-using-kotlin-part-2/</link>
+      <description>Learn how to implement login, logout, and user profiles in Android apps using Kotlin and Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous section, you started an Android project that uses Auth0 for user login, logout, and reading and updating user metadata. You set up the project on both the Auth0 and app sides. In this section, you’ll complete the project and update it to ensure that it works in both portrait and landscape orientations.</p><h2 id="Write-the-code">Write the code</h2><p>Everything you’ve done so far in this exercise is just a preamble. It’s now time to write the actual code! This is the biggest task in the exercise, so let’s do it in small steps.​</p><p>🛠 Move to the <code>app<span>/</span>java<span>/</span>com<span>.</span>example<span>.</span>login</code> folder and open the main activity’s file, <code>MainActivity<span>.</span>kt</code>. Its contents should look like this:</p><pre><code><span>package</span> com<span>.</span>example<span>.</span>myapplication
+
+<span>import</span> androidx<span>.</span>appcompat<span>.</span>app<span>.</span>AppCompatActivity
+<span>import</span> android<span>.</span>os<span>.</span>Bundle
+
+<span>class</span> MainActivity <span>:</span> <span>AppCompatActivity</span><span>(</span><span>)</span> <span>{</span>
+    <span>override</span> <span>fun</span> <span>onCreate</span><span>(</span>savedInstanceState<span>:</span> Bundle<span>?</span><span>)</span> <span>{</span>
+        <span>super</span><span>.</span><span>onCreate</span><span>(</span>savedInstanceState<span>)</span>
+        <span>setContentView</span><span>(</span>R<span>.</span>layout<span>.</span>activity_main<span>)</span>
+    <span>}</span>
+<span>}</span></code></pre><h3 id="Import-the-necessary-libraries">Import the necessary libraries</h3><p>🛠 Add the following <code><span>import</span></code> statements to the ones already in the file:</p><pre><code><span>import</span> androidx<span>.</span>core<span>.</span>view<span>.</span>isVisible
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>Auth0
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>authentication<span>.</span>AuthenticationAPIClient
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>authentication<span>.</span>AuthenticationException
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>callback<span>.</span>Callback
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>management<span>.</span>ManagementException
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>management<span>.</span>UsersAPIClient
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>provider<span>.</span>WebAuthProvider
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>result<span>.</span>Credentials
+<span>import</span> com<span>.</span>auth0<span>.</span>android<span>.</span>result<span>.</span>UserProfile
+<span>import</span> com<span>.</span>google<span>.</span>android<span>.</span>material<span>.</span>snackbar<span>.</span>Snackbar</code></pre><p>Most of these <code><span>import</span></code> statements import classes from Auth0’s libraries. Here’s what those classes do:</p><ul><li><code>AuthenticationAPIClient</code>: Accesses the Auth0 Authentication API. The app uses this to retrieve the user’s profile information.</li><li><code>AuthenticationException</code>: Defines errors and exceptions that may arise during authentication.</li><li><code>Callback</code>: Defines an object containing “success” and “failure” callback functions that Auth0 should call after completing an API function.</li><li><code>ManagementException</code>: Defines errors and exceptions that <code>Callback</code> objects may have to handle.</li><li><code>UsersAPIClient</code>: Manages user information. The app uses this to retrieve the user’s profile information.</li><li><code>WebAuthProvider</code>: Provides Auth0’s web page-based login to the app. The app uses this to log the user in via a login page in a web browser and log the user out.</li><li><code>Credentials</code>: Stores the user’s credentials, including ID, access, and refresh tokens.</li><li><code>UserProfile</code>: Stores the user’s profile information, including their user ID, names, email address, and metadata.</li></ul><p>🛠 You’ll also need to import the <code>Activity</code> ’s auto-generated view binding library, which will make it possible for your code to reference views in the layout (or, to put it more simply: access the onscreen widgets). Do this by adding the following <code><span>import</span></code> statement, replacing <code><span>{</span><span>YOUR_PACKAGE_NAME_HERE</span><span>}</span></code> with the name of your app’s package, which you’ll find on the first line of the file:</p><pre><code><span>import</span> <span>{</span>YOUR_PACKAGE_NAME_HERE<span>}</span><span>.</span>databinding<span>.</span>ActivityMainBinding</code></pre><p>The package name for my app is <code>com<span>.</span>example<span>.</span>login</code>, so my <code><span>import</span></code> statement looks like this:</p><pre><code><span>import</span> com<span>.</span>example<span>.</span>login<span>.</span>databinding<span>.</span>ActivityMainBinding</code></pre><h3 id="Add-class-properties">Add class properties</h3><p>🛠 Add the following properties to <code>MainActivity</code> so that the start of the class looks like this:</p><pre><code><span>class</span> MainActivity <span>:</span> <span>AppCompatActivity</span><span>(</span><span>)</span> <span>{</span>
+
+    <span>private</span> <span>lateinit</span> <span>var</span> binding<span>:</span> ActivityMainBinding
+
+    <span>// Login/logout-related properties</span>
+    <span>private</span> <span>lateinit</span> <span>var</span> account<span>:</span> Auth0
+    <span>private</span> <span>var</span> cachedCredentials<span>:</span> Credentials<span>?</span> <span>=</span> <span>null</span>
+    <span>private</span> <span>var</span> cachedUserProfile<span>:</span> UserProfile<span>?</span> <span>=</span> <span>null</span>
+
+
+    <span>override</span> <span>fun</span> <span>onCreate</span><span>(</span>savedInstanceState<span>:</span> Bundle<span>?</span><span>)</span> <span>{</span>
+    
+    <span>..</span><span>.</span></code></pre><p>You’ll use the first property, <code>binding</code>, to access the widgets on the screen. The other three properties are related to logging in and out and are described in more detail below:</p><ul><li><code>account</code>: represents the app’s Auth0 account and is instantiated using the app’s client ID and the domain for the app’s Auth0 tenant. Let me make this clear: this isn’t the account of the user trying to log in, but the account of the developer or organization who is delegating the login/logout process to Auth0. In the case of this example, it’s <em>your</em> Auth0 developer account. <code>account</code>’s value is set in <code><span>onCreate</span><span>(</span><span>)</span></code> when the activity is instantiated.</li><li><code>cachedCredentials</code>: contains the user’s credentials that are returned from Auth0 after a successful login. Its value should be <code><span>null</span></code> when the user is <em>not</em> logged in. When the user is logged in, it should reference an instance of <code>Credentials</code>. A <code>Credentials</code> instance has the following properties:
+  <ul><li><code>idToken</code>: The <a href="https://auth0.com/docs/tokens/id-tokens" target="_blank" rel="noreferrer noopener">ID token</a>, which contains user information that the app can use to customize the user’s experience.</li><li><code>accessToken</code>: The <a href="https://auth0.com/docs/tokens/access-tokens" target="_blank" rel="noreferrer noopener">access token</a>, which is a credential that allows the app to access the Auth0 API.</li><li><code>refreshToken</code>: The <a href="https://auth0.com/docs/tokens/refresh-tokens" target="_blank" rel="noreferrer noopener">refresh token</a>, which can be used to request a new access token when the original access token expires, without requiring the user to re-authenticate.</li><li><code>type</code>: The type of the received access token.</li><li><code>expiresAt</code>: The date/time when the received access token expires.</li><li><code>scope</code>: The scopes granted to the access token. I’ll explain what scopes are in the next section, <em>The login method</em>.</li></ul></li><li><code>cachedUserProfile</code>: holds the user’s profile information. Its value should be <code><span>null</span></code> when the user is <em>not</em> logged in. When the user is logged in, it should reference an instance of <code>UserProfile</code>. A <code>UserProfile</code> instance has the following properties:
+<ul><li><code>email</code>: The email address corresponding to the user account.</li><li><code>isEmailVerified</code>: <code><span>true</span></code> if the user responded to the verification email sent by Auth0 after they registered themselves as a user.</li><li><code>name</code>: The user’s full name.</li><li><code>givenName</code>: The user’s given name, often referred to as their “first name” or “forename”.</li><li><code>familyName</code>: The user’s family name, often referred to as their “last name” or “surname”.</li><li><code>nickname</code>: The user’s nickname, sometimes referred to as thier “familiar name” or “moniker”.</li><li><code>PictureURL</code>: The URL where the user’s picture can be retrieved.</li><li><code>createdAt</code>: The creation date and time of the user’s account.</li></ul></li></ul><h3 id="Update-the--onCreate----method">Update the <code><span>onCreate</span><span>(</span><span>)</span></code> method</h3><p>First, let’s fill out the <code><span>onCreate</span><span>(</span><span>)</span></code> method that was automatically generated for the project and use it to initialize everything in the activity.</p><p>🛠 Update the <code><span>onCreate</span><span>(</span><span>)</span></code> method so that it looks like this:</p><pre><code><span>override</span> <span>fun</span> <span>onCreate</span><span>(</span>savedInstanceState<span>:</span> Bundle<span>?</span><span>)</span> <span>{</span>
+    <span>super</span><span>.</span><span>onCreate</span><span>(</span>savedInstanceState<span>)</span>
+
+    account <span>=</span> <span>Auth0</span><span>(</span>
+        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_client_id<span>)</span><span>,</span>
+        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_domain<span>)</span>
+    <span>)</span>
+
+    binding <span>=</span> ActivityMainBinding<span>.</span><span>inflate</span><span>(</span>layoutInflater<span>)</span>
+    <span>setContentView</span><span>(</span>binding<span>.</span>root<span>)</span>
+
+    binding<span>.</span>buttonLogin<span>.</span><span>setOnClickListener</span> <span>{</span> <span>login</span><span>(</span><span>)</span> <span>}</span>
+    binding<span>.</span>buttonLogout<span>.</span><span>setOnClickListener</span> <span>{</span> <span>logout</span><span>(</span><span>)</span> <span>}</span>
+    binding<span>.</span>buttonGet<span>.</span><span>setOnClickListener</span> <span>{</span> <span>getUserMetadata</span><span>(</span><span>)</span> <span>}</span>
+    binding<span>.</span>buttonSet<span>.</span><span>setOnClickListener</span> <span>{</span> <span>setUserMetadata</span><span>(</span><span>)</span> <span>}</span>
+<span>}</span></code></pre><p>This method:</p><ul><li>Defines the account object, which contains the necessary credentials to connect to your Auth0 account.</li><li>Creates a view binding object, which you’ll use to access the onscreen widgets.</li><li>Connects the <strong>Log in</strong>, <strong>Log out</strong>, <strong>Get</strong>, and <strong>Set</strong> buttons to the methods they should call when tapped.</li></ul><h3 id="Add-the--login----method">Add the <code><span>login</span><span>(</span><span>)</span></code> method</h3><p>The next step is to implement the method that gets called when the user taps the <strong>Log In</strong> button.</p><p>🛠 Add this to the class after <code><span>onCreate</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>login</span><span>(</span><span>)</span> <span>{</span>
+    WebAuthProvider
+        <span>.</span><span>login</span><span>(</span>account<span>)</span>
+        <span>.</span><span>withScheme</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_scheme<span>)</span><span>)</span>
+        <span>.</span><span>withScope</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_scopes<span>)</span><span>)</span>
+        <span>.</span><span>withAudience</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_audience<span>,</span> <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_domain<span>)</span><span>)</span><span>)</span>
+        <span>.</span><span>start</span><span>(</span><span>this</span><span>,</span> <span>object</span> <span>:</span> Callback<span>&lt;</span>Credentials<span>,</span> AuthenticationException<span>&gt;</span> <span>{</span>
+
+            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> AuthenticationException<span>)</span> <span>{</span>
+                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_failure_message<span>,</span> exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
+            <span>}</span>
+
+            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>credentials<span>:</span> Credentials<span>)</span> <span>{</span>
+                cachedCredentials <span>=</span> credentials
+                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>login_success_message<span>,</span> credentials<span>.</span>accessToken<span>)</span><span>)</span>
+                <span>updateUI</span><span>(</span><span>)</span>
+                <span>showUserProfile</span><span>(</span><span>)</span>
+            <span>}</span>
+        <span>}</span><span>)</span>
+<span>}</span></code></pre><p><code><span>login</span><span>(</span><span>)</span></code> uses the Auth0 SDK’s <code>WebAuthProvider</code> class, which gives the app the ability to use Auth0’s authentication service. The <code>WebAuthProvider</code> methods that you’ll use most often are its <code><span>login</span><span>(</span><span>)</span></code> and <code><span>logout</span><span>(</span><span>)</span></code> methods.</p><p>Although this method is formatted to span several lines, it’s just a single line of code. The single line is made of a call to a chain of <code>WebAuthProvider</code> ’s methods starting with <code><span>login</span><span>(</span><span>)</span></code>. If you ignore all the comments and parameters, the method chain looks like this:</p><pre><code>WebAuthProvider
+    <span>.</span><span>login</span><span>(</span><span>)</span>
+    <span>.</span><span>withScheme</span><span>(</span><span>)</span>
+    <span>.</span><span>withScope</span><span>(</span><span>)</span>
+    <span>.</span><span>withAudience</span><span>(</span><span>)</span>
+    <span>.</span><span>start</span><span>(</span><span>)</span></code></pre><p>This is the <a href="https://www.baeldung.com/kotlin/builder-pattern" target="_blank" rel="noreferrer noopener">Builder design pattern</a> in action. From <code><span>login</span><span>(</span><span>)</span></code> to <code><span>withAudience</span><span>(</span><span>)</span></code>, each method in the chain takes an argument that provides additional information about the login, using that information to creates a <code>WebAuthProvider</code> object that it passes to the next method in the chain. The final method in the chain, <code><span>start</span><span>(</span><span>)</span></code>, takes the resulting <code>WebAuthProvider</code> object as its argument and uses it to display the login page and define what should happen when the login succeeds and when it fails.</p><p>Let’s take a look at what each of the methods in the chain does.</p><p><code><span>login</span><span>(</span><span>)</span></code> initiates the login process and specifies the Auth0 account used by the application.</p><p><code><span>withScheme</span><span>(</span><span>)</span></code> specifies the scheme to use for the URL that Auth0 redirects to after a successful login. For web apps, the scheme is <code>http</code> or <code>https</code>. This value is arbitrary for native mobile apps, so we use <code>app</code> to make it clear to other developers and other people who may use the Auth0 settings for this app that the redirect is <em>not</em> to a web page.</p><p><code><span>withScope</span><span>(</span><span>)</span></code> specifies which sets of user data the app is authorized to use if the user logs in successfully. The OpenID Connect and OAuth frameworks, on which Auth0’s authentication and authorization are based, use the term <a href="https://auth0.com/docs/scopes/openid-connect-scopes" target="_blank" rel="noreferrer noopener"><em>scope</em></a> to represent the authorization to access user’s data and resources. The method takes a space-delimited string as its argument, where each “word” in the string specifies a different scope. The string used in this app contains these scopes:</p><ul><li><code>openid</code>: Indicates that application that uses OpenID Connect for authentication. This is the only required scope; all other scopes are optional.</li><li><code>profile</code>: Authorizes the application to access basic user profile information, including first name, surname, nickname, their photo or avatar, and so on.</li><li><code>email</code>: Authorizes the application to access the user’s email address.</li><li><code>read<span>:</span>current_user</code>: Authorizes the application with read-only access to the <code>current_user</code> claim.</li><li><code>update<span>:</span>current_user_metadata</code>: Authorizes the application with read and write  access to the <code>current_user_metadata</code> claim. This scope allows us to get and set the <code>country</code> value in the user’s metadata.</li></ul><p><code><span>withAudience</span><span>(</span><span>)</span></code> specifies the URL that the app will use to connect to Auth0’s login service. This URL is constructed using the domain of the Auth0 tenant used by the app and the endpoint for the Auth0 authentication API.</p><p><code><span>start</span><span>(</span><span>)</span></code> takes the <code>WebAuthProvider</code> object constructed by all the previous methods in the chain and opens the browser window to display the login page. It takes two parameters: a context (a reference to the <code>Activity</code> that’s initiating the browser window) and an anonymous object with two callback methods:</p><ul><li><code><span>onFailure</span><span>(</span><span>)</span></code>: Defines what should happen if the user returns from the browser login screen without successfully logging in. This typically happens when the user closes the browser login screen or taps the “back” button while on that screen. The app displays a <code>SnackBar</code> that notifies the user that login failed, followed by an error code.</li><li><code><span>onSuccess</span><span>(</span><span>)</span></code>: Defines what should happen if the user returns from the browser login screen after successfully logging in. The app processes the successful response, displays a <code>SnackBar</code> notifying the user that login was successful, and updates the UI to its “logged in” state.</li></ul><h3 id="Add-the--logout----method">Add the <code><span>logout</span><span>(</span><span>)</span></code> method</h3><p>You’ve probably guessed that if there’s a <code><span>login</span><span>(</span><span>)</span></code> method that’s called when the user presses the <strong>Log In</strong> button, there must also be a <code><span>logout</span><span>(</span><span>)</span></code> method that’s called when the user presses the <strong>Log Out</strong> button.</p><p>🛠 Add this method to the class after <code><span>login</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>logout</span><span>(</span><span>)</span> <span>{</span>
+    WebAuthProvider
+        <span>.</span><span>logout</span><span>(</span>account<span>)</span>
+        <span>.</span><span>withScheme</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>com_auth0_scheme<span>)</span><span>)</span>
+        <span>.</span><span>start</span><span>(</span><span>this</span><span>,</span> <span>object</span> <span>:</span> Callback<span>&lt;</span>Void<span>?</span><span>,</span> AuthenticationException<span>&gt;</span> <span>{</span>
+
+            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> AuthenticationException<span>)</span> <span>{</span>
+                <span>updateUI</span><span>(</span><span>)</span>
+                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
+                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
+            <span>}</span>
+
+            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>payload<span>:</span> Void<span>?</span><span>)</span> <span>{</span>
+                cachedCredentials <span>=</span> <span>null</span>
+                cachedUserProfile <span>=</span> <span>null</span>
+                <span>updateUI</span><span>(</span><span>)</span>
+            <span>}</span>
+
+        <span>}</span><span>)</span>
+<span>}</span></code></pre><p>As with <code><span>login</span><span>(</span><span>)</span></code>, <code><span>logout</span><span>(</span><span>)</span></code> also uses the Auth0 SDK’s <code>WebAuthProvider</code> class and is a one-liner that uses the Builder pattern. This time, that one line calls a shorter chain of <code>WebAuthProvider</code> ’s methods starting with <code><span>logout</span><span>(</span><span>)</span></code>. If you ignore all the parameters, the method chain looks like this:</p><pre><code>WebAuthProvider
+    <span>.</span><span>logout</span><span>(</span><span>)</span>
+    <span>.</span><span>withScheme</span><span>(</span><span>)</span>
+    <span>.</span><span>start</span><span>(</span><span>)</span></code></pre><p><code><span>logout</span><span>(</span><span>)</span></code> initiates the logout process and specifies the Auth0 account used by the application, which should be the same account as the one used to log in.</p><p><code><span>withScheme</span><span>(</span><span>)</span></code> specifies the scheme to use for the URL that Auth0 redirects to after successful logout. This should be the same scheme as the one used to log in.</p><p><code><span>start</span><span>(</span><span>)</span></code> takes the <code>WebAuthProvider</code> object constructed by all the previous methods in the chain to log the user out. It takes two parameters: a context (a reference to the <code>Activity</code> that’s initiating the logout process) and an anonymous object with two callback methods:</p><ul><li><code><span>onFailure</span><span>(</span><span>)</span></code>: Defines what should happen when the logout process fails. This rarely happens and usually indicates a network or server issue. In this example, the app updates the UI (which remains in the “logged in” state) and displays a <code>SnackBar</code> that notifies the user that logout failed, followed by an error code.</li><li><code><span>onSuccess</span><span>(</span><span>)</span></code>: Defines what should happen when the logout process succeeds. In this example, the app destroys its local copies of the user’s credentials and profile and updates the UI to its “logged out” state.</li></ul><h3 id="Add-the--showUserProfile----method">Add the <code><span>showUserProfile</span><span>(</span><span>)</span></code> method</h3><p>Every Auth0 user has a <em>user profile</em> associated with their account. The user profile contains the following basic information about the user:</p><ul><li>Names: The user’s full name, given name, surname, and nickname</li><li>Email info: The user’s email address, and whether it was verified</li><li>Picture: The location of an image that identifies the user</li><li>Creation date: The date and time when the user’s account was created</li></ul><p>When the user successfully logs in, the app should display their name and email onscreen. It does so by calling <code><span>showUserProfile</span><span>(</span><span>)</span></code> immediately after a successful login.</p><p>🛠 Add this method to the class after <code><span>logout</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>showUserProfile</span><span>(</span><span>)</span> <span>{</span>
+    <span>// Guard against showing the profile when no user is logged in</span>
+    <span>if</span> <span>(</span>cachedCredentials <span>==</span> <span>null</span><span>)</span> <span>{</span>
+        <span>return</span>
+    <span>}</span>
+
+    <span>val</span> client <span>=</span> <span>AuthenticationAPIClient</span><span>(</span>account<span>)</span>
+    client
+        <span>.</span><span>userInfo</span><span>(</span>cachedCredentials<span>!!</span><span>.</span>accessToken<span>!!</span><span>)</span>
+        <span>.</span><span>start</span><span>(</span><span>object</span> <span>:</span> Callback<span>&lt;</span>UserProfile<span>,</span> AuthenticationException<span>&gt;</span> <span>{</span>
+
+            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> AuthenticationException<span>)</span> <span>{</span>
+                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
+                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
+            <span>}</span>
+
+            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>profile<span>:</span> UserProfile<span>)</span> <span>{</span>
+                cachedUserProfile <span>=</span> profile
+                <span>updateUI</span><span>(</span><span>)</span>
+            <span>}</span>
+
+        <span>}</span><span>)</span>
+<span>}</span></code></pre><p>This method is the final task performed by the <code><span>onSuccess</span><span>(</span><span>)</span></code> callback method in  <code><span>loginWithBrowser</span><span>(</span><span>)</span></code>. It initializes the <code>cachedUserProfile</code> property, which contains the user’s profile information.</p><p>As a precaution, it returns immediately if the <code>cachedCredentials</code> property is <code><span>null</span></code>, which implies that no user is logged in, and therefore there isn’t any user profile to show.</p><p>In order to get this information, it does the following:</p><ul><li>It creates an instance of <code>AuthenticationAPIClient</code>, which retrieves Auth0 account information. Like the login and logout methods, this also uses the Builder pattern.</li><li>It uses <code>AuthenticationAPIClient</code> ’s <code><span>userInfo</span><span>(</span><span>)</span></code> method to specify that we want to retrieve user profile information from Auth0. This method requires a valid access token, which it extracts from the <code>cachedCredentials</code> property.</li><li>Finally, it defines callback methods for the cases where it failed and succeeded in retrieving the user profile information from Auth0. If the retrieval was successful, the profile information is stored in <code>cachedUserProfile</code>, and the UI is updated to display the user’s name and email address.</li></ul><h3 id="Add-the--getUserMetadata----and--setUserMetadata----methods">Add the <code><span>getUserMetadata</span><span>(</span><span>)</span></code> and <code><span>setUserMetadata</span><span>(</span><span>)</span></code> methods</h3><p>The user profile contains information that generally applies to <em>every</em> user account regardless of the type of application it’s being used for — name, email, photo, and date/time created. While this is necessary information, it’s probably not <em>all</em> the user information that you want to store in their profile.</p><p>That what the <em>user metadata</em> is for. Think of it as a key-value store where you can place additional user information that isn’t covered by the user profile. In this app, the user metadata will store just one additional piece of user information — their country — and it will allow the user to retrieve and update this information.</p><p>🛠 Add the following to the class after <code><span>showUserProfile</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>getUserMetadata</span><span>(</span><span>)</span> <span>{</span>
+    <span>// Guard against getting the metadata when no user is logged in</span>
+    <span>if</span> <span>(</span>cachedCredentials <span>==</span> <span>null</span><span>)</span> <span>{</span>
+        <span>return</span>
+    <span>}</span>
+
+    <span>val</span> usersClient <span>=</span> <span>UsersAPIClient</span><span>(</span>account<span>,</span> cachedCredentials<span>!!</span><span>.</span>accessToken<span>!!</span><span>)</span>
+
+    usersClient
+        <span>.</span><span>getProfile</span><span>(</span>cachedUserProfile<span>!!</span><span>.</span><span>getId</span><span>(</span><span>)</span><span>!!</span><span>)</span>
+        <span>.</span><span>start</span><span>(</span><span>object</span> <span>:</span> Callback<span>&lt;</span>UserProfile<span>,</span> ManagementException<span>&gt;</span> <span>{</span>
+
+            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> ManagementException<span>)</span> <span>{</span>
+                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
+                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
+            <span>}</span>
+
+            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>userProfile<span>:</span> UserProfile<span>)</span> <span>{</span>
+                cachedUserProfile <span>=</span> userProfile
+                <span>updateUI</span><span>(</span><span>)</span>
+
+                <span>val</span> country <span>=</span> userProfile<span>.</span><span>getUserMetadata</span><span>(</span><span>)</span><span>[</span><span>&#34;country&#34;</span><span>]</span> <span>as</span> String<span>?</span>
+                binding<span>.</span>edittextCountry<span>.</span><span>setText</span><span>(</span>country<span>)</span>
+            <span>}</span>
+
+        <span>}</span><span>)</span>
+<span>}</span>
+
+<span>private</span> <span>fun</span> <span>setUserMetadata</span><span>(</span><span>)</span> <span>{</span>
+    <span>// Guard against getting the metadata when no user is logged in</span>
+    <span>if</span> <span>(</span>cachedCredentials <span>==</span> <span>null</span><span>)</span> <span>{</span>
+        <span>return</span>
+    <span>}</span>
+
+    <span>val</span> usersClient <span>=</span> <span>UsersAPIClient</span><span>(</span>account<span>,</span> cachedCredentials<span>!!</span><span>.</span>accessToken<span>!!</span><span>)</span>
+    <span>val</span> metadata <span>=</span> <span>mapOf</span><span>(</span><span>&#34;country&#34;</span> <span>to</span> binding<span>.</span>edittextCountry<span>.</span>text<span>.</span><span>toString</span><span>(</span><span>)</span><span>)</span>
+
+    usersClient
+        <span>.</span><span>updateMetadata</span><span>(</span>cachedUserProfile<span>!!</span><span>.</span><span>getId</span><span>(</span><span>)</span><span>!!</span><span>,</span> metadata<span>)</span>
+        <span>.</span><span>start</span><span>(</span><span>object</span> <span>:</span> Callback<span>&lt;</span>UserProfile<span>,</span> ManagementException<span>&gt;</span> <span>{</span>
+
+            <span>override</span> <span>fun</span> <span>onFailure</span><span>(</span>exception<span>:</span> ManagementException<span>)</span> <span>{</span>
+                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_failure_with_exception_code<span>,</span>
+                    exception<span>.</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>)</span>
+            <span>}</span>
+
+            <span>override</span> <span>fun</span> <span>onSuccess</span><span>(</span>profile<span>:</span> UserProfile<span>)</span> <span>{</span>
+                cachedUserProfile <span>=</span> profile
+                <span>updateUI</span><span>(</span><span>)</span>
+
+                <span>showSnackBar</span><span>(</span><span>getString</span><span>(</span>R<span>.</span>string<span>.</span>general_success_message<span>)</span><span>)</span>
+            <span>}</span>
+
+        <span>}</span><span>)</span>
+<span>}</span></code></pre><p>While <code><span>showUserProfile</span><span>(</span><span>)</span></code> uses an instance of <code>AuthenticationAPIClient</code> to get the user profile information, <code><span>getUserMetadata</span><span>(</span><span>)</span></code> and <code><span>setUserMetadata</span><span>(</span><span>)</span></code> use a different object type: <code>UsersAPIClient</code>.</p><p>Unlike <code>AuthenticationAPIClient</code>, which needs only an <code>Auth0</code> account object to be instantiated, you need both an <code>Auth0</code> account object and an access token to instantiate a <code>UsersAPIClient</code> object.</p><p><code><span>getUserMetadata</span><span>(</span><span>)</span></code> specifies the user profile using <code>UsersAPIClient</code> ’s <code><span>getProfile</span><span>(</span><span>)</span></code> method and the ID of the user, followed by the <code><span>start</span><span>(</span><span>)</span></code> method to attempt to get the user profile and define callback methods for failure and success.</p><p><code><span>getUserMetadata</span><span>(</span><span>)</span></code>’s <code><span>onSuccess</span><span>(</span><span>)</span></code> callback is almost the same as <code><span>showUserProfile</span><span>(</span><span>)</span></code>’s — it just has these two additional lines that extract the <code>country</code> value from the user’s metadata and display it onscreen:</p><pre><code><span>val</span> country <span>=</span> userProfile<span>.</span><span>getUserMetadata</span><span>(</span><span>)</span><span>[</span><span>&#34;country&#34;</span><span>]</span> <span>as</span> String<span>?</span>
+binding<span>.</span>edittextCountry<span>.</span><span>setText</span><span>(</span>country<span>)</span></code></pre><p><code><span>setUserMetadata</span><span>(</span><span>)</span></code> defines a <code>Map</code> with a single key-value pair, where the key is the string <code>country</code> and the corresponding value is the contents of the <code>EditText</code> where the user enters the name of their country. It then passes that <code>Map</code> along with the user’s ID to <code>UsersAPIClient</code> ’s <code><span>updateMetadata</span><span>(</span><span>)</span></code> method to specify the change to be made, followed by the <code><span>start</span><span>(</span><span>)</span></code> method to initiate the update and define callback methods for failure and success.</p><p><code><span>setUserMetadata</span><span>(</span><span>)</span></code>’s <code><span>onSuccess</span><span>(</span><span>)</span></code> callback is almost the same as <code><span>getUserMetadata</span><span>(</span><span>)</span></code>’s — but instead of updating the <code>EditText</code> where the user enters the name of their country, it simply displays a <code>SnackBar</code> notifying the user that it was successful in updating the metadata.</p><h3 id="Add-the-UI-methods">Add the UI methods</h3><p>The final step is to add the methods that present information to the user.</p><p>🛠 Add the following to the class after <code><span>getUserMetadata</span><span>(</span><span>)</span></code> and <code><span>setUserMetadata</span><span>(</span><span>)</span></code>:</p><pre><code><span>private</span> <span>fun</span> <span>updateUI</span><span>(</span><span>)</span> <span>{</span>
+    <span>val</span> isLoggedIn <span>=</span> cachedCredentials <span>!=</span> <span>null</span>
+
+    binding<span>.</span>textviewTitle<span>.</span>text <span>=</span> <span>if</span> <span>(</span>isLoggedIn<span>)</span> <span>{</span>
+        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>logged_in_title<span>)</span>
+    <span>}</span> <span>else</span> <span>{</span>
+        <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>logged_out_title<span>)</span>
+    <span>}</span>
+    binding<span>.</span>buttonLogin<span>.</span>isEnabled <span>=</span> <span>!</span>isLoggedIn
+    binding<span>.</span>buttonLogout<span>.</span>isEnabled <span>=</span> isLoggedIn
+    binding<span>.</span>linearlayoutMetadata<span>.</span>isVisible <span>=</span> isLoggedIn
+
+    binding<span>.</span>textviewUserProfile<span>.</span>isVisible <span>=</span> isLoggedIn
+
+    <span>val</span> userName <span>=</span> cachedUserProfile<span>?</span><span>.</span>name <span>?:</span> <span>&#34;&#34;</span>
+    <span>val</span> userEmail <span>=</span> cachedUserProfile<span>?</span><span>.</span>email <span>?:</span> <span>&#34;&#34;</span>
+    binding<span>.</span>textviewUserProfile<span>.</span>text <span>=</span> <span>getString</span><span>(</span>R<span>.</span>string<span>.</span>user_profile<span>,</span> userName<span>,</span> userEmail<span>)</span>
+
+    <span>if</span> <span>(</span><span>!</span>isLoggedIn<span>)</span> <span>{</span>
+        binding<span>.</span>edittextCountry<span>.</span><span>setText</span><span>(</span><span>&#34;&#34;</span><span>)</span>
+    <span>}</span>
+<span>}</span>
+
+<span>private</span> <span>fun</span> <span>showSnackBar</span><span>(</span>text<span>:</span> String<span>)</span> <span>{</span>
+    Snackbar
+        <span>.</span><span>make</span><span>(</span>
+        binding<span>.</span>root<span>,</span>
+        text<span>,</span>
+        Snackbar<span>.</span>LENGTH_LONG
+    <span>)</span><span>.</span><span>show</span><span>(</span><span>)</span>
+<span>}</span></code></pre><p>If you’ve made it this far, I have great news for you: you’ve written all the code for the app!</p><h2 id="See-the-App-in-Action">See the App in Action</h2><p>Run the app. You’ll see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7FSXqzXczgaNUC5NnY9q1F/d72b55833d1bf446c70d60488f7f4ae0/welcome_screen.png" alt="The app’s screen when launched."/></p><p>Tap the <strong>Log in</strong> button. The app will open a browser window that will display the login web page:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/53TEQjPR0HhmvGIC8BXW7a/e7b6205b7c401883c61b162c498a00f7/universal_login.png" alt="The Auth0 login web page."/></p><p>Log in using the email address and password of the user account you created earlier. Since this is the first time the account has logged into the app, the <strong>Authorize App</strong> page will appear in the browser window:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4AkDSwWeHROplHJV3KOFcg/98376afd920b0af2a2e732a06c7fb622/authorize_app.png" alt="The “Authorize App” screen. It says that the app is requesting access to your user account, particularly the “profile”, “current_user”, and “current_user_metadata” information."/></p><p>This page is asking you to authorize the app to access the following information in your user account:</p><ul><li>Profile: access to your profile and email</li><li>Current_user: read your current_user</li><li>Current_user_metadata: update your current_user_metadata</li></ul><p>If these items sound familiar, it’s because you’ve seen them recently. They’re the names of the scopes in the <code>login_scopes</code> string in the <code>strings<span>.</span>xml</code> resource...</p><pre><code><span><span><span>&lt;</span>string</span> <span>name</span><span><span>=</span><span>&#34;</span>login_scopes<span>&#34;</span></span><span>&gt;</span></span>
+    openid profile email read:current_user update:current_user_metadata
+<span><span><span>&lt;/</span>string</span><span>&gt;</span></span></code></pre><p>...which the call to <code><span>withScope</span><span>(</span><span>)</span></code> in the <code><span>login</span><span>(</span><span>)</span></code> method uses to specify which sets of user data the app is authorized to use. This additional step informs the user of this use of their data and gives them a choice to approve or decline.</p><p>Tap the <strong>Approve</strong> button. The browser will disappear, and you will return to the app, which will now look like this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6D4JdPU0s5tGuplX9gEE4g/cfb0e2c57ead91059a2d6a26d6efdf44/main_screen_1.png" alt="The app’s screen when the user is logged in."/></p><p>Tap the <strong>Get</strong> button. If you’ve never edited the value of the <code>country</code> field in the user’s metadata, the metadata text box will display the hint text “Enter country”.</p><p>Enter a country’s name (or any other text if you like) into the text box and tap the <strong>Set</strong> button. You’ll see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5NE22T6w25nAVecqCIZ7x7/3c913e712052570af8908e860da37d2a/main_screen_3.png" alt="The app’s screen, with the word “Morocco”, entered into the text field."/></p><p>Two things just happened:</p><ol start="1"><li>If the user’s metadata already had a <code>country</code> field, its value changed to whatever text you entered. If the user’s metadata didn’t have a <code>country</code> field, a <code>country</code> field was added to the metadata, and its value was set to whatever text you entered.</li><li>An Android pop-up message called a <a href="https://developer.android.com/reference/com/google/android/material/snackbar/Snackbar" target="_blank" rel="noreferrer noopener"><code>Snackbar</code></a> appeared at the bottom of the screen with the message “Success!”</li></ol><p>Log out of the app, then log in again. Tap the <strong>Get</strong> button. The app should fill the metadata text box with the value of the <code>country</code> metadata field.</p><p>Let’s look at the updated user metadata from the Auth0 side. In the Auth0 dashboard, go to the list of users. Do this by clicking <strong>User Management</strong> in the menu on the left side of the page, followed by clicking on <strong>Users</strong>. Select the user that is currently logged in on the app. You’ll be taken to that user’s <strong>Details</strong> page:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5nnVqPm4l6vVtgyvZpeYwI/db98ccbfb8b945ebde7ec7c8143724c5/user_details_page.png" alt="The Auth0 dashboard displaying the user’s “User Details” page. In the “user_metadata” field, a JSON object contains a single key-value pair with the key “country” and the value “Morocco”."/></p><p>Scroll down to the <strong>Metadata</strong> section of the page. You’ll see an area labeled <strong>user_metadata</strong>. If you filled out the <code>EditText</code> in the app, you’ll see it in the JSON object there:</p><pre><code><span>{</span>
+    <span>&#34;country&#34;</span><span>:</span> <span>{</span><span>WHATEVER_TEXT_YOU_ENTERED</span><span>}</span>
+<span>}</span></code></pre><p>Each Auth0 user account can store two kinds of metadata:</p><ul><li><strong>User metadata,</strong> which is meant for data intentionally provided by and controlled by the user. It’s typically used for storing information that the user wants to share with the app, such as their address, contact information, preferences, and similar data. Only data that the user can read and edit should be stored here.</li><li><strong>App metadata,</strong> which is meant for data provided by and controlled by the app. It’s typically used for storing information about the user that is primarily for the app’s use, such as the user’s roles, permissions, status, and similar data. There may be cases where the user can read this data, but you should not use app metadata to store data provided directly by the user.</li></ul><p>While a detailed look at the user account pages is beyond the scope of this article, you should explore them to see the kinds of data and functionality that are associated with user accounts.</p><h2 id="When-Things-Go-Sideways">When Things Go Sideways</h2><p>The expression “to go sideways” means “to go wrong” or “to not go according to plan.” In this section, I’ll show you what can go wrong when you’re writing an Android app and fail to account for what happens when the user turns their phone on its side. </p><h3 id="Inducing-app-amnesia">Inducing app amnesia</h3><p>Run the app and log in. You should see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6D4JdPU0s5tGuplX9gEE4g/cfb0e2c57ead91059a2d6a26d6efdf44/main_screen_1.png" alt="The app’s screen when the user is logged in, in portrait orientation."/></p><p>Rotate your device to landscape orientation:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/48FY3obLHoGHnHfugbSn7I/8bc142a3e3e69bde3deed3223e6d02d7/orientation_change.png" alt="The app screen viewed in landscape orientation. It has taken on the appearance of just having been launched."/></p><p>Notice what happened: </p><ul><li>The greeting text changed from “You’re logged in.” to “Welcome to the app!”, which is its state when the app is launched.</li><li>The buttons have also been returned to their initial state:  <strong>Log in</strong> is enabled, and <strong>Log out</strong> is disabled.</li></ul><p>It appears as if turning your device on its side has given your app amnesia and returned it to its initial state. What happened?</p><h3 id="Configuration-changes-and-reloading">Configuration changes and reloading</h3><p>To use a developer cliché: this isn’t a bug, but a feature.</p><p>Whenever it detects a configuration change, Android’s default response is to reload the current activity. There are many configuration changes, such as language, keyboard availability, or the change you made just now: screen orientation. Reloading an activity when a configuration change happens makes it run its initialization methods again and reload resources, allowing it to set itself up for the new configuration.</p><p>This behavior was designed for applications that present different interfaces in different orientations. YouTube is an example of such an app, which has different portrait and landscape UI setups:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4jHUrVT9Ekh5252HZc3T95/706f6ddb57bb1b6be1a37c82b1201297/youtube_portrait_and_landscape.png" alt="The YouTube app, shown in both orientations. In portrait orientation, it shows the video, ratings, and comments. In landscape orientation, the video takes up the entire screen."/></p><p>Changing the screen orientation reloaded the activity and restored the app to its initial state, but it <em>did not</em> change your “logged in” status. The <code><span>logout</span><span>(</span><span>)</span></code> method was not called when you turned your device on its side. You’re still logged in!</p><p>You can confirm your “logged in” status by tapping the <strong>Log in</strong> button. Note that there wasn’t an intermediate step where you had to enter your email address and password — you were taken straight to the app:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/01B8CQAD7K9uDYwkT7D1c7/08a21f19cdacc4ecdb065132cd2cf590/logged_in_sideways.png" alt="The app screen, viewed in landscape orientation, showing the user logged in. The bottom portion of the screen is not in sight."/></p><p>Note that that app never presented the login page. That’s because there wasn’t any need — you were still logged in. Let’s solve this problem.</p><h3 id="Curing-your-app-s-amnesia">Curing your app’s amnesia</h3><p>You can instruct Android <em>not</em> to reload Activities in the event of specified configuration changes in the app’s manifest. </p><p>🛠 Open <code>AndroidManifest<span>.</span>xml</code> and change the <code><span>&lt;</span>activity<span>&gt;</span></code> tag to the following:</p><pre><code><span><span><span>&lt;</span>activity</span>
+    <span><span>android:</span>name</span><span><span>=</span><span>&#34;</span>.MainActivity<span>&#34;</span></span>
+    <span><span>android:</span>exported</span><span><span>=</span><span>&#34;</span>true<span>&#34;</span></span>
+    <span><span>android:</span>configChanges</span><span><span>=</span><span>&#34;</span>orientation|screenSize<span>&#34;</span></span> <span>&gt;</span></span></code></pre><p>This change adds the attribute <code>android<span>:</span>configChanges<span>=</span> “orientation<span>|</span>screenSize”</code> to <code>MainActivity</code>, which tells Android that the activity should <em>not</em> reload if the device orientation or screen size changes. Instead of reloading the activity, Android uses a callback method to notify the app of the change. The assumption is that you’ll handle those configuration changes yourself. Since we’ll ignore this callback, the configuration change has no effect.</p><p>Run the app and log in. Change the screen orientation, going from portrait to landscape and back. It no longer causes the activity to reload.</p><h2 id="Conclusion">Conclusion</h2><p>You’ve just built a simple app that features basic username/password <em>authentication</em> — the ability to identify a known user. In addition to log a user in and out, you can also retrieve the information in their profile, and read and update their metadata.</p><p>You can find the code for the complete project for this article in <a href="https://github.com/auth0-blog/get-started-android-authentication-kotlin" target="_blank" rel="noreferrer noopener">this repository on the <em>Auth0 Blog Samples</em> GitHub account</a>. The only change that you’ll need to make in order to run it is to enter your app’s client ID and tenant’s domain in the <code>auth0<span>.</span>xml</code> resource file.</p><p>This is the first in a new series of articles on Android development with Auth0. Future articles will cover new developments in Android 12 and Android Studio, as well as deeper dives into authentication and authorization with Android and Auth0 and alternatives to the standard username-and-password approach. Watch this space!</p><p><a href="https://auth0.com/blog/get-started-with-android-authentication-using-kotlin-part-1" target="_blank" rel="noopener referrer">Next Step: Read the preview part here</a></p><p><a href="https://community.auth0.com/t/developing-a-secure-api-with-nestjs/33026" target="_blank" rel="noopener noreferrer">I ran into an issue</a></p></div></div>]]></content:encoded>
       <pubDate>Mon, 20 Sep 2021 18:29:00 +0000</pubDate>
     </item>
     <item>
