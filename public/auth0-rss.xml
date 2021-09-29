@@ -4,6 +4,226 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Create an API in Swift and Deploy It to AWS Lambda</title>
+      <link>https://auth0.com/blog/create-an-api-in-swift-and-deploy-it-to-aws-lambda/</link>
+      <description>Learn how to create and deploy a serverless HTTP API using Swift and AWS Lambda.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In almost every real mobile application, we are probably going to need a backend side where our business logic will be handled. In most cases, there will be two different teams, one for mobile and one for the backend side of the project. But, what if we, as iOS developers, could write our own backend in our preferred language? Let&#39;s explore in this article how we can achieve this using Swift AWS Lambda Runtime together with AWS Lambda.</p><h2 id="What-is-AWS-Lambda-">What is AWS Lambda?</h2><p>In simple terms, it is a service provider by AWS in which we can run our code without the need to configure and manage a server. We just upload our code as a zip file, and AWS automatically does all the configurations needed in the server to make our software available.</p><p>One of the main differences between this approach and having a dedicated server, in addition to simpler administration, is that if at some point we need to increase our processing power to scale up our application, AWS Lambda does that automatically for us if we design the application correctly.</p><p>You can check out more at this <a href="https://aws.amazon.com/lambda/" target="_blank" rel="noreferrer noopener">link</a>.</p><h2 id="Swift-AWS-Lambda-Runtime">Swift AWS Lambda Runtime</h2><p>A custom AWS Lambda runtime is basically a library that is in charge of managing and executing the Lambda function&#39;s code when it is called. With <a href="https://swift.org/blog/aws-lambda-runtime/" target="_blank" rel="noreferrer noopener">Swift AWS Lambda Runtime</a>, we can now write serverless code in Swift and make it ready for use with AWS Lambda service.</p><h2 id="Creating-Our-HTTP-API">Creating Our HTTP API</h2><p>For this tutorial, we will create a simple HTTP API in Swift and expose it through <a href="https://aws.amazon.com/api-gateway/" target="_blank" rel="noreferrer noopener">API Gateway</a>, which is another service available in AWS suite that allows us to expose our Lambda function as HTTP endpoints.</p><h3 id="Prerequisites">Prerequisites</h3><ul><li>Have XCode installed</li><li>Have an AWS account.</li><li>Have an Auth0 account.</li><li>Have Docker installed in your machine to compile the code that we will upload to AWS.</li></ul><h3 id="Step-1--Defining-the-API">Step 1: Defining the API</h3><p>We&#39;re going to create a simple API to handle a simple todo list with three operations:</p><ul><li><code><span>POST</span> <span>/</span>todoitem</code> Create a new todo item.</li><li><code><span>GET</span> <span>/</span>todoitems</code> Return all the items in the list.</li><li><code><span>GET</span> <span>/</span>todoitems<span>/</span><span>:</span>id</code> Return a specific item in the list.</li></ul><p>Just to simplify things, our TodoItem will only have an id and a description.</p><pre><code><span>struct</span> <span>ToDoItem</span> <span>{</span>
+    <span>var</span> id<span>:</span> <span>Int</span>
+    <span>let</span> description<span>:</span> <span>String</span>
+<span>}</span></code></pre><h3 id="Step-2--Setup-the-project">Step 2: Setup the project</h3><p>The next thing we need to do is create our project. In this case, we need to create a new <a href="https://swift.org/package-manager/" target="_blank" rel="noreferrer noopener">Swift Package</a>. To do this, we can open Xcode and go to <strong>File → New → Swift Package</strong> option and name it <strong>ToDoList-API</strong>. We can also create it from the console by running the following command: <code>$ swift <span>package</span> init <span>--</span>type executable</code>.</p><p>Once that we have our project created, let&#39;s open and modify our <strong>Package.swift</strong> file with all the information needed.</p><pre><code><span>// swift-tools-version:5.3</span>
+<span>// The swift-tools-version declares the minimum version of Swift required to build this package.</span>
+
+<span>import</span> <span>PackageDescription</span>
+
+<span>let</span> package <span>=</span> <span>Package</span><span>(</span>
+    name<span>:</span> <span>&#34;ToDoList-API&#34;</span><span>,</span>
+    platforms<span>:</span> <span>[</span>
+        <span>.</span><span>macOS</span><span>(</span><span>.</span>v10_15<span>)</span>
+    <span>]</span><span>,</span>
+    products<span>:</span> <span>[</span>
+        <span>.</span><span>executable</span><span>(</span>name<span>:</span> <span>&#34;ToDoList-API&#34;</span><span>,</span> targets<span>:</span> <span>[</span><span>&#34;ToDoList-API&#34;</span><span>]</span><span>)</span><span>,</span>
+    <span>]</span><span>,</span>
+    dependencies<span>:</span> <span>[</span>
+        <span>.</span><span>package</span><span>(</span>url<span>:</span> <span>&#34;https://github.com/swift-server/swift-aws-lambda-runtime.git&#34;</span><span>,</span> <span>.</span><span>upToNextMajor</span><span>(</span>from<span>:</span><span>&#34;0.3.0&#34;</span><span>)</span><span>)</span><span>,</span>
+    <span>]</span><span>,</span>
+    targets<span>:</span> <span>[</span>
+        <span>.</span><span>target</span><span>(</span>
+            name<span>:</span> <span>&#34;ToDoList-API&#34;</span><span>,</span>
+            dependencies<span>:</span> <span>[</span>
+                <span>.</span><span>product</span><span>(</span>name<span>:</span> <span>&#34;AWSLambdaRuntime&#34;</span><span>,</span> package<span>:</span> <span>&#34;swift-aws-lambda-runtime&#34;</span><span>)</span><span>,</span>
+                <span>.</span><span>product</span><span>(</span>name<span>:</span> <span>&#34;AWSLambdaEvents&#34;</span><span>,</span> package<span>:</span> <span>&#34;swift-aws-lambda-runtime&#34;</span><span>)</span><span>,</span>
+            <span>]</span><span>,</span>
+            resources<span>:</span> <span>[</span>
+                <span>.</span><span>process</span><span>(</span><span>&#34;Config.plist&#34;</span><span>)</span>
+            <span>]</span>
+        <span>)</span><span>,</span>
+    <span>]</span>
+<span>)</span></code></pre><p>Once you save the file, Xcode will start downloading all the needed resources and dependencies. For this example, we&#39;re going to use two dependencies:</p><ul><li><strong>AWSLambdaRuntime</strong> to handle the communications with <a href="https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html" target="_blank" rel="noreferrer noopener">AWS Lambda runtime API</a>.</li><li><strong>AWSLambdaEvents</strong> to handle the events with API Gateway in our code.</li></ul><h3 id="Step-3--Create-our-first-Lambda-function">Step 3: Create our first Lambda function</h3><p>We now have to develop our Lambda function. To do so, we must create a new file inside the <code><span>/</span>Source</code> directory and name it <strong>main.swift</strong>. Inside this file, we&#39;ll use the Swift Lambda Runtime by calling <code>Lambda<span>.</span>run</code> function. This function takes an input and a callback as parameters. We can use the callback to return whatever we want if the operation is successful or an error otherwise.</p><p>For every invocation that Lambada receives, our Runtime will execute whatever we put inside the <code>Lambda<span>.</span>run</code> function. In this case, we are going to take just a string as input and return a greeting message.</p><pre><code><span>import</span> <span>AWSLambdaRuntime</span>
+
+<span>struct</span> <span>Input</span><span>:</span> <span>Codable</span> <span>{</span>
+  <span>let</span> name<span>:</span> <span>String</span>
+<span>}</span>
+
+<span>struct</span> <span>Output</span><span>:</span> <span>Codable</span> <span>{</span>
+  <span>let</span> greeting<span>:</span> <span>String</span>
+<span>}</span>
+
+<span>Lambda</span><span>.</span>run <span>{</span> <span>(</span>context<span>,</span> input<span>:</span> <span>Input</span><span>,</span> callback<span>:</span> @escaping <span>(</span><span>Result</span><span>&lt;</span><span>Output</span><span>,</span> <span>Error</span><span>&gt;</span><span>)</span> <span>-</span><span>&gt;</span> <span>Void</span><span>)</span> <span>in</span>
+  <span>callback</span><span>(</span><span>.</span><span>success</span><span>(</span><span>Output</span><span>(</span>greeting<span>:</span> <span>&#34;Hello <span><span>\(</span>input<span>.</span>name<span>)</span></span>&#34;</span><span>)</span><span>)</span><span>)</span>
+<span>}</span></code></pre><p>In order to run our lambda in our machine, we need to add a custom environment variable (<code><span>LOCAL_LAMBDA_SERVER_ENABLED</span><span>=</span><span>true</span></code>) to our scheme&#39;s run settings. This will simulate the Lambda server in our local environment. </p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/42lm5qsyLdzZ9sVnvs6Ipn/c177634055ba4886f3863e6a4232d4fb/swift_lambda_01.png" alt="Enable AWS Lambda local"/></p><p>Now, if we run the target, we will get something like this in the console:</p><pre><code><span>2021</span><span>-</span><span>08</span><span>-</span>14T23<span>:</span><span>36</span><span>:</span><span>50</span><span>-</span><span>0300</span> info <span>LocalLambdaServer</span> <span>:</span> <span>LocalLambdaServer</span> started and listening on <span>127.0</span><span>.</span><span>0.1</span><span>:</span><span>7000</span><span>,</span> receiving events on <span>/</span>invoke
+<span>2021</span><span>-</span><span>08</span><span>-</span>14T23<span>:</span><span>36</span><span>:</span><span>50</span><span>-</span><span>0300</span> info <span>Lambda</span> <span>:</span> lambda lifecycle starting with <span>Configuration</span>
+  <span>General</span><span>(</span>logLevel<span>:</span> info<span>)</span><span>)</span>
+  <span>Lifecycle</span><span>(</span>id<span>:</span> <span>9908899204653</span><span>,</span> maxTimes<span>:</span> <span>0</span><span>,</span> stopSignal<span>:</span> <span>TERM</span><span>)</span>
+  <span>RuntimeEngine</span><span>(</span>ip<span>:</span> <span>127.0</span><span>.</span><span>0.1</span><span>,</span> port<span>:</span> <span>7000</span><span>,</span> requestTimeout<span>:</span> <span>nil</span></code></pre><p>This means that our Lambda function is running on port <code>http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>700</span><span>/</span>invoke</code>. So let&#39;s go ahead and make our first request to the function.</p><pre><code>$ curl \
+    <span>--</span>header <span>&#34;Content-Type: application/json&#34;</span> \
+  <span>--</span>request <span>POST</span> \
+  <span>--</span>data <span>&#39;{&#34;name&#34;: &#34;Bruno&#34;}&#39;</span> \
+  http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>7000</span><span>/</span>invoke</code></pre><p>If we are getting something like this: <code>$ <span>{</span><span>&#34;greeting&#34;</span><span>:</span><span>&#34;Hello Bruno&#34;</span><span>}</span></code>, it means that we did everything right so far!.</p><p>We have our first function up and running, so we are in a pretty good spot to move on and create our HTTP API.</p><h3 id="Step-4--Create-HTTP-API">Step 4: Create HTTP API</h3><p>Let&#39;s start by creating the model that we are going to deal with. Since we&#39;re going to return static data, we&#39;ll create some helpers functions as well. Go ahead and create a new file  <strong>TodoItem.swift</strong> inside <strong>Sources/ToDoList-API</strong>.</p><pre><code><span>struct</span> <span>ToDoItem</span><span>:</span> <span>Codable</span> <span>{</span>
+    <span>let</span> id<span>:</span> <span>Int</span>
+    <span>let</span> description<span>:</span> <span>String</span>
+<span>}</span>
+
+<span>// MARK: - Static helpers</span>
+
+<span>extension</span> <span>ToDoItem</span> <span>{</span>
+    <span>static</span> <span>func</span> <span>getToDoList</span><span>(</span><span>)</span> <span>-</span><span>&gt;</span> <span>[</span><span>ToDoItem</span><span>]</span> <span>{</span>
+        <span>var</span> list <span>=</span> <span>[</span><span>ToDoItem</span><span>]</span><span>(</span><span>)</span>
+        list<span>.</span><span>append</span><span>(</span><span>.</span><span>init</span><span>(</span>id<span>:</span> <span>1</span><span>,</span> description<span>:</span> <span>&#34;Pay credit card&#34;</span><span>)</span><span>)</span>
+        list<span>.</span><span>append</span><span>(</span><span>.</span><span>init</span><span>(</span>id<span>:</span> <span>2</span><span>,</span> description<span>:</span> <span>&#34;Clean apartment&#34;</span><span>)</span><span>)</span>
+        list<span>.</span><span>append</span><span>(</span><span>.</span><span>init</span><span>(</span>id<span>:</span> <span>3</span><span>,</span> description<span>:</span> <span>&#34;Call John&#34;</span><span>)</span><span>)</span>
+
+        <span>return</span> list
+    <span>}</span>
+
+    <span>static</span> <span>func</span> <span>getItem</span><span>(</span>with id<span>:</span> <span>Int</span><span>)</span> <span>-</span><span>&gt;</span> <span>ToDoItem</span><span>?</span> <span>{</span>
+        <span>return</span> <span>getToDoList</span><span>(</span><span>)</span><span>.</span><span>filter</span><span>{</span> $<span>0</span><span>.</span>id <span>==</span> id <span>}</span><span>.</span><span>first</span>
+    <span>}</span>
+<span>}</span></code></pre><p>The next thing we need to do is adjust our Lambda function to interact with APIGateway. For this, we are going to use two types included in <strong>AWSLambdaEvents</strong> for our function&#39;s input and output:</p><ul><li>APIGateway.V2.Request</li><li>APIGateway.V2.Response</li></ul><p>Make the following changes inside our <strong>main.swift</strong> file.</p><pre><code><span>typealias</span> <span>In</span> <span>=</span> <span>APIGateway</span><span>.</span><span>V2</span><span>.</span><span>Request</span>
+<span>typealias</span> <span>Out</span> <span>=</span> <span>APIGateway</span><span>.</span><span>V2</span><span>.</span><span>Response</span>
+
+<span>Lambda</span><span>.</span>run <span>{</span> <span>(</span>context<span>,</span> 
+              request<span>:</span> <span>In</span><span>,</span> 
+              callback<span>:</span> @escaping <span>(</span><span>Result</span><span>&lt;</span><span>Out</span><span>,</span> <span>Error</span><span>&gt;</span><span>)</span> <span>-</span><span>&gt;</span> <span>Void</span><span>)</span> <span>in</span>
+    <span>// Implementation... </span>
+<span>}</span></code></pre><p>So we receive an <strong>APIGateway.V2.Request</strong> type as an input, and we must return an <strong>APIGateway.V2.Response</strong> type as an output. However, we want to obtain a <strong>ToDoItem</strong> type when we receive a <code><span>POST</span></code>, and we want to return a <strong>TodoItem</strong> type if we receive a <code><span>GET</span></code>.</p><p>Both types, <strong>APIGateway.V2.Request</strong> and <strong>APIGateway.V2.Response,</strong> have a body property in which we will receive and send the payload from our endpoints. This property is a String type, so we must do some transformation using an <a href="https://developer.apple.com/documentation/foundation/archives_and_serialization/encoding_and_decoding_custom_types" target="_blank" rel="noreferrer noopener">encoder</a> (or decoder in the case we want to return something) in order to use our Swift type before sending it back or before start processing it. </p><p>The only missing part in our code design is how we distinguish between different routes and methods. We can access the endpoint path from our request type. In our example, we are only going to have one path: <code><span>/</span>todoitems</code>. If we get another path, we should return a 404 error.</p><p>Let&#39;s put all the pieces together and modify our lambda function.</p><pre><code><span>import</span> <span>Foundation</span>
+<span>import</span> <span>AWSLambdaRuntime</span>
+<span>import</span> <span>AWSLambdaEvents</span>
+
+<span>typealias</span> <span>In</span> <span>=</span> <span>APIGateway</span><span>.</span><span>V2</span><span>.</span><span>Request</span>
+<span>typealias</span> <span>Out</span> <span>=</span> <span>APIGateway</span><span>.</span><span>V2</span><span>.</span><span>Response</span>
+
+<span>Lambda</span><span>.</span>run <span>{</span> <span>(</span>context<span>,</span>
+              request<span>:</span> <span>In</span><span>,</span>
+              callback<span>:</span> @escaping <span>(</span><span>Result</span><span>&lt;</span><span>Out</span><span>,</span> <span>Error</span><span>&gt;</span><span>)</span> <span>-</span><span>&gt;</span> <span>Void</span><span>)</span> <span>in</span>
+    
+    <span>let</span> routeKey <span>=</span> request<span>.</span>routeKey
+    
+    <span>switch</span> routeKey <span>{</span>
+    
+    <span>case</span> <span>&#34;GET /todoitems&#34;</span><span>:</span>
+        <span>let</span> items <span>=</span> <span>ToDoItem</span><span>.</span><span>getToDoList</span><span>(</span><span>)</span>
+        <span>let</span> bodyOutput <span>=</span> <span>try</span><span>!</span> <span>JSONEncoder</span><span>(</span><span>)</span><span>.</span><span>encodeAsString</span><span>(</span>items<span>)</span>
+        <span>let</span> output <span>=</span> <span>Out</span><span>(</span>statusCode<span>:</span> <span>.</span>ok<span>,</span> headers<span>:</span> <span>[</span><span>&#34;content-type&#34;</span><span>:</span> <span>&#34;application/json&#34;</span><span>]</span><span>,</span> body<span>:</span> bodyOutput<span>)</span>
+        <span>callback</span><span>(</span><span>.</span><span>success</span><span>(</span>output<span>)</span><span>)</span>
+        
+    <span>case</span> <span>&#34;GET /todoitems/{id}&#34;</span><span>:</span>
+        <span>if</span> <span>let</span> idString <span>=</span> request<span>.</span>pathParameters<span>?</span><span>[</span><span>&#34;id&#34;</span><span>]</span><span>,</span> <span>let</span> id <span>=</span> <span>Int</span><span>(</span>idString<span>)</span><span>,</span>
+           <span>let</span> item <span>=</span> <span>ToDoItem</span><span>.</span><span>getItem</span><span>(</span>with<span>:</span> id<span>)</span> <span>{</span>
+            
+            <span>let</span> bodyOutput <span>=</span> <span>try</span><span>!</span> <span>JSONEncoder</span><span>(</span><span>)</span><span>.</span><span>encodeAsString</span><span>(</span>item<span>)</span>
+            <span>let</span> output <span>=</span> <span>Out</span><span>(</span>statusCode<span>:</span> <span>.</span>ok<span>,</span> headers<span>:</span> <span>[</span><span>&#34;content-type&#34;</span><span>:</span> <span>&#34;application/json&#34;</span><span>]</span><span>,</span> body<span>:</span> bodyOutput<span>)</span>
+            <span>callback</span><span>(</span><span>.</span><span>success</span><span>(</span>output<span>)</span><span>)</span>
+        <span>}</span> <span>else</span> <span>{</span>
+            <span>callback</span><span>(</span><span>.</span><span>success</span><span>(</span><span>Out</span><span>(</span>statusCode<span>:</span> <span>.</span>notFound<span>)</span><span>)</span><span>)</span>
+        <span>}</span>
+        
+    <span>case</span> <span>&#34;POST /todoitems&#34;</span><span>:</span>
+        <span>do</span> <span>{</span>
+            <span>let</span> input <span>=</span> <span>try</span> <span>JSONDecoder</span><span>(</span><span>)</span><span>.</span><span>decode</span><span>(</span><span>ToDoItem</span><span>.</span><span>self</span><span>,</span> from<span>:</span> request<span>.</span>body <span>?</span><span>?</span> <span>&#34;&#34;</span><span>)</span>
+            <span>let</span> bodyOutput <span>=</span> <span>try</span> <span>JSONEncoder</span><span>(</span><span>)</span><span>.</span><span>encodeAsString</span><span>(</span>input<span>)</span>
+            <span>let</span> output <span>=</span> <span>Out</span><span>(</span>statusCode<span>:</span> <span>.</span>ok<span>,</span> headers<span>:</span> <span>[</span><span>&#34;content-type&#34;</span><span>:</span> <span>&#34;application/json&#34;</span><span>]</span><span>,</span> body<span>:</span> bodyOutput<span>)</span>
+            <span>callback</span><span>(</span><span>.</span><span>success</span><span>(</span>output<span>)</span><span>)</span>
+        <span>}</span> <span>catch</span> <span>{</span>
+            <span>callback</span><span>(</span><span>.</span><span>success</span><span>(</span><span>Out</span><span>(</span>statusCode<span>:</span> <span>.</span>badRequest<span>)</span><span>)</span><span>)</span>
+        <span>}</span>
+        
+    <span>default</span><span>:</span>
+        <span>callback</span><span>(</span><span>.</span><span>success</span><span>(</span><span>Out</span><span>(</span>statusCode<span>:</span> <span>.</span>notFound<span>)</span><span>)</span><span>)</span>
+    <span>}</span>
+<span>}</span>
+
+<span>// ---------------</span>
+
+<span>extension</span> <span>JSONEncoder</span> <span>{</span>
+    <span>func</span> encodeAsString<span>&lt;</span>T<span>:</span> <span>Encodable</span><span>&gt;</span><span>(</span><span>_</span> value<span>:</span> T<span>)</span> <span>throws</span> <span>-</span><span>&gt;</span> <span>String</span> <span>{</span>
+        <span>try</span> <span>String</span><span>(</span>decoding<span>:</span> <span>self</span><span>.</span><span>encode</span><span>(</span>value<span>)</span><span>,</span> <span>as</span><span>:</span> <span>Unicode</span><span>.</span><span>UTF8</span><span>.</span><span>self</span><span>)</span>
+    <span>}</span>
+<span>}</span>
+
+<span>extension</span> <span>JSONDecoder</span> <span>{</span>
+    <span>func</span> decode<span>&lt;</span>T<span>:</span> <span>Decodable</span><span>&gt;</span><span>(</span><span>_</span> type<span>:</span> T<span>.</span><span>Type</span><span>,</span> from string<span>:</span> <span>String</span><span>)</span> <span>throws</span> <span>-</span><span>&gt;</span> T <span>{</span>
+        <span>try</span> <span>self</span><span>.</span><span>decode</span><span>(</span>type<span>,</span> from<span>:</span> <span>Data</span><span>(</span>string<span>.</span>utf8<span>)</span><span>)</span>
+    <span>}</span>
+<span>}</span></code></pre><h2 id="Test-the-API-Locally">Test the API Locally</h2><p>We now have everything in place to start testing our API before deploying it to AWS. Let&#39;s try to get all the items.</p><pre><code>$ <span>curl</span> <span>\</span>
+    --header <span>&#34;Content-Type: application/json&#34;</span> <span>\</span>
+  --request GET <span>\</span>
+  http://localhost:7000/invoke/todoitems</code></pre><p>We will get a <code><span>404</span> <span>-</span> Not found</code> error, which is weird because we have configured that endpoint in the right way inside our Lambda function. Well, this is because our local Runtime is only listening for requests at <code>http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>7000</span><span>/</span>invoke</code>. </p><p>In addition, we are using Amazon API Gateway to expose our Lambda function as an HTTP API. This means that all incoming HTTP requests will get transformed into JSON data by the API Gateway and provide the Lambda function with that payload already transformed. Then, our function will process that JSON payload and respond with another JSON payload itself, which the API Gateway will transform back into an HTTP response. </p><p>So, if we want to simulate this interaction, we must provide an HTTP request (in JSON format) in which we need to include all the relevant information like the method we want to call, the route path, the body, and so on.</p><p>This is a standard HTTP request after the API Gateway makes its transformations:</p><pre><code><span>{</span>
+    <span>&#34;routeKey&#34;</span><span>:</span><span>&#34;GET /todoitems&#34;</span><span>,</span>
+    <span>&#34;version&#34;</span><span>:</span><span>&#34;2.0&#34;</span><span>,</span>
+    <span>&#34;rawPath&#34;</span><span>:</span><span>&#34;/todoitems&#34;</span><span>,</span>
+    <span>&#34;requestContext&#34;</span><span>:</span><span>{</span>
+        <span>&#34;accountId&#34;</span><span>:</span><span>&#34;&#34;</span><span>,</span>
+        <span>&#34;apiId&#34;</span><span>:</span><span>&#34;&#34;</span><span>,</span>
+        <span>&#34;domainName&#34;</span><span>:</span><span>&#34;&#34;</span><span>,</span>
+        <span>&#34;domainPrefix&#34;</span><span>:</span><span>&#34;&#34;</span><span>,</span>
+        <span>&#34;stage&#34;</span><span>:</span> <span>&#34;&#34;</span><span>,</span>
+        <span>&#34;requestId&#34;</span><span>:</span> <span>&#34;&#34;</span><span>,</span>
+        <span>&#34;http&#34;</span><span>:</span><span>{</span>
+            <span>&#34;path&#34;</span><span>:</span><span>&#34;/todoitems&#34;</span><span>,</span>
+            <span>&#34;method&#34;</span><span>:</span><span>&#34;GET&#34;</span><span>,</span>
+            <span>&#34;protocol&#34;</span><span>:</span><span>&#34;HTTP/1.1&#34;</span><span>,</span>
+            <span>&#34;sourceIp&#34;</span><span>:</span><span>&#34;&#34;</span><span>,</span>
+            <span>&#34;userAgent&#34;</span><span>:</span><span>&#34;&#34;</span>
+        <span>}</span><span>,</span>
+        <span>&#34;time&#34;</span><span>:</span> <span>&#34;&#34;</span><span>,</span>
+        <span>&#34;timeEpoch&#34;</span><span>:</span><span>0</span>
+    <span>}</span><span>,</span>
+    <span>&#34;isBase64Encoded&#34;</span><span>:</span><span>false</span><span>,</span>
+    <span>&#34;rawQueryString&#34;</span><span>:</span><span>&#34;&#34;</span><span>,</span>
+    <span>&#34;headers&#34;</span><span>:</span><span>{</span><span>}</span>
+<span>}</span></code></pre><p>We don&#39;t have to provide all the values, but all the keys must be present. Otherwise, we&#39;ll get a decoding error from the Lambda function.</p><p>With this in mind, let&#39;s make a request again. We can do it using the terminal like before or an API client tool like <a href="https://www.postman.com" target="_blank" rel="noreferrer noopener">Postman</a>. </p><pre><code>$ <span>curl</span> --header <span>&#34;Content-Type: application/json&#34;</span> <span>\</span>
+  --request POST <span>\</span>
+  --data <span>&#39;{
+    &#34;routeKey&#34;:&#34;GET /todoitems&#34;,
+    &#34;version&#34;:&#34;2.0&#34;,
+    &#34;rawPath&#34;:&#34;/todoitems&#34;,
+    &#34;requestContext&#34;:{
+        &#34;accountId&#34;:&#34;&#34;,
+        &#34;apiId&#34;:&#34;&#34;,
+        &#34;domainName&#34;:&#34;&#34;,
+        &#34;domainPrefix&#34;:&#34;&#34;,
+        &#34;stage&#34;: &#34;&#34;,
+        &#34;requestId&#34;: &#34;&#34;,
+        &#34;http&#34;:{
+            &#34;path&#34;:&#34;/todoitems&#34;,
+            &#34;method&#34;:&#34;GET&#34;,
+            &#34;protocol&#34;:&#34;HTTP/1.1&#34;,
+            &#34;sourceIp&#34;:&#34;&#34;,
+            &#34;userAgent&#34;:&#34;&#34;
+        },
+        &#34;time&#34;: &#34;&#34;,
+        &#34;timeEpoch&#34;:0
+    },
+    &#34;isBase64Encoded&#34;:false,
+    &#34;rawQueryString&#34;:&#34;&#34;,
+    &#34;headers&#34;:{}
+}&#39;</span> <span>\</span>
+http://localhost:7000/invoke</code></pre><p>If we want to retrieve only one item, we need to add an entry into our data JSON. </p><pre><code><span>&#34;pathParameters&#34;</span><span>:</span> <span>{</span><span>&#34;id&#34;</span><span>:</span> <span>&#34;1&#34;</span><span>}</span></code></pre><p>Last, if we want to test the <code><span>POST</span></code> method, we must add the following entry to our data JSON. </p><pre><code><span>&#34;body&#34;</span><span>:</span> <span>&#34;{\&#34;id\&#34;:1, \&#34;description\&#34;: \&#34;Test\&#34;}&#34;</span></code></pre><p>And, other than that, we also need to modify the <strong>routeKey</strong> to <code><span>GET</span> <span>/</span>todoitems<span>/</span><span>{</span>id<span>}</span></code> and the <strong>http.method</strong> property to <strong>POST</strong> instead of <strong>GET</strong>.</p><h2 id="Deploy-to-AWS">Deploy to AWS</h2><h3 id="Compile---Package">Compile &amp; Package</h3><p>We will execute our Lambda function on <strong>Amazon Linux 2</strong> OS, so we need to compile our function for this particular OS. For convenience, we&#39;ll use <a href="https://www.docker.com" target="_blank" rel="noreferrer noopener">Docker</a> to do this. Create a new folder named <strong>Scripts</strong> in your root project folder. Inside this folder, create a new <strong>build.sh</strong> file with the following code</p><pre><code>docker run <span>\</span>
+    --rm <span>\</span>
+    --volume <span>&#34;<span><span>$(</span><span>pwd</span><span>)</span></span>/:/src&#34;</span> <span>\</span>
+    --workdir <span>&#34;/src/&#34;</span> <span>\</span>
+    swift:5.3.1-amazonlinux2 <span>\</span>
+    swift build --product ToDoList-API -c release -Xswiftc -static-stdlib</code></pre><p>Understanding Docker commands is beyond the scope of this article, but what this code does is compiles our code for a container. If you&#39;d like to learn more about using Docker and its available commands, check out the <a href="https://docs.docker.com/engine/reference/commandline/cli/" target="_blank" rel="noreferrer noopener">oficial documentation</a>.</p><p>Now go ahead and create another file inside the <strong>Scripts</strong> folder: <strong>package.sh</strong></p><pre><code><span>#!/bin/bash</span>
+
+<span>set</span> -eu
+
+<span>executable</span><span>=</span><span>$1</span>
+
+<span>target</span><span>=</span>.build/lambda/<span>$executable</span>
+<span>rm</span> -rf <span>&#34;<span>$target</span>&#34;</span>
+<span>mkdir</span> -p <span>&#34;<span>$target</span>&#34;</span>
+<span>cp</span> <span>&#34;.build/release/<span>$executable</span>&#34;</span> <span>&#34;<span>$target</span>/&#34;</span>
+<span>cd</span> <span>&#34;<span>$target</span>&#34;</span>
+<span>ln</span> -s <span>&#34;<span>$executable</span>&#34;</span> <span>&#34;bootstrap&#34;</span>
+<span>zip</span> --symlinks lambda.zip *</code></pre><p>This will create a new zip file with the right structure ready for us to upload to AWS.</p><p>We only need to follow these simple steps to build and package our code:</p><ol start="1"><li><code>$ sh <span>.</span><span>/</span>Scripts<span>/</span>build<span>.</span>sh</code></li><li><code>$ sh <span>.</span><span>/</span>Scripts<span>/</span><span>package</span><span>.</span>sh ToDoList<span>-</span><span>API</span></code></li></ol><p>In many environments, we may get privilege errors upon executing these scripts. If that happens, we just need to mark the file as executable by running the following commands:</p><pre><code>$ <span>chmod</span> +x Scripts/build.sh
+$ <span>chmod</span> +x Scripts/package.sh</code></pre><h3 id="Upload-Lambda-file">Upload Lambda file</h3><p>The next step is to create our Lambda function and upload the zip file that we&#39;ve just generated. Login into your AWS account, go to AWS Lambda, and click on <strong>Create function</strong>.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5pfB1jTuOtVriJgoushAI5/0998fd7778997150dd2b85d01d80564a/swift_lambda_02.png" alt="Crate AWS Lambda function - Step 1"/></p><p>Click on the <strong>Create function</strong> button after entering a function name and the runtime option. You will be redirected to the next screen to upload the file.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/67bsSmxRcFkaROyOYicx2o/59a3679578ae60617f795065e5f3546b/swift_lambda_03.png" alt="Crate AWS Lambda function - Step 2"/></p><p>Click on the .zip file and locate your <strong>lambda.zip</strong> file on your computer. It should be available on <code>$ your<span>-</span>project<span>-</span>path<span>/</span><span>.</span>build<span>/</span>lambda<span>/</span>ToDoList<span>-</span><span>API</span><span>/</span>lambda<span>.</span>zip</code></p><h3 id="Connect-the-API-Gateway">Connect the API Gateway</h3><p>The last thing we need to do is connect our function to the API Gateway. Go to the API Gateway dashboard from your AWS console and click on <strong>Create API.</strong> Then choose the <strong>HTTP API</strong> option by clicking on the <strong>Build</strong> button.</p><p><strong>Step 1</strong></p><ul><li>Click on <strong>Add Integration</strong> and select the Lambda option
+  <ul><li>Search for the Lambda function we just created in the previous section.</li><li>Make sure that the version is <strong>2.0</strong></li></ul></li><li>Chose a name for the API.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3O9bqK0RSD2116B4akcjJ5/a8dff34110d14a5065c6058e7823c73e/swift_lambda_04.png" alt="API Gateway - Step 1"/></p><p><strong>Step 2</strong></p><p>Here we must configure our routes. If we don&#39;t want to restrict the routing, we can use <strong>$default</strong> in the <strong>Resource path</strong> field. This will map all the requests to our Lambda. </p><p>For this tutorial, we&#39;re going to set the three endpoints that we defined at the beginning.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1ttSD1ozz3vM1IJ4ERKX8H/93a7c3d609759f6138c338e09c721f7a/swift_lambda_05.png" alt="API Gateway - Step 2"/></p><p><strong>Step 3</strong></p><p>In this step, we can configure different environments for our API, like development and production. In our case, we can leave <strong>$default</strong>.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/515U5zI0IewKQpHvK5vTeC/4a0772d20ce1fd9f1778edecfefa928b/swift_lambda_06.png" alt="API Gateway - Step 3"/></p><p><strong>Step 4</strong></p><p>Review all the information and click on <strong>Create</strong>. </p><p>And that&#39;s it! We now have our API deployed to AWS. The invoke url should be something like this: <code>https<span>:</span><span>/</span><span>/</span><span>{</span>your<span>-</span>gateway<span>-</span>id<span>}</span><span>.</span>execute<span>-</span>api<span>.</span>us<span>-</span>east<span>-</span><span>1.</span>amazonaws<span>.</span>com</code></p><h3 id="Test-it-">Test it!</h3><p>We&#39;re using Postman for this part, but you can use whatever other tool you want.</p><p><strong>Get all items</strong></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/iz0F35N6VrbMOJfBSU58p/5bf838ddda1dbb529c2a4973d1f626a3/swift_lambda_07.png" alt="Get all items reques"/></p><p><strong>Get one item</strong></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/OF1HGO3P1B51ioF5JdfdR/1af20c65c0addbc106f7a974312bd74d/swift_lambda_08.png" alt="Get one item request"/></p><p><strong>Create new item</strong></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7yuttuwCtspW5xxmy0ug0r/ab7e81aa859b84948a304c7a3abed3c6/swift_lambda_09.png" alt="Create new item request"/></p><h2 id="Secure-the-API-Using-Auth0">Secure the API Using Auth0</h2><p>Of course, you&#39;d never want to leave an unauthenticated API up - you&#39;ll be responsible for paying for every call made to it!. To demonstrate how we can secure our endpoints, let&#39;s make the <code><span>GET</span> <span>/</span>todoitems<span>/</span><span>{</span>id<span>}</span></code> endpoint only be accessible by authenticated users (in a real application, we&#39;d protect all of these endpoints). </p><p>To accomplish this, we are going to create a custom <a href="https://es.wikipedia.org/wiki/JSON_Web_Token" target="_blank" rel="noreferrer noopener">JSON Web Tokens (JWTs)</a> authorizer with <strong>Auth0</strong> and attach it to our API Gateway endpoint.</p><h3 id="Create-a-new-Auth0-API">Create a new Auth0 API</h3><p>First thing first, login into your Auth0 account and go to <strong>Applications → APIs</strong> in the left menu, and click on + <strong>Create API</strong> button.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3GZG3baxHOc6e2CaNEv0iu/12d2dc752a4753bdd7b9cba95c72f91e/swift_lambda_10.png" alt="New Auth0 API"/></p><ul><li><strong>Name</strong>: This will be the internal name for the API</li><li><strong>Identifier</strong>: <a href="https://auth0-jwt-authorizer/" target="_blank" rel="noreferrer noopener">https://auth0-jwt-authorizer</a></li><li><strong>Signing Algorithm</strong>: Just leave the default here</li></ul><p>Go back to your API Gateway Dashboard and click the <strong>Authorization</strong> option on the left panel below the <strong>Develop</strong> section.</p><p>Select the endpoints that you want to restrict access to; in our case, it will be <code><span>GET</span> <span>/</span>todoitems<span>/</span><span>{</span>id<span>}</span></code>, and click on <strong>Create and attach an authorizer</strong></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2muFgeJURgJInk8TGe7UgA/bfe4a098b1b9912f319879ee4356bb9a/swift_lambda_11.png" alt="Authorizer"/></p><p>Select <strong>JWT</strong> type and fill in the required information:</p><ul><li><strong>Name</strong>: The name that you want to call the authorizer</li><li><strong>Identity source</strong>: <code>$request<span>.</span>header<span>.</span>Authorization</code> This means that the authorizer can access the access token in the Authorization header.</li><li><strong>Issuer URL</strong>: <code>https<span>:</span><span>/</span><span>/</span><span>{</span>tenant<span>-</span>name<span>}</span><span>.</span>auth0<span>.</span>com</code>. The authorizer uses this to validate the <strong>iss</strong> field inside the JWT. You can find your Auth0 tenant-name in <strong>Applications → Default App → Domain</strong>.</li><li><strong>Audience</strong>: <code>https<span>:</span><span>/</span><span>/</span>auth0<span>-</span>jwt<span>-</span>authorizer</code>. This will be used by the authorizer to validate the <strong>aud</strong> field inside the JWT. This needs to match with the identifier that we configured our Auth0 API before.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6CBOYYxuepwvH5GuJBy4Sa/a2fa0221485d3351bbb3b789b26276fa/swift_lambda_12.png" alt="Add AWS Lambda authorizer"/></p><h3 id="Test-it-Again">Test it Again</h3><p>If we now try to call <code><span>GET</span> <span>/</span>todoitems<span>/</span><span>{</span>id<span>}</span></code>, we will get an unauthorized error.</p><pre><code><span>{</span>
+    <span>&#34;message&#34;</span><span>:</span> <span>&#34;Unauthorized&#34;</span>
+<span>}</span></code></pre><p>This is because if we want to use this endpoint, we must provide an authentication header. In a real app, we will return a valid token after the user was authenticated by our app, but just for testing purposes, we can get a token from Auth0.</p><p>Go again to your Auth0 dashboard, and on the left panel, click on <strong>Applications → APIs → AWS JWT Authorizer</strong> <strong>→</strong> <strong>Test</strong>. Find the response section and copy the bearer token provided.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6rxP91y2vKpJLm2sJ72nb7/ac0c048e856f3e8fedbecbf097317d53/swift_lambda_13.png" alt="Auth0 dashboard"/></p><p>Now go back to Postman, add an Authorization header with this token, and send the request. </p><p>Because our request has an authentication token, we get a response!</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1QIhmYdn0hGKDGqAhKcuSJ/170a0ef548ff64bc57770f9aa9ae72a7/swift_lambda_14.png" alt="Authentication Token Response"/></p><h2 id="Conclusion">Conclusion</h2><p>With this type of solution, we, as iOS developers, are in a position to start shifting to a mobile full-stack role, where we don&#39;t need a separate team for the backend side. Of course, every team and project is different. However, for small projects or proof of concepts, this solution should work like a charm. Understanding backend technologies will increase your understanding of software and make you more of an asset to any iOS team.</p><p>The Swift AWS Lambda Runtime has room for improvement (like everything in the tech industry), but it gives us a start point to write backend code without the need of learning a new development language. </p><p>If you want a more detailed example with a database (DynamoDB) connection, you can check the full project <a href="https://github.com/blorenzo10/lambda-swift" target="_blank" rel="noreferrer noopener">here</a>.</p></div></div>]]></content:encoded>
+      <author>Attach new Authorizer</author>
+      <pubDate>Wed, 29 Sep 2021 16:28:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Get Started with Custom Error Handling in Spring Boot (Java)</title>
       <link>https://auth0.com/blog/get-started-with-custom-error-handling-in-spring-boot-java/</link>
       <description>Learn how to implement custom error handling logic in Spring Boot. You will see two approaches based on the @ControllerAdvice annotation. Similarly, you will learn how to deal with authentication and access denied errors in Spring Security.</description>
