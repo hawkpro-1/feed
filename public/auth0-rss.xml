@@ -4,6 +4,764 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 3: Adding Real-Time Chat to the App</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-3-adding-real-time-chat-to-the-app/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous sections of this tutorial, you added authentication to <em>MJ Coffee</em>, a Flutter app, and then enhanced that authentication by adding refresh token rotation and social logins. You also looked at customizing the login page with your own branding, and user management in Auth0.</p><p>In this section, we’ll focus on authorization. Remember:</p><ul><li><strong>Authentication</strong> concerns itself with answering the question “Who are you?”</li><li><strong>Authorization</strong> — this section’s topic — is all about answering the question “What are you allowed to do?”</li></ul><p>We’ll cover authorization by adding real-time chat to <em>MJ Coffee</em> so that we can later see how the chat can be integrated with Auth0, limit its functionalities and UIs based on roles and permissions.</p><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong></p></blockquote><h2 id="Add-Real-Time-Chat-to-the-Flutter-Application">Add Real-Time Chat to the Flutter Application</h2><p>Having a real-time chat service in the <em>MJ Coffee</em> app can significantly improve how fast users can communicate with our customer service or employees. Having looked around, I found <a href="https://getstream.io" target="_blank" rel="noreferrer noopener">Stream</a>, an exciting service with a solid Flutter SDK that you can integrate and customize quickly and easily.</p><h2 id="Install-Dependencies">Install Dependencies</h2><p>Stream comes with several SDKs that can be used in Dart or Flutter applications. However, one of them comes with all features, a beautiful theme, and enough API so that you can customize it as much as you wish. We’ll use that one.</p><p>🛠 Open the <code><span>/</span>pubspec<span>.</span>yaml</code> file and add <code>stream_chat_flutter</code> to your dependencies. The <code>dependencies</code> section of the file should end up looking like this:</p><pre><code>// /pubspec.yaml
+
+<span>dependencies</span><span>:</span>
+  <span>flutter</span><span>:</span>
+    <span>sdk</span><span>:</span> flutter
+  <span>font_awesome_flutter</span><span>:</span> ^9.1.0
+  <span>flutter_svg</span><span>:</span> ^0.22.0
+  <span>google_fonts</span><span>:</span> ^2.1.0
+  <span>json_annotation</span><span>:</span> ^4.0.1
+  <span>http</span><span>:</span> ^0.13.3
+  <span>flutter_appauth</span><span>:</span> ^1.1.0
+  <span>flutter_secure_storage</span><span>:</span> ^4.2.0
+  <span>stream_chat_flutter</span><span>:</span> ^2.0.0</code></pre><p>I recommend using a version later than 2.0, which is fully compatible with Flutter 2 and its support for <a href="https://flutter.dev/docs/null-safety" target="_blank" rel="noreferrer noopener">null safety</a>.</p><p>If you’re only targeting Android, you can ignore the next section.</p><h4 id="If-you-re-targeting-iOS">If you’re targeting iOS</h4><p>🛠 If you’re targeting iOS, you’ll need to take a few extra steps:</p><ul><li>The Stream library uses the <a href="https://github.com/miguelpruivo/flutter_file_picker" target="_blank" rel="noreferrer noopener"><em>flutter file picker</em> plugin</a> to present the user with an interface to select files. You’ll need to follow the steps in <a href="https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#ios" target="_blank" rel="noreferrer noopener">the <em>iOS</em> section of this page</a> to make use of it.</li><li>The library also uses the <em>video_player</em> plugin to display inline videos. Follow <a href="https://pub.dev/packages/video_player#installation" target="_blank" rel="noreferrer noopener">this guide</a> to install and enable it.</li><li>Finally, the library uses the <em>image_picker</em> plugin to provide a user interface for selecting images. Follow [these instructions] to use this plugin.</li></ul><p>🛠 Don’t forget to actually install the dependencies! Enter <code>flutter pub get</code> in the terminal or PowerShell, or <code>Pub get</code> in your IDE.</p><h2 id="Create-a-Stream-Account-and-App">Create a Stream Account and App</h2><p>Before you can integrate Stream with your app, you need a Stream account, which you’ll use to register the app.</p><p>🛠 <a href="https://getstream.io/accounts/signup/" target="_blank" rel="noreferrer noopener">Create your account if you don’t already have one,</a> then log in and go to the Stream dashboard:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5g116jkNGeqaZvFk5nesaZ/e01470d789d92e658ca0d4ac16605d5e/stream_dashboard.png" alt="Stream dashboard."/></p><p>🛠 Tap on the <strong>Create App</strong> button, then follow these steps:</p><ul><li>Enter a name for your app in the <strong>App Name</strong> field. For this example, we’ll use <code>MJCoffee</code>.</li><li>In the <strong>Feeds Server Location</strong> menu, select the location closest to you.</li><li><em>Don’t</em> select anything from the <strong>Clone Existing App</strong> menu — just leave it set to <code><span>--</span><span>-</span></code>.</li><li>Select your environment. Usually, it&#39;s a good idea to create separate apps for production and development. In this tutorial, we’ll focus on production, so select <strong>Production</strong>.</li><li>Finally, click the <strong>Create App</strong> button.</li></ul><p>You should see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3Zh9QmY69R9Bwo4p3PZawt/f8c55e169d20282c17e3592216344fd6/stream_app.png" alt="A newly-created app in Stream."/></p><p>🛠 Once your app has been created, make a note of your Stream key. </p><p>Notice that you will need a secret key to sign the user ID and get a production user token to connect users. You’ll learn how to do that with Auth0 Actions.</p><p>I recommend passing sensitive data and keys with <code><span>--</span>dart<span>-</span>define</code> via the command line or adding to your editor or IDE run command rather than storing it in your app’s code.</p><p>You took this approach when implementing basic authentication for the app. You passed two sensitive values — your Auth0 domain and Auth0 client ID — as command-line arguments when launching the app. You’ll simply add the Stream key as a third argument, like so:</p><pre><code>flutter run -d all --dart-define<span>=</span>AUTH0_DOMAIN<span>=</span><span>[</span>YOUR DOMAIN<span>]</span> --dart-define<span>=</span>AUTH0_CLIENT_ID<span>=</span><span>[</span>YOUR CLIENT ID<span>]</span> --dart-define<span>=</span>STREAM_API_KEY<span>=</span><span>[</span>YOUR STREAM KEY<span>]</span></code></pre><p>In order for your application to use the Stream key argument, you’ll need to define a new constant.</p><p>🛠 Add the following to your <code>constants<span>.</span>dart</code> file, which is located in the in the <code><span>/</span>lib<span>/</span>helpers<span>/</span></code> directory:</p><pre><code><span>// /lib/helpers/constants.dart</span>
+
+<span>const</span> STREAM_API_KEY <span>=</span> String<span>.</span><span>fromEnvironment</span><span>(</span><span>&#39;STREAM_API_KEY&#39;</span><span>)</span><span>;</span></code></pre><h2 id="Integrate-Chat-Into-the-Flutter-Application">Integrate Chat Into the Flutter Application</h2><p>Let&#39;s start by creating a new <code>StreamChatClient</code> in the <code>ChatService</code> singleton class. In doing this, there are three essential things that you need to take into account:</p><ol start="1"><li>Initializing the Dart API client with your API Key</li><li>Setting the current user</li><li>Passing the client to the top-level StreamChat widget</li></ol><p>🛠 Open <code>chat_service<span>.</span>dart</code> (located in the <code><span>/</span>lib<span>/</span>services<span>/</span></code> directory) and initialize <code>StreamChatClient</code> by updating the <code>ChatService</code> class so that it appears as follows:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+<span>class</span> <span>ChatService</span> <span>{</span>
+  <span>static</span> <span>final</span> ChatService instance <span>=</span> ChatService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
+  <span>factory</span> <span>ChatService</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> instance<span>;</span>
+  ChatService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
+
+  <span>final</span> StreamChatClient client <span>=</span> <span>StreamChatClient</span><span>(</span>
+    STREAM_API_KEY<span>,</span>
+    logLevel<span>:</span> isInDebugMode <span>?</span> Level<span>.</span>INFO <span>:</span> Level<span>.</span>OFF<span>,</span>
+  <span>)</span><span>;</span>
+
+<span>}</span></code></pre><p>The only required positional parameter for <code><span>StreamChatClient</span><span>(</span><span>)</span></code> is <code><span>STREAM_API_KEY</span></code>, but you have more options to configure your client. For instance, it might be pretty helpful to see all the logs during debugging. That&#39;s why we used the optional <code>logLevel</code> parameter to set the amount of logging that will take place, based on whether or not the app is in debug mode.</p><p>Now that you‘ve created the client, you need to ensure that your current user is connected appropriately.</p><p>🛠 Add the <code><span>connectUser</span><span>(</span><span>)</span></code> to the <code>ChatService</code> class in  <code>chat_service<span>.</span>dart</code>:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+<span>class</span> <span>ChatService</span> <span>{</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+  Future<span>&lt;</span>Auth0User<span>&gt;</span> <span>connectUser</span><span>(</span>Auth0User<span>?</span> user<span>)</span> <span>async</span> <span>{</span>
+    <span>if</span> <span>(</span>user <span>==</span> <span>null</span><span>)</span> <span>{</span>
+      <span>throw</span> <span>Exception</span><span>(</span><span>&#39;User was not received&#39;</span><span>)</span><span>;</span>
+    <span>}</span>
+    <span>await</span> client<span>.</span><span>connectUser</span><span>(</span>
+      <span>User</span><span>(</span>
+        id<span>:</span> user<span>.</span>id<span>,</span>
+        extraData<span>:</span> <span>{</span>
+          <span>&#39;image&#39;</span><span>:</span> user<span>.</span>picture<span>,</span>
+          <span>&#39;name&#39;</span><span>:</span> user<span>.</span>name<span>,</span>
+        <span>}</span><span>,</span>
+      <span>)</span><span>,</span>
+      <span>// To be replaced with PRODUCTION TOKEN for user</span>
+      client<span>.</span><span>devToken</span><span>(</span>user<span>.</span>id<span>)</span><span>.</span>rawValue<span>,</span>
+    <span>)</span><span>;</span>
+    <span>return</span> user<span>;</span>
+  <span>}</span>
+  
+<span>.</span><span>.</span><span>.</span>
+  
+<span>}</span></code></pre><p>This new method of the <code>ChatService</code> class, <code><span>connectUser</span><span>(</span><span>)</span></code>, will handle the logic for connecting the current user. It accepts an <code>Auth0User</code> object. If it doesn‘t receive one, it means the authentication has probably failed and that the user should not be connected to the chat.</p><p>🛠 Open <code><span>/</span>lib<span>/</span>screens<span>/</span>home<span>.</span>dart</code>, look for the <code>_HomeScreenState</code> class, and within it, the <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code> method. Update <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code> to the following:</p><pre><code><span>// /lib/screens/home.dart</span>
+
+<span>setSuccessAuthState</span><span>(</span><span>)</span> <span>{</span>
+  <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+    isProgressing <span>=</span> <span>false</span><span>;</span>
+    isLoggedIn <span>=</span> <span>true</span><span>;</span>
+    name <span>=</span> AuthService<span>.</span>instance<span>.</span>idToken<span>?</span><span>.</span>name<span>;</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  ChatService<span>.</span>instance<span>.</span><span>connectUser</span><span>(</span>AuthService<span>.</span>instance<span>.</span>profile<span>)</span><span>;</span>
+  CoffeeRouter<span>.</span>instance<span>.</span><span>push</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
+<span>}</span></code></pre><p>You need to pass two required positional parameters:</p><ul><li>The <code>User</code> object with a defined user ID, and</li><li>the user token, a signed and encrypted hash string.</li></ul><p>Typically, the user token should be generated on a back-end server to store the aforementioned secret key and to sign and get the token. You&#39;ll soon learn how Auth0 can handle that as your backend.</p><p>To continue, you need to:</p><ul><li>Get a development token,</li><li>pass <code>user<span>.</span>id</code> to the <code><span>devToken</span><span>(</span><span>)</span></code> method on the chat client, and</li><li>Get the <code>rawValue</code> which is the token string.</li></ul><p>🛠 To ensure that <code>devToken</code> works, you need to disable auth checks. In the <code>GetStream</code> app’s chat dashboard, turn on the <strong>Disable Auth0 Checks</strong> option.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3DMx1hZFHbDqt50gtJErjO/9c4c7e3c1da342ddf10c8fb208ac8960/disable_auth_checks.png" alt="Stream dashboard."/></p><blockquote><p>When you move the app to production and you have a proper method to receive the production token, make sure that you turn off the <strong>Disable Auth0 Checks</strong> option.</p></blockquote><p>Stream chat UI components will accept additional data that you provide while connecting a user. For example, you may create a <code>Map</code> containing the user‘s image and name, so they appear automatically and beautifully throughout the chat widget.</p><p>At the time of writing, Stream does not accept Auth0’s user ID format, which includes <code><span>|</span></code> between the Auth source and user hash ID. You’ll need to make a change to the <code>id</code> arrow function in the <code>Auth0User</code> model to account for this.</p><p>🛠 Open <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_user<span>.</span>dart</code> and make this change to the <code>id</code> arrow function: </p><pre><code><span>// /lib/models/auth0_user.dart</span>
+
+String <span>get</span> id <span>=</span><span>&gt;</span> sub<span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>;</span></code></pre><p>The next and final step is to create <code>StreamChat</code>, the root widget of the application.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>main<span>.</span>dart</code> file, locate the call to  <code>MaterialApp</code>, and add the <code>builder</code> parameter so that it returns a <code>StreamChat</code> object:</p><pre><code><span>// /lib/main.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+<span>MaterialApp</span><span>(</span>
+  debugShowCheckedModeBanner<span>:</span> <span>false</span><span>,</span>
+  themeMode<span>:</span> ThemeMode<span>.</span>system<span>,</span>
+  home<span>:</span> <span>HomeScreen</span><span>(</span><span>)</span><span>,</span>
+  navigatorKey<span>:</span> CoffeeRouter<span>.</span>instance<span>.</span>navigatorKey<span>,</span>
+  theme<span>:</span> <span>getTheme</span><span>(</span><span>)</span><span>,</span>
+  builder<span>:</span> <span>(</span>context<span>,</span> child<span>)</span> <span>{</span>
+    <span>return</span> <span>StreamChat</span><span>(</span>
+      child<span>:</span> child<span>,</span>
+      client<span>:</span> ChatService<span>.</span>instance<span>.</span>client<span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span><span>,</span>
+<span>)</span><span>,</span>
+<span>.</span><span>.</span><span>.</span></code></pre><p>The <code>StreamChat</code> object returned by <code>builder</code> is an inherited widget and aims to provide APIs for advanced customization. It requires a child and a client that you have initialized in the <code>ChatService</code> class.</p><p>That&#39;s it — your chat is ready! Restart the app, and let&#39;s continue to add the support screen and community screen using the prebuilt <code>StreamChat</code> UI widget to leverage the chat service that you added.</p><h2 id="Implement-the-Support-Chat-Screen">Implement the Support Chat Screen</h2><p>Typically, a support chat consists of a user and an agent interacting in a channel created for both. Hence the support chat screen will do the following:</p><ul><li>Create a private channel for the current user and one of the available agents</li><li>Listen to the channel for updates</li><li>Load existing chat content, if any</li><li>Upon chat completion, archive the chat history</li></ul><p>Let&#39;s create a <code><span>createSupportChat</span><span>(</span><span>)</span></code> method in the <code>ChatService</code> class.</p><p>🛠 First, add the following instance variable to the start of the <code>ChatService</code> class:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+String<span>?</span> _currentChannelId<span>;</span></code></pre><p>🛠 Then add the <code><span>createSupportChat</span><span>(</span><span>)</span></code> method to the <code>ChatService</code> class:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+Future<span>&lt;</span>Channel<span>&gt;</span> <span>createSupportChat</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+  <span>// To be replaced with EmployeeRole via Auth0</span>
+  <span>final</span> String employeeId <span>=</span> <span>&#39;rootEmployeeId&#39;</span><span>;</span>
+  <span>final</span> channel <span>=</span> client<span>.</span><span>channel</span><span>(</span>
+    <span>&#39;support&#39;</span><span>,</span>
+    id<span>:</span> _currentChannelId<span>,</span>
+    extraData<span>:</span> <span>{</span>
+      <span>&#39;name&#39;</span><span>:</span> <span>&#39;MJCoffee Support&#39;</span><span>,</span>
+      <span>&#39;members&#39;</span><span>:</span> <span>[</span>
+        employeeId<span>,</span>
+        client<span>.</span>state<span>.</span>user<span>!</span><span>.</span>id<span>,</span>
+      <span>]</span>
+    <span>}</span><span>,</span>
+  <span>)</span><span>;</span>
+  <span>await</span> channel<span>.</span><span>watch</span><span>(</span><span>)</span><span>;</span>
+  _currentChannelId <span>=</span> channel<span>.</span>id<span>;</span>
+  <span>return</span> channel<span>;</span>
+<span>}</span></code></pre><p>There’s a lot going on here. Let&#39;s review it step by step.</p><p>First, to create a support chat channel for the current user, you need to know the ID of an available agent. In this tutorial, you will eventually learn how to create an API to get an available agent via Auth0 based on their roles. However, we’ll skip this part for now.</p><p>Second, you need to create a channel with a specific type. In this case, the type will be <code>support</code>. Stream provides default types for channels; however, you can define your types as needed. To create a channel type, navigate to the Stream dashboard, go to your app in the Chat overview tab, and add your channel types to the list.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6W33zODRlOuxetIMT5FFX5/c3b4894e13324aa8db4822545716248e/streamchat_type.png" alt="Stream channel types."/></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2Waym3vZQnTvKNejptTCJp/64b96fb65f65f5b1ceae5bf485eb2856/chat_type.png" alt="New stream channel type."/></p><p>Next, you can pass an existing channel ID to reconnect to a channel or leave it <code><span>null</span></code> to create a new channel. Stream will automatically assign an ID to new channels. Since this support chat is private and exclusive to one agent and a current user, you may add IDs to <code>members</code> in the <code>extraData</code> map.</p><p>Then, call the <code><span>watch</span><span>(</span><span>)</span></code> method on the channel to create and listen to the events on that channel. The <code><span>watch</span><span>(</span><span>)</span></code> method is a <code>Future</code> and will perform its tasks asynchronously. You can assign the channel ID to the <code>_currentChannelId</code> private instance variable so that you can reconnect to the channel when needed.</p><blockquote><p>Later on, it might be a good idea to store the channel ID in an external database or local secure storage in the app so that it persists between user sessions.</p></blockquote><p>Finally, the method returns the newly created channel.</p><p>With the <code><span>createSupportChat</span><span>(</span><span>)</span></code> method implemented, you can now implement the chat UI.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>screens<span>/</span>support<span>.</span>dart</code> file, where you’ll find the <code>SupportChatScreen</code> class. Update the file’s contents to the following:</p><pre><code><span>// /lib/screens/support.dart</span>
+
+<span>import</span> <span>&#39;package:flutter/material.dart&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:flutter/widgets.dart&#39;</span><span>;</span>
+
+<span>class</span> <span>SupportChatScreen</span> <span>extends</span> <span>StatefulWidget</span> <span>{</span>
+  <span>@override</span>
+  _SupportChatScreenState <span>createState</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> <span>_SupportChatScreenState</span><span>(</span><span>)</span><span>;</span>
+<span>}</span>
+
+<span>class</span> <span>_SupportChatScreenState</span> <span>extends</span> <span>State</span><span>&lt;</span>SupportChatScreen<span>&gt;</span> <span>{</span>
+  Auth0User<span>?</span> profile <span>=</span> AuthService<span>.</span>instance<span>.</span>profile<span>;</span>
+  Channel<span>?</span> channel<span>;</span>
+
+  <span>@override</span>
+  <span>void</span> <span>initState</span><span>(</span><span>)</span> <span>{</span>
+    <span>super</span><span>.</span><span>initState</span><span>(</span><span>)</span><span>;</span>
+    <span>createChannel</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>createChannel</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+    <span>final</span> _channel <span>=</span> <span>await</span> ChatService<span>.</span>instance<span>.</span><span>createSupportChat</span><span>(</span><span>)</span><span>;</span>
+    <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+      channel <span>=</span> _channel<span>;</span>
+    <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>@override</span>
+  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
+    <span>return</span> channel <span>==</span> <span>null</span>
+        <span>?</span> <span>Center</span><span>(</span>
+            child<span>:</span> <span>Text</span><span>(</span><span>&#39;You are in the queue!, please wait...&#39;</span><span>)</span><span>,</span>
+          <span>)</span>
+        <span>:</span> <span>Scaffold</span><span>(</span>
+            body<span>:</span> <span>SafeArea</span><span>(</span>
+              child<span>:</span> <span>StreamChannel</span><span>(</span>
+                channel<span>:</span> channel<span>!</span><span>,</span>
+                child<span>:</span> <span>Column</span><span>(</span>
+                  children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
+                    <span>Expanded</span><span>(</span>
+                      child<span>:</span> <span>MessageListView</span><span>(</span><span>)</span><span>,</span>
+                    <span>)</span><span>,</span>
+                    <span>MessageInput</span><span>(</span>
+                      disableAttachments<span>:</span> <span>true</span><span>,</span>
+                      sendButtonLocation<span>:</span> SendButtonLocation<span>.</span>inside<span>,</span>
+                      actionsLocation<span>:</span> ActionsLocation<span>.</span>leftInside<span>,</span>
+                      showCommandsButton<span>:</span> <span>true</span><span>,</span>
+                    <span>)</span><span>,</span>
+                  <span>]</span><span>,</span>
+                <span>)</span><span>,</span>
+              <span>)</span><span>,</span>
+            <span>)</span><span>,</span>
+          <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Here’s what’s happening in this UI implementation:</p><ul><li>This support chat screen, <code>SupportChatScreen</code>, is a <code>StatefulWidget</code>.</li><li>The <code>profile</code> variable is the user profile from <code>AuthService</code> that you created in the previous section.</li><li>The <code>channel</code> variable is used to detect if a support channel has been created.</li><li>The <code><span>createChannel</span><span>(</span><span>)</span></code> method calls <code>ChatService</code>’s <code><span>createSupportChat</span><span>(</span><span>)</span></code> method, which you recently defined.</li><li>Once the channel is ready, <code><span>setState</span><span>(</span><span>)</span></code> is called, which renders the chat UI.</li><li>In the <code><span>build</span><span>(</span><span>)</span></code> method, you can show a message while the channel is being created or return a <code>StreamChannel</code> object, which provides information about the channel to the widget tree and passes a reference to the <code>channel</code>.</li><li>Typically, a child of <code>SupportChatScreen</code> should be a <code>Column</code> that includes <code><span>MessageListView</span><span>(</span><span>)</span></code> and is wrapped by <code>Expanded</code> to ensure it takes up all the available space.</li><li>You can highly customize <code><span>MessageInput</span><span>(</span><span>)</span></code> in a number of ways, such as disabling the file attachment or command buttons. You’ll do this later by using Auth0’s permissions and roles to determine which buttons should be enabled or disabled, so stay tuned.</li></ul><p>Congratulations — you’ve implemented the support chat screen! Let&#39;s move on to the community view.</p><p>It&#39;s time to make a screen to allow agents to see all the messages they receive via support. Let&#39;s call this screen <code>CommunityScreen</code>.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>screens<span>/</span>community<span>.</span>dart</code> file, and update the <code>CommunityScreen</code> class within to the following:</p><pre><code><span>// /lib/screens/community.dart</span>
+
+<span>class</span> <span>CommunityScreen</span> <span>extends</span> <span>StatelessWidget</span> <span>{</span>
+  <span>final</span> userId <span>=</span> ChatService<span>.</span>instance<span>.</span>client<span>.</span>state<span>.</span>user<span>?</span><span>.</span>id <span>as</span> Object<span>;</span>
+
+  <span>@override</span>
+  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
+    <span>return</span> <span>Scaffold</span><span>(</span>
+      body<span>:</span> <span>ChannelsBloc</span><span>(</span>
+        child<span>:</span> <span>ChannelListView</span><span>(</span>
+          filter<span>:</span> Filter<span>.</span><span>in_</span><span>(</span>
+            <span>&#39;members&#39;</span><span>,</span>
+            <span>[</span>userId<span>]</span><span>,</span><span>// current user is employee (role/permission)</span>
+          <span>)</span><span>,</span>
+          sort<span>:</span> <span>[</span><span>SortOption</span><span>(</span><span>&#39;last_message_at&#39;</span><span>)</span><span>]</span><span>,</span>
+          pagination<span>:</span> <span>PaginationParams</span><span>(</span>
+            limit<span>:</span> <span>30</span><span>,</span>
+          <span>)</span><span>,</span>
+          channelWidget<span>:</span> <span>ChannelPage</span><span>(</span><span>)</span><span>,</span>
+        <span>)</span><span>,</span>
+      <span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span>
+
+<span>class</span> <span>ChannelPage</span> <span>extends</span> <span>StatelessWidget</span> <span>{</span>
+  <span>@override</span>
+  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
+    <span>return</span> <span>Scaffold</span><span>(</span>
+      appBar<span>:</span> <span>ChannelHeader</span><span>(</span><span>)</span><span>,</span>
+      body<span>:</span> <span>Column</span><span>(</span>
+        children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
+          <span>Expanded</span><span>(</span>
+            child<span>:</span> <span>MessageListView</span><span>(</span><span>)</span><span>,</span>
+          <span>)</span><span>,</span>
+          <span>MessageInput</span><span>(</span><span>)</span><span>,</span>
+        <span>]</span><span>,</span>
+      <span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>The logic behind this page is relatively simple. You want to load all channels seen by the current user, an agent in this context, then open each channel to answer its respective customer.</p><p><code>ChannelsBloc</code> manages a list of channels with pagination, re-ordering, querying, and other operations associated with channels together with <code><span>ChannelListView</span><span>(</span><span>)</span></code>. The <code>Bloc</code> is not related to the <code>Bloc</code> package or pattern; this is just a coincidence.</p><p>You need to filter all channels by the membership of the current user. If necessary, do custom sorting and pagination too.</p><p>Lastly, you need to ensure that the <code><span>ChannelPage</span><span>(</span><span>)</span></code> is also passed to correctly as it makes channels routable. The <code><span>ChannelPage</span><span>(</span><span>)</span></code> is nothing fancy — just a straightforward implementation of what you have done already in <code>SupportScreen</code>.</p><p>Perfect! You have created all screens for the app. However, we still need to implement permissions and roles to load each screen and functionalities based on what we can define and receive via Auth0 tokens. But if you are curious, you can simply add another tab to the <code>MenuScreen</code> and load these pages (although you might not see any channels yet).</p><p>🛠 In the file <code><span>/</span>lib<span>/</span>screens<span>/</span>menu<span>.</span>dart</code>, locate <code>final List<span>&lt;</span>Widget<span>&gt;</span> tabs</code> in <code>MenuScreenState</code> and update it to the following:</p><pre><code><span>// /lib/screens/menu.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+  <span>final</span> List<span>&lt;</span>Widget<span>&gt;</span> tabs <span>=</span> <span>[</span>
+    <span>MenuList</span><span>(</span>coffees<span>:</span> coffees<span>)</span><span>,</span>
+    <span>SupportChatScreen</span><span>(</span><span>)</span><span>,</span>
+    <span>ProfileScreen</span><span>(</span><span>)</span><span>,</span>
+  <span>]</span><span>;</span>
+<span>.</span><span>.</span><span>.</span></code></pre><p>🛠 In the same file, add a new icon to <code>bottomNavigationBar</code> by replacing the <code>items</code> parameter with the following:</p><pre><code><span>// /lib/screens/menu.dart</span>
+
+items<span>:</span> <span>&lt;</span>BottomNavigationBarItem<span>&gt;</span><span>[</span>
+  <span>BottomNavigationBarItem</span><span>(</span>
+    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>list_alt<span>)</span><span>,</span>
+    label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span>
+  <span>)</span><span>,</span>
+  <span>BottomNavigationBarItem</span><span>(</span>
+    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>support<span>)</span><span>,</span>
+    label<span>:</span> <span>&#34;Support&#34;</span><span>,</span>
+  <span>)</span><span>,</span>
+  <span>BottomNavigationBarItem</span><span>(</span>
+    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>person<span>)</span><span>,</span>
+    label<span>:</span> <span>&#34;Profile&#34;</span><span>,</span>
+  <span>)</span><span>,</span>
+<span>]</span><span>,</span></code></pre><p>🛠 Before you can test the chat, you should temporarily add the <code>rootEmployeeId</code> user ID that you defined in <code>createSupportChat</code>  in the Stream dashboard.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2RqndsI9Xp4CR35fYyRRSG/4832ae874ee2b4622ae4282560d1f396/chat_custom_user.png" alt="Custom user in the chat."/></p><p>You can skip this step, but it’s still a good idea to have a root support user in case of a specific agent is unavailable. That way, the user with the absent agent can still get support.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/qFcfGuNTipVpuEWJtAfM0/312b8561bbbbc47ed9a97342dbd46764/custom_user_root.png" alt="Custom user in the chat."/></p><p>🛠 Run your app in the emulator, go to the support chat screen, and try it out!</p><blockquote><p>If you encounter an error regarding an outdated Kotlin version on the Android emulator, open <code>android<span>/</span>app<span>/</span>build<span>.</span>gradle</code>, and search for <code>ext<span>.</span>kotlin_version</code>. Change that line to <code>ext<span>.</span>kotlin_version <span>=</span> <span>&#39;1.5.10&#39;</span></code>.</p></blockquote><h2 id="Auth0-Actions-and-Generating-Stream-User-Production-Tokens">Auth0 Actions and Generating Stream User Production Tokens</h2><p>Until now, for each user, you have been using a token generated for the development environment. In order to release your app, the app will have to request production tokens.</p><p>As I mentioned earlier, retrieving production tokens is usually done by your backend server. Auth0 can act as this service and retrieve those tokens for you, thanks to a potent tool called <em>Auth0 Actions</em>. </p><p>You can use Auth0 Actions to handle your application logic and fit it into a particular flow. They are secure, tenant-specific, versioned functions written in Node.js that execute at specific points when Auth0 is doing its work. This allows you to customize and extend Auth0&#39;s capabilities with custom logic. Think of Actions as serverless functions, such as AWS Lambda or Google Cloud Functions.</p><p>You can determine when and where to execute an Action in the Auth0 runtime environment. Your flows might be:</p><ul><li><strong>Login:</strong> Executed after a user logs in and when refresh tokens are issued.</li><li><strong>Machine to Machine:</strong> Executed after a user logs in after the Client Credentials hook.</li><li><strong>Pre-User Registration:</strong> Executed before a user is added to the database or passwordless connections.</li><li><strong>Post-User Registration:</strong> Executed after a user is added to a database or passwordless connections. The execution is asynchronous and will not affect the transaction.</li><li><strong>Post-Change Password:</strong> Executed after a password is changed for a database connection user.</li><li><strong>Send Phone Message:</strong> Executed when using a custom MFA provider.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7fpne9yUGBpXYzAT5km5l5/83ab5c891c02495d53a9d2661e10083e/actions_flow.png" alt="Actions flow"/></p><p>You’ve probably already thought of several use cases for each of these scenarios.</p><p>Let&#39;s create a custom action to exchange Stream production user tokens for users after they logged in and hooked it up to the ID token and user metadata received by the Flutter app.</p><p>First, you need to create a new action. Go to the Custom Actions menu under Actions in Auth0 Dashboard and hit the &#34;Create&#34; button.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/oR6jv9IA92twMdtRrAvIz/e414cac9a740c5fdd5eaab85a7795ebb/create_action.png" alt="Create action"/></p><p>🛠 You should provide a name for the action, select a trigger from the list, and then create it. For the purpose of generating a chat token and attaching it to <code>idToken</code>, select the <strong>Login / Post Login</strong> trigger, which allows you to use the action in the login flow.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5wbUmlcD0qq7FrgBCiURrS/a95bb544b5d4fdaa4eac2a87b5fd9361/create_action_trigger.png" alt="Create action trigger"/></p><p>You&#39;ll see an editor where you can write your logic. You can run the code, try it out before deploying it, add your secrets to the environment instead of putting it in the application code, and even add almost all public NPM packages!</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/46DWkLU05SPD1kTE6i5oGF/54f46b0d30cd13bf141b4beb28a2445e/action_module.png" alt=" action module"/></p><p>🛠 Start by adding the <code>getstream</code> npm package. At the time of writing, the current version of the package is <code><span>7.2</span><span>.10</span></code>.</p><p>🛠 Go back to the Stream dashboard, copy your secret and client keys...</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5aLtEOAjfXguB6BQlI8fmB/b55f3fd1d0c7c44c91c760c5850d8457/chat_app_secret.png" alt="chat app secret"/></p><p>🛠 ...and then add them with the name of <code><span>GET_STREAM_CHAT_SECRET_KEY</span></code> and <code><span>GET_STREAM_CHAT_CLIENT_KEY</span></code>, respectively, to this function in Auth0.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4JgG1WLTfWa2RTlkzAkV8j/1704cdf6b2e7abfd23e611171440dce5/action_secrets.png" alt=" action secrets"/></p><p>🛠 Lastly, you can import <code>getStream</code> and connect and create a user token bypassing <code>user_id</code>.</p><pre><code><span>// Javascript</span>
+
+<span>const</span> stream <span>=</span> <span>require</span><span>(</span><span>&#39;getstream&#39;</span><span>)</span><span>;</span>
+
+exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async</span> <span>(</span><span>event<span>,</span> api</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>const</span> getStreamClient <span>=</span> stream<span>.</span><span>connect</span><span>(</span>
+    event<span>.</span>secrets<span>.</span><span>GET_STREAM_CHAT_CLIENT_KEY</span><span>,</span>
+    event<span>.</span>secrets<span>.</span><span>GET_STREAM_CHAT_SECRET_KEY</span>
+  <span>)</span><span>;</span>
+  <span>const</span> getStreamToken <span>=</span> getStreamClient<span>.</span><span>createUserToken</span><span>(</span>
+    <span><span>`</span><span><span>${</span>event<span>.</span>user<span>.</span>user_id<span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>}</span></span><span>`</span></span> <span>// getstream does not support `|` in the ID yet, so we have to omit it.</span>
+  <span>)</span><span>;</span>
+
+  <span>// api.user.setAppMetadata(&#34;stream_chat_token&#34;, getStreamToken);</span>
+  <span>// api.user.setUserMetadata(&#34;stream_chat_token&#34;, getStreamToken);</span>
+  <span>const</span> namespace <span>=</span> <span>&#39;https://getstream.mjcoffee.app&#39;</span><span>;</span>
+  <span>if</span> <span>(</span>event<span>.</span>authorization<span>)</span> <span>{</span>
+    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/user_token</span><span>`</span></span><span>,</span> getStreamToken<span>)</span><span>;</span>
+    api<span>.</span>accessToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/user_token</span><span>`</span></span><span>,</span> getStreamToken<span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span><span>;</span></code></pre><p>Let&#39;s explore the implementation above. </p><p>Once you get the token, you can set a user or app metadata named <code>stream_chat_token</code> with the token value. </p><p>Alternately, you can set a custom claim on <code>idToken</code> and <code>accessToken</code>. A custom claim must take the form of a URI, which means that <code>https<span>:</span><span>/</span><span>/</span>getstream<span>.</span>mjcoffee<span>.</span>app<span>/</span>user_token</code> is an acceptable name for a claim, while <code>user_token</code> alone is not.</p><blockquote><p><strong>Important:</strong> In Stream, only the characters <code>a</code> through <code>z</code>, <code><span>0</span></code> through <code><span>9</span></code>, <code>@</code>, <code>_</code>, and <code><span>-</span></code> are allowed in the user ID. Therefore, we shouldn’t use the <code><span>|</span></code> for <code>user_id</code> in Auth0.</p></blockquote><p>Let&#39;s run and test this function before we deploy. Click on the play icon and run with the example event, which is automatically generated for you.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1b3pOpx8O1g4MBOqmhI6ix/88e2335e0b2bb8a3730dba6ebcc57e44/action_run.png" alt=" action run"/></p><p>If everything goes well, you’ll get a generated token in JWT format. Its payload will contain <code>user_id</code>, and it will be signed with your secret key by the Stream servers.</p><p>Here’s an example of what you’ll get:</p><pre><code><span>// response in Action run</span>
+
+<span>[</span>
+  <span>{</span>
+    name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>,</span>
+    target<span>:</span> <span>&#39;idToken&#39;</span><span>,</span>
+    type<span>:</span> <span>&#39;SetCustomClaim&#39;</span><span>,</span>
+    value<span>:</span>
+      <span>&#39;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYXV0aDA1ZjdjOGVjN2MzM2M2YzAwNGJiYWZlODIifQ.7ZIyr27skgrGm6REEz5o-WvoCArNblDnwiOdxXW4dp8&#39;</span><span>,</span>
+  <span>}</span><span>,</span>
+  <span>{</span>
+    name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>,</span>
+    target<span>:</span> <span>&#39;accessToken&#39;</span><span>,</span>
+    type<span>:</span> <span>&#39;SetCustomClaim&#39;</span><span>,</span>
+    value<span>:</span>
+      <span>&#39;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYXV0aDA1ZjdjOGVjN2MzM2M2YzAwNGJiYWZlODIifQ.7ZIyr27skgrGm6REEz5o-WvoCArNblDnwiOdxXW4dp8&#39;</span><span>,</span>
+  <span>}</span><span>,</span>
+<span>]</span><span>;</span></code></pre><p><img src="https://images.ctfassets.net/23aumh6u8s0i/Ax6b4nRMkHyjvfGBK47bV/d15969eb0f4740dfe1057372e04c4437/jwt_stream.png" alt="action run"/></p><p>🛠 Next, go back to <strong>Flow</strong>, select <strong>Login</strong>, and drag your newly-created custom action to the flow and apply the changes:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5oYj9z0hIawXOi3dSW8dEZ/4684098fb3b108dd0cc4f32e01aa4e59/login_flow.png" alt=" action run"/></p><p>For the last step, the Flutter app needs to read this token and add it to the user model. That way, when you connect a user to Stream’s chat, instead of the development tokens you’ve been using, you can replace it with the token that Auth0 received.</p><p>🛠 Since it&#39;s a custom claim, it will show up in <code>idToken</code>; thus you’ll need to modify your <code>Auth0IdToken</code> model class (located in <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_id_token<span>.</span>dart</code>)...</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0IdToken</span> <span>{</span>
+  <span>Auth0IdToken</span><span>(</span><span>{</span>
+  
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+  
+    required <span>this</span><span>.</span>streamChatUserToken<span>,</span>
+  
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+  
+<span>}</span><span>)</span>
+
+<span>.</span><span>.</span><span>.</span><span>.</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>)</span>
+  <span>final</span> String streamChatUserToken<span>;</span>
+
+<span>.</span><span>.</span><span>.</span><span>.</span>
+
+<span>}</span></code></pre><p>🛠 Then do the same with your <code>Auth0User</code> class (located in <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_user<span>.</span>dart</code>), as it will be part of the user details:</p><pre><code><span>// m/lib/models/auth0_user.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0User</span> <span>{</span>
+  <span>Auth0User</span><span>(</span><span>{</span>
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+      required <span>this</span><span>.</span>streamChatUserToken<span>,</span>
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+<span>}</span><span>)</span>
+<span>.</span><span>.</span><span>.</span><span>.</span>
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>)</span>
+  <span>final</span> String streamChatUserToken<span>;</span>
+<span>.</span><span>.</span><span>.</span><span>.</span>
+<span>}</span></code></pre><p>🛠 Once you are done, run the <code>build_runner</code> command to generate models again.</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>🛠 Locate <code>connectUser</code> in the <code>ChatService</code> class (located in <code><span>/</span>lib<span>/</span>services<span>/</span>chat_service<span>.</span>dart</code>) and replace <code><span>devToken</span><span>(</span><span>)</span></code> with the newly-received token on the user object.</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+<span>await</span> client<span>.</span><span>connectUser</span><span>(</span>
+  <span>User</span><span>(</span>
+    id<span>:</span> user<span>.</span>id<span>,</span>
+    extraData<span>:</span> <span>{</span>
+      <span>&#39;image&#39;</span><span>:</span> user<span>.</span>picture<span>,</span>
+      <span>&#39;name&#39;</span><span>:</span> user<span>.</span>name<span>,</span>
+    <span>}</span><span>,</span>
+  <span>)</span><span>,</span>
+  <span>// client.devToken(user.id).rawValue,</span>
+    user<span>.</span>streamChatUserToken<span>,</span>
+<span>)</span><span>;</span></code></pre><p>Well done! Log out of the app, restart it. and log in again. This time, you&#39;ll receive a production-ready user token. When you go to the support chat screen, everything should work as expected.</p><h2 id="Looking-Ahead">Looking Ahead</h2><p>Now that the app has a real-time chat is ready with a proper authentication flow, you can move on to the next section to focus on authorization, roles, and permissions.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 2: Refresh Tokens, Social Logins, and More</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-2-refresh-tokens-social-logins-more/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the exercise from the previous section, you added Auth0 authentication to an existing Flutter app. This added a username/password authentication flow to the app. You also gave the app the ability to request and submit refresh tokens, which enhance the user experience by not requiring the user to authenticate every time they use the app.</p><p>This section will expand on the app by examining some useful Auth0 features:</p><ul><li>Refresh token rotation</li><li>Social logins</li><li>Managing your Auth0 account</li></ul><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong></p></blockquote><h2 id="Add-Refresh-Token-Rotation">Add Refresh Token Rotation</h2><p>When the app makes an authentication request to Auth0’s authentication server, it includes the <code>offline_access</code> scope. This causes the authentication server to issue a refresh token, which the app can use to re-authenticate without requiring the user to log in again. The app stores this token in the device’s secure storage.</p><p>While this enhances the app’s user experience, it also introduces risk. The refresh token is long-lived, and the app could use it as a “lifetime pass” to endlessly request new access tokens and keep the user logged in forever.</p><p>I highly recommend taking advantage of <em>Refresh Token Rotation</em> and <em>Automatic Reuse Detection</em> to help mitigate this risk. With these features enabled, each refresh token can be used only once. When the app exchanges its refresh token for a new access token, the authentication server also returns a new refresh token and invalidates the old one. </p><p>Let’s enable these features!</p><p>🛠 Navigate to the <strong>Applications</strong> section of your Auth0 dashboard, select the <strong>MJ Coffee</strong> application, and then select its <strong>Settings</strong> tab. Scroll down the page to the <strong>Refresh Token Rotation</strong> section and turn on the <strong>Rotation</strong> and <strong>Absolute Expiration</strong> options:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6EizPZZnkGjxoAOle1Q8eL/e06c99f4a49413572736bbf0f470436c/rotation_and_absolute_expiration.png" alt="Turn on the “Rotation” and “Absolute Expiration” options."/></p><p>It is recommended that you issue a refresh token that expires after a preset lifetime. The refresh token’s lifetime can be extended each time one is used to get a new access token or access token/refresh token pair.</p><p>There are two options for token lifetimes, and they can be set independently of each other:</p><ul><li><strong>Absolute Lifetime:</strong> Enabling <strong>Absolute Expiration</strong> sets a specified <em>absolute lifetime</em> for the application’s refresh tokens. Refresh tokens can be exchanged for new access tokens during this lifetime. Once the token’s age goes past its lifetime, the user will need to re-authenticate in order to get a new access token. If <strong>Absolute Expiration</strong> is disabled, the refresh token has an indefinite absolute lifetime.</li><li><strong>Inactivity Lifetime:</strong> Enabling <strong>Inactivity Expiration</strong> specified <em>inactivity lifetime</em> for the application’s refresh tokens. Refresh tokens can be exchanged for new access tokens if the user is active in the application during this lifetime. If the user is inactive in the application for a period longer than the inactivity lifetime, they will need to re-authenticate in order to get a new access token.</li></ul><p>🛠 Scroll to the bottom of the page and click the <strong>Save Changes</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7KsLW4adJ6PNIPAI12al4g/f2c0e8abf6d7377595cfb7df11493e67/save_changes.png" alt="The “Save Changes” button. The user is directed to click it."/></p><p>These days, it&#39;s pretty common to have login methods beyond the standard username/password combination. These include logging in with social media account, which will significantly enhance your users’ experiences.</p><p>Implementing these additional login methods and adding them to your authorization server is time-consuming and will come with many considerations and risks. </p><p>Luckily, Auth0 provides lots of integration with well-known third parties’ authentication systems, and even allows you to write your custom connections. Let&#39;s add connections to both Google’s and Apple’s authentication systems.</p><p>🛠 In the Auth0 dashboard, select <strong>Authentication</strong> in the left column menu, then select <strong>Social</strong>. This takes you to the <strong>Social Connections</strong> page, where you should click the <strong>Create Social Connection</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/61w1eXrbY7bGOpNo6ODbaU/da810c63bacd28cabf71e6dee4baa349/create_social_connection.png" alt="The steps to create a new social connection in Auth0"/></p><p>You will be taken to the <strong>New Social Connection</strong> page, which has a list of social login providers that integrate with Auth0. </p><p>🛠 Select <strong>Google</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2YdUxIkwmCTcc9QFlo584q/22f7fd0bf4bc1c93c4ebc555e21009f8/select_google.png" alt="Selecting Google from all the available social connections"/></p><p>You will now be on the  <strong>New Google / Gmail Social Connection</strong> page, which tells you what kind of user information is accessed by Google social login.</p><p>🛠 Click <strong>Continue</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2SQwtF0vqtXJucnGbE3DNS/baf5bd9d7103a6ecbd59b879bbe2aaf4/click_continue.png" alt="Initial page for creating a new Google/Gmail social connection"/></p><p>A new page with a number of fields will appear; this is the connection’s <strong>Settings</strong> tab. </p><p>As long as you’re working in a development environment, you only need to fill the <strong>Name</strong> field (which provides a name for this connection) and leave all the other fields empty. You can always use the default value in the <strong>Name</strong> field:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7Jzsn4ryILOOdACN2urlSo/fdaa205ef09352c0b9aba0acbd592977/new_google_gmail_social_connection.png" alt="New Google/Gmail social connection"/></p><p>However, production apps require you to provide a <strong>Client ID</strong> and <strong>Client Secret</strong> (<a href="https://auth0.com/docs/connections/social/google" target="_blank" rel="noreferrer noopener">doc</a>) and specify the <strong>Allowed Mobile Client IDs</strong>. These topics will be covered in another video or article.</p><p>🛠 Create the Google/Gmail connection by scrolling to the bottom of the page and clicking <strong>Create</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4S8AJUaj4xehVwVxhNDt5X/69eb88b8bec557d310d0e9d678fe9b7e/click_create.png" alt="Creating the Google/Gmail connection"/></p><p>This will create the connection, and you’ll be taken to its <strong>Applications</strong> tab. You’ll see a list of your applications, which will allow you to enable the Google/Gmail connection for any of them. Enable the connection for the <em>MJ Coffee</em> application:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/681u1RRcha4ABJJ5GRZivy/c7eea90ca4e19ec5ab3b333caa47e5ba/google-oauth2_applications_tab.png" alt="The Google/OAuth2 applications tab"/></p><p>You may also set more permissions that the end-user will need to approve during authorization. These permissions depend on your application and what you want to do on behalf of the user. The <em>MJ Coffee</em> app doesn’t need any extra permissions beyond the basic and extended profile.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/13CvLX8tQUTuqU6jpZ6K94/a0eaac13b8fc83fc11b3ca3f6651ebd9/google_permissions.png" alt="Google Permission"/></p><p>🛠 Make sure you sync user profile attributes at each login and hit the <strong>Save</strong> button.</p><p>🛠 Once again in the Auth0 dashboard, select <strong>Authentication</strong> in the left column menu, then select <strong>Social</strong>. This takes you to the <strong>Social Connections</strong> page, where you should click the <strong>Create Social Connection</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1sohaZxDHuq8X8ZvT5nhvE/d2b7a7e2647708327f8fc6971ddb43a9/create_connection.png" alt="The steps to create a new social connection in Auth0"/></p><p>🛠 This time, select <strong>Apple</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3JAgbtDSNOsfYrjxkE1wCI/e51d80f7418706c29cd6e9dc06b93719/select_apple.png" alt="Selecting Apple from all the available social connections"/></p><p>You will now be on the  <strong>New Apple Social Connection</strong> page, which tells you what kind of user information is accessed by Apple social login.</p><p>🛠 Click <strong>Continue</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3zt2ntLwoHwp6bldLmOOsD/8db3e7f5c057d5782c7202b748013420/click_connect_-_apple.png" alt="Continue"/></p><p>As long as you’re working in a development environment, you can leave the <strong>Client ID</strong> and <strong>Client Secret Signing Key</strong> fields empty. You <em>will</em> need proper keys for those fields when the app goes to production; <a href="https://auth0.com/docs/connections/apple-siwa/set-up-apple" target="_blank" rel="noreferrer noopener">this document covers that topic in more detail</a>.</p><p>The <strong>Apple Team ID</strong> and <strong>Key ID</strong> values are required:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2qNvT5zkxB1TY06ywkH5Re/7c46fa1399743de9e7bb05d1d804fab0/apple_dev.png" alt="Google Permission"/></p><ul><li>To get your Apple Team ID, you need an Apple Developer Account.</li><li>To get a Key ID for your app, you need to register that app using your Apple Developer Account.</li></ul><p>🛠 Sign in to your Apple Developer Account, and go to the <strong>Membership</strong> page and make a note of your Team ID.</p><p>🛠 If you have a registered app, you can skip the following steps and jump to the list of tasks for creating a service ID. Otherwise, follow the steps below:</p><ul><li>In the Apple Developer Portal, go to <strong>Certificates, IDs, &amp; Profiles &gt; Identifiers</strong> and click the blue “plus” icon next to <strong>Identifiers</strong> to create a new App ID.</li><li>Choose <strong>App IDs</strong> as the identifier type and click <strong>Continue</strong>.</li><li>Provide a description and a Bundle ID in reverse-domain name format (e.g.: <code>com<span>.</span>mydomain<span>.</span>mjcoffee</code>).</li><li>Scroll down and check <strong>Sign In with Apple</strong>.</li><li>Click <strong>Continue</strong>, and then click <strong>Register</strong>.</li></ul><p>🛠 Once the app is registered, it’s time to create a service ID:</p><ul><li>Return to the <strong>Certificates, IDs, &amp; Profiles</strong> section, and click the blue “plus” icon next to <strong>Identifiers</strong>.</li><li>Choose <strong>Service IDs</strong> and select <strong>Continue</strong>. Fill in the description and identifier (e.g.: <code>com<span>.</span>mydomain<span>.</span>mjcoffee</code>).</li><li>After checking <strong>Sign In with Apple</strong>, select <strong>Configure</strong>, and define your Web Domain (e.g.: <code>com<span>.</span>mydomain<span>.</span>mjcoffee</code>) and your &#34;Return URL&#34;. Ensure that your Return URL is your Auth0 domain and that it follows this format: <code>https<span>:</span><span>/</span><span>/</span><span>YOUR_AUTH0_DOMAIN</span><span>/</span>login<span>/</span>callback</code>.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5Wetff0Tutv55UXsYz0gKq/ab19cd3e48604aea314410d22d194982/callback_apple.png" alt="Return URL apple sign in"/></p><p>🛠 Finally: save, continue and then register the service.</p><h4 id="Set-up-your-Client-Secret-Signing-Key">Set up your Client Secret Signing Key</h4><p>🛠 Follow these steps:</p><ul><li>Go to <strong>Keys</strong>, which is located in the <strong>Certificates, Identifiers, &amp; Profiles</strong> section of your Apple developer dashboard.</li><li>Select the blue “plus” icon to add a new key.</li><li>Enter a <strong>Key Name</strong> and check the <strong>Sign In with Apple</strong> option.</li><li>Select <strong>Configure</strong> to make sure the <strong>Choose a Primary App ID</strong> field is filled with the correct App ID.</li><li>Select <strong>Save, Continue</strong>, and then <strong>Register</strong>.</li><li>On the page to which you&#39;re redirected after registering, make a note of the Key ID. Then download the key; it will have a <code><span>.</span>p8</code> filename extension.</li></ul><p>🛠 Go back to your Apple social connection settings and paste the Key ID. Ensure the proper attributes are selected (Name, Email) and sync user profile at each login is enabled. Hit <strong>Save</strong>.</p><p>🛠 Once you have created all your social connections and set them up correctly, go back to your applications. Go to the <strong>Connections</strong> tab and enable your newly-made social connections:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/59SCRbiX055qDcmTSNwPVl/fa175f974ceb43515893f24f7747d549/app_social_connections.png" alt="app social connections"/></p><p>As you can see, adding and removing social connections for your apps is now as simple and flicking a switch.</p><p>On the Flutter side, I have good news: you don’t need to implement anything there! </p><p>Restart the app, log out, then try to log in. You’ll see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4b6BIaeZ8EHcN1a3MYVOrF/91c9039cf0d56051c99397d1a7524a3e/social_buttons_flutter.png" alt="app social connections"/></p><p>That&#39;s it! The login screen will now display social login buttons, and their login flows will be ready to use.</p><h2 id="Branding">Branding</h2><p>While it’s fine to use the default branding in development, you want the login page to be customized to your “look and feel” once the app’s in production.</p><p>Auth0 allows you to customize your login page through a number of options. You can change the look and feel of the login page by adding colors and logos, and you can customize the user notification part of the process as well: email templates, text messages, and so on. It’s all in the <strong>Branding</strong> section of the Auth0 dashboard:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7oq6VzFQ3nSUcStZTXvjQu/38d1e272f3bef751d9feaca704d580dc/branding.png" alt="Auth0 branding"/></p><h3 id="Add-Roles">Add Roles</h3><p>You may want to provide certain functionalities to the user based on their roles. This is easy with proper authorization server such as Auth0, which facilitates adding roles and specifying what users in each role are allowed to do. </p><p>In the MJ Coffee app, there are three different roles:</p><ul><li><strong>Admin:</strong> These are administrators, and they will have access to all the app’s functionality with full permissions.</li><li><strong>Customer:</strong> This is the default role for registered or logged-in users. They are limited to the app’s customer-facing features. You will automatically assign this role to all users upon registration or login, and you will learn how to do so later on in this tutorial.</li><li><strong>Employee:</strong> These are coffee shop employees. They can access the community screen to answer customer requests in the support chat, as well as other employee-facing features.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7nVdiU86TPCF1tLXrBg6ID/54a078bfe7d2382a6776c26adfc5cba4/roles.png" alt="Auth0 roles"/></p><p>You can add more roles to the app as the need arises.</p><h2 id="User-Management-in-Auth0">User Management in Auth0</h2><p>Auth0 provides the infrastructure to store users and their information on its cloud database.</p><p>For the <em>MJ Coffee</em> app, Auth0’s cloud database is sufficient. One of Auth0’s goals is to reduce the cost of extra infrastructure maintenance and cost.</p><p>You can access users by selecting <strong>User Management</strong> in the left column menu of the Auth0 dashboard. The <strong>Users</strong> page allows you to create new users and manage your existing ones by changing their details, adding permissions and roles, or revoking their access.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3O0JDGBqXHmPfrKaEavP2D/260c804cf50a308e696ecd9a446ab4a9/users.png" alt="Auth0 users"/></p><p>When you open a user, you’ll see that Auth0 provides in-depth details about that user, including basic account data, metadata, their devices, and their history, which might be pretty helpful for debugging the application or investigating a particular user’s access activity, permissions, and roles.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/JcGTMspZ9hKtu9RAi4Oq9/257a692aa9a65cd12e96f645b56aafd1/user_roles.png" alt="Auth0 user roles"/></p><p>Each user account stores some basic information about the user: name, email address, the date and time when the account was created, and so on. </p><p>Additional information can be attached to a user by adding to these metadata stores:  their user metadata, which is a key-value structure for storing information about the user. You can also store information in the user<em>metadata or manipulating `app</em>metadata`, which helps to provide more information to the Flutter application while receiving user details.</p><h2 id="Moving-Forward">Moving Forward</h2><p>In the next section of this tutorial, you will learn how to add real-time chat to the app.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:12:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 1: Adding Authentication to an App</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-1-adding-authentication-to-an-app/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><h2 id="Welcome-">Welcome!</h2><p>In this four-part tutorial, you’ll take a Flutter app and enhance it with Auth0. You’ll start by adding basic username/password authentication to it, followed by social logins, and then enable real-time support chat that makes use of authorization.</p><p>By the end of this tutorial, you’ll have built a fairly complex Flutter app that you can use as the basis for your own creations, and you will also have covered a lot of Auth0’s features.</p><p>Before we begin, let’s get our terminology straight...</p><p>Authentication and authorization are two key security components in applications, whether they are mobile apps, web apps, or machine-to-machine connections. Many people are confused by these terms, so here are some simple definitions:</p><ul><li><strong><em>Authentication</em></strong> deals with the question <strong>&#34;Who are you?&#34;</strong>. You’ll implement it in this section with the help of an authentication protocol called <a href="https://auth0.com/docs/protocols/openid-connect-protocol" target="_blank" rel="noreferrer noopener">OpenID Connect</a>, or “OIDC” for short.</li><li><strong><em>Authorization</em></strong> answers the question <strong>&#34;What are you allowed to do?&#34;</strong>. You’ll implement it in a later section with the help of an authorization protocol called <a href="https://auth0.com/intro-to-iam/what-is-oauth-2/" target="_blank" rel="noreferrer noopener">OAuth 2.0</a>, or “OAuth2” for short.</li></ul><h2 id="Adding-Authentication-to-a-Flutter-App">Adding Authentication to a Flutter App</h2><p>In this section, you’ll learn how to secure a Flutter app with Auth0. You’ll take a production-ready Flutter app and add a login screen and logout functionality to it, and you’ll do it with only a fraction of the effort required to implement login and logout yourself!</p><p>You’ll be able to follow this tutorial a little more smoothly if you know the basics of Flutter, but it&#39;s not a hard requirement. If you have experience with any modern web framework, you’ll probably be able to understand the code and learn Flutter and Dart (Flutter’s programming language) as you go.</p><h3 id="What-you-ll-learn-and-build">What you’ll learn and build</h3><p>While you <em>could</em> create a new Flutter project and implement everything you will learn in this tutorial, adding authentication to an existing production-ready app is pretty common. I’ll provide a production-ready app, <strong><em>MJ Coffee</em></strong>, which you’ll secure by adding authentication.</p><p>In later sections, you’ll enable authentication through a social identity provider, such as Google or Apple. You’ll then work on authorization by adding roles and permissions to limit app functionalities based on each user’s permissions and roles.</p><p>I’ll explain more about what this tutorial will cover in <a href="https://img.youtube.com/vi/bHdSLwWFNJ4/0.jpg" target="_blank" rel="noreferrer noopener">this video overview.</a></p><p>I will provide the source code for both the “starter” and “final” versions of the application. I strongly recommend that you use the “starter” version and follow the tutorial step by step in order to better understand the application and your additions to it.</p><p>Additionally, I have recorded videos that support this tutorial. You’ll find them on my <a href="https://www.youtube.com/playlist?list=PLCOnzDflrUceRLfHEkl-u2ipjsre6ZwjV" target="_blank" rel="noreferrer noopener">Youtube channel
+playlist</a>.</p><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong></p></blockquote><h2 id="Set-Up-the-Initial-App">Set Up the Initial App</h2><h3 id="Prerequisites">Prerequisites</h3><p>Before getting started, you need to have the following installed on your machine:</p><ul><li><strong><a href="https://flutter.dev/docs/get-started/install" target="_blank" rel="noreferrer noopener">Flutter SDK</a> version 2.0 or later.</strong> I used version <strong>2.2</strong> for building my application.</li><li>If you want to build the app for iOS, you’ll need the following:
+  <ul><li><strong>Xcode 11 or later.</strong></li><li><strong>Ruby 2.6.0 or later.</strong> This is required for the next iOS requirement, which is...</li><li><strong><a href="https://cocoapods.org/" target="_blank" rel="noreferrer noopener">CocoaPods</a> 1.10.0 or later.</strong></li></ul></li><li><strong>A basic understanding of <em>null safety</em>.</strong> If you’ve used Kotlin’s or Swift’s optional types, you should be fine; if not, please read <a href="https://flutter.dev/docs/null-safety" target="_blank" rel="noreferrer noopener"><em>Null safety in Flutter</em></a>.</li><li><strong>The IDE or an editor of your choice.</strong> I recommend:
+<ul><li>Android Studio, or</li><li>IntelliJ, or</li><li>Visual Studio Code (which I will use in this series).</li></ul></li><li><strong>Dart and Flutter plugins</strong> for your IDE.</li><li>A cup of tea or coffee.</li></ul><h3 id="Get-the-project--configure-it--and-run-it">Get the project, configure it, and run it</h3><p>🛠 <a href="https://github.com/mhadaily/serverless-authentication-authorization-flutter" target="_blank" rel="noreferrer noopener">Open the repository for the MJ Coffee app</a> and download the source from the <em>main</em> branch. This contains a fully functioning app that is ready for you to add Auth0 authentication/authorization and chat.</p><p>🛠 If you want to build the app for iOS, you’ll need to specify your own development team for the build process. Open the <code><span>/</span>ios<span>/</span>Runner<span>.</span>xcworkspace<span>/</span></code> file with Xcode, select the <strong>Runner</strong> project, then the <strong>Runner</strong> target, open the <strong>Signing &amp; Capabilities</strong> tab, and select your team in the <strong>Team</strong> drop-down menu:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3URlDK6kyBY0Op3OU1GX02/1701db29ed00c3e364063984981c5efd/select_development_team.png" alt="Screenshot of Xcode. The reader is instructed to select the “Runner” project and then the “Runner” target, then select “Signing and Capabilities”, and finally select their development team."/></p><p>🛠 Confirm that the app works by running it. Open a command-line interface, navigate to the project’s root directory, and enter  <code>flutter run</code>. </p><p>Flutter will compile the project and run it on any mobile device connected to your computer or any mobile device emulator running on it. If it can’t find any of those, it will run a mobile device emulation in a browser window.</p><p>You will see the app’s home screen:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6kebmOTiWF0KJvdk3yRhZv/a564bccc4f49415742375a9a597db8aa/mj_coffee_screen_1.png" alt="The MJ Coffee App’s home screen"/></p><h3 id="Take-a-quick-tour-of-the-app">Take a quick tour of the app</h3><p>🛠 Tap the <strong>Login | Register</strong> button. Right now, there is no login functionality, so the app immediately takes you to the <strong>Menu</strong> screen:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/26VWlWFGMfEkt3lxzB4Vtl/d76d8e9157544008eb45706196be9e58/mj_coffee_screen_2.png" alt="The MJ Coffee App’s “Menu” screen"/></p><p>🛠 Tap the <strong>Support</strong> button located at the bottom center of the screen. It will take you to the screen where you’ll eventually implement that support chat feature:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6kP1psYGYxUYjP2lfmGGSy/cf9f8fe20aeb4dcf6aabfc717706ec45/mj_coffee_screen_3.png" alt="The MJ Coffee App’s “Support” screen, which is currently blank"/></p><p>🛠 Now tap the <strong>Profile</strong> button located at the bottom right of the screen. It will take you to the profile screen, which will eventually display some information about the logged-in user:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/66R156m2DmiVcOy3NDAUrx/768da6f50629ec4084ba0cdfd974045e/mj_coffee_screen_4.png" alt="The MJ Coffee App’s “Profile” screen, which currently shows a coffee illustration"/></p><p>🛠 And finally, tap the <strong>Logout</strong> button, which will bring you back to the home screen.</p><p>Now that you’ve had a tour of the app, it’s time to start implementing the new features!</p><h2 id="Implement-Login">Implement Login</h2><h3 id="Install-Flutter-dependencies">Install Flutter dependencies</h3><p>The first step is to import the required libraries. You’ll do that by specifying three new dependencies:</p><ul><li><a href="https://pub.dartlang.org/packages/http" target="_blank" rel="noreferrer noopener"><strong>http</strong></a>: A composable, Future-based library for making HTTP requests published by the <a href="https://dart.dev/" target="_blank" rel="noreferrer noopener">Dart team</a></li><li><a href="https://pub.dev/packages/flutter_appauth" target="_blank" rel="noreferrer noopener"><strong>flutter_appauth</strong></a> : A well-maintained wrapper package around <a href="https://appauth.io/" target="_blank" rel="noreferrer noopener">AppAuth</a> for Flutter developed by <a href="https://dexterx.dev/about/" target="_blank" rel="noreferrer noopener">Michael Bui</a>. AppAuth authenticates and authorizes users and supports the PKCE extension.</li><li><a href="https://pub.dev/packages/flutter_secure_storage" target="_blank" rel="noreferrer noopener"><strong>fluttersecurestorage</strong></a>: A library for securely persisting data locally; it was developed by <a href="https://github.com/mogol" target="_blank" rel="noreferrer noopener">German Saprykin</a>. You will need this to safely store tokens and other necessary information.</li></ul><p>You’ll install them by adding entries to the project’s <code><span>/</span>pubspec<span>.</span>yaml</code> file (located in the root directory), where dependencies are specified.</p><p>🛠 Add the following lines to the <code><span>/</span>pubspec<span>.</span>yaml</code>’s <code>dependencies<span>:</span></code> section, just after the line that starts with <code>json_annotation</code>:</p><pre><code>  <span>http</span><span>:</span> ^0.13.3
+  <span>flutter_appauth</span><span>:</span> ^1.1.0
+  <span>flutter_secure_storage</span><span>:</span> ^4.2.0</code></pre><p>The <code>dependencies<span>:</span></code> section should end up looking like this:</p><pre><code><span>dependencies</span><span>:</span>
+  <span>flutter</span><span>:</span>
+    <span>sdk</span><span>:</span> flutter
+  <span>font_awesome_flutter</span><span>:</span> ^9.1.0
+  <span>flutter_svg</span><span>:</span> ^0.22.0
+  <span>google_fonts</span><span>:</span> ^2.1.0
+  <span>json_annotation</span><span>:</span> ^4.0.1
+  <span>http</span><span>:</span> ^0.13.3
+  <span>flutter_appauth</span><span>:</span> ^1.1.0
+  <span>flutter_secure_storage</span><span>:</span> ^4.2.0</code></pre><p>🛠 Save the file and then install the dependencies by either:</p><ul><li>Running the <code>flutter pub get</code> command in the root of your project on the command line, or</li><li>Running <code>Pub get</code> in your editor or IDE.</li></ul><h3 id="Configure-the-callback-URL">Configure the callback URL</h3><p>A callback URL is a mechanism that an authorization server such as Auth0 uses to communicate back to your application. It specifies a location where the user should be returned after the user had been authenticated.</p><p>Because unauthorized parties can manipulate callback URLs, Auth0 recognizes only URLs in a list of allowed callback URLs. These are stored in the application’s Settings page in the Auth0 dashboard.</p><p>For web applications, a callback URL is a valid HTTPS URL. For native apps, your Flutter implementation, you need to create a “pseudo-URL” based on your app’s unique name (the name is the <em>application ID</em> in Android and the <em>bundle name</em> in iOS). These are similar in format to an URL.</p><p>You will specify that this app’s name is <code>mj<span>.</span>coffee<span>.</span>app</code>, which means that the callback URL for this application will be <code>mj<span>.</span>coffee<span>.</span>app<span>:</span><span>/</span><span>/</span>login<span>-</span>callback</code>.</p><p><code>flutter_appauth</code> will register your app with an intent filter on that callback URL. If there&#39;s no match, the app will not receive the result.</p><h4 id="Configure-the-callback-URL-for-Android">Configure the callback URL for Android</h4><p>🛠 To configure the Android version of the app, open the <code><span>/</span>android<span>/</span>app<span>/</span>build<span>.</span>gradle</code> file. Update the <code>defaultConfig</code> section of the file by adding a new item: <code>manifestPlaceHolders</code> and its value, <code><span>[</span><span>&#39;appAuthRedirectScheme&#39;</span><span>:</span> <span>&#39;mj.coffee.app&#39;</span><span>]</span></code>. The value of <code>appAuthRedirectScheme</code> must be in lower case letters.</p><p>🛠 You should set the value for <code>minSdkVersion</code> to at least <code><span>18</span></code>, as it&#39;s a requirement for the <code>flutter_secure_storage</code> package. For the MJ Coffee app, I changed the <code>minSdkVersion</code> to <code><span>21</span></code>.</p><p>The result should look like this:</p><pre><code><span>// /android/app/build.gradle</span>
+
+    defaultConfig <span>{</span>
+        applicationId <span>&#34;mj.coffee.app&#34;</span>
+        minSdkVersion <span>21</span>
+        targetSdkVersion <span>29</span>
+        versionCode flutterVersionCode<span>.</span><span>toInteger</span><span>(</span><span>)</span>
+        versionName flutterVersionName
+        multiDexEnabled <span>true</span>
+        testInstrumentationRunner <span>&#34;androidx.test.runner.AndroidJUnitRunner&#34;</span>
+        manifestPlaceholders <span>=</span> <span>[</span>
+            <span>&#39;appAuthRedirectScheme&#39;</span><span>:</span> <span>&#39;mj.coffee.app&#39;</span>
+        <span>]</span>
+    <span>}</span></code></pre><h4 id="Configure-the-callback-URL-for-iOS">Configure the callback URL for iOS</h4><p>The only change that you need to make in order to configure the iOS version of the app is to add a callback scheme.</p><p>🛠 To do this, open the <code><span>/</span>ios<span>/</span>Runner<span>/</span>Info<span>.</span>plist</code> file. Inside the <code><span>&lt;</span>dict<span>&gt;</span></code> tag, add a new key, <code>CFBundleURLTypes</code> so that the start of the <code><span>&lt;</span>dict<span>&gt;</span></code> tag looks like this:</p><pre><code><span>&lt;!-- /ios/Runner/Info.plist --&gt;</span>
+
+...
+<span><span><span>&lt;</span>dict</span><span>&gt;</span></span>
+   <span><span><span>&lt;</span>key</span><span>&gt;</span></span>CFBundleURLTypes<span><span><span>&lt;/</span>key</span><span>&gt;</span></span>
+    <span><span><span>&lt;</span>array</span><span>&gt;</span></span>
+        <span><span><span>&lt;</span>dict</span><span>&gt;</span></span>
+            <span><span><span>&lt;</span>key</span><span>&gt;</span></span>CFBundleTypeRole<span><span><span>&lt;/</span>key</span><span>&gt;</span></span>
+            <span><span><span>&lt;</span>string</span><span>&gt;</span></span>Editor<span><span><span>&lt;/</span>string</span><span>&gt;</span></span>
+            <span><span><span>&lt;</span>key</span><span>&gt;</span></span>CFBundleURLSchemes<span><span><span>&lt;/</span>key</span><span>&gt;</span></span>
+            <span><span><span>&lt;</span>array</span><span>&gt;</span></span>
+                <span><span><span>&lt;</span>string</span><span>&gt;</span></span>mj.coffee.app<span><span><span>&lt;/</span>string</span><span>&gt;</span></span>
+            <span><span><span>&lt;/</span>array</span><span>&gt;</span></span>
+        <span><span><span>&lt;/</span>dict</span><span>&gt;</span></span>
+    <span><span><span>&lt;/</span>array</span><span>&gt;</span></span>
+...</code></pre><p>🛠 Run both Android and iOS versions and ensure that the app runs on all devices or emulators/simulators with no error by using the following command:</p><pre><code>flutter run -d all</code></pre><h3 id="Configure-Auth0">Configure Auth0</h3><p>The next step is to register MJ Coffee as an application in the Auth0 dashboard.</p><p><strong>You’ll need an Auth0 account for this step.</strong> If you don’t already have one, <a href="https://auth0.com/signup" target="_blank" rel="noreferrer noopener">you can sign up for a free account</a>. The free tier is generous enough for many small applications.</p><p>🛠 Log in to into your Auth0 account and follow the steps below to register the application:</p><ul><li>🛠 Go to the <strong>Applications</strong> section of your dashboard:</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/11V2MgaHACXkpzvWYTDrGC/61f2f0b37a0a15b1bfb2dead062f02ad/click_applications.png" alt="The main page of the Auth0 dashboard. The reader is directed to click “Applications”."/></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1mH6wEsUHtZizYdp4Jitu1/8d653eb1249f22347d2c67eb403f2c88/click_applications_2.png" alt="The main page of the Auth0 dashboard. The reader is directed to click the “Applications” menu item in the “Applications” menu."/></p><ul><li>🛠 Click the <strong>Create Application</strong> button:</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3uRVLR5qdjjvLBwvNJ4Xpk/40ff5b6358a332453e3062a830a19a37/click_create_application.png" alt="The main page of the Auth0 dashboard’s “Applications” page. The reader is directed to click the “Create Application” button."/></p><ul><li>🛠 Enter a name for your application (e.g., &#34;MJ Coffee Flutter Application&#34;) and select the <strong>Native</strong> application type:</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3uxWZltP1uokojsifZoGky/61a5b804ecde79755448907169e63ed9/create_application_dialog.png" alt="The “Create Application” dialog. The reader is directed to enter a name for the application, select the “Native” application type, and click the “Create” button."/></p><ul><li>🛠 You’ll see the <strong>Quick Start</strong> page of your newly-registered application. Go to the <strong>Connections</strong> page...</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1hGTF4bDiVDLTTtF8cNN7G/b928a2d8737efe5c61fc9629cff8503e/click_connections.png" alt="The “Quick Start” tab for the “MJ Coffee” application in the Auth0 dashboard. The user is directed to click the “Connections” tab."/></p><p>...and ensure that <strong>Username-Password-Authentication</strong>(in the <strong>Database</strong> section of the page) is selected. You can, and you will add a social connection later to this application too:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5MVzC4D9RA4l27SKsnFTH0/f68ea1b0c2bd7215ddb7ae504383ed20/connections_page.png" alt="The “Connections” tab for the “MJ Coffee” application in the Auth0 dashboard. The user is directed to click the “Connections” tab."/></p><ul><li>🛠 Then go to the <strong>Settings</strong> page. You can find all information, including client ID, client secret, domain (Tenant), etc.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1nDE9yyCNNRKhfYcAC348j/61be08ddfab99158d3dff17e3dfd6336/settings_page.png" alt="The “Settings” tab for the “MJ Coffee” application in the Auth0 dashboard. The user is directed to copy the values in the “Domain” and “Client ID” fields."/></p><ul><li>🛠 You need to add a callback URL for the app to the <strong>Allowed Callback URLs</strong> under <strong>Application URIs</strong>. Use the value <code>mj<span>.</span>coffee<span>.</span>app<span>:</span><span>/</span><span>/</span>login<span>-</span>callback</code>:</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6Fxhp8QMl1sWcijlnP3L6w/9c99382a1d2cd330ebf11b3e47f48e46/add_callback_url.png" alt="The “Quick Start” tab for the “MJ Coffee” application in the Auth0 dashboard. The user is directed to add the callback URL for the app to the “Allowed Callback URLs” list."/></p><ul><li>🛠 Scroll to the bottom of the page and click the <strong>Save Changes</strong> button:</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7KsLW4adJ6PNIPAI12al4g/f2c0e8abf6d7377595cfb7df11493e67/save_changes.png" alt="The “Save Changes” button. The user is directed to click it."/></p><h3 id="Provide-the-domain-and-client-ID-to-the-app">Provide the domain and client ID to the app</h3><p>You will need to use the domain and client ID that you copied from the <strong>Settings</strong> page in your Flutter application. You can either store these values in constant variables in the app’s code, or you can pass these values to the app by providing them as <code><span>--</span>dart<span>-</span>define</code> arguments when you run it. </p><p>Rather than store this sensitive information in your code (which is a big security risk), I suggest that you supply the app with these values as <code><span>--</span>dart<span>-</span>define</code> arguments when you run it. </p><p>🛠 To do this in Terminal or PowerShell, use this command:</p><pre><code>flutter run -d all --dart-define<span>=</span>AUTH0_DOMAIN<span>=</span><span>{</span>YOUR DOMAIN<span>}</span> --dart-define<span>=</span>AUTH0_CLIENT_ID<span>=</span><span>{</span>YOUR CLIENT ID<span>}</span></code></pre><p>You can optionally have your editor of choice provide these values. For example, you can have Visual Studio Code pass these additional <code><span>--</span>dart<span>-</span>define</code> values by adding them to the <code>args</code> field of your launch configuration file (<code><span>/</span><span>.</span>vscode<span>/</span>launch<span>.</span>json</code>):</p><pre><code><span>&#34;configurations&#34;</span><span>:</span> <span>[</span>
+  <span>{</span>
+    <span>&#34;name&#34;</span><span>:</span> <span>&#34;Flutter&#34;</span><span>,</span>
+    <span>&#34;request&#34;</span><span>:</span> <span>&#34;launch&#34;</span><span>,</span>
+    <span>&#34;flutterMode&#34;</span><span>:</span> <span>&#34;debug&#34;</span><span>,</span>
+    <span>&#34;type&#34;</span><span>:</span> <span>&#34;dart&#34;</span><span>,</span>
+    <span>&#34;args&#34;</span><span>:</span> <span>[</span>
+      <span>&#34;--dart-define&#34;</span><span>,</span>
+      <span>&#34;AUTH0_DOMAIN={YOUR DOMAIN}&#34;</span><span>,</span>
+      <span>&#34;--dart-define&#34;</span><span>,</span>
+      <span>&#34;AUTH0_CLIENT_ID={YOUR CLIENT ID}&#34;</span>
+    <span>]</span>
+  <span>}</span>
+<span>]</span></code></pre><p>🛠 The app should capture the values you pass to it. Do this by defining these constants in the <code>constants<span>.</span>dart</code> file in the <code><span>/</span>lib<span>/</span>helpers<span>/</span></code> directory -- add these just after the <code><span>import</span></code> statements:</p><pre><code><span>// /lib/helpers/constants.dart</span>
+
+<span>const</span> AUTH0_DOMAIN <span>=</span> String<span>.</span><span>fromEnvironment</span><span>(</span><span>&#39;AUTH0_DOMAIN&#39;</span><span>)</span><span>;</span>
+<span>const</span> AUTH0_CLIENT_ID <span>=</span> String<span>.</span><span>fromEnvironment</span><span>(</span><span>&#39;AUTH0_CLIENT_ID&#39;</span><span>)</span><span>;</span>
+<span>const</span> AUTH0_ISSUER <span>=</span> <span>&#39;https://$AUTH0_DOMAIN&#39;</span><span>;</span>
+<span>const</span> BUNDLE_IDENTIFIER <span>=</span> <span>&#39;mj.coffee.app&#39;</span><span>;</span>
+<span>const</span> AUTH0_REDIRECT_URI <span>=</span> <span>&#39;$BUNDLE_IDENTIFIER://login-callback&#39;</span><span>;</span></code></pre><p>Notice that you only need the domain and client ID because the Authorization Code Flow with PKCE does not require a client secret. </p><p>The code also defines a top-level domain for your tenant, which is called the issuer.</p><p>As mentioned earlier, you need to create your redirect URI based on your bundle identifier, which you added to the &#34;Allowed Callback URLs&#34; list earlier. However, it would be best to keep in mind that:</p><ul><li>The bundle identifier must match <code>appAuthRedirectScheme</code> on Android, and</li><li>The scheme part of the redirect URL must match and <code>CFBundleURLSchemes</code> on iOS...</li></ul><p>...and that both values must be in all lowercase.</p><h3 id="Integrating-Auth0-with-Flutter">Integrating Auth0 with Flutter</h3><p>Since Auth0 is a standard OAuth 2.0 authorization server, you can utilize any standard OpenID Connect SDK to authenticate against Auth0. One of them is <code>flutter_appauth</code>, a wrapper around the <code>AppAuth</code> SDK for native applications. You will need to integrate it into your application.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>services<span>/</span>auth_service<span>.</span>dart</code> file and update it to import the necessary libraries as well as instantiate <code>FlutterAppAuth</code> and <code>FlutterSecureStorage</code>:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+<span>import</span> <span>&#39;dart:convert&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:http/http.dart&#39;</span> <span>as</span> http<span>;</span>
+<span>import</span> <span>&#39;package:flutter/services.dart&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:flutter_appauth/flutter_appauth.dart&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:flutter_secure_storage/flutter_secure_storage.dart&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:mjcoffee/helpers/constants.dart&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:mjcoffee/models/auth0_id_token.dart&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:mjcoffee/models/auth0_user.dart&#39;</span><span>;</span>
+
+<span>class</span> <span>AuthService</span> <span>{</span>
+
+  <span>static</span> <span>final</span> AuthService instance <span>=</span> AuthService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
+  <span>factory</span> <span>AuthService</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> instance<span>;</span>
+  AuthService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
+
+  <span>final</span> FlutterAppAuth appAuth <span>=</span> <span>FlutterAppAuth</span><span>(</span><span>)</span><span>;</span>
+  <span>final</span> FlutterSecureStorage secureStorage <span>=</span> <span>const</span> <span>FlutterSecureStorage</span><span>(</span><span>)</span><span>;</span>
+
+<span>}</span></code></pre><p>OpenID Connect has a protocol, <a href="https://auth0.com/docs/protocols/oidc/openid-connect-discovery" target="_blank" rel="noreferrer noopener">OpenID Connect Discovery</a>, that provides a standard way to discover authorization server endpoints in JSON documents. </p><p>In Auth0, you can find the discovery document at the <code><span>/</span><span>.</span>well<span>-</span>known<span>/</span>openid<span>-</span>configuration</code> endpoint of your tenant address. For MJ Coffee, this endpoint is <code>https<span>:</span><span>/</span><span><span>/</span><span>YOUR-AUTH0-TENANT-NAME.auth0.com</span><span>/</span></span><span>.</span>well<span>-</span>known<span>/</span>openid<span>-</span>configuration</code>.</p><p>If you watch <a href="https://www.youtube.com/playlist?list=PLCOnzDflrUceRLfHEkl-u2ipjsre6ZwjV" target="_blank" rel="noreferrer noopener">my videos</a>, you will see an example of a discovery URL.</p><p>AppAuth supports <a href="https://pub.dev/packages/flutter_appauth#getting-started" target="_blank" rel="noreferrer noopener">three methods to configure endpoints</a>. Conveniently, you just pass the top-level domain name (i.e., issuer) as a parameter to AppAuth methods. AppAuth then internally fetches the discovery documents from the <code>openid<span>-</span>configuration</code> endpoint and figures out where to send subsequent requests.</p><p>🛠 Let&#39;s create a login method in our <code>AuthService</code> to construct the <code>AuthorizationTokenRequest</code>. Add the following to <code><span>/</span>lib<span>/</span>services<span>/</span>auth_service<span>.</span>dart</code>:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+  <span>login</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+      <span>final</span> authorizationTokenRequest <span>=</span> <span>AuthorizationTokenRequest</span><span>(</span>
+        AUTH0_CLIENT_ID<span>,</span> AUTH0_REDIRECT_URI<span>,</span>
+        issuer<span>:</span> AUTH0_ISSUER<span>,</span>
+        scopes<span>:</span> <span>[</span><span>&#39;openid&#39;</span><span>,</span> <span>&#39;profile&#39;</span><span>,</span> <span>&#39;offline_access&#39;</span><span>,</span> <span>&#39;email&#39;</span><span>]</span><span>,</span>
+      <span>)</span><span>;</span>
+      <span>final</span> AuthorizationTokenResponse<span>?</span> result <span>=</span>
+          <span>await</span> appAuth<span>.</span><span>authorizeAndExchangeCode</span><span>(</span>
+        authorizationTokenRequest<span>,</span>
+      <span>)</span><span>;</span>
+      <span>print</span><span>(</span>result<span>)</span><span>;</span>
+  <span>}</span></code></pre><p>To construct the request, you can create <code>AuthorizationTokenRequest</code> object bypassing the mandatory <code>clientID</code> and <code>redirectUrl</code> parameters using the values of <code><span>AUTH0_CLIENT_ID</span></code> and <code><span>AUTH0_REDIRECT_URI</span></code> respectively, and the value of <code><span>AUTH0_ISSUER</span></code> as the value for <code>issuer</code> to enable discovery.</p><p>It would be best if you defined <code>scopes</code> so that when the user allows them, you can perform actions on their behalf. Here are the scopes that we have requested in the code above:</p><ul><li><code>openid</code>: Perform an OpenID connect sign-in.</li><li><code>profile</code>: Retrieve the user’s profile.</li><li><code>offline_access</code>: Retrieve a Refresh Token for <code>offline_access</code> from the application.</li><li><code>email</code>: Retrieve the user’s email.</li></ul><p>You will add more scopes later in this tutorial.</p><p>Once the request is constructed, calling <code>appAuth<span>.</span><span>authorizeAndExchangeCode</span><span>(</span><span>)</span></code> starts a sign-in transaction. The authentication process will start, and upon completion, the user will return to the application with the <code>AuthorizationTokenResponse</code>, which is shown below and contains an Access Token, ID Token, and Refresh Token:</p><pre><code><span>AuthorizationTokenResponse</span><span>(</span>
+    String<span>?</span> accessToken<span>,</span>
+    String<span>?</span> refreshToken<span>,</span>
+    DateTime<span>?</span> accessTokenExpirationDateTime<span>,</span>
+    String<span>?</span> idToken<span>,</span>
+    String<span>?</span> tokenType<span>,</span>
+    <span>this</span><span>.</span>authorizationAdditionalParameters<span>,</span>
+    Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span><span>?</span> tokenAdditionalParameters<span>,</span>
+  <span>)</span></code></pre><h3 id="The-Access-Token--Refresh-Token--and-ID-Token">The Access Token, Refresh Token, and ID Token</h3><p>You can use the Access Token to access APIs. Clients can’t decode this token, which is all right since it only means something to the API’s authorization server.</p><p>As a security measure, the Access Token usually has a short time to live. There are different methods to keep it alive for a longer period. One way is to use Refresh Tokens, which re-authorize your users. If a Refresh Token is available, the app can use it to silently get a new Access Token. For this reason, the app will store Refresh Tokens, and for security reasons, it will securely store them.</p><p>🛠 I recommend defining a constant key for your Refresh Token. Add this to your <code>constants<span>.</span>dart</code> file:</p><pre><code><span>// /lib/helpers/constants.dart</span>
+
+<span>const</span> REFRESH_TOKEN_KEY <span>=</span> <span>&#39;refresh_token&#39;</span><span>;</span></code></pre><p>While the contents of the Access Token are opaque to the client, the<code>AppAuth</code> SDK validates the ID Token since it’s part of an OpenID Connect client’s responsibility. The app should decode the ID Token’s body to receive its JSON payload.</p><p>🛠 To get the ID Token’s payload, we’ll need to create a model. We’ll call it <code>Auth0IdToken</code>. Create a new file named <code>auth0_id_token<span>.</span>dart</code> in the <code><span>/</span>lib<span>/</span>models</code> directory, where models go:</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
+
+<span>import</span> <span>&#39;package:json_annotation/json_annotation.dart&#39;</span><span>;</span>
+<span>part</span> <span>&#39;auth0_id_token.g.dart&#39;</span><span>;</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0IdToken</span> <span>{</span>
+  <span>Auth0IdToken</span><span>(</span><span>{</span>
+    required <span>this</span><span>.</span>nickname<span>,</span>
+    required <span>this</span><span>.</span>name<span>,</span>
+    required <span>this</span><span>.</span>email<span>,</span>
+    required <span>this</span><span>.</span>picture<span>,</span>
+    required <span>this</span><span>.</span>updatedAt<span>,</span>
+    required <span>this</span><span>.</span>iss<span>,</span>
+    required <span>this</span><span>.</span>sub<span>,</span>
+    required <span>this</span><span>.</span>aud<span>,</span>
+    required <span>this</span><span>.</span>iat<span>,</span>
+    required <span>this</span><span>.</span>exp<span>,</span>
+    <span>this</span><span>.</span>authTime<span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  <span>final</span> String nickname<span>;</span>
+  <span>final</span> String name<span>;</span>
+  <span>final</span> String picture<span>;</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;updated_at&#39;</span><span>)</span>
+  <span>final</span> String updatedAt<span>;</span>
+
+  <span>final</span> String iss<span>;</span>
+
+  <span>// In OIDC, &#34;sub&#34; means &#34;subject identifier&#34;,</span>
+  <span>// which for our purposes is the user ID.</span>
+  <span>// This getter makes it easier to understand.</span>
+  String <span>get</span> userId <span>=</span><span>&gt;</span> sub<span>;</span>
+  <span>final</span> String sub<span>;</span>
+
+  <span>final</span> String aud<span>;</span>
+  <span>final</span> String email<span>;</span>
+  <span>final</span> int iat<span>;</span>
+  <span>final</span> int exp<span>;</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;auth_time&#39;</span><span>)</span>
+  <span>final</span> int<span>?</span> authTime<span>;</span> <span>// this might be null for the first time login</span>
+
+  <span>factory</span> Auth0IdToken<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
+      _$<span>Auth0IdTokenFromJson</span><span>(</span>json<span>)</span><span>;</span>
+
+  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0IdTokenToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
+<span>}</span></code></pre><p>The ID Token is made up of <em>claims</em>, which are name/value pairs that contain either information about the user or meta-information about the Open ID Connect service. The <code>Auth0IdToken</code> model contains fields to contain the token’s claims, which are:</p><ul><li><code>iss</code>: An identifier for the <strong>iss</strong>uer of the response. Its value is an URL.</li><li><code>sub</code>: An identifier for the <strong>sub</strong>ject. In the case of our app, it’s the user’s ID. Since <code>sub</code> is not an often-used term outside of Open ID Connect, we created a getter named <code>userId</code> that simply returns <code>sub</code>’s value.</li><li><code>aud</code>: An identifier for the <strong>aud</strong>ience — that is, whom the ID Token is intended for.</li><li><code>iat</code>: The time when JWT that makes up the token was issued (<code>iat</code> is short for “<strong>i</strong>ssued <strong>at</strong>).</li><li><code>exp</code>: The <strong>exp</strong>iration time for the token. After this time, the token cannot be used.</li></ul><p>The other fields — <code>nickname</code>, <code>name</code>, <code>email</code>, <code>picture</code>, and <code>updatedAt</code> are for claims that contain specific information about the user.</p><p>The <code>Auth0IdToken</code> class needs methods to convert data from the authentication server into an <code>Auth0IdToken</code> object and an <code>Auth0IdToken</code> object to JSON. You could write them manually, but it’s easier and less error-prone to generate them instead.</p><p>You may have noticed these two lines at the start of the file:</p><pre><code><span>import</span> <span>&#39;package:json_annotation/json_annotation.dart&#39;</span><span>;</span>
+<span>part</span> <span>&#39;auth0_id_token.g.dart&#39;</span><span>;</span></code></pre><ul><li>The <code><span>import</span></code> line brings in the <code>json_annotation</code> library, which you’ll use to generate code to serialize and deserialize an object. The <code>@<span>JsonSerializable</span><span>(</span><span>)</span></code> annotation in the code specifies these are <code>Auth0IdToken</code> objects that are to be serialized and deserialized.</li><li>The <code>part</code> line specifies that the contents of the file <code>auth0_id_token<span>.</span>g<span>.</span>dart</code> belong to this file. The <code>g<span>.</span>dart</code> filename extension indicates that it’s a generated dart file.</li></ul><p>🛠 Run the following command to generate the JSON conversion methods for <code>Auth0IdToken</code>:</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>🛠 Once you have generated the JSON conversion methods, you can implement the <code><span>parseIdToken</span><span>(</span><span>)</span></code> method in the <code>AuthService</code> class by adding the following:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+  Auth0IdToken <span>parseIdToken</span><span>(</span>String idToken<span>)</span> <span>{</span>
+    <span>final</span> parts <span>=</span> idToken<span>.</span><span>split</span><span>(</span><span>r&#39;.&#39;</span><span>)</span><span>;</span>
+    <span>assert</span><span>(</span>parts<span>.</span>length <span>==</span> <span>3</span><span>)</span><span>;</span>
+
+    <span>final</span> Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json <span>=</span> <span>jsonDecode</span><span>(</span>
+      utf8<span>.</span><span>decode</span><span>(</span>
+        base64Url<span>.</span><span>decode</span><span>(</span>
+          base64Url<span>.</span><span>normalize</span><span>(</span>parts<span>[</span><span>1</span><span>]</span><span>)</span><span>,</span>
+        <span>)</span><span>,</span>
+      <span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+
+    <span>return</span> Auth0IdToken<span>.</span><span>fromJson</span><span>(</span>json<span>)</span><span>;</span>
+  <span>}</span></code></pre><p>Now that you have the ID Token, you can get information about the user from the OpenID Connect endpoint for user details, which is <code>https<span>:</span><span>/</span><span>/</span><span>[</span><span>AUTH0_DOMAIN</span><span>]</span><span>/</span>userinfo</code>. </p><p>Let&#39;s create another model, <code>Auth0User</code>, so that we can deserialize and serialize the data from the <code>userinfo</code> endpoint. </p><p>🛠 Create a file <code>auth0_user<span>.</span>dart</code> in the <code><span>/</span>lib<span>/</span>models<span>/</span></code> directory with the following:</p><pre><code><span>// /lib/models/auth0_user.dart</span>
+
+<span>import</span> <span>&#39;package:json_annotation/json_annotation.dart&#39;</span><span>;</span>
+<span>part</span> <span>&#39;auth0_user.g.dart&#39;</span><span>;</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0User</span> <span>{</span>
+  <span>Auth0User</span><span>(</span><span>{</span>
+    required <span>this</span><span>.</span>nickname<span>,</span>
+    required <span>this</span><span>.</span>name<span>,</span>
+    required <span>this</span><span>.</span>email<span>,</span>
+    required <span>this</span><span>.</span>picture<span>,</span>
+    required <span>this</span><span>.</span>updatedAt<span>,</span>
+    required <span>this</span><span>.</span>sub<span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>final</span> String nickname<span>;</span>
+  <span>final</span> String name<span>;</span>
+  <span>final</span> String picture<span>;</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;updated_at&#39;</span><span>)</span>
+  <span>final</span> String updatedAt<span>;</span>
+
+ <span>// userID getter to understand it easier</span>
+  String <span>get</span> id <span>=</span><span>&gt;</span> sub<span>;</span>
+  <span>final</span> String sub<span>;</span>
+
+  <span>final</span> String email<span>;</span>
+
+  <span>factory</span> Auth0User<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
+      _$<span>Auth0UserFromJson</span><span>(</span>json<span>)</span><span>;</span>
+
+  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0UserToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
+<span>}</span></code></pre><p>🛠 Like <code>Auth0IdToken</code>, <code>Auth0User</code> uses the <code>json_annotation</code> library to generate code to serialize and deserialize its instances. Run the following command to generate that code:</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>🛠 This completes the model for Auth0 users, so let’s create a <code><span>getUserDetails</span><span>(</span><span>)</span></code> method for the <code>AuthService</code> class as follows:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+ Future<span>&lt;</span>Auth0User<span>&gt;</span> <span>getUserDetails</span><span>(</span>String accessToken<span>)</span> <span>async</span> <span>{</span>
+    <span>final</span> url <span>=</span> Uri<span>.</span><span>https</span><span>(</span>
+      AUTH0_DOMAIN<span>,</span>
+      <span>&#39;/userinfo&#39;</span><span>,</span>
+    <span>)</span><span>;</span>
+
+    <span>final</span> response <span>=</span> <span>await</span> http<span>.</span><span>get</span><span>(</span>
+      url<span>,</span>
+      headers<span>:</span> <span>{</span><span>&#39;Authorization&#39;</span><span>:</span> <span>&#39;Bearer $accessToken&#39;</span><span>}</span><span>,</span>
+    <span>)</span><span>;</span>
+
+    <span>print</span><span>(</span><span>&#39;getUserDetails ${response.body}&#39;</span><span>)</span><span>;</span>
+
+    <span>if</span> <span>(</span>response<span>.</span>statusCode <span>==</span> <span>200</span><span>)</span> <span>{</span>
+      <span>return</span> Auth0User<span>.</span><span>fromJson</span><span>(</span><span>jsonDecode</span><span>(</span>response<span>.</span>body<span>)</span><span>)</span><span>;</span>
+    <span>}</span> <span>else</span> <span>{</span>
+      <span>throw</span> <span>Exception</span><span>(</span><span>&#39;Failed to get user details&#39;</span><span>)</span><span>;</span>
+    <span>}</span>
+  <span>}</span></code></pre><p>🛠 <code><span>getUserDetails</span><span>(</span><span>)</span></code> uses Dart’s <a href="https://pub.dev/packages/http" target="_blank" rel="noreferrer noopener"><code>http</code></a> library, so add this <code><span>import</span></code> statement at the top of the file:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+<span>import</span> <span>&#39;package:http/http.dart&#39;</span> <span>as</span> http<span>;</span></code></pre><p>🛠 Since you will need to reuse <code>idToken</code>, <code>profile</code>, and <code>accessToken</code> throughout the application, it would be nice to store their values as members of <code>AuthService</code> to access them easily. Add these instance variables to <code>AuthService</code>:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+  Auth0User<span>?</span> profile<span>;</span>
+  Auth0IdToken<span>?</span> idToken<span>;</span>
+  String<span>?</span> auth0AccessToken<span>;</span></code></pre><p>🛠 You can create a simple method, <code><span>_setLocalVariables</span><span>(</span><span>)</span></code>, to store these local values. Add the following to <code>AuthService</code>:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+  Future<span>&lt;</span>String<span>&gt;</span> <span>_setLocalVariables</span><span>(</span>result<span>)</span> <span>async</span> <span>{</span>
+    <span>final</span> bool isValidResult <span>=</span>
+        result <span>!=</span> <span>null</span> <span>&amp;&amp;</span> result<span>.</span>accessToken <span>!=</span> <span>null</span> <span>&amp;&amp;</span> result<span>.</span>idToken <span>!=</span> <span>null</span><span>;</span>
+
+    <span>if</span> <span>(</span>isValidResult<span>)</span> <span>{</span>
+      auth0AccessToken <span>=</span> result<span>.</span>accessToken<span>;</span>
+      idToken <span>=</span> <span>parseIdToken</span><span>(</span>result<span>.</span>idToken<span>!</span><span>)</span><span>;</span>
+      profile <span>=</span> <span>await</span> <span>getUserDetails</span><span>(</span>result<span>.</span>accessToken<span>!</span><span>)</span><span>;</span>
+
+      <span>if</span> <span>(</span>result<span>.</span>refreshToken <span>!=</span> <span>null</span><span>)</span> <span>{</span>
+        <span>await</span> secureStorage<span>.</span><span>write</span><span>(</span>
+          key<span>:</span> REFRESH_TOKEN_KEY<span>,</span>
+          value<span>:</span> result<span>.</span>refreshToken<span>,</span>
+        <span>)</span><span>;</span>
+      <span>}</span>
+
+      <span>return</span> <span>&#39;Success&#39;</span><span>;</span>
+    <span>}</span> <span>else</span> <span>{</span>
+      <span>return</span> <span>&#39;Something is Wrong!&#39;</span><span>;</span>
+    <span>}</span>
+  <span>}</span></code></pre><p>If the Access Token and ID Token are available, it stores their values. If the Refresh Token is also available, it writes its value to secure storage, and that value is retrievable only with the Refresh Token key.</p><p>🛠 With the changes you have made, you can now update <code>AuthService</code>’s <code><span>login</span><span>(</span><span>)</span></code> method to return the response for a successful login. Update the method so that it looks like this:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+Future<span>&lt;</span>String<span>&gt;</span> <span>login</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+    <span>try</span> <span>{</span>
+      <span>final</span> authorizationTokenRequest <span>=</span> <span>AuthorizationTokenRequest</span><span>(</span>
+        AUTH0_CLIENT_ID<span>,</span>
+        AUTH0_REDIRECT_URI<span>,</span>
+        issuer<span>:</span> AUTH0_ISSUER<span>,</span>
+        scopes<span>:</span> <span>[</span><span>&#39;openid&#39;</span><span>,</span> <span>&#39;profile&#39;</span><span>,</span> <span>&#39;offline_access&#39;</span><span>,</span> <span>&#39;email&#39;</span><span>]</span><span>,</span>
+      <span>)</span><span>;</span>
+
+      <span>final</span> AuthorizationTokenResponse<span>?</span> result <span>=</span>
+          <span>await</span> appAuth<span>.</span><span>authorizeAndExchangeCode</span><span>(</span>
+        authorizationTokenRequest<span>,</span>
+      <span>)</span><span>;</span>
+
+      <span>return</span> <span>await</span> <span>_setLocalVariables</span><span>(</span>result<span>)</span><span>;</span>
+    <span>}</span> <span>on</span> PlatformException <span>{</span>
+      <span>return</span> <span>&#39;User has cancelled or no internet!&#39;</span><span>;</span>
+    <span>}</span> <span>catch</span> <span>(</span>e<span>)</span> <span>{</span>
+      <span>return</span> <span>&#39;Unkown Error!&#39;</span><span>;</span>
+    <span>}</span>
+  <span>}</span></code></pre><p>You can catch any exceptions and return a specific response based on their type to handle errors better.</p><h3 id="Handling-the-app-s-initial-state">Handling the app’s initial state</h3><p>The only thing missing is handling the authentication state when the app is launched. You might want to be able to silently login and retrieve a new Access Token if a Refresh Token is available.</p><p>🛠 Let’s add a new method, <code><span>init</span><span>(</span><span>)</span></code>, to deal with the app’s initial state. Implement this method by adding the following to <code>AuthService</code>:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+  Future<span>&lt;</span>bool<span>&gt;</span> <span>init</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+    <span>final</span> storedRefreshToken <span>=</span> <span>await</span> secureStorage<span>.</span><span>read</span><span>(</span>key<span>:</span> REFRESH_TOKEN_KEY<span>)</span><span>;</span>
+
+    <span>if</span> <span>(</span>storedRefreshToken <span>==</span> <span>null</span><span>)</span> <span>{</span>
+      <span>return</span> <span>false</span><span>;</span>
+    <span>}</span>
+
+    <span>try</span> <span>{</span>
+      <span>final</span> TokenResponse<span>?</span> result <span>=</span> <span>await</span> appAuth<span>.</span><span>token</span><span>(</span>
+        <span>TokenRequest</span><span>(</span>
+          AUTH0_CLIENT_ID<span>,</span>
+          AUTH0_REDIRECT_URI<span>,</span>
+          issuer<span>:</span> AUTH0_ISSUER<span>,</span>
+          refreshToken<span>:</span> storedRefreshToken<span>,</span>
+        <span>)</span><span>,</span>
+      <span>)</span><span>;</span>
+      <span>final</span> String setResult <span>=</span> <span>await</span> <span>_setLocalVariables</span><span>(</span>result<span>)</span><span>;</span>
+      <span>return</span> setResult <span>==</span> <span>&#39;Success&#39;</span><span>;</span>
+    <span>}</span> <span>catch</span> <span>(</span>e<span>,</span> s<span>)</span> <span>{</span>
+      <span>print</span><span>(</span><span>&#39;error on Refresh Token: $e - stack: $s&#39;</span><span>)</span><span>;</span>
+      <span>// logOut() possibly</span>
+      <span>return</span> <span>false</span><span>;</span>
+    <span>}</span>
+  <span>}</span></code></pre><p><code><span>init</span><span>(</span><span>)</span></code> checks for a Refresh Token in secure storage and immediately returns <code><span>false</span></code> if there isn’t one. However, if it finds a Refresh Token, <code><span>init</span><span>(</span><span>)</span></code> passes the retrieved request token via a <code>TokenRequest</code> object to <code>appAuth<span>.</span><span>token</span><span>(</span><span>)</span></code> in order to automatically get new access, ID, and Refresh Tokens without requiring the user to log in manually.</p><h3 id="Enabling-login-on-the-home-screen">Enabling login on the home screen</h3><p>Now that you have the underlying methods for login and initial setup, it’s time to implement similar methods for the app’s screens, whose code is in the <code><span>/</span>lib<span>/</span>screens<span>/</span></code> directory. </p><p>🛠 The app’s home screen is implemented in the <code>HomeScreen</code> class, located in <code><span>/</span>lib<span>/</span>screens<span>/</span>home<span>.</span>dart</code>. Open that file and add this line to the other <code><span>import</span></code> statements:</p><pre><code><span>// /lib/screens/home.dart</span>
+
+<span>import</span> <span>&#39;package:mjcoffee/services/auth_service.dart&#39;</span><span>;</span></code></pre><p>Now scroll past the <code>HomeScreen</code> class to the <code>_HomeScreenState</code> class. You’ll need to make some changes to this class.</p><p>🛠 The first set of changes is to the instance variables at the start of <code>_HomeScreenState</code>. Change them to the following:</p><pre><code><span>// /lib/screens/home.dart</span>
+
+    bool isProgressing <span>=</span> <span>false</span><span>;</span>
+    bool isLoggedIn <span>=</span> <span>false</span><span>;</span>
+    String errorMessage <span>=</span> <span>&#39;&#39;</span><span>;</span>
+    String<span>?</span> name<span>;</span></code></pre><p>🛠 The <code><span>initState</span><span>(</span><span>)</span></code> method is just below those variables. Right now, the only thing it does is call its counterpart in the superclass. Replace the <code>implement init action</code> comments with a call to <code><span>initAction</span><span>(</span><span>)</span></code>. The method should look like this:</p><pre><code><span>// /lib/screens/home.dart</span>
+
+  <span>@override</span>
+  <span>void</span> <span>initState</span><span>(</span><span>)</span> <span>{</span>
+    <span>initAction</span><span>(</span><span>)</span><span>;</span>
+    <span>super</span><span>.</span><span>initState</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span></code></pre><p>You’ll implement <code><span>initAction</span><span>(</span><span>)</span></code> shortly.</p><p>Finally, look at the <code><span>build</span><span>(</span><span>)</span></code> method, which defines the home screen’s user interface. Scroll through this method until you find this <code><span>Row</span><span>(</span><span>)</span></code> function call:</p><pre><code><span>Row</span><span>(</span>
+  mainAxisAlignment<span>:</span> MainAxisAlignment<span>.</span>center<span>,</span>
+  children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
+    <span>if</span> <span>(</span>isProgressing<span>)</span>
+      <span>CircularProgressIndicator</span><span>(</span><span>)</span>
+    <span>else</span> <span>if</span> <span>(</span><span>!</span>isLoggedIn<span>)</span>
+      <span>CommonButton</span><span>(</span>
+        onPressed<span>:</span> <span>(</span><span>)</span> <span>{</span>
+            CoffeeRouter<span>.</span>instance<span>.</span><span>pushReplacement</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
+            <span>/// ----------------------</span>
+            <span>/// Implement login action</span>
+            <span>/// ----------------------</span>
+        <span>}</span><span>,</span>
+        text<span>:</span> <span>&#39;Login | Register&#39;</span><span>,</span>
+      <span>)</span>
+    <span>else</span>
+      <span>Text</span><span>(</span><span>&#39;Welcome $name&#39;</span><span>)</span><span>,</span>
+  <span>]</span><span>,</span> <span>// &lt;Widget&gt;[]</span>
+<span>)</span><span>,</span></code></pre><p>🛠 Replace the <code>Implement login section</code> comments so that the <code><span>Row</span><span>(</span><span>)</span></code> function call in the <code>build</code> looks like this:</p><pre><code><span>Row</span><span>(</span>
+  mainAxisAlignment<span>:</span> MainAxisAlignment<span>.</span>center<span>,</span>
+  children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
+    <span>if</span> <span>(</span>isProgressing<span>)</span>
+      <span>CircularProgressIndicator</span><span>(</span><span>)</span>
+    <span>else</span> <span>if</span> <span>(</span><span>!</span>isLoggedIn<span>)</span>
+      <span>CommonButton</span><span>(</span>
+        onPressed<span>:</span> loginAction<span>,</span>
+        text<span>:</span> <span>&#39;Login | Register&#39;</span><span>,</span>
+      <span>)</span>
+    <span>else</span>
+      <span>Text</span><span>(</span><span>&#39;Welcome $name&#39;</span><span>)</span><span>,</span>
+  <span>]</span><span>,</span> <span>// &lt;Widget&gt;[]</span>
+<span>)</span><span>,</span></code></pre><p>🛠 Now add these methods to <code>_HomeScreenState</code>, after the <code><span>build</span><span>(</span><span>)</span></code> method:</p><pre><code><span>setSuccessAuthState</span><span>(</span><span>)</span> <span>{</span>
+  <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+    isProgressing <span>=</span> <span>false</span><span>;</span>
+    isLoggedIn <span>=</span> <span>true</span><span>;</span>
+    name <span>=</span> AuthService<span>.</span>instance<span>.</span>idToken<span>?</span><span>.</span>name<span>;</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  CoffeeRouter<span>.</span>instance<span>.</span><span>push</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
+<span>}</span>
+
+<span>setLoadingState</span><span>(</span><span>)</span> <span>{</span>
+  <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+    isProgressing <span>=</span> <span>true</span><span>;</span>
+    errorMessage <span>=</span> <span>&#39;&#39;</span><span>;</span>
+  <span>}</span><span>)</span><span>;</span>
+<span>}</span>
+
+Future<span>&lt;</span><span>void</span><span>&gt;</span> <span>loginAction</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+  <span>setLoadingState</span><span>(</span><span>)</span><span>;</span>
+  <span>final</span> message <span>=</span> <span>await</span> AuthService<span>.</span>instance<span>.</span><span>login</span><span>(</span><span>)</span><span>;</span>
+  <span>if</span> <span>(</span>message <span>==</span> <span>&#39;Success&#39;</span><span>)</span> <span>{</span>
+    <span>setSuccessAuthState</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span> <span>else</span> <span>{</span>
+    <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+      isProgressing <span>=</span> <span>false</span><span>;</span>
+      errorMessage <span>=</span> message<span>;</span>
+    <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span>
+
+<span>initAction</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+  <span>setLoadingState</span><span>(</span><span>)</span><span>;</span>
+  <span>final</span> bool isAuth <span>=</span> <span>await</span> AuthService<span>.</span>instance<span>.</span><span>init</span><span>(</span><span>)</span><span>;</span>
+  <span>if</span> <span>(</span>isAuth<span>)</span> <span>{</span>
+    <span>setSuccessAuthState</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span> <span>else</span> <span>{</span>
+    <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+      isProgressing <span>=</span> <span>false</span><span>;</span>
+    <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Some notes about these methods:</p><ul><li><code><span>initAction</span><span>(</span><span>)</span></code> is called when the home screen is initiated and handles the case where the app has a Refresh Token.</li><li>The <code><span>Row</span><span>(</span><span>)</span></code> function call in the <code><span>build</span><span>(</span><span>)</span></code> method determines what the user sees based on their login status. When the user is logged in, the screen shows a welcome message containing the user’s name. When the user isn’t logged in, it shows a progress indicator if the login is in progress, or the “Login | Register” button otherwise.</li><li>Pressing the “Login | Register” button causes the <code><span>loginAction</span><span>(</span><span>)</span></code> method to be called.</li><li>A loading indicator will appear if the login is in progress.</li><li>A number of methods call <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code>, which set the home screen’s instance variables to the appropriate values and redirects the user to the proper screen. In case some operation fails, you can easily display an error message onscreen.</li></ul><h3 id="Logging-in">Logging in</h3><p>🛠 If you’ve made it this far, you’ve done well, and it’s now time to see what you’ve achieved so far. Make sure your emulators or devices are active and stop any earlier versions of this app. Once you’ve done that, run the app using this command:</p><pre><code>flutter run -d all --dart-define<span>=</span>AUTH0_DOMAIN<span>=</span><span>[</span>YOUR DOMAIN<span>]</span> --dart-define<span>=</span>AUTH0_CLIENT_ID<span>=</span><span>[</span>YOUR CLIENT ID<span>]</span></code></pre><p>Once the app is loaded, tap on the &#34;Login | Register&#34; button.</p><p>On iOS, when you run the app for the first time, you will see a prompt like this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/35URcfKhXm5Mw9H6UCEZMh/f60c8a3bf99f629b5fad6884c1c1d579/ASWebAuthenticationSession.png" alt="Allowed callback URLs"/></p><p>This prompt is a result of iOS’ <a href="https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession" target="_blank" rel="noreferrer noopener"><code>ASWebAuthenticationSession</code></a>, a session where the user is authenticated through a web service. iOS is notifying the user that the app intends to log the user in using Auth0.</p><p>If you tap “Continue” and all goes well, you will see the <a href="https://auth0.com/docs/universal-login" target="_blank" rel="noreferrer noopener">Auth0 Universal Login page</a>, shown below (the Android version is on the left, and the iOS version is on the right): </p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4XJ2EMjdhToaGmbQfYrSq5/a1273bdef7feacf4bdc82de2d7ef3379/auth0-login.png" alt="Allowed callback URLs"/></p><p>Note that you can style this page or even choose other templates in the Auth0 dashboard. <a href="https://www.youtube.com/playlist?list=PLCOnzDflrUceRLfHEkl-u2ipjsre6ZwjV" target="_blank" rel="noreferrer noopener">Watch this video to learn more about the theming of the login page in Auth0</a>.</p><p>Once you log in, you will be redirected to the application, where you’ll be greeted by name. You’ll then be redirected to the menu screen, as specified by the final line in <code>_HomeScreenState</code>’s <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code> method:</p><pre><code>CoffeeRouter<span>.</span>instance<span>.</span><span>push</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span></code></pre><blockquote><p>If you signed up for a new account using the app, you might receive a confirmation email from Auth0 for the app.</p></blockquote><p>🛠 To confirm that the Refresh Token works, terminate the app, and run it again. The application will retrieve the Refresh Token from a secure store, get a new Access Token and ID Token, and then take you straight to the menu screen, bypassing the login process and not asking for your credentials.</p><h2 id="Simple-Logout">Simple Logout</h2><h3 id="Layers-of-sessions">Layers of sessions</h3><p>Every login requires logout! It’s more complicated than it looks  since there are typically three-session layers you need to consider:</p><ul><li><strong>Application Session Layer:</strong> This is the application, which in this case is the MJ Coffee app.</li><li><strong>Auth0 Session Layer:</strong> Auth0 maintains a session for each logged-in user and stores their information inside a cookie or in some other way.</li><li><strong>Identity Provider Session Layer:</strong> This is another service providing identity services, such as Facebook or Google.</li></ul><p>After users log out, you can redirect users to a specific URL. You need to register the redirect URL in your tenant or application settings.</p><p>One of the parameters for OIDC authentication requests is called <code>prompt</code>, which specifies how the user should be prompted for reauthentication and consent. It also makes it easy to clear sessions. </p><p><code>prompt</code> takes a list that can contain any combination of these values:</p><ul><li><strong><code>none</code></strong>: Do not display any authentication or consent user interface pages.</li><li><strong><code>login</code></strong>: Ignore any existing session and require the user to log in.</li><li><strong><code>consent</code></strong>: Ask the user for consent before returning information to the app.</li><li><strong><code>select_account</code></strong>: Show a prompt asking the user to select a user account. Useful in cases where the user has multiple accounts.</li></ul><p>🛠 Luckily, <code>prompt</code> is supported in the <code>AppAuth</code> SDK. In the <code>AuthService</code> class (located in <code><span>/</span>lib<span>/</span>services<span>/</span>auth_service<span>.</span>dart</code>) locate the <code><span>login</span><span>(</span><span>)</span></code> method, where you have constructed <code>AuthorizationTokenRequest</code>. Change your call to the <code>AuthorizationTokenRequest</code> constructor so that it includes <code>login</code> as a <code>prompt</code> value:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+<span>final</span> authorizationTokenRequest <span>=</span> <span>AuthorizationTokenRequest</span><span>(</span>
+  AUTH0_CLIENT_ID<span>,</span>
+  AUTH0_REDIRECT_URI<span>,</span>
+  issuer<span>:</span> AUTH0_ISSUER<span>,</span>
+  scopes<span>:</span> <span>[</span><span>&#39;openid&#39;</span><span>,</span> <span>&#39;profile&#39;</span><span>,</span> <span>&#39;offline_access&#39;</span><span>,</span> <span>&#39;email&#39;</span><span>]</span><span>,</span>
+  promptValues<span>:</span> <span>[</span><span>&#39;login&#39;</span><span>]</span><span>,</span>
+<span>)</span><span>;</span></code></pre><h3 id="Remove-the-Refresh-Token">Remove the Refresh Token</h3><p>Thanks to the Refresh Token, the user should be able to switch to another app or even close it and then return to MJ Coffee without having to re-authenticate because they’re still logged in. Logging out implies that the user is done with the app for now. The next time someone uses the app, they should be required to log in. This is done by removing the Refresh Token.</p><p>🛠 To remove the Refresh Token, we’ll need to remove the Refresh Token key from secure storage. Add this <code><span>logout</span><span>(</span><span>)</span></code> method to <code>AuthService</code>, just after the <code><span>login</span><span>(</span><span>)</span></code> method:</p><pre><code><span>// /lib/services/auth_service.dart</span>
+
+Future<span>&lt;</span><span>void</span><span>&gt;</span> <span>logout</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+  <span>await</span> secureStorage<span>.</span><span>delete</span><span>(</span>key<span>:</span> REFRESH_TOKEN_KEY<span>)</span><span>;</span>
+<span>}</span></code></pre><p>The next time the user runs the app, they’ll be sent to the home screen and its login button since the app no longer has a Refresh Token and hence no way to authenticate automatically. </p><p>While this is approach is sufficient for the MJ Coffee app, I would like to mention that you can also manually call logout endpoints and pass necessary parameters, and shown in the example below:</p><pre><code><span>// Example:</span>
+
+Future<span>&lt;</span>bool<span>&gt;</span> <span>logout</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+  <span>await</span> secureStorage<span>.</span><span>delete</span><span>(</span>key<span>:</span> REFRESH_TOKEN_KEY<span>)</span><span>;</span>
+
+  <span>final</span> url <span>=</span> Uri<span>.</span><span>https</span><span>(</span>
+      AUTH0_DOMAIN<span>,</span>
+      <span>&#39;/v2/logout&#39;</span><span>,</span>
+      <span>{</span>
+        <span>&#39;client_id&#39;</span><span>:</span> AUTH0_CLIENT_ID<span>,</span>
+        <span>&#39;federated&#39;</span><span>:</span> <span>&#39;&#39;</span><span>,</span>
+        <span>//&#39;returnTo&#39;: &#39;YOUR_RETURN_LOGOUT_URL&#39;</span>
+      <span>}</span><span>,</span>
+    <span>)</span><span>;</span>
+
+    <span>final</span> response <span>=</span> <span>await</span> http<span>.</span><span>get</span><span>(</span>
+      url<span>,</span>
+      headers<span>:</span> <span>{</span><span>&#39;Authorization&#39;</span><span>:</span> <span>&#39;Bearer $auth0AccessToken&#39;</span><span>}</span><span>,</span>
+    <span>)</span><span>;</span>
+
+    <span>print</span><span>(</span>
+      <span>&#39;logout: ${response.request} ${response.statusCode} ${response.body}&#39;</span><span>,</span>
+    <span>)</span><span>;</span>
+
+    <span>return</span> response<span>.</span>statusCode <span>==</span> <span>200</span><span>;</span>
+<span>}</span></code></pre><p>For more information, you can read <a href="https://auth0.com/docs/logout" target="_blank" rel="noreferrer noopener">Auth0’s documentation on logout.</a></p><p>🛠 Let’s enable the “Logout” button. It is on the profile screen, which is implemented by the <code>ProfileScreen</code> class (located in <code><span>/</span>lib<span>/</span>screens<span>/</span>profile<span>.</span>dart</code>). In the <code><span>build</span><span>(</span><span>)</span></code> method, locate the   “Logout” button and its <code>onPressed</code> parameter. Replace the “Perform logout” comments so that the call to the <code><span>Padding</span><span>(</span><span>)</span></code> function looks like this:</p><pre><code><span>// /lib/screens/profile.dart</span>
+
+<span>Padding</span><span>(</span>
+  padding<span>:</span> <span>const</span> EdgeInsets<span>.</span><span>symmetric</span><span>(</span>horizontal<span>:</span> <span>30</span><span>)</span><span>,</span>
+  child<span>:</span> <span>CommonButton</span><span>(</span>
+    onPressed<span>:</span> <span>(</span><span>)</span> <span>async</span> <span>{</span>
+      <span>await</span> AuthService<span>.</span>instance<span>.</span><span>logout</span><span>(</span><span>)</span><span>;</span>
+      CoffeeRouter<span>.</span>instance<span>.</span><span>pushReplacement</span><span>(</span>HomeScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
+    <span>}</span><span>,</span>
+    text<span>:</span> <span>&#39;Logout&#39;</span><span>,</span>
+  <span>)</span><span>,</span>
+<span>)</span><span>;</span></code></pre><p>When the user presses “Logout”, the <code>AuthService</code> instance’s <code><span>logout</span><span>(</span><span>)</span></code> is called and the user is redirected to the home screen.</p><p>🛠 Since you’re making use of <code>AuthService</code>’s <code><span>logout</span><span>(</span><span>)</span></code> method, you’ll have to import its file. Add the following to the <code><span>import</span></code> statements at the top of <code><span>/</span>lib<span>/</span>screens<span>/</span>profile<span>.</span>dart</code>:</p><pre><code><span>import</span> <span>&#39;package:mjcoffee/services/auth_service.dart&#39;</span><span>;</span></code></pre><p>🛠 Restart your application, go to the <strong>Profile</strong> screen and log out. You’ll be sent back to the home screen. You will have to log in to use the app again.</p><h2 id="Conclusion">Conclusion</h2><p>Congratulations! You have just integrated Auth0-powered login and logout into the MJ Coffee app.</p><p>In an upcoming section, you will continue to add authentication features to the app. You’ll learn more about Refresh Token rotation, managing the branding that appears in the login box, roles and adding social login via Apple and Google accounts.</p></div></div>]]></content:encoded>
+      <author>Authentication vs. authorization</author>
+      <pubDate>Mon, 04 Oct 2021 17:12:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Let the Hunt Begin: Introducing Auth0’s First Capture the Flag Event.</title>
       <link>https://auth0.com/blog/introducing-auth0-ctf/</link>
       <description>Auth0’s first custom CTF with Hack The Box in honor of October Security Awareness Month</description>
