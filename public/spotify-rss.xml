@@ -4,6 +4,141 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
+      <title>&#xA;                                            A Product Story: Three Lessons We Learned from Developing the Mobile App&#xA;                                        </title>
+      <link>https://engineering.atspotify.com/2021/10/05/a-product-story-three-lessons-we-learned-from-developing-the-mobile-app/</link>
+      <description>TL;DR Remember what life was like before smartphones? Remember manually having to sync your computer’s playlists with your iPod every time you added a few songs? One of Spotify’s core products, our mobile app, was designed specifically to leave all of that busywork in the past, changing how we trave</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
+        
+        
+
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>October 5, 2021</span>
+                
+            </p>
+        </div>
+        
+        <p><a href="https://engineering.atspotify.com/2021/10/05/a-product-story-three-lessons-we-learned-from-developing-the-mobile-app/" title="A Product Story: Three Lessons We Learned from Developing the Mobile App">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/10/A-Product-Story_02-Illustration_1200x630.png" alt="" loading="lazy" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/10/A-Product-Story_02-Illustration_1200x630.png 1201w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/10/A-Product-Story_02-Illustration_1200x630-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/10/A-Product-Story_02-Illustration_1200x630-700x368.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/10/A-Product-Story_02-Illustration_1200x630-768x404.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/10/A-Product-Story_02-Illustration_1200x630-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px"/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p><strong>TL;DR </strong>Remember what life was like before smartphones? Remember manually having to sync your computer’s playlists with your iPod every time you added a few songs? One of Spotify’s core products, our mobile app, was designed specifically to leave all of that busywork in the past, changing how we travel with our music forever.</p>
+
+
+
+<p>In <a href="https://open.spotify.com/episode/7oB1UYZtOiKqY1Gj3niptG?si=21630574510943f3" target="_blank" rel="noreferrer noopener">Episode 02</a> of our podcast series, <a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank" rel="noreferrer noopener"><em>Spotify: A Product Story</em></a><em>,</em> host and Chief R&amp;D Officer Gustav Söderström chats with the engineers, executives, and other Spotifiers who helped make the mobile streaming revolution possible. Why was it so difficult to create Spotify for mobile even after we created the desktop app? Why were Spotify’s licensing deals such a game changer for us? Keep reading to find out the answers, and don’t forget to <a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB?si=pX_Ez7ZHR3untiFXd5WaNA&amp;dl_branch=1" target="_blank" rel="noreferrer noopener">listen to the podcast</a> itself to learn even more.</p>
+
+
+
+<h2><strong>What’s user research really for?</strong></h2>
+
+
+
+<p>When we first released the Spotify desktop app in Sweden in 2008, the idea of creating an on-the-go version of that same experience seemed out of the question. After all, Spotify didn’t have access to iPods or the other dedicated digital music players, and besides, at the time, most phones were equipped with only enough memory to hold a handful of songs.</p>
+
+
+
+<p>Then something happened. Smartphones happened. The iPhone happened. Suddenly the idea of creating a piece of software that people could carry around with them everywhere didn’t seem so far-fetched.</p>
+
+
+
+<p>Though it was theoretically possible to create a mobile edition of Spotify, there was still one major issue. A free, offline music app, one that could truly compete with the already-offline MP3 players, just wasn’t in the cards. First off, it couldn’t be free — you can’t click on ads without an internet connection — so it would have to be a paid service. Plus, our listeners already had access to all the music they wanted through piracy. So, once again, we had to ask ourselves something: Why would anyone pay for Spotify? How do you charge for nothing? </p>
+
+
+
+<p>And indeed, when we surveyed our users, we discovered that $10 per month — the number we settled on after months of licensing negotiations with labels (more on those in a bit) — was a number literally no one said they would pay.</p>
+
+
+
+<p>Well, at least they <em>said</em> that. See, user research is great, but you have to know what it’s really there for. That was our <strong>first lesson:</strong> <strong>user research is for understanding what people </strong><strong><em>think</em></strong><strong> they will do, not what they will actually do.</strong></p>
+
+
+
+<p>There’s a reason for that, as Gustav points out.</p>
+
+
+
+<blockquote><p><strong>Gustav:</strong> Humans are not very good at predicting our own future behavior, especially when it comes to what we are prepared to pay for something like convenience. We just can’t imagine our future selves being that lazy.</p></blockquote>
+
+
+
+<p>Exactly. In other words, just like we discovered while creating the desktop app, convenience is key. Of course people don’t think they would pay for something they were already getting for free — but they just might if it’s a lot more convenient than what they’re using. At least, that’s what we were betting on.</p>
+
+
+
+<p>We just needed to find another magic trick.</p>
+
+
+
+<h2><strong>Beware your optimization bias</strong></h2>
+
+
+
+<p>That was easier said than done, though. Setting aside the business side of things, actually building a mobile experience convenient enough to convert music pirates was a tall order, one without an obvious solution.</p>
+
+
+
+<p>Back then, in the early days of Spotify, the desktop app may have technically been able to run on the iPhone, but that didn’t mean it was built for it. When Gustav asked Mattias Arrelid, one of Spotify’s early Mac developers, what the challenges were in translating the desktop app into a great mobile product, two things sprang immediately to Mattias’ mind:</p>
+
+
+
+<ol><li>“One [challenge] is that … a phone doesn’t have a constant power supply. For example, it doesn’t have a constant high-bandwidth network connection. Spotify was, at that time, at least leveraging peer to peer … If you do that on the phone, you basically force it to keep the radio on quite a bit. And that is draining in terms of battery.”</li></ol>
+
+
+
+<ol start="2"><li>“The other one is data. [When] you had Spotify running on the desktop, you relied on some kind of data connection that [you] don’t really need to care about … On the phone, you had many contracts that had limited bandwidth included in the monthly allowance. So you really wanted to be careful about your consumption of that.”</li></ol>
+
+
+
+<p>It turns out by developing the desktop app to be as efficient as possible, we were actually developing something that was <em>only</em> efficient as a desktop app. Concerns like bandwidth and power consumption never factored into the equation, since you don’t need to worry about them when you’re a desktop user. And that’s where <strong>the second lesson</strong> comes in: <strong>whether you realize it or not, you’re always optimizing for something.</strong> This isn’t always a bad thing — after all, you’re still optimizing — but you are unwittingly creating blind spots for you and your product, ones that can hamper your growth down the road.</p>
+
+
+
+<p>One of the solutions Mattias and the engineering team came up with to improve battery performance involved changing up the codec we used to encode audio. (<a href="https://open.spotify.com/episode/7oB1UYZtOiKqY1Gj3niptG?si=21630574510943f3" target="_blank" rel="noreferrer noopener">Dive into the full episode</a> to hear all the details about why.) But changing up our codec didn’t just have technical ramifications — it had business implications as well, implications that dovetail nicely with our final lesson.</p>
+
+
+
+<h2><strong>Your tech is only half of the story</strong></h2>
+
+
+
+<p>Spotify didn’t invent streaming, and it was only a matter of time until other companies could start to pull off a service similar to what we were offering. What we needed, in other words, was a breakthrough in our business strategy as well.</p>
+
+
+
+<p>Enter licensing. Contrary to what you may expect, there isn’t a one-size-fits-all codec license for streaming songs. Different licenses are required for almost every use case — say, streaming on desktop versus streaming on mobile. This meant that hammering out licensing deals with record labels could end up being a lengthy, complex process. Rather than dealing with these complications, we saw plenty of other companies kick that sort of nitty-gritty work down the road, focusing instead on shipping code and getting to market quicker.</p>
+
+
+
+<p>But to us, this wasn’t a sustainable strategy. So rather than take the same route, Spotify slowed things down, sweating the details in the negotiations for months on end, making sure that we had licenses that no one else had. That way, we could guarantee that we hit the ground running when we introduced a paid mobile tier. Here’s Spotify’s first general counsel, Petra Hansson, on the matter:</p>
+
+
+
+<blockquote><p><strong>Petra:</strong> We spent a lot of time getting those licenses right. Because, you know, back in the day, the norm was more to just sign any licenses and then, you know, try and flip the companies, so it became someone else’s problem or companies would go belly up. So we were sort of hell-bent. And that’s one of the reasons why I joined [Spotify], because what I really liked about the company was that [co-founder and CEO Daniel Ek]’s vision was always to build something long-term and sustainable.</p></blockquote>
+
+
+
+<p>As it so happens, truly great product development is more than just a cool new feature or even a breakthrough new technology. <strong>Our third lesson is that</strong> <strong>truly great product development, in short, almost always combines technological innovation with business innovation.</strong></p>
+
+
+
+<p>That’s another three lessons down, but there are plenty more to go. The podcast series <em>Spotify: A Product Story</em> shares all these stories and dozens more, filled with insider insight and product strategy lessons from the employees, collaborators, and musicians who made Spotify what it is today. Join podcast host and Chief R&amp;D Officer Gustav Söderström, and <a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank" rel="noreferrer noopener">check out all the episodes right here</a>.</p>
+        <br/>
+
+        
+        
+
+        
+
+            </div></div>]]></content:encoded>
+      <author>Published by Spotify Engineering</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/10/A-Product-Story_02-Illustration_1200x630.png" length="0" type="image/png"></enclosure>
+      <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>&#xA;                                            How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too&#xA;</title>
       <link>https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
       <description>What’s the best way to assess your developers’ experience and performance to discover what they need help with? Is it by measuring something arbitrary, like how many lines of code they’ve written or how many commits they’ve made? Nope. How much useful data are you really getting out of those numbers</description>

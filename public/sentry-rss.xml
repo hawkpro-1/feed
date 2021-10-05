@@ -4,6 +4,25 @@
     <link>https://blog.sentry.io/feed.xml</link>
     <description></description>
     <item>
+      <title>Hacktoberfest is Upon Us</title>
+      <link>https://blog.sentry.io/2021/10/05/hacktoberfest-is-upon-us/</link>
+      <description>Ah, October. Pumpkin spice fills the nostrils of Northern Hemispherians, spring stirs the air in the South, and DigitalOcean &amp; Friends bring…</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><article><p><time datetime="2021-10-05T00:00">October 5, 2021</time></p><ul><li><a href="https://blog.sentry.io/sentry/"><span>Sentry</span></a></li></ul><div><p>Ah, October. Pumpkin spice fills the nostrils of Northern Hemispherians, spring stirs the air in the South, and DigitalOcean &amp; Friends bring us yet another installation of the bonanza of open source community that is … <a href="https://hacktoberfest.digitalocean.com/">Hacktoberfest</a>. The main attraction is a challenge to contribute four pull requests to participating open source projects during the month of October. Participants get a t-shirt and/or a warm feeling. <a href="https://hacktoberfest.digitalocean.com/profile">Sign up here</a>.</p>
+<p>Sentry is an open source company, so we’re all in on this annual celebration of the open source spirit. Some of our own engineers will be stepping up to the challenge. Who knows? Maybe they will show up in your repo.</p>
+<p>We welcome new contributors to Sentry during the ‘fest. Want to see your name in the Sentry commit log? Here are a few pointers:</p>
+<ol>
+<li>All of <a href="https://open.sentry.io/structure/">our main repos</a> are in scope.</li>
+<li>All issues are in scope. Need <a href="https://github.com/search?q=label%3Ahacktoberfest,%22hacktoberfest+%F0%9F%8E%83%22,%22good+first+issue%22,%22up-for-grabs%22+is%3Aopen+repo:getsentry%2Fsentry+repo:getsentry%2Fonpremise+repo:getsentry%2Fsnuba+repo:getsentry%2Fsentry-docs+repo:getsentry%2Frelay+repo:getsentry%2Fsnuba-sdk+repo:getsentry%2Fsentry-python+repo:getsentry%2Fsentry-java+repo:getsentry%2Fsentry-native+repo:getsentry%2Fresponses+repo:getsentry%2Fsymbolic+repo:getsentry%2Fsymbolicator+repo:getsentry%2Fcraft+repo:getsentry%2Farroyo+repo:getsentry%2Fcdc+repo:getsentry%2Fwal2json+&amp;type=Issues">a suggestion</a>?</li>
+<li>Let us know in your PR that you are participating in Hacktoberfest.</li>
+<li><a href="https://develop.sentry.dev/">Our developer docs</a> will help you get started.</li>
+<li>Visit <a href="http://open.sentry.io">open.sentry.io</a> and stop by <a href="https://discord.com/invite/Ww9hbqr">our Discord</a> to chat.</li>
+</ol>
+<p>Thanks to DigitalOcean for throwing such a great party, and to all of the maintainers and contributors out there for making open source happen. Good luck and happy hacking.</p>
+<p>P.S. If you <em>really</em> like hacking on Sentry, we do have a number of <a href="https://sentry.io/careers/">open roles</a>.</p></div></article></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/5a8pqQIyhV2zD1A0bHOTm9/4dce4b71a1e327117bce00e600b8ecea/hacktoberfest-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Automate, Group, and Get Alerted: A Best Practices Guide to Monitoring your Code - Part 1</title>
       <link>https://blog.sentry.io/2021/09/28/automate-group-and-get-alerted-a-best-practices-guide-to-monitoring-your/</link>
       <description>This is part one of a two-part series on how to monitor code health at scale with Sentry. Stay tuned for part two.</description>
