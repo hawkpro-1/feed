@@ -4,7 +4,7 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
-      <title>&#xA;                                            Changing the Wheels on a Moving Bus — Spotify’s Event Delivery Migration&#xA;                                        </title>
+      <title>&#xA;                                            Changing the Wheels on a Moving Bus — Spotify’s Event Delivery Migration&#xA;</title>
       <link>https://engineering.atspotify.com/2021/10/20/changing-the-wheels-on-a-moving-bus-spotify-event-delivery-migration/</link>
       <description>At Spotify, data rules all. We log a variety of data, from listening history, to results of A/B testing, to page load times so we can analyze and improve the Spotify service. We instrument and log data across every surface that is running Spotify code through a system called the Event Delivery Infra</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
