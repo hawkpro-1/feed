@@ -4,6 +4,24 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Improving Our Platform Resiliency and Upcoming Holiday Plans</title>
+      <link>https://auth0.com/blog/improving-our-platform-resiliency-and-upcoming-holiday-plans/</link>
+      <description>We are committed to delivering a Tier 0 service for our customers</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Over the last few months, there has been an increase in service degradation and outages that has shaken our customer’s confidence in Auth0. Our number one mission is to provide you with the highest level of service and reliability at all times, for the full spectrum of customers from free users to enterprise. The production environments in US-1 and EU have been impacted the most frequently and, in extreme cases, has caused downtime for some of our customers. As the Auth0 CPO, I sincerely apologize for the pain this caused you and your customers. We take ownership for the failures and recognize how disappointed you are.</p><p>We know that identity plays a critical role in your company, and it is our responsibility to make our service reliable. It is also our responsibility to provide guidance to our customers on appropriate architecture patterns. When we experience failures or degradation of our service, we correct them as swiftly as possible. Today, I wanted to share the active measures we are taking to protect against similar issues from occurring in the future.</p><h2 id="First--What-Caused-the-Outages-">First, What Caused the Outages?</h2><p>Before we explore all of the actions we have taken, it’s good to understand the patterns we have observed in these environments:</p><h3 id="Noisy-neighbors-in-our-large-multi-tenant-environments-create-throughput-bottlenecks">Noisy neighbors in our large multi-tenant environments create throughput bottlenecks</h3><p>The noisy neighbor phenomenon is a well-known issue in multi-tenant environments. In our case, one co-tenant may experience a spike in traffic which can lead them to monopolize resources available and thus reduce the throughput (requests-per-second) on the environment for the other co-tenants.</p><p>Most of our customers in the US-1 and EU environments have enjoyed many years of uninterrupted service. These environments have grown significantly and are now the longest-running and largest, which exacerbates the noisy neighbor impact.</p><p>We have not strictly enforced restrictions to the frequency of customer API calls (rate limits) and at times allowed for a 10X increase in requests-per-second (RPS) for certain tenants in a single environment. Typically, our architecture would allow us to absorb these spikes as it is the case in most of our environments, but given the volume and size of the customers in US-1 and EU, these concurrent requests restrict throughput for other tenants. We do not fault our customers for their peak traffic needs and it is on us to put in place the right protections and guardrails around each tenant. Unfortunately, we are not able to actively load shed today (i.e. automatically move tenants to other environments such as US-3, because we don’t currently have the migration tooling nor can we do it without any downtime). There are some customer scenarios where a planned migration by a customer is possible, but it requires time and effort on your part. I will cover migration scenarios and timing in the ‘Looking beyond the next 60 days’ section below.</p><h3 id="Region-Mean-Time-To-Recovery--MTTR--outside-of-our-15-min-target">Region Mean Time To Recovery (MTTR) outside of our 15-min target</h3><p>The other item we are solving is meeting our 15 minutes target for region failover. This is caused by dependencies on an underlying managed service that doesn’t support automated failover within our target timeframe. Our teams are in the final stages of completing the switch, a managed service that allows us to automatically failover within 15-minutes, in Q1 2022.</p><p>We can successfully failover Availability Zones (AZ) today within our 1-minute target window as validated by quarterly testing.</p><h2 id="What-Actions-Have-We-Taken-Already-">What Actions Have We Taken Already?</h2><h3 id="Slowing-down-and-invoking-our-change-freeze-earlier">Slowing down and invoking our change freeze earlier</h3><p>Effective Sept. 30, 2021, we’ve significantly reduced the number and frequency of changes that we’re introducing into production for the remainder of the year. This is to introduce increased testing and soak time in pre-production environments. Heading into the holiday season, our protocols may change slightly, however, we anticipate continuing a conservative posture to maintain the stability of our production environments. We are mostly allowing changes that are related to our resiliency initiatives or security patches. Being an authentication platform, security-related changes are non-negotiable, as is our mission to protect you and your customers.</p><h3 id="New-staging-environment">New staging environment</h3><p>As of early October, we have a staging environment that has the same load as US-1, so that we can simulate test cases reproducing production traffic at large scale. The volume and high load-related issues described above can now be more easily detected.</p><h3 id="Additional-resources-and-re-prioritization-of-our-roadmap">Additional resources and re-prioritization of our roadmap</h3><p>We have added team members and reprioritized resilience projects in order to complete these improvements in time for the holiday season. I am personally doing a daily stand-up with our Engineering leadership team to ensure there is an elevated review process and all blockers are actively being addressed. In addition, all new product and feature initiatives have been deferred until the new year.</p><h3 id="Resilience-and-holiday-readiness-efforts">Resilience and holiday readiness efforts</h3><p>After our outage on April 20th, a dedicated team of 40 engineers completed a 10-week task force to reduce the load on our environments that resulted in:</p><ul><li>Reduced cache load by removing unused feature flags and added in-memory caching of multiple per-environment feature flags.</li><li>Removed 2 collections from our database that reduced total database writes by 10%.</li><li>Reduced reads to the collection with the most reads within the database by 12%.</li><li>Added limits to refresh tokens queries from the Management API.</li><li>Added missing indexes for new collections in the database.</li></ul><p>Some of the improvements identified were multi-quarter projects that are still underway and are expected to be completed this November. These projects will:</p><ul><li>Reduce the read/write workload by 10%.</li><li>Reduce 40% of inserts/deletes from our database.</li><li>Reduce 30% of inserts/deletes from our database in US-1 enviroment. This requires a deprecation of opaque access tokens and will take 6 months to complete.</li></ul><p>In October, we started the following remediation projects to further reduce the probability of these failures:</p><ul><li>Refactoring our connections schema to remove high cardinality issues.</li><li>Addressing noisy neighbor issues in our extensibility stack (also known as Webtask).</li><li>Implementing an additional caching layer for reading requests.</li><li>Proactively and significantly over-provisioning our stack in an effort to get ready for holiday traffic.</li><li>Enforcing global active rate management per tenant at the edge.</li></ul><p>The projects listed above are also scheduled to be live and in production by November 10. We know that all of the initiatives above will reduce the load on our environments and should significantly reduce the noisy neighbor issue I referenced above.</p><p>We are also initiating code change freeze windows over the holidays:</p><p>🟧 <strong>Orange Change Freeze</strong> 10/12 - 11/11 <br/></p><p>🟥 <strong>Red Change Freeze</strong> 11/12 - 11/29 <br/></p><p>🟧 <strong>Orange Change Freeze</strong> 11/30 - 12/16 <br/></p><p>🟥 <strong>Red Change Freeze</strong> 12/17 - 01/03 <br/></p><p>🟧 <strong>Orange Change Freeze:</strong> During this window, all production deployments are halted, and only work related to stability for Mission Critical Services, security patches or urgent releases on other components may be deployed. Changes must meet testing and approval criteria. <br/></p><p>🟥 <strong>Red Change Freeze</strong>: During this window, all production deployments are halted. Exceptions allowed only to resolve critical customer issues or security patches. Changes must meet testing and approval criteria. <br/></p><h2 id="Looking-Beyond-the-Next-60-Days">Looking Beyond the Next 60 Days</h2><h3 id="New-environments-and-migration-capabilities">New environments and migration capabilities</h3><p>We are now actively working on creating new environments in our US and EU regions. Our target is to progressively introduce 4 new environments in the US and up to 3 new environments in the EU in CY Q1 2022. The new environments allow us to dynamically allocate load as part of our demand response strategies and significantly reduce the blast radius of disruptions and outages. Our team is also actively scoping and designing an automated tenant migration process. We expect to have an automated tenant migration tool that will enable us to work with you and migrate you over to one of our newer environments beginning late CY Q1 2022.</p><h3 id="New-platform-rollout-across-clouds-and-regions">New platform rollout across clouds and regions</h3><p>We began working on a modern platform last year that is poised to roll out across the regions and clouds that we operate in. This month we began the gradual rollout of this new platform and made it available on Microsoft&#39;s Azure cloud. This new platform architecture has been purposefully designed from the ground up to deliver a scalable, reliable, and resilient service that meets the current and future needs of our customers. We are targeting to make this available on AWS starting CY 1H 2022.</p><p>Finally, we truly appreciate your trust in Auth0 and will do everything that we can to keep that trust. I will post another public update in early CY Q1 2022 to share the results of all of our work in future blog updates including the progress of the improvement initiatives listed above.</p><p><em>Please note: any unreleased products, features, or functionality referenced in this disclosure may not be currently available and may not be delivered on time or at all. Product roadmaps do not represent a commitment, obligation, or promise to deliver any product, feature, or functionality, and you should not rely on them to make your purchase decisions.</em></p></div></div>]]></content:encoded>
+      <pubDate>Wed, 27 Oct 2021 16:48:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>How To Protect Against Ransomware In 2021</title>
+      <link>https://auth0.com/blog/how-to-protect-against-ransomware-in-2021/</link>
+      <description>Ransomware attacks are among the most profitable for criminals and remain the most prominent malware threat today</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>As digital assets increase in value (in some cases, being <em>the most</em> valuable assets a company owns), threats become more profitable to criminals too. The largest ransomware payout made by an insurance company ($40 million) to date happened in 2021, and the trend doesn’t show any signs of slowing down.</p><p>The major problem with attacks like these is that computers today are so fast and interconnected that malware can harness those resources to spread itself throughout the network and encrypt an enormous amount of files before the victim can respond.</p><p>Unfortunately, after the files have been encrypted, there is not much that can be done. Most modern ransomware has good, or at least good-enough implementation of encryption algorithms, all but guaranteeing that the victim won’t be able to recover their data.</p><h2 id="How-Ransomware-Works">How Ransomware Works</h2><p>The first versions of ransomware were poorly implemented, and the victim stood a decent chance of recovering their files without paying the ransom.</p><p>Since the virus had to encrypt the victim’s files as fast as possible to increase the chances of a successful attack, it relied on a <strong>symmetric cipher</strong>, such as AES, as they encrypt data much faster than asymmetric ciphers.</p><p>The problem is that symmetric ciphers use the same key to encrypt <em>and</em> decrypt the files.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/uG54F3Ra1JmRNUnLVBPWM/e7079f11b2a6f61114409660eebfe6d3/Uploaded_from_How_To_Protect_Against_Ransomware_In_2021" alt="Symmetric cipher encryption"/>
+</p><p><i>Symmetric cipher encryption</i></p><p>The bad actor would have to hard code the key into the malware and hope that the victim wouldn’t have the means to look for the keys in the code, or they would have to send a copy to a remote server which they controlled and delete the key on the victim’s computer. Neither option is very good for the attacker.</p><p>Most modern ransomware uses a hybrid encryption mechanism. While asymmetric ciphers are slow and not meant to encrypt huge amounts of data, using them to encrypt just <em>the encryption key</em> created by a symmetric cipher is not a problem.</p><p>Here’s how it works. Before the attack, the attacker generates an asymmetric key pair, and the public key is embedded into the malware. Once the malware is executed, it encrypts the victim’s files with a fast, symmetric cipher, and its key will then be encrypted with the public key from earlier.</p><p>To get their files back, the victim would need the attacker’s private key to decrypt the public key to then, finally, decrypt the files using the symmetric cipher key.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4sJ4KsUjN5Ez4b9u1A4YUY/4677b2dbb6a638166b57805c20b43c14/Uploaded_from_How_To_Protect_Against_Ransomware_In_2021" alt="Asymmetric cipher encryption"/>
+</p><p><i>Asymmetric cipher encryption</i></p><p>(This is assuming the attacker went through the trouble of providing a way for the victim to get their data back. They could just encrypt everything with AES and delete the key with no intention of ever recovering the data.)</p><p>Other than that, the only “realistic” scenario to decrypt the data is by brute-forcing it. I use quotes because it’s not really realistic – we already went over the math behind it. You would need more time than the age of the universe to decrypt AES-128 even if you were using all the computational power available today.</p><h2 id="How-To-Protect-Against-Ransomware">How To Protect Against Ransomware</h2><blockquote><p>When it comes to ransomware, the best defense is being <em>proactive</em> instead of <em>reactive</em>. If you got hit by ransomware and didn’t already have a plan in place, your chances of ever recovering your files are slim.</p></blockquote><p>With that in mind, the tips below will help you mitigate some of the risks <em>before</em> something bad happens.</p><h3 id="1--Update-Your-Systems-Regularly">1. Update Your Systems Regularly</h3><p>In May 2017, a strain of ransomware known as WannaCry was deployed around the world, affecting more than 230,000 computers in 24 hours.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5Xhk4JfQznetFAIRvPo0mf/feb1235ce512cf13d7b581d24a526129/Uploaded_from_How_To_Protect_Against_Ransomware_In_2021" alt="UWannaCry note"/>
+</p><p><i>Screenshot of the WannaCry note</i></p><p>The malware exploited a vulnerability in SMB, a file-sharing protocol in Windows, that allowed the virus to spread itself through the network without being executed by the user.</p><p>To get infected, you didn’t need to run anything – being connected to the same network as someone else who ran it and having an unpatched version of Windows was enough.</p><p>Microsoft had released a security update a month before, in April, so only the organizations that weren’t as diligent with their software updates were affected by the attack.</p><p>Keeping your systems up-to-date is your first line of defense, and in most cases, can be automated. Low-effort, high-reward.</p><h3 id="2--Think-Hard-Before-Paying-The-Ransom">2. Think Hard Before Paying The Ransom</h3><p>If you’re hit by ransomware and your data is now encrypted, you might be tempted to throw the flag and pay the ransom. After all, in the short term, paying the ransom might seem like the less expensive option. But you should think hard before paying.</p><p>There’s a reason why the official US government response is to “never negotiate with terrorists.” Caving in opens a can of worms and doesn’t guarantee that your problem will be solved.</p><p>First of all, paying the ransom doesn’t guarantee that the attackers will decrypt your data – they could just ask for more money instead. Furthermore, it signals that it’s profitable to target your company, and they (and others) will target your organization again in the future. A report by Cybereason found that 80% of the companies that pay the ransom are attacked again soon.</p><p>You should also be aware that, to pressure you into paying the ransom, criminals may perform a double extortion attack, where they first exfiltrate proprietary company information before encrypting the files and then threaten to release those secrets if the ransom isn’t paid.</p><h3 id="3--Make-a-Plan-For--Foul-Weather--in-Advance">3. Make a Plan For “Foul-Weather” in Advance</h3><p>Regardless of the decision, it’s best if it’s made in advance. The stakeholders can keep a cool head and aren’t in a bind to come up with a solution on the fly.</p><p>Ever noticed that laminated paper that every NFL coach holds during the games? They contain the plays they have planned for different game situations. It was pioneered by Bill Walsh during the 80s:</p><p><em>Having a well-thought-out plan ready to go in advance of a change in the weather is the key to success. In the closing moments [of a playoff game against the Raiders], we recovered a fumble. We were trailing by three points, and a field goal would send us into overtime. My job [as an assistant coach] was to figure out how to get us within range of a field goal quickly. Unfortunately, the severe pressure and absolute pandemonium up at the booth where I was sitting destroyed my thinking. I completely forgot the plays we had practiced that would have worked best under those circumstances, but equally important, I recognized (in retrospect) that I had no specific plan for what to do in that “foul-weather” circumstance.”</em></p><p>He started scripting his entire opening drive after that game and then every “foul weather” situation he could think of before the game even started. Consider doing the same for ransomware – the procedures for what to do during an attack should be prepared in advance when you are <em>not</em> under duress.</p><p>Your plan should be as detailed as you can get away with. Here are some things you could write explicit instructions for:</p><ul><li>What to do during an attack (step-by-step)</li><li>How to contact the person in charge during an attack</li><li>How communication will happen during the attack</li><li>Where the backup is stored and how to retrieve it</li><li>How to wipe the disks clean and how to restore backup images</li><li>List the partners or clients that would have to be notified and in which order, should such an attack happen</li><li>Answer to difficult questions: Do you need to contact insurance? Which equipment would you need to rent or buy immediately to keep the operation running?</li></ul><h3 id="4--Be-Aware-of-Phishing-Emails">4. Be Aware of Phishing Emails</h3><p>Phishing is the main attack vector used in ransomware cyberattacks. The attacker will send an initial malware disguised as a seemingly harmless file – for example, an Excel or Word document.</p><p>This malware, known as a dropper, is responsible for downloading the main malware that will encrypt the files and possibly other malware to exfiltrate other valuable data it finds on the organization’s network: intellectual property, passwords, trade secrets, etc.</p><p>Phishing is a hard problem to solve; it works because people are focused on work and aren’t expecting to be tricked. However, here are some things that you can consider doing to reduce the attack surface of phishing attacks:</p><ul><li><strong>Implement email filtering.</strong> Block emails with dangerous extensions, such as .exe and .bat attached. It may stop some, but as mentioned before, sophisticated attacks will try to disguise the files.</li><li><strong>Create a process for phishing response.</strong> Here’s what we do at Auth0 when someone receives a phishing email.</li><li><strong>Train employees at your organization.</strong> Spam filters are very smart today, but even Google’s spam filter lets around 0.1% of spam emails reach your inbox. Employees must understand the risks of phishing emails.</li></ul><p>These measures won’t stop you from getting compromised, but they will stop the low-effort attacks that can be automated.  </p><h3 id="5--Implement-IAM--Identity-and-Access-Management--and-a-Password-Manager-Where-You-Can">5. Implement IAM (Identity and Access Management) and a Password Manager Where You Can</h3><p>The second most common attack vector is trying to penetrate the network directly, either by brute force or by exploiting a vulnerability. Bloomberg reported in June that hackers were able to get into the network of the largest fuel pipeline in the US, Colonial Pipeline, and deploy a ransomware attack.</p><p>The bad actors got in through a company VPN by using employee credentials found in a data breach. The VPN also wasn’t protected by 2FA, which could have prevented the hackers from getting in.</p><p>Implementing IAM (Identity and Access Management) controls help organizations manage who has access to what and prove they are who they say they are (for example, via fingerprint scanning or hardware tokens).</p><p>On top of that, consider using a password manager. It’s likely that the employee used the same password elsewhere, and the bad actors simply used those same credentials to connect through the company’s VPN. A password manager ensures good password policies for all employees and makes sure that they don’t use duplicate passwords elsewhere.</p><h3 id="6--Remove-Local-Administrative-Rights-From-Endpoints">6. Remove Local Administrative Rights From Endpoints</h3><p>Most ransomware (and malware in general) perform many actions that require administrative rights during an attack. Removing such rights reduces the chance it will spread throughout the network.</p><p>Employees shouldn’t have access to local administrative accounts, and the IT staff should not have administrative rights for day-to-day activities.</p><p>Moreover, the local admin passwords should never be the same across workstations, as the attacker may pass the hash across machines with the same password to move laterally throughout the network.</p><h3 id="7--Restrict-Permissions-To-Run-Software--And-Macros-">7. Restrict Permissions To Run Software (And Macros)</h3><p>Only a few applications are needed to run the business on a day-to-day basis. Determine the few applications that are needed, and block any other application from running using Microsoft’s Group Policy if you’re a Windows user (macOS and Linux users must look for third-party solutions).</p><p>This will prevent unauthorized processes, including those created by malware, from running.</p><h3 id="8--Limit-Network-Access">8. Limit Network Access</h3><p>As mentioned earlier, direct network exploits, such as remote services like RDP (Remote Desktop Protocol), are the second most common infection vector.</p><p>Review your ports and block anything that you don’t use. For example, port 3389 (RDP) and port 445 (SMB) are commonly exploited by hackers to infiltrate your network.</p><p>If you need them, limit them as much as possible. You probably don’t need your RDP port open to the Internet. Make it so that it’s only accessible via the organization’s VPN and secure it with 2FA.</p><p>Also, create firewall rules to automatically block incoming access after sufficient failed attempts and use a filter to block any outgoing connection from unauthorized applications. Most malware will need to connect to a remote server to carry on its attack.</p><p>Make sure that your network is properly segmented to avoid losing network drives to a single endpoint infection. Create a guest network with extremely limited access for untrusted devices. Implement read-only shares so that you can restore backups with limited attack surface; separate subnets according to purpose or application.</p><h3 id="9--Create-a-Robust-Backup-Solution">9. Create a Robust Backup Solution</h3><p>No system in the world is impenetrable – even the most well-funded corporations in the world have been compromised. Instead of betting that you are the exception, assume the worst and create a plan to mitigate the damage when all else fails.</p><p>At roughly 3 cents per GB, it’s tough to beat hard drives when it comes to insurance against ransomware (but it doesn’t hurt to check if your insurance policy covers cyberattacks too).</p><p>When designing your backup plan, keep in mind that:</p><ul><li><strong>It must be automated.</strong> Any backup that depends on human intervention is prone to be neglected at some point.</li><li><strong>It must be rock-solid.</strong> Test your snapshots from time to time. You don’t want to <em>think</em> you have your files backed up, only to discover it hasn’t been copying the proper files this whole time.</li><li><strong>It must have at least one air-gapped copy.</strong> Air-gapped backups (disks not connected to another computer or network) make sure that, if the ransomware spreads through your systems, at least one copy is safe. Since they require manual intervention – someone has to plug the drive-in and disconnect it afterward – air-gapped copies generally aren’t as up-to-date as other hard drives in your backup plan. Still, it’s better to have a one-week-old copy than to have no copy at all.</li><li><strong>It must follow the 3-2-1 backup rule.</strong> You must have three copies of your data, in at least two different media types, with one of them in an offsite location.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6gZ3ZuZ4THbAAXeggjhHcn/82b94644dfff001d0270d5a365e460f6/Uploaded_from_How_To_Protect_Against_Ransomware_In_2021" alt="Create a Robust Backup Solution"/>
+</p><p><i><a href="https://www.keepitsafe.com/blog/post/3-2-1-rule-for-cloud-backup/" target="_blank" rel="noreferrer noopener">Source</a></i></p><p>How that plan is going to be implemented will depend on company policy (or personal preference). Having a backup in an offsite location could be as easy as using a third-party cloud provider, but it could be against company policy to have proprietary data uploaded to someone else’s cloud. So, it will vary.</p><p>In the majority of cases, though, it makes sense to have central storage connected to the network performing automated backups, even if it is at risk of being affected by ransomware. It’s much easier to mirror the data to an offsite location or to air-gapped hard disks from one location than every computer on the network.</p><h2 id="Staying-Safe">Staying Safe</h2><p>Do the tips above <em>guarantee</em> you won’t be hit by ransomware? No, but no one can make such a promise when it comes to security. Staying safe is a process you must continually engage in, and the pointers above are a good starting point.</p><p>Ransomware attacks are still one of the most profitable attacks for bad actors, which means it’s one of the most costly for you. You can’t stop attacks from happening, as it’s completely outside of your control. What you <em>can</em> do, however, is to make it as costly as possible to attack your organization. And as the saying goes, you don’t have to outrun the bear, only the person running next to you.</p></div></div>]]></content:encoded>
+      <pubDate>Wed, 27 Oct 2021 14:48:00 +0000</pubDate>
+    </item>
+    <item>
       <title>What is Smishing?</title>
       <link>https://auth0.com/blog/what-is-smishing/</link>
       <description>How text messaging scams work and why a ‘skeptical pause’ can save you</description>
@@ -1091,322 +1109,6 @@ app<span>.</span><span>UseEndpoints</span><span>(</span>endpoints <span>=&gt;</s
       <pubDate>Tue, 05 Oct 2021 13:54:00 +0000</pubDate>
     </item>
     <item>
-      <title>Flutter Authentication and Authorization with Auth0, Part 3: Adding Real-Time Chat to the App</title>
-      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-3-adding-real-time-chat-to-the-app/</link>
-      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous sections of this tutorial, you added authentication to <em>MJ Coffee</em>, a Flutter app, and then enhanced that authentication by adding refresh token rotation and social logins. You also looked at customizing the login page with your own branding, and user management in Auth0.</p><p>In this section, we’ll focus on authorization. Remember:</p><ul><li><strong>Authentication</strong> concerns itself with answering the question “Who are you?”</li><li><strong>Authorization</strong> — this section’s topic — is all about answering the question “What are you allowed to do?”</li></ul><p>We’ll cover authorization by adding real-time chat to <em>MJ Coffee</em> so that we can later see how the chat can be integrated with Auth0, limit its functionalities and UIs based on roles and permissions.</p><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong></p></blockquote><h2 id="Add-Real-Time-Chat-to-the-Flutter-Application">Add Real-Time Chat to the Flutter Application</h2><p>Having a real-time chat service in the <em>MJ Coffee</em> app can significantly improve how fast users can communicate with our customer service or employees. Having looked around, I found <a href="https://getstream.io" target="_blank" rel="noreferrer noopener">Stream</a>, an exciting service with a solid Flutter SDK that you can integrate and customize quickly and easily.</p><h2 id="Install-Dependencies">Install Dependencies</h2><p>Stream comes with several SDKs that can be used in Dart or Flutter applications. However, one of them comes with all features, a beautiful theme, and enough API so that you can customize it as much as you wish. We’ll use that one.</p><p>🛠 Open the <code><span>/</span>pubspec<span>.</span>yaml</code> file and add <code>stream_chat_flutter</code> to your dependencies. The <code>dependencies</code> section of the file should end up looking like this:</p><pre><code>// /pubspec.yaml
-
-<span>dependencies</span><span>:</span>
-  <span>flutter</span><span>:</span>
-    <span>sdk</span><span>:</span> flutter
-  <span>font_awesome_flutter</span><span>:</span> ^9.1.0
-  <span>flutter_svg</span><span>:</span> ^0.22.0
-  <span>google_fonts</span><span>:</span> ^2.1.0
-  <span>json_annotation</span><span>:</span> ^4.0.1
-  <span>http</span><span>:</span> ^0.13.3
-  <span>flutter_appauth</span><span>:</span> ^1.1.0
-  <span>flutter_secure_storage</span><span>:</span> ^4.2.0
-  <span>stream_chat_flutter</span><span>:</span> ^2.0.0</code></pre><p>I recommend using a version later than 2.0, which is fully compatible with Flutter 2 and its support for <a href="https://flutter.dev/docs/null-safety" target="_blank" rel="noreferrer noopener">null safety</a>.</p><p>If you’re only targeting Android, you can ignore the next section.</p><h4 id="If-you-re-targeting-iOS">If you’re targeting iOS</h4><p>🛠 If you’re targeting iOS, you’ll need to take a few extra steps:</p><ul><li>The Stream library uses the <a href="https://github.com/miguelpruivo/flutter_file_picker" target="_blank" rel="noreferrer noopener"><em>flutter file picker</em> plugin</a> to present the user with an interface to select files. You’ll need to follow the steps in <a href="https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#ios" target="_blank" rel="noreferrer noopener">the <em>iOS</em> section of this page</a> to make use of it.</li><li>The library also uses the <em>video_player</em> plugin to display inline videos. Follow <a href="https://pub.dev/packages/video_player#installation" target="_blank" rel="noreferrer noopener">this guide</a> to install and enable it.</li><li>Finally, the library uses the <em>image_picker</em> plugin to provide a user interface for selecting images. Follow [these instructions] to use this plugin.</li></ul><p>🛠 Don’t forget to actually install the dependencies! Enter <code>flutter pub get</code> in the terminal or PowerShell, or <code>Pub get</code> in your IDE.</p><h2 id="Create-a-Stream-Account-and-App">Create a Stream Account and App</h2><p>Before you can integrate Stream with your app, you need a Stream account, which you’ll use to register the app.</p><p>🛠 <a href="https://getstream.io/accounts/signup/" target="_blank" rel="noreferrer noopener">Create your account if you don’t already have one,</a> then log in and go to the Stream dashboard:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5g116jkNGeqaZvFk5nesaZ/e01470d789d92e658ca0d4ac16605d5e/stream_dashboard.png" alt="Stream dashboard."/></p><p>🛠 Tap on the <strong>Create App</strong> button, then follow these steps:</p><ul><li>Enter a name for your app in the <strong>App Name</strong> field. For this example, we’ll use <code>MJCoffee</code>.</li><li>In the <strong>Feeds Server Location</strong> menu, select the location closest to you.</li><li><em>Don’t</em> select anything from the <strong>Clone Existing App</strong> menu — just leave it set to <code><span>--</span><span>-</span></code>.</li><li>Select your environment. Usually, it&#39;s a good idea to create separate apps for production and development. In this tutorial, we’ll focus on production, so select <strong>Production</strong>.</li><li>Finally, click the <strong>Create App</strong> button.</li></ul><p>You should see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3Zh9QmY69R9Bwo4p3PZawt/f8c55e169d20282c17e3592216344fd6/stream_app.png" alt="A newly-created app in Stream."/></p><p>🛠 Once your app has been created, make a note of your Stream key. </p><p>Notice that you will need a secret key to sign the user ID and get a production user token to connect users. You’ll learn how to do that with Auth0 Actions.</p><p>I recommend passing sensitive data and keys with <code><span>--</span>dart<span>-</span>define</code> via the command line or adding to your editor or IDE run command rather than storing it in your app’s code.</p><p>You took this approach when implementing basic authentication for the app. You passed two sensitive values — your Auth0 domain and Auth0 client ID — as command-line arguments when launching the app. You’ll simply add the Stream key as a third argument, like so:</p><pre><code>flutter run -d all --dart-define<span>=</span>AUTH0_DOMAIN<span>=</span><span>[</span>YOUR DOMAIN<span>]</span> --dart-define<span>=</span>AUTH0_CLIENT_ID<span>=</span><span>[</span>YOUR CLIENT ID<span>]</span> --dart-define<span>=</span>STREAM_API_KEY<span>=</span><span>[</span>YOUR STREAM KEY<span>]</span></code></pre><p>In order for your application to use the Stream key argument, you’ll need to define a new constant.</p><p>🛠 Add the following to your <code>constants<span>.</span>dart</code> file, which is located in the in the <code><span>/</span>lib<span>/</span>helpers<span>/</span></code> directory:</p><pre><code><span>// /lib/helpers/constants.dart</span>
-
-<span>const</span> STREAM_API_KEY <span>=</span> String<span>.</span><span>fromEnvironment</span><span>(</span><span>&#39;STREAM_API_KEY&#39;</span><span>)</span><span>;</span></code></pre><h2 id="Integrate-Chat-Into-the-Flutter-Application">Integrate Chat Into the Flutter Application</h2><p>Let&#39;s start by creating a new <code>StreamChatClient</code> in the <code>ChatService</code> singleton class. In doing this, there are three essential things that you need to take into account:</p><ol start="1"><li>Initializing the Dart API client with your API Key</li><li>Setting the current user</li><li>Passing the client to the top-level StreamChat widget</li></ol><p>🛠 Open <code>chat_service<span>.</span>dart</code> (located in the <code><span>/</span>lib<span>/</span>services<span>/</span></code> directory) and initialize <code>StreamChatClient</code> by updating the <code>ChatService</code> class so that it appears as follows:</p><pre><code><span>// /lib/services/chat_service.dart</span>
-
-<span>class</span> <span>ChatService</span> <span>{</span>
-  <span>static</span> <span>final</span> ChatService instance <span>=</span> ChatService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
-  <span>factory</span> <span>ChatService</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> instance<span>;</span>
-  ChatService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
-
-  <span>final</span> StreamChatClient client <span>=</span> <span>StreamChatClient</span><span>(</span>
-    STREAM_API_KEY<span>,</span>
-    logLevel<span>:</span> isInDebugMode <span>?</span> Level<span>.</span>INFO <span>:</span> Level<span>.</span>OFF<span>,</span>
-  <span>)</span><span>;</span>
-
-<span>}</span></code></pre><p>The only required positional parameter for <code><span>StreamChatClient</span><span>(</span><span>)</span></code> is <code><span>STREAM_API_KEY</span></code>, but you have more options to configure your client. For instance, it might be pretty helpful to see all the logs during debugging. That&#39;s why we used the optional <code>logLevel</code> parameter to set the amount of logging that will take place, based on whether or not the app is in debug mode.</p><p>Now that you‘ve created the client, you need to ensure that your current user is connected appropriately.</p><p>🛠 Add the <code><span>connectUser</span><span>(</span><span>)</span></code> to the <code>ChatService</code> class in  <code>chat_service<span>.</span>dart</code>:</p><pre><code><span>// /lib/services/chat_service.dart</span>
-
-<span>class</span> <span>ChatService</span> <span>{</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-  Future<span>&lt;</span>Auth0User<span>&gt;</span> <span>connectUser</span><span>(</span>Auth0User<span>?</span> user<span>)</span> <span>async</span> <span>{</span>
-    <span>if</span> <span>(</span>user <span>==</span> <span>null</span><span>)</span> <span>{</span>
-      <span>throw</span> <span>Exception</span><span>(</span><span>&#39;User was not received&#39;</span><span>)</span><span>;</span>
-    <span>}</span>
-    <span>await</span> client<span>.</span><span>connectUser</span><span>(</span>
-      <span>User</span><span>(</span>
-        id<span>:</span> user<span>.</span>id<span>,</span>
-        extraData<span>:</span> <span>{</span>
-          <span>&#39;image&#39;</span><span>:</span> user<span>.</span>picture<span>,</span>
-          <span>&#39;name&#39;</span><span>:</span> user<span>.</span>name<span>,</span>
-        <span>}</span><span>,</span>
-      <span>)</span><span>,</span>
-      <span>// To be replaced with PRODUCTION TOKEN for user</span>
-      client<span>.</span><span>devToken</span><span>(</span>user<span>.</span>id<span>)</span><span>.</span>rawValue<span>,</span>
-    <span>)</span><span>;</span>
-    <span>return</span> user<span>;</span>
-  <span>}</span>
-  
-<span>.</span><span>.</span><span>.</span>
-  
-<span>}</span></code></pre><p>This new method of the <code>ChatService</code> class, <code><span>connectUser</span><span>(</span><span>)</span></code>, will handle the logic for connecting the current user. It accepts an <code>Auth0User</code> object. If it doesn‘t receive one, it means the authentication has probably failed and that the user should not be connected to the chat.</p><p>🛠 Open <code><span>/</span>lib<span>/</span>screens<span>/</span>home<span>.</span>dart</code>, look for the <code>_HomeScreenState</code> class, and within it, the <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code> method. Update <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code> to the following:</p><pre><code><span>// /lib/screens/home.dart</span>
-
-<span>setSuccessAuthState</span><span>(</span><span>)</span> <span>{</span>
-  <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
-    isProgressing <span>=</span> <span>false</span><span>;</span>
-    isLoggedIn <span>=</span> <span>true</span><span>;</span>
-    name <span>=</span> AuthService<span>.</span>instance<span>.</span>idToken<span>?</span><span>.</span>name<span>;</span>
-  <span>}</span><span>)</span><span>;</span>
-
-  ChatService<span>.</span>instance<span>.</span><span>connectUser</span><span>(</span>AuthService<span>.</span>instance<span>.</span>profile<span>)</span><span>;</span>
-  CoffeeRouter<span>.</span>instance<span>.</span><span>push</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
-<span>}</span></code></pre><p>You need to pass two required positional parameters:</p><ul><li>The <code>User</code> object with a defined user ID, and</li><li>the user token, a signed and encrypted hash string.</li></ul><p>Typically, the user token should be generated on a back-end server to store the aforementioned secret key and to sign and get the token. You&#39;ll soon learn how Auth0 can handle that as your backend.</p><p>To continue, you need to:</p><ul><li>Get a development token,</li><li>pass <code>user<span>.</span>id</code> to the <code><span>devToken</span><span>(</span><span>)</span></code> method on the chat client, and</li><li>Get the <code>rawValue</code> which is the token string.</li></ul><p>🛠 To ensure that <code>devToken</code> works, you need to disable auth checks. In the <code>GetStream</code> app’s chat dashboard, turn on the <strong>Disable Auth0 Checks</strong> option.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3DMx1hZFHbDqt50gtJErjO/9c4c7e3c1da342ddf10c8fb208ac8960/disable_auth_checks.png" alt="Stream dashboard."/></p><blockquote><p>When you move the app to production and you have a proper method to receive the production token, make sure that you turn off the <strong>Disable Auth0 Checks</strong> option.</p></blockquote><p>Stream chat UI components will accept additional data that you provide while connecting a user. For example, you may create a <code>Map</code> containing the user‘s image and name, so they appear automatically and beautifully throughout the chat widget.</p><p>At the time of writing, Stream does not accept Auth0’s user ID format, which includes <code><span>|</span></code> between the Auth source and user hash ID. You’ll need to make a change to the <code>id</code> arrow function in the <code>Auth0User</code> model to account for this.</p><p>🛠 Open <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_user<span>.</span>dart</code> and make this change to the <code>id</code> arrow function: </p><pre><code><span>// /lib/models/auth0_user.dart</span>
-
-String <span>get</span> id <span>=</span><span>&gt;</span> sub<span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>;</span></code></pre><p>The next and final step is to create <code>StreamChat</code>, the root widget of the application.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>main<span>.</span>dart</code> file, locate the call to  <code>MaterialApp</code>, and add the <code>builder</code> parameter so that it returns a <code>StreamChat</code> object:</p><pre><code><span>// /lib/main.dart</span>
-
-<span>.</span><span>.</span><span>.</span>
-<span>MaterialApp</span><span>(</span>
-  debugShowCheckedModeBanner<span>:</span> <span>false</span><span>,</span>
-  themeMode<span>:</span> ThemeMode<span>.</span>system<span>,</span>
-  home<span>:</span> <span>HomeScreen</span><span>(</span><span>)</span><span>,</span>
-  navigatorKey<span>:</span> CoffeeRouter<span>.</span>instance<span>.</span>navigatorKey<span>,</span>
-  theme<span>:</span> <span>getTheme</span><span>(</span><span>)</span><span>,</span>
-  builder<span>:</span> <span>(</span>context<span>,</span> child<span>)</span> <span>{</span>
-    <span>return</span> <span>StreamChat</span><span>(</span>
-      child<span>:</span> child<span>,</span>
-      client<span>:</span> ChatService<span>.</span>instance<span>.</span>client<span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span><span>,</span>
-<span>)</span><span>,</span>
-<span>.</span><span>.</span><span>.</span></code></pre><p>The <code>StreamChat</code> object returned by <code>builder</code> is an inherited widget and aims to provide APIs for advanced customization. It requires a child and a client that you have initialized in the <code>ChatService</code> class.</p><p>That&#39;s it — your chat is ready! Restart the app, and let&#39;s continue to add the support screen and community screen using the prebuilt <code>StreamChat</code> UI widget to leverage the chat service that you added.</p><h2 id="Implement-the-Support-Chat-Screen">Implement the Support Chat Screen</h2><p>Typically, a support chat consists of a user and an agent interacting in a channel created for both. Hence the support chat screen will do the following:</p><ul><li>Create a private channel for the current user and one of the available agents</li><li>Listen to the channel for updates</li><li>Load existing chat content, if any</li><li>Upon chat completion, archive the chat history</li></ul><p>Let&#39;s create a <code><span>createSupportChat</span><span>(</span><span>)</span></code> method in the <code>ChatService</code> class.</p><p>🛠 First, add the following instance variable to the start of the <code>ChatService</code> class:</p><pre><code><span>// /lib/services/chat_service.dart</span>
-
-String<span>?</span> _currentChannelId<span>;</span></code></pre><p>🛠 Then add the <code><span>createSupportChat</span><span>(</span><span>)</span></code> method to the <code>ChatService</code> class:</p><pre><code><span>// /lib/services/chat_service.dart</span>
-
-Future<span>&lt;</span>Channel<span>&gt;</span> <span>createSupportChat</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
-  <span>// To be replaced with EmployeeRole via Auth0</span>
-  <span>final</span> String employeeId <span>=</span> <span>&#39;rootEmployeeId&#39;</span><span>;</span>
-  <span>final</span> channel <span>=</span> client<span>.</span><span>channel</span><span>(</span>
-    <span>&#39;support&#39;</span><span>,</span>
-    id<span>:</span> _currentChannelId<span>,</span>
-    extraData<span>:</span> <span>{</span>
-      <span>&#39;name&#39;</span><span>:</span> <span>&#39;MJCoffee Support&#39;</span><span>,</span>
-      <span>&#39;members&#39;</span><span>:</span> <span>[</span>
-        employeeId<span>,</span>
-        client<span>.</span>state<span>.</span>user<span>!</span><span>.</span>id<span>,</span>
-      <span>]</span>
-    <span>}</span><span>,</span>
-  <span>)</span><span>;</span>
-  <span>await</span> channel<span>.</span><span>watch</span><span>(</span><span>)</span><span>;</span>
-  _currentChannelId <span>=</span> channel<span>.</span>id<span>;</span>
-  <span>return</span> channel<span>;</span>
-<span>}</span></code></pre><p>There’s a lot going on here. Let&#39;s review it step by step.</p><p>First, to create a support chat channel for the current user, you need to know the ID of an available agent. In this tutorial, you will eventually learn how to create an API to get an available agent via Auth0 based on their roles. However, we’ll skip this part for now.</p><p>Second, you need to create a channel with a specific type. In this case, the type will be <code>support</code>. Stream provides default types for channels; however, you can define your types as needed. To create a channel type, navigate to the Stream dashboard, go to your app in the Chat overview tab, and add your channel types to the list.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6W33zODRlOuxetIMT5FFX5/c3b4894e13324aa8db4822545716248e/streamchat_type.png" alt="Stream channel types."/></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2Waym3vZQnTvKNejptTCJp/64b96fb65f65f5b1ceae5bf485eb2856/chat_type.png" alt="New stream channel type."/></p><p>Next, you can pass an existing channel ID to reconnect to a channel or leave it <code><span>null</span></code> to create a new channel. Stream will automatically assign an ID to new channels. Since this support chat is private and exclusive to one agent and a current user, you may add IDs to <code>members</code> in the <code>extraData</code> map.</p><p>Then, call the <code><span>watch</span><span>(</span><span>)</span></code> method on the channel to create and listen to the events on that channel. The <code><span>watch</span><span>(</span><span>)</span></code> method is a <code>Future</code> and will perform its tasks asynchronously. You can assign the channel ID to the <code>_currentChannelId</code> private instance variable so that you can reconnect to the channel when needed.</p><blockquote><p>Later on, it might be a good idea to store the channel ID in an external database or local secure storage in the app so that it persists between user sessions.</p></blockquote><p>Finally, the method returns the newly created channel.</p><p>With the <code><span>createSupportChat</span><span>(</span><span>)</span></code> method implemented, you can now implement the chat UI.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>screens<span>/</span>support<span>.</span>dart</code> file, where you’ll find the <code>SupportChatScreen</code> class. Update the file’s contents to the following:</p><pre><code><span>// /lib/screens/support.dart</span>
-
-<span>import</span> <span>&#39;package:flutter/material.dart&#39;</span><span>;</span>
-<span>import</span> <span>&#39;package:flutter/widgets.dart&#39;</span><span>;</span>
-
-<span>class</span> <span>SupportChatScreen</span> <span>extends</span> <span>StatefulWidget</span> <span>{</span>
-  <span>@override</span>
-  _SupportChatScreenState <span>createState</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> <span>_SupportChatScreenState</span><span>(</span><span>)</span><span>;</span>
-<span>}</span>
-
-<span>class</span> <span>_SupportChatScreenState</span> <span>extends</span> <span>State</span><span>&lt;</span>SupportChatScreen<span>&gt;</span> <span>{</span>
-  Auth0User<span>?</span> profile <span>=</span> AuthService<span>.</span>instance<span>.</span>profile<span>;</span>
-  Channel<span>?</span> channel<span>;</span>
-
-  <span>@override</span>
-  <span>void</span> <span>initState</span><span>(</span><span>)</span> <span>{</span>
-    <span>super</span><span>.</span><span>initState</span><span>(</span><span>)</span><span>;</span>
-    <span>createChannel</span><span>(</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>createChannel</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
-    <span>final</span> _channel <span>=</span> <span>await</span> ChatService<span>.</span>instance<span>.</span><span>createSupportChat</span><span>(</span><span>)</span><span>;</span>
-    <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
-      channel <span>=</span> _channel<span>;</span>
-    <span>}</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>@override</span>
-  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
-    <span>return</span> channel <span>==</span> <span>null</span>
-        <span>?</span> <span>Center</span><span>(</span>
-            child<span>:</span> <span>Text</span><span>(</span><span>&#39;You are in the queue!, please wait...&#39;</span><span>)</span><span>,</span>
-          <span>)</span>
-        <span>:</span> <span>Scaffold</span><span>(</span>
-            body<span>:</span> <span>SafeArea</span><span>(</span>
-              child<span>:</span> <span>StreamChannel</span><span>(</span>
-                channel<span>:</span> channel<span>!</span><span>,</span>
-                child<span>:</span> <span>Column</span><span>(</span>
-                  children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
-                    <span>Expanded</span><span>(</span>
-                      child<span>:</span> <span>MessageListView</span><span>(</span><span>)</span><span>,</span>
-                    <span>)</span><span>,</span>
-                    <span>MessageInput</span><span>(</span>
-                      disableAttachments<span>:</span> <span>true</span><span>,</span>
-                      sendButtonLocation<span>:</span> SendButtonLocation<span>.</span>inside<span>,</span>
-                      actionsLocation<span>:</span> ActionsLocation<span>.</span>leftInside<span>,</span>
-                      showCommandsButton<span>:</span> <span>true</span><span>,</span>
-                    <span>)</span><span>,</span>
-                  <span>]</span><span>,</span>
-                <span>)</span><span>,</span>
-              <span>)</span><span>,</span>
-            <span>)</span><span>,</span>
-          <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>Here’s what’s happening in this UI implementation:</p><ul><li>This support chat screen, <code>SupportChatScreen</code>, is a <code>StatefulWidget</code>.</li><li>The <code>profile</code> variable is the user profile from <code>AuthService</code> that you created in the previous section.</li><li>The <code>channel</code> variable is used to detect if a support channel has been created.</li><li>The <code><span>createChannel</span><span>(</span><span>)</span></code> method calls <code>ChatService</code>’s <code><span>createSupportChat</span><span>(</span><span>)</span></code> method, which you recently defined.</li><li>Once the channel is ready, <code><span>setState</span><span>(</span><span>)</span></code> is called, which renders the chat UI.</li><li>In the <code><span>build</span><span>(</span><span>)</span></code> method, you can show a message while the channel is being created or return a <code>StreamChannel</code> object, which provides information about the channel to the widget tree and passes a reference to the <code>channel</code>.</li><li>Typically, a child of <code>SupportChatScreen</code> should be a <code>Column</code> that includes <code><span>MessageListView</span><span>(</span><span>)</span></code> and is wrapped by <code>Expanded</code> to ensure it takes up all the available space.</li><li>You can highly customize <code><span>MessageInput</span><span>(</span><span>)</span></code> in a number of ways, such as disabling the file attachment or command buttons. You’ll do this later by using Auth0’s permissions and roles to determine which buttons should be enabled or disabled, so stay tuned.</li></ul><p>Congratulations — you’ve implemented the support chat screen! Let&#39;s move on to the community view.</p><p>It&#39;s time to make a screen to allow agents to see all the messages they receive via support. Let&#39;s call this screen <code>CommunityScreen</code>.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>screens<span>/</span>community<span>.</span>dart</code> file, and update the <code>CommunityScreen</code> class within to the following:</p><pre><code><span>// /lib/screens/community.dart</span>
-
-<span>class</span> <span>CommunityScreen</span> <span>extends</span> <span>StatelessWidget</span> <span>{</span>
-  <span>final</span> userId <span>=</span> ChatService<span>.</span>instance<span>.</span>client<span>.</span>state<span>.</span>user<span>?</span><span>.</span>id <span>as</span> Object<span>;</span>
-
-  <span>@override</span>
-  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
-    <span>return</span> <span>Scaffold</span><span>(</span>
-      body<span>:</span> <span>ChannelsBloc</span><span>(</span>
-        child<span>:</span> <span>ChannelListView</span><span>(</span>
-          filter<span>:</span> Filter<span>.</span><span>in_</span><span>(</span>
-            <span>&#39;members&#39;</span><span>,</span>
-            <span>[</span>userId<span>]</span><span>,</span><span>// current user is employee (role/permission)</span>
-          <span>)</span><span>,</span>
-          sort<span>:</span> <span>[</span><span>SortOption</span><span>(</span><span>&#39;last_message_at&#39;</span><span>)</span><span>]</span><span>,</span>
-          pagination<span>:</span> <span>PaginationParams</span><span>(</span>
-            limit<span>:</span> <span>30</span><span>,</span>
-          <span>)</span><span>,</span>
-          channelWidget<span>:</span> <span>ChannelPage</span><span>(</span><span>)</span><span>,</span>
-        <span>)</span><span>,</span>
-      <span>)</span><span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span>
-
-<span>class</span> <span>ChannelPage</span> <span>extends</span> <span>StatelessWidget</span> <span>{</span>
-  <span>@override</span>
-  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
-    <span>return</span> <span>Scaffold</span><span>(</span>
-      appBar<span>:</span> <span>ChannelHeader</span><span>(</span><span>)</span><span>,</span>
-      body<span>:</span> <span>Column</span><span>(</span>
-        children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
-          <span>Expanded</span><span>(</span>
-            child<span>:</span> <span>MessageListView</span><span>(</span><span>)</span><span>,</span>
-          <span>)</span><span>,</span>
-          <span>MessageInput</span><span>(</span><span>)</span><span>,</span>
-        <span>]</span><span>,</span>
-      <span>)</span><span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>The logic behind this page is relatively simple. You want to load all channels seen by the current user, an agent in this context, then open each channel to answer its respective customer.</p><p><code>ChannelsBloc</code> manages a list of channels with pagination, re-ordering, querying, and other operations associated with channels together with <code><span>ChannelListView</span><span>(</span><span>)</span></code>. The <code>Bloc</code> is not related to the <code>Bloc</code> package or pattern; this is just a coincidence.</p><p>You need to filter all channels by the membership of the current user. If necessary, do custom sorting and pagination too.</p><p>Lastly, you need to ensure that the <code><span>ChannelPage</span><span>(</span><span>)</span></code> is also passed to correctly as it makes channels routable. The <code><span>ChannelPage</span><span>(</span><span>)</span></code> is nothing fancy — just a straightforward implementation of what you have done already in <code>SupportScreen</code>.</p><p>Perfect! You have created all screens for the app. However, we still need to implement permissions and roles to load each screen and functionalities based on what we can define and receive via Auth0 tokens. But if you are curious, you can simply add another tab to the <code>MenuScreen</code> and load these pages (although you might not see any channels yet).</p><p>🛠 In the file <code><span>/</span>lib<span>/</span>screens<span>/</span>menu<span>.</span>dart</code>, locate <code>final List<span>&lt;</span>Widget<span>&gt;</span> tabs</code> in <code>MenuScreenState</code> and update it to the following:</p><pre><code><span>// /lib/screens/menu.dart</span>
-
-<span>.</span><span>.</span><span>.</span>
-  <span>final</span> List<span>&lt;</span>Widget<span>&gt;</span> tabs <span>=</span> <span>[</span>
-    <span>MenuList</span><span>(</span>coffees<span>:</span> coffees<span>)</span><span>,</span>
-    <span>SupportChatScreen</span><span>(</span><span>)</span><span>,</span>
-    <span>ProfileScreen</span><span>(</span><span>)</span><span>,</span>
-  <span>]</span><span>;</span>
-<span>.</span><span>.</span><span>.</span></code></pre><p>🛠 In the same file, add a new icon to <code>bottomNavigationBar</code> by replacing the <code>items</code> parameter with the following:</p><pre><code><span>// /lib/screens/menu.dart</span>
-
-items<span>:</span> <span>&lt;</span>BottomNavigationBarItem<span>&gt;</span><span>[</span>
-  <span>BottomNavigationBarItem</span><span>(</span>
-    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>list_alt<span>)</span><span>,</span>
-    label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span>
-  <span>)</span><span>,</span>
-  <span>BottomNavigationBarItem</span><span>(</span>
-    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>support<span>)</span><span>,</span>
-    label<span>:</span> <span>&#34;Support&#34;</span><span>,</span>
-  <span>)</span><span>,</span>
-  <span>BottomNavigationBarItem</span><span>(</span>
-    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>person<span>)</span><span>,</span>
-    label<span>:</span> <span>&#34;Profile&#34;</span><span>,</span>
-  <span>)</span><span>,</span>
-<span>]</span><span>,</span></code></pre><p>🛠 Before you can test the chat, you should temporarily add the <code>rootEmployeeId</code> user ID that you defined in <code>createSupportChat</code>  in the Stream dashboard.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2RqndsI9Xp4CR35fYyRRSG/4832ae874ee2b4622ae4282560d1f396/chat_custom_user.png" alt="Custom user in the chat."/></p><p>You can skip this step, but it’s still a good idea to have a root support user in case of a specific agent is unavailable. That way, the user with the absent agent can still get support.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/qFcfGuNTipVpuEWJtAfM0/312b8561bbbbc47ed9a97342dbd46764/custom_user_root.png" alt="Custom user in the chat."/></p><p>🛠 Run your app in the emulator, go to the support chat screen, and try it out!</p><blockquote><p>If you encounter an error regarding an outdated Kotlin version on the Android emulator, open <code>android<span>/</span>app<span>/</span>build<span>.</span>gradle</code>, and search for <code>ext<span>.</span>kotlin_version</code>. Change that line to <code>ext<span>.</span>kotlin_version <span>=</span> <span>&#39;1.5.10&#39;</span></code>.</p></blockquote><h2 id="Auth0-Actions-and-Generating-Stream-User-Production-Tokens">Auth0 Actions and Generating Stream User Production Tokens</h2><p>Until now, for each user, you have been using a token generated for the development environment. In order to release your app, the app will have to request production tokens.</p><p>As I mentioned earlier, retrieving production tokens is usually done by your backend server. Auth0 can act as this service and retrieve those tokens for you, thanks to a potent tool called <em>Auth0 Actions</em>. </p><p>You can use Auth0 Actions to handle your application logic and fit it into a particular flow. They are secure, tenant-specific, versioned functions written in Node.js that execute at specific points when Auth0 is doing its work. This allows you to customize and extend Auth0&#39;s capabilities with custom logic. Think of Actions as serverless functions, such as AWS Lambda or Google Cloud Functions.</p><p>You can determine when and where to execute an Action in the Auth0 runtime environment. Your flows might be:</p><ul><li><strong>Login:</strong> Executed after a user logs in and when refresh tokens are issued.</li><li><strong>Machine to Machine:</strong> Executed after a user logs in after the Client Credentials hook.</li><li><strong>Pre-User Registration:</strong> Executed before a user is added to the database or passwordless connections.</li><li><strong>Post-User Registration:</strong> Executed after a user is added to a database or passwordless connections. The execution is asynchronous and will not affect the transaction.</li><li><strong>Post-Change Password:</strong> Executed after a password is changed for a database connection user.</li><li><strong>Send Phone Message:</strong> Executed when using a custom MFA provider.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7fpne9yUGBpXYzAT5km5l5/83ab5c891c02495d53a9d2661e10083e/actions_flow.png" alt="Actions flow"/></p><p>You’ve probably already thought of several use cases for each of these scenarios.</p><p>Let&#39;s create a custom action to exchange Stream production user tokens for users after they logged in and hooked it up to the ID token and user metadata received by the Flutter app.</p><p>First, you need to create a new action. Go to the Custom Actions menu under Actions in Auth0 Dashboard and hit the &#34;Create&#34; button.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/oR6jv9IA92twMdtRrAvIz/e414cac9a740c5fdd5eaab85a7795ebb/create_action.png" alt="Create action"/></p><p>🛠 You should provide a name for the action, select a trigger from the list, and then create it. For the purpose of generating a chat token and attaching it to <code>idToken</code>, select the <strong>Login / Post Login</strong> trigger, which allows you to use the action in the login flow.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5wbUmlcD0qq7FrgBCiURrS/a95bb544b5d4fdaa4eac2a87b5fd9361/create_action_trigger.png" alt="Create action trigger"/></p><p>You&#39;ll see an editor where you can write your logic. You can run the code, try it out before deploying it, add your secrets to the environment instead of putting it in the application code, and even add almost all public NPM packages!</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/46DWkLU05SPD1kTE6i5oGF/54f46b0d30cd13bf141b4beb28a2445e/action_module.png" alt=" action module"/></p><p>🛠 Start by adding the <code>getstream</code> npm package. At the time of writing, the current version of the package is <code><span>7.2</span><span>.10</span></code>.</p><p>🛠 Go back to the Stream dashboard, copy your secret and client keys...</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5aLtEOAjfXguB6BQlI8fmB/b55f3fd1d0c7c44c91c760c5850d8457/chat_app_secret.png" alt="chat app secret"/></p><p>🛠 ...and then add them with the name of <code><span>GET_STREAM_CHAT_SECRET_KEY</span></code> and <code><span>GET_STREAM_CHAT_CLIENT_KEY</span></code>, respectively, to this function in Auth0.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4JgG1WLTfWa2RTlkzAkV8j/1704cdf6b2e7abfd23e611171440dce5/action_secrets.png" alt=" action secrets"/></p><p>🛠 Lastly, you can import <code>getStream</code> and connect and create a user token bypassing <code>user_id</code>.</p><pre><code><span>// Javascript</span>
-
-<span>const</span> stream <span>=</span> <span>require</span><span>(</span><span>&#39;getstream&#39;</span><span>)</span><span>;</span>
-
-exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async</span> <span>(</span><span>event<span>,</span> api</span><span>)</span> <span>=&gt;</span> <span>{</span>
-  <span>const</span> getStreamClient <span>=</span> stream<span>.</span><span>connect</span><span>(</span>
-    event<span>.</span>secrets<span>.</span><span>GET_STREAM_CHAT_CLIENT_KEY</span><span>,</span>
-    event<span>.</span>secrets<span>.</span><span>GET_STREAM_CHAT_SECRET_KEY</span>
-  <span>)</span><span>;</span>
-  <span>const</span> getStreamToken <span>=</span> getStreamClient<span>.</span><span>createUserToken</span><span>(</span>
-    <span><span>`</span><span><span>${</span>event<span>.</span>user<span>.</span>user_id<span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>}</span></span><span>`</span></span> <span>// getstream does not support `|` in the ID yet, so we have to omit it.</span>
-  <span>)</span><span>;</span>
-
-  <span>// api.user.setAppMetadata(&#34;stream_chat_token&#34;, getStreamToken);</span>
-  <span>// api.user.setUserMetadata(&#34;stream_chat_token&#34;, getStreamToken);</span>
-  <span>const</span> namespace <span>=</span> <span>&#39;https://getstream.mjcoffee.app&#39;</span><span>;</span>
-  <span>if</span> <span>(</span>event<span>.</span>authorization<span>)</span> <span>{</span>
-    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/user_token</span><span>`</span></span><span>,</span> getStreamToken<span>)</span><span>;</span>
-    api<span>.</span>accessToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/user_token</span><span>`</span></span><span>,</span> getStreamToken<span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span><span>;</span></code></pre><p>Let&#39;s explore the implementation above. </p><p>Once you get the token, you can set a user or app metadata named <code>stream_chat_token</code> with the token value. </p><p>Alternately, you can set a custom claim on <code>idToken</code> and <code>accessToken</code>. A custom claim must take the form of a URI, which means that <code>https<span>:</span><span>/</span><span>/</span>getstream<span>.</span>mjcoffee<span>.</span>app<span>/</span>user_token</code> is an acceptable name for a claim, while <code>user_token</code> alone is not.</p><blockquote><p><strong>Important:</strong> In Stream, only the characters <code>a</code> through <code>z</code>, <code><span>0</span></code> through <code><span>9</span></code>, <code>@</code>, <code>_</code>, and <code><span>-</span></code> are allowed in the user ID. Therefore, we shouldn’t use the <code><span>|</span></code> for <code>user_id</code> in Auth0.</p></blockquote><p>Let&#39;s run and test this function before we deploy. Click on the play icon and run with the example event, which is automatically generated for you.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1b3pOpx8O1g4MBOqmhI6ix/88e2335e0b2bb8a3730dba6ebcc57e44/action_run.png" alt=" action run"/></p><p>If everything goes well, you’ll get a generated token in JWT format. Its payload will contain <code>user_id</code>, and it will be signed with your secret key by the Stream servers.</p><p>Here’s an example of what you’ll get:</p><pre><code><span>// response in Action run</span>
-
-<span>[</span>
-  <span>{</span>
-    name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>,</span>
-    target<span>:</span> <span>&#39;idToken&#39;</span><span>,</span>
-    type<span>:</span> <span>&#39;SetCustomClaim&#39;</span><span>,</span>
-    value<span>:</span>
-      <span>&#39;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYXV0aDA1ZjdjOGVjN2MzM2M2YzAwNGJiYWZlODIifQ.7ZIyr27skgrGm6REEz5o-WvoCArNblDnwiOdxXW4dp8&#39;</span><span>,</span>
-  <span>}</span><span>,</span>
-  <span>{</span>
-    name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>,</span>
-    target<span>:</span> <span>&#39;accessToken&#39;</span><span>,</span>
-    type<span>:</span> <span>&#39;SetCustomClaim&#39;</span><span>,</span>
-    value<span>:</span>
-      <span>&#39;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYXV0aDA1ZjdjOGVjN2MzM2M2YzAwNGJiYWZlODIifQ.7ZIyr27skgrGm6REEz5o-WvoCArNblDnwiOdxXW4dp8&#39;</span><span>,</span>
-  <span>}</span><span>,</span>
-<span>]</span><span>;</span></code></pre><p><img src="https://images.ctfassets.net/23aumh6u8s0i/Ax6b4nRMkHyjvfGBK47bV/d15969eb0f4740dfe1057372e04c4437/jwt_stream.png" alt="action run"/></p><p>🛠 Next, go back to <strong>Flow</strong>, select <strong>Login</strong>, and drag your newly-created custom action to the flow and apply the changes:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5oYj9z0hIawXOi3dSW8dEZ/4684098fb3b108dd0cc4f32e01aa4e59/login_flow.png" alt=" action run"/></p><p>For the last step, the Flutter app needs to read this token and add it to the user model. That way, when you connect a user to Stream’s chat, instead of the development tokens you’ve been using, you can replace it with the token that Auth0 received.</p><p>🛠 Since it&#39;s a custom claim, it will show up in <code>idToken</code>; thus you’ll need to modify your <code>Auth0IdToken</code> model class (located in <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_id_token<span>.</span>dart</code>)...</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0IdToken</span> <span>{</span>
-  <span>Auth0IdToken</span><span>(</span><span>{</span>
-  
-  <span>.</span><span>.</span><span>.</span><span>.</span>
-  
-    required <span>this</span><span>.</span>streamChatUserToken<span>,</span>
-  
-  <span>.</span><span>.</span><span>.</span><span>.</span>
-  
-<span>}</span><span>)</span>
-
-<span>.</span><span>.</span><span>.</span><span>.</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>)</span>
-  <span>final</span> String streamChatUserToken<span>;</span>
-
-<span>.</span><span>.</span><span>.</span><span>.</span>
-
-<span>}</span></code></pre><p>🛠 Then do the same with your <code>Auth0User</code> class (located in <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_user<span>.</span>dart</code>), as it will be part of the user details:</p><pre><code><span>// m/lib/models/auth0_user.dart</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0User</span> <span>{</span>
-  <span>Auth0User</span><span>(</span><span>{</span>
-  <span>.</span><span>.</span><span>.</span><span>.</span>
-      required <span>this</span><span>.</span>streamChatUserToken<span>,</span>
-  <span>.</span><span>.</span><span>.</span><span>.</span>
-<span>}</span><span>)</span>
-<span>.</span><span>.</span><span>.</span><span>.</span>
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>)</span>
-  <span>final</span> String streamChatUserToken<span>;</span>
-<span>.</span><span>.</span><span>.</span><span>.</span>
-<span>}</span></code></pre><p>🛠 Once you are done, run the <code>build_runner</code> command to generate models again.</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>🛠 Locate <code>connectUser</code> in the <code>ChatService</code> class (located in <code><span>/</span>lib<span>/</span>services<span>/</span>chat_service<span>.</span>dart</code>) and replace <code><span>devToken</span><span>(</span><span>)</span></code> with the newly-received token on the user object.</p><pre><code><span>// /lib/services/chat_service.dart</span>
-
-<span>await</span> client<span>.</span><span>connectUser</span><span>(</span>
-  <span>User</span><span>(</span>
-    id<span>:</span> user<span>.</span>id<span>,</span>
-    extraData<span>:</span> <span>{</span>
-      <span>&#39;image&#39;</span><span>:</span> user<span>.</span>picture<span>,</span>
-      <span>&#39;name&#39;</span><span>:</span> user<span>.</span>name<span>,</span>
-    <span>}</span><span>,</span>
-  <span>)</span><span>,</span>
-  <span>// client.devToken(user.id).rawValue,</span>
-    user<span>.</span>streamChatUserToken<span>,</span>
-<span>)</span><span>;</span></code></pre><p>Well done! Log out of the app, restart it. and log in again. This time, you&#39;ll receive a production-ready user token. When you go to the support chat screen, everything should work as expected.</p><h2 id="Looking-Ahead">Looking Ahead</h2><p>Now that the app has a real-time chat is ready with a proper authentication flow, you can move on to the next section to focus on authorization, roles, and permissions.</p></div></div>]]></content:encoded>
-      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
-      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
-      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
-      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
-    </item>
-    <item>
       <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
       <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
       <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
@@ -1984,6 +1686,322 @@ Future<span>&lt;</span><span>void</span><span>&gt;</span> <span>archiveSupportCh
     <span>)</span><span>;</span>
   <span>}</span>
 <span>}</span></code></pre><p>The <code>actions</code> parameter adds a list of additional actions to the <code>GetStream</code> chat input UI. You can call the <code>archiveSupportChat</code> method <code><span>OnPressed</span><span>(</span><span>)</span></code> and hide the chat, and redirect the user to the menu screen to show a proper message that the discussion is closed. They can reopen by returning to the support screen.</p><h2 id="Conclusion">Conclusion</h2><p>Authentication and authorization are complex but necessary features of most applications, and they can be tricky to implement and manage. Auth0 provides a reliable service that takes on these tasks. You can this service in Flutter applications without having to set up a server or maintain infrastructure. You can also make use of serverless tools such as Auth0 Actions, which you can use to add sophistication to your authentication and authorization process.</p><p>You have seen how you can speed up your development by adding a support chat using <code>GetStreamChat</code> to a Flutter application. You’ve also seen how you can limit the functionality available to users by leveraging roles and permissions received from Auth0 via tokens.</p><p>Congratulations! You’ve come a long way over this tutorial’s four parts, and I hope that you have learned a lot. This is just the beginning — you can still implement and configure a lot, using both Stream and Auth0, and take your apps to the next level.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 3: Adding Real-Time Chat to the App</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-3-adding-real-time-chat-to-the-app/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous sections of this tutorial, you added authentication to <em>MJ Coffee</em>, a Flutter app, and then enhanced that authentication by adding refresh token rotation and social logins. You also looked at customizing the login page with your own branding, and user management in Auth0.</p><p>In this section, we’ll focus on authorization. Remember:</p><ul><li><strong>Authentication</strong> concerns itself with answering the question “Who are you?”</li><li><strong>Authorization</strong> — this section’s topic — is all about answering the question “What are you allowed to do?”</li></ul><p>We’ll cover authorization by adding real-time chat to <em>MJ Coffee</em> so that we can later see how the chat can be integrated with Auth0, limit its functionalities and UIs based on roles and permissions.</p><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong></p></blockquote><h2 id="Add-Real-Time-Chat-to-the-Flutter-Application">Add Real-Time Chat to the Flutter Application</h2><p>Having a real-time chat service in the <em>MJ Coffee</em> app can significantly improve how fast users can communicate with our customer service or employees. Having looked around, I found <a href="https://getstream.io" target="_blank" rel="noreferrer noopener">Stream</a>, an exciting service with a solid Flutter SDK that you can integrate and customize quickly and easily.</p><h2 id="Install-Dependencies">Install Dependencies</h2><p>Stream comes with several SDKs that can be used in Dart or Flutter applications. However, one of them comes with all features, a beautiful theme, and enough API so that you can customize it as much as you wish. We’ll use that one.</p><p>🛠 Open the <code><span>/</span>pubspec<span>.</span>yaml</code> file and add <code>stream_chat_flutter</code> to your dependencies. The <code>dependencies</code> section of the file should end up looking like this:</p><pre><code>// /pubspec.yaml
+
+<span>dependencies</span><span>:</span>
+  <span>flutter</span><span>:</span>
+    <span>sdk</span><span>:</span> flutter
+  <span>font_awesome_flutter</span><span>:</span> ^9.1.0
+  <span>flutter_svg</span><span>:</span> ^0.22.0
+  <span>google_fonts</span><span>:</span> ^2.1.0
+  <span>json_annotation</span><span>:</span> ^4.0.1
+  <span>http</span><span>:</span> ^0.13.3
+  <span>flutter_appauth</span><span>:</span> ^1.1.0
+  <span>flutter_secure_storage</span><span>:</span> ^4.2.0
+  <span>stream_chat_flutter</span><span>:</span> ^2.0.0</code></pre><p>I recommend using a version later than 2.0, which is fully compatible with Flutter 2 and its support for <a href="https://flutter.dev/docs/null-safety" target="_blank" rel="noreferrer noopener">null safety</a>.</p><p>If you’re only targeting Android, you can ignore the next section.</p><h4 id="If-you-re-targeting-iOS">If you’re targeting iOS</h4><p>🛠 If you’re targeting iOS, you’ll need to take a few extra steps:</p><ul><li>The Stream library uses the <a href="https://github.com/miguelpruivo/flutter_file_picker" target="_blank" rel="noreferrer noopener"><em>flutter file picker</em> plugin</a> to present the user with an interface to select files. You’ll need to follow the steps in <a href="https://github.com/miguelpruivo/flutter_file_picker/wiki/Setup#ios" target="_blank" rel="noreferrer noopener">the <em>iOS</em> section of this page</a> to make use of it.</li><li>The library also uses the <em>video_player</em> plugin to display inline videos. Follow <a href="https://pub.dev/packages/video_player#installation" target="_blank" rel="noreferrer noopener">this guide</a> to install and enable it.</li><li>Finally, the library uses the <em>image_picker</em> plugin to provide a user interface for selecting images. Follow [these instructions] to use this plugin.</li></ul><p>🛠 Don’t forget to actually install the dependencies! Enter <code>flutter pub get</code> in the terminal or PowerShell, or <code>Pub get</code> in your IDE.</p><h2 id="Create-a-Stream-Account-and-App">Create a Stream Account and App</h2><p>Before you can integrate Stream with your app, you need a Stream account, which you’ll use to register the app.</p><p>🛠 <a href="https://getstream.io/accounts/signup/" target="_blank" rel="noreferrer noopener">Create your account if you don’t already have one,</a> then log in and go to the Stream dashboard:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5g116jkNGeqaZvFk5nesaZ/e01470d789d92e658ca0d4ac16605d5e/stream_dashboard.png" alt="Stream dashboard."/></p><p>🛠 Tap on the <strong>Create App</strong> button, then follow these steps:</p><ul><li>Enter a name for your app in the <strong>App Name</strong> field. For this example, we’ll use <code>MJCoffee</code>.</li><li>In the <strong>Feeds Server Location</strong> menu, select the location closest to you.</li><li><em>Don’t</em> select anything from the <strong>Clone Existing App</strong> menu — just leave it set to <code><span>--</span><span>-</span></code>.</li><li>Select your environment. Usually, it&#39;s a good idea to create separate apps for production and development. In this tutorial, we’ll focus on production, so select <strong>Production</strong>.</li><li>Finally, click the <strong>Create App</strong> button.</li></ul><p>You should see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3Zh9QmY69R9Bwo4p3PZawt/f8c55e169d20282c17e3592216344fd6/stream_app.png" alt="A newly-created app in Stream."/></p><p>🛠 Once your app has been created, make a note of your Stream key. </p><p>Notice that you will need a secret key to sign the user ID and get a production user token to connect users. You’ll learn how to do that with Auth0 Actions.</p><p>I recommend passing sensitive data and keys with <code><span>--</span>dart<span>-</span>define</code> via the command line or adding to your editor or IDE run command rather than storing it in your app’s code.</p><p>You took this approach when implementing basic authentication for the app. You passed two sensitive values — your Auth0 domain and Auth0 client ID — as command-line arguments when launching the app. You’ll simply add the Stream key as a third argument, like so:</p><pre><code>flutter run -d all --dart-define<span>=</span>AUTH0_DOMAIN<span>=</span><span>[</span>YOUR DOMAIN<span>]</span> --dart-define<span>=</span>AUTH0_CLIENT_ID<span>=</span><span>[</span>YOUR CLIENT ID<span>]</span> --dart-define<span>=</span>STREAM_API_KEY<span>=</span><span>[</span>YOUR STREAM KEY<span>]</span></code></pre><p>In order for your application to use the Stream key argument, you’ll need to define a new constant.</p><p>🛠 Add the following to your <code>constants<span>.</span>dart</code> file, which is located in the in the <code><span>/</span>lib<span>/</span>helpers<span>/</span></code> directory:</p><pre><code><span>// /lib/helpers/constants.dart</span>
+
+<span>const</span> STREAM_API_KEY <span>=</span> String<span>.</span><span>fromEnvironment</span><span>(</span><span>&#39;STREAM_API_KEY&#39;</span><span>)</span><span>;</span></code></pre><h2 id="Integrate-Chat-Into-the-Flutter-Application">Integrate Chat Into the Flutter Application</h2><p>Let&#39;s start by creating a new <code>StreamChatClient</code> in the <code>ChatService</code> singleton class. In doing this, there are three essential things that you need to take into account:</p><ol start="1"><li>Initializing the Dart API client with your API Key</li><li>Setting the current user</li><li>Passing the client to the top-level StreamChat widget</li></ol><p>🛠 Open <code>chat_service<span>.</span>dart</code> (located in the <code><span>/</span>lib<span>/</span>services<span>/</span></code> directory) and initialize <code>StreamChatClient</code> by updating the <code>ChatService</code> class so that it appears as follows:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+<span>class</span> <span>ChatService</span> <span>{</span>
+  <span>static</span> <span>final</span> ChatService instance <span>=</span> ChatService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
+  <span>factory</span> <span>ChatService</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> instance<span>;</span>
+  ChatService<span>.</span><span>_internal</span><span>(</span><span>)</span><span>;</span>
+
+  <span>final</span> StreamChatClient client <span>=</span> <span>StreamChatClient</span><span>(</span>
+    STREAM_API_KEY<span>,</span>
+    logLevel<span>:</span> isInDebugMode <span>?</span> Level<span>.</span>INFO <span>:</span> Level<span>.</span>OFF<span>,</span>
+  <span>)</span><span>;</span>
+
+<span>}</span></code></pre><p>The only required positional parameter for <code><span>StreamChatClient</span><span>(</span><span>)</span></code> is <code><span>STREAM_API_KEY</span></code>, but you have more options to configure your client. For instance, it might be pretty helpful to see all the logs during debugging. That&#39;s why we used the optional <code>logLevel</code> parameter to set the amount of logging that will take place, based on whether or not the app is in debug mode.</p><p>Now that you‘ve created the client, you need to ensure that your current user is connected appropriately.</p><p>🛠 Add the <code><span>connectUser</span><span>(</span><span>)</span></code> to the <code>ChatService</code> class in  <code>chat_service<span>.</span>dart</code>:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+<span>class</span> <span>ChatService</span> <span>{</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+  Future<span>&lt;</span>Auth0User<span>&gt;</span> <span>connectUser</span><span>(</span>Auth0User<span>?</span> user<span>)</span> <span>async</span> <span>{</span>
+    <span>if</span> <span>(</span>user <span>==</span> <span>null</span><span>)</span> <span>{</span>
+      <span>throw</span> <span>Exception</span><span>(</span><span>&#39;User was not received&#39;</span><span>)</span><span>;</span>
+    <span>}</span>
+    <span>await</span> client<span>.</span><span>connectUser</span><span>(</span>
+      <span>User</span><span>(</span>
+        id<span>:</span> user<span>.</span>id<span>,</span>
+        extraData<span>:</span> <span>{</span>
+          <span>&#39;image&#39;</span><span>:</span> user<span>.</span>picture<span>,</span>
+          <span>&#39;name&#39;</span><span>:</span> user<span>.</span>name<span>,</span>
+        <span>}</span><span>,</span>
+      <span>)</span><span>,</span>
+      <span>// To be replaced with PRODUCTION TOKEN for user</span>
+      client<span>.</span><span>devToken</span><span>(</span>user<span>.</span>id<span>)</span><span>.</span>rawValue<span>,</span>
+    <span>)</span><span>;</span>
+    <span>return</span> user<span>;</span>
+  <span>}</span>
+  
+<span>.</span><span>.</span><span>.</span>
+  
+<span>}</span></code></pre><p>This new method of the <code>ChatService</code> class, <code><span>connectUser</span><span>(</span><span>)</span></code>, will handle the logic for connecting the current user. It accepts an <code>Auth0User</code> object. If it doesn‘t receive one, it means the authentication has probably failed and that the user should not be connected to the chat.</p><p>🛠 Open <code><span>/</span>lib<span>/</span>screens<span>/</span>home<span>.</span>dart</code>, look for the <code>_HomeScreenState</code> class, and within it, the <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code> method. Update <code><span>setSuccessAuthState</span><span>(</span><span>)</span></code> to the following:</p><pre><code><span>// /lib/screens/home.dart</span>
+
+<span>setSuccessAuthState</span><span>(</span><span>)</span> <span>{</span>
+  <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+    isProgressing <span>=</span> <span>false</span><span>;</span>
+    isLoggedIn <span>=</span> <span>true</span><span>;</span>
+    name <span>=</span> AuthService<span>.</span>instance<span>.</span>idToken<span>?</span><span>.</span>name<span>;</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  ChatService<span>.</span>instance<span>.</span><span>connectUser</span><span>(</span>AuthService<span>.</span>instance<span>.</span>profile<span>)</span><span>;</span>
+  CoffeeRouter<span>.</span>instance<span>.</span><span>push</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
+<span>}</span></code></pre><p>You need to pass two required positional parameters:</p><ul><li>The <code>User</code> object with a defined user ID, and</li><li>the user token, a signed and encrypted hash string.</li></ul><p>Typically, the user token should be generated on a back-end server to store the aforementioned secret key and to sign and get the token. You&#39;ll soon learn how Auth0 can handle that as your backend.</p><p>To continue, you need to:</p><ul><li>Get a development token,</li><li>pass <code>user<span>.</span>id</code> to the <code><span>devToken</span><span>(</span><span>)</span></code> method on the chat client, and</li><li>Get the <code>rawValue</code> which is the token string.</li></ul><p>🛠 To ensure that <code>devToken</code> works, you need to disable auth checks. In the <code>GetStream</code> app’s chat dashboard, turn on the <strong>Disable Auth0 Checks</strong> option.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3DMx1hZFHbDqt50gtJErjO/9c4c7e3c1da342ddf10c8fb208ac8960/disable_auth_checks.png" alt="Stream dashboard."/></p><blockquote><p>When you move the app to production and you have a proper method to receive the production token, make sure that you turn off the <strong>Disable Auth0 Checks</strong> option.</p></blockquote><p>Stream chat UI components will accept additional data that you provide while connecting a user. For example, you may create a <code>Map</code> containing the user‘s image and name, so they appear automatically and beautifully throughout the chat widget.</p><p>At the time of writing, Stream does not accept Auth0’s user ID format, which includes <code><span>|</span></code> between the Auth source and user hash ID. You’ll need to make a change to the <code>id</code> arrow function in the <code>Auth0User</code> model to account for this.</p><p>🛠 Open <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_user<span>.</span>dart</code> and make this change to the <code>id</code> arrow function: </p><pre><code><span>// /lib/models/auth0_user.dart</span>
+
+String <span>get</span> id <span>=</span><span>&gt;</span> sub<span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>;</span></code></pre><p>The next and final step is to create <code>StreamChat</code>, the root widget of the application.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>main<span>.</span>dart</code> file, locate the call to  <code>MaterialApp</code>, and add the <code>builder</code> parameter so that it returns a <code>StreamChat</code> object:</p><pre><code><span>// /lib/main.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+<span>MaterialApp</span><span>(</span>
+  debugShowCheckedModeBanner<span>:</span> <span>false</span><span>,</span>
+  themeMode<span>:</span> ThemeMode<span>.</span>system<span>,</span>
+  home<span>:</span> <span>HomeScreen</span><span>(</span><span>)</span><span>,</span>
+  navigatorKey<span>:</span> CoffeeRouter<span>.</span>instance<span>.</span>navigatorKey<span>,</span>
+  theme<span>:</span> <span>getTheme</span><span>(</span><span>)</span><span>,</span>
+  builder<span>:</span> <span>(</span>context<span>,</span> child<span>)</span> <span>{</span>
+    <span>return</span> <span>StreamChat</span><span>(</span>
+      child<span>:</span> child<span>,</span>
+      client<span>:</span> ChatService<span>.</span>instance<span>.</span>client<span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span><span>,</span>
+<span>)</span><span>,</span>
+<span>.</span><span>.</span><span>.</span></code></pre><p>The <code>StreamChat</code> object returned by <code>builder</code> is an inherited widget and aims to provide APIs for advanced customization. It requires a child and a client that you have initialized in the <code>ChatService</code> class.</p><p>That&#39;s it — your chat is ready! Restart the app, and let&#39;s continue to add the support screen and community screen using the prebuilt <code>StreamChat</code> UI widget to leverage the chat service that you added.</p><h2 id="Implement-the-Support-Chat-Screen">Implement the Support Chat Screen</h2><p>Typically, a support chat consists of a user and an agent interacting in a channel created for both. Hence the support chat screen will do the following:</p><ul><li>Create a private channel for the current user and one of the available agents</li><li>Listen to the channel for updates</li><li>Load existing chat content, if any</li><li>Upon chat completion, archive the chat history</li></ul><p>Let&#39;s create a <code><span>createSupportChat</span><span>(</span><span>)</span></code> method in the <code>ChatService</code> class.</p><p>🛠 First, add the following instance variable to the start of the <code>ChatService</code> class:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+String<span>?</span> _currentChannelId<span>;</span></code></pre><p>🛠 Then add the <code><span>createSupportChat</span><span>(</span><span>)</span></code> method to the <code>ChatService</code> class:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+Future<span>&lt;</span>Channel<span>&gt;</span> <span>createSupportChat</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+  <span>// To be replaced with EmployeeRole via Auth0</span>
+  <span>final</span> String employeeId <span>=</span> <span>&#39;rootEmployeeId&#39;</span><span>;</span>
+  <span>final</span> channel <span>=</span> client<span>.</span><span>channel</span><span>(</span>
+    <span>&#39;support&#39;</span><span>,</span>
+    id<span>:</span> _currentChannelId<span>,</span>
+    extraData<span>:</span> <span>{</span>
+      <span>&#39;name&#39;</span><span>:</span> <span>&#39;MJCoffee Support&#39;</span><span>,</span>
+      <span>&#39;members&#39;</span><span>:</span> <span>[</span>
+        employeeId<span>,</span>
+        client<span>.</span>state<span>.</span>user<span>!</span><span>.</span>id<span>,</span>
+      <span>]</span>
+    <span>}</span><span>,</span>
+  <span>)</span><span>;</span>
+  <span>await</span> channel<span>.</span><span>watch</span><span>(</span><span>)</span><span>;</span>
+  _currentChannelId <span>=</span> channel<span>.</span>id<span>;</span>
+  <span>return</span> channel<span>;</span>
+<span>}</span></code></pre><p>There’s a lot going on here. Let&#39;s review it step by step.</p><p>First, to create a support chat channel for the current user, you need to know the ID of an available agent. In this tutorial, you will eventually learn how to create an API to get an available agent via Auth0 based on their roles. However, we’ll skip this part for now.</p><p>Second, you need to create a channel with a specific type. In this case, the type will be <code>support</code>. Stream provides default types for channels; however, you can define your types as needed. To create a channel type, navigate to the Stream dashboard, go to your app in the Chat overview tab, and add your channel types to the list.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6W33zODRlOuxetIMT5FFX5/c3b4894e13324aa8db4822545716248e/streamchat_type.png" alt="Stream channel types."/></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2Waym3vZQnTvKNejptTCJp/64b96fb65f65f5b1ceae5bf485eb2856/chat_type.png" alt="New stream channel type."/></p><p>Next, you can pass an existing channel ID to reconnect to a channel or leave it <code><span>null</span></code> to create a new channel. Stream will automatically assign an ID to new channels. Since this support chat is private and exclusive to one agent and a current user, you may add IDs to <code>members</code> in the <code>extraData</code> map.</p><p>Then, call the <code><span>watch</span><span>(</span><span>)</span></code> method on the channel to create and listen to the events on that channel. The <code><span>watch</span><span>(</span><span>)</span></code> method is a <code>Future</code> and will perform its tasks asynchronously. You can assign the channel ID to the <code>_currentChannelId</code> private instance variable so that you can reconnect to the channel when needed.</p><blockquote><p>Later on, it might be a good idea to store the channel ID in an external database or local secure storage in the app so that it persists between user sessions.</p></blockquote><p>Finally, the method returns the newly created channel.</p><p>With the <code><span>createSupportChat</span><span>(</span><span>)</span></code> method implemented, you can now implement the chat UI.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>screens<span>/</span>support<span>.</span>dart</code> file, where you’ll find the <code>SupportChatScreen</code> class. Update the file’s contents to the following:</p><pre><code><span>// /lib/screens/support.dart</span>
+
+<span>import</span> <span>&#39;package:flutter/material.dart&#39;</span><span>;</span>
+<span>import</span> <span>&#39;package:flutter/widgets.dart&#39;</span><span>;</span>
+
+<span>class</span> <span>SupportChatScreen</span> <span>extends</span> <span>StatefulWidget</span> <span>{</span>
+  <span>@override</span>
+  _SupportChatScreenState <span>createState</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> <span>_SupportChatScreenState</span><span>(</span><span>)</span><span>;</span>
+<span>}</span>
+
+<span>class</span> <span>_SupportChatScreenState</span> <span>extends</span> <span>State</span><span>&lt;</span>SupportChatScreen<span>&gt;</span> <span>{</span>
+  Auth0User<span>?</span> profile <span>=</span> AuthService<span>.</span>instance<span>.</span>profile<span>;</span>
+  Channel<span>?</span> channel<span>;</span>
+
+  <span>@override</span>
+  <span>void</span> <span>initState</span><span>(</span><span>)</span> <span>{</span>
+    <span>super</span><span>.</span><span>initState</span><span>(</span><span>)</span><span>;</span>
+    <span>createChannel</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>createChannel</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+    <span>final</span> _channel <span>=</span> <span>await</span> ChatService<span>.</span>instance<span>.</span><span>createSupportChat</span><span>(</span><span>)</span><span>;</span>
+    <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+      channel <span>=</span> _channel<span>;</span>
+    <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>@override</span>
+  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
+    <span>return</span> channel <span>==</span> <span>null</span>
+        <span>?</span> <span>Center</span><span>(</span>
+            child<span>:</span> <span>Text</span><span>(</span><span>&#39;You are in the queue!, please wait...&#39;</span><span>)</span><span>,</span>
+          <span>)</span>
+        <span>:</span> <span>Scaffold</span><span>(</span>
+            body<span>:</span> <span>SafeArea</span><span>(</span>
+              child<span>:</span> <span>StreamChannel</span><span>(</span>
+                channel<span>:</span> channel<span>!</span><span>,</span>
+                child<span>:</span> <span>Column</span><span>(</span>
+                  children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
+                    <span>Expanded</span><span>(</span>
+                      child<span>:</span> <span>MessageListView</span><span>(</span><span>)</span><span>,</span>
+                    <span>)</span><span>,</span>
+                    <span>MessageInput</span><span>(</span>
+                      disableAttachments<span>:</span> <span>true</span><span>,</span>
+                      sendButtonLocation<span>:</span> SendButtonLocation<span>.</span>inside<span>,</span>
+                      actionsLocation<span>:</span> ActionsLocation<span>.</span>leftInside<span>,</span>
+                      showCommandsButton<span>:</span> <span>true</span><span>,</span>
+                    <span>)</span><span>,</span>
+                  <span>]</span><span>,</span>
+                <span>)</span><span>,</span>
+              <span>)</span><span>,</span>
+            <span>)</span><span>,</span>
+          <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Here’s what’s happening in this UI implementation:</p><ul><li>This support chat screen, <code>SupportChatScreen</code>, is a <code>StatefulWidget</code>.</li><li>The <code>profile</code> variable is the user profile from <code>AuthService</code> that you created in the previous section.</li><li>The <code>channel</code> variable is used to detect if a support channel has been created.</li><li>The <code><span>createChannel</span><span>(</span><span>)</span></code> method calls <code>ChatService</code>’s <code><span>createSupportChat</span><span>(</span><span>)</span></code> method, which you recently defined.</li><li>Once the channel is ready, <code><span>setState</span><span>(</span><span>)</span></code> is called, which renders the chat UI.</li><li>In the <code><span>build</span><span>(</span><span>)</span></code> method, you can show a message while the channel is being created or return a <code>StreamChannel</code> object, which provides information about the channel to the widget tree and passes a reference to the <code>channel</code>.</li><li>Typically, a child of <code>SupportChatScreen</code> should be a <code>Column</code> that includes <code><span>MessageListView</span><span>(</span><span>)</span></code> and is wrapped by <code>Expanded</code> to ensure it takes up all the available space.</li><li>You can highly customize <code><span>MessageInput</span><span>(</span><span>)</span></code> in a number of ways, such as disabling the file attachment or command buttons. You’ll do this later by using Auth0’s permissions and roles to determine which buttons should be enabled or disabled, so stay tuned.</li></ul><p>Congratulations — you’ve implemented the support chat screen! Let&#39;s move on to the community view.</p><p>It&#39;s time to make a screen to allow agents to see all the messages they receive via support. Let&#39;s call this screen <code>CommunityScreen</code>.</p><p>🛠 Open the <code><span>/</span>lib<span>/</span>screens<span>/</span>community<span>.</span>dart</code> file, and update the <code>CommunityScreen</code> class within to the following:</p><pre><code><span>// /lib/screens/community.dart</span>
+
+<span>class</span> <span>CommunityScreen</span> <span>extends</span> <span>StatelessWidget</span> <span>{</span>
+  <span>final</span> userId <span>=</span> ChatService<span>.</span>instance<span>.</span>client<span>.</span>state<span>.</span>user<span>?</span><span>.</span>id <span>as</span> Object<span>;</span>
+
+  <span>@override</span>
+  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
+    <span>return</span> <span>Scaffold</span><span>(</span>
+      body<span>:</span> <span>ChannelsBloc</span><span>(</span>
+        child<span>:</span> <span>ChannelListView</span><span>(</span>
+          filter<span>:</span> Filter<span>.</span><span>in_</span><span>(</span>
+            <span>&#39;members&#39;</span><span>,</span>
+            <span>[</span>userId<span>]</span><span>,</span><span>// current user is employee (role/permission)</span>
+          <span>)</span><span>,</span>
+          sort<span>:</span> <span>[</span><span>SortOption</span><span>(</span><span>&#39;last_message_at&#39;</span><span>)</span><span>]</span><span>,</span>
+          pagination<span>:</span> <span>PaginationParams</span><span>(</span>
+            limit<span>:</span> <span>30</span><span>,</span>
+          <span>)</span><span>,</span>
+          channelWidget<span>:</span> <span>ChannelPage</span><span>(</span><span>)</span><span>,</span>
+        <span>)</span><span>,</span>
+      <span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span>
+
+<span>class</span> <span>ChannelPage</span> <span>extends</span> <span>StatelessWidget</span> <span>{</span>
+  <span>@override</span>
+  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
+    <span>return</span> <span>Scaffold</span><span>(</span>
+      appBar<span>:</span> <span>ChannelHeader</span><span>(</span><span>)</span><span>,</span>
+      body<span>:</span> <span>Column</span><span>(</span>
+        children<span>:</span> <span>&lt;</span>Widget<span>&gt;</span><span>[</span>
+          <span>Expanded</span><span>(</span>
+            child<span>:</span> <span>MessageListView</span><span>(</span><span>)</span><span>,</span>
+          <span>)</span><span>,</span>
+          <span>MessageInput</span><span>(</span><span>)</span><span>,</span>
+        <span>]</span><span>,</span>
+      <span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>The logic behind this page is relatively simple. You want to load all channels seen by the current user, an agent in this context, then open each channel to answer its respective customer.</p><p><code>ChannelsBloc</code> manages a list of channels with pagination, re-ordering, querying, and other operations associated with channels together with <code><span>ChannelListView</span><span>(</span><span>)</span></code>. The <code>Bloc</code> is not related to the <code>Bloc</code> package or pattern; this is just a coincidence.</p><p>You need to filter all channels by the membership of the current user. If necessary, do custom sorting and pagination too.</p><p>Lastly, you need to ensure that the <code><span>ChannelPage</span><span>(</span><span>)</span></code> is also passed to correctly as it makes channels routable. The <code><span>ChannelPage</span><span>(</span><span>)</span></code> is nothing fancy — just a straightforward implementation of what you have done already in <code>SupportScreen</code>.</p><p>Perfect! You have created all screens for the app. However, we still need to implement permissions and roles to load each screen and functionalities based on what we can define and receive via Auth0 tokens. But if you are curious, you can simply add another tab to the <code>MenuScreen</code> and load these pages (although you might not see any channels yet).</p><p>🛠 In the file <code><span>/</span>lib<span>/</span>screens<span>/</span>menu<span>.</span>dart</code>, locate <code>final List<span>&lt;</span>Widget<span>&gt;</span> tabs</code> in <code>MenuScreenState</code> and update it to the following:</p><pre><code><span>// /lib/screens/menu.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+  <span>final</span> List<span>&lt;</span>Widget<span>&gt;</span> tabs <span>=</span> <span>[</span>
+    <span>MenuList</span><span>(</span>coffees<span>:</span> coffees<span>)</span><span>,</span>
+    <span>SupportChatScreen</span><span>(</span><span>)</span><span>,</span>
+    <span>ProfileScreen</span><span>(</span><span>)</span><span>,</span>
+  <span>]</span><span>;</span>
+<span>.</span><span>.</span><span>.</span></code></pre><p>🛠 In the same file, add a new icon to <code>bottomNavigationBar</code> by replacing the <code>items</code> parameter with the following:</p><pre><code><span>// /lib/screens/menu.dart</span>
+
+items<span>:</span> <span>&lt;</span>BottomNavigationBarItem<span>&gt;</span><span>[</span>
+  <span>BottomNavigationBarItem</span><span>(</span>
+    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>list_alt<span>)</span><span>,</span>
+    label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span>
+  <span>)</span><span>,</span>
+  <span>BottomNavigationBarItem</span><span>(</span>
+    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>support<span>)</span><span>,</span>
+    label<span>:</span> <span>&#34;Support&#34;</span><span>,</span>
+  <span>)</span><span>,</span>
+  <span>BottomNavigationBarItem</span><span>(</span>
+    icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>person<span>)</span><span>,</span>
+    label<span>:</span> <span>&#34;Profile&#34;</span><span>,</span>
+  <span>)</span><span>,</span>
+<span>]</span><span>,</span></code></pre><p>🛠 Before you can test the chat, you should temporarily add the <code>rootEmployeeId</code> user ID that you defined in <code>createSupportChat</code>  in the Stream dashboard.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2RqndsI9Xp4CR35fYyRRSG/4832ae874ee2b4622ae4282560d1f396/chat_custom_user.png" alt="Custom user in the chat."/></p><p>You can skip this step, but it’s still a good idea to have a root support user in case of a specific agent is unavailable. That way, the user with the absent agent can still get support.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/qFcfGuNTipVpuEWJtAfM0/312b8561bbbbc47ed9a97342dbd46764/custom_user_root.png" alt="Custom user in the chat."/></p><p>🛠 Run your app in the emulator, go to the support chat screen, and try it out!</p><blockquote><p>If you encounter an error regarding an outdated Kotlin version on the Android emulator, open <code>android<span>/</span>app<span>/</span>build<span>.</span>gradle</code>, and search for <code>ext<span>.</span>kotlin_version</code>. Change that line to <code>ext<span>.</span>kotlin_version <span>=</span> <span>&#39;1.5.10&#39;</span></code>.</p></blockquote><h2 id="Auth0-Actions-and-Generating-Stream-User-Production-Tokens">Auth0 Actions and Generating Stream User Production Tokens</h2><p>Until now, for each user, you have been using a token generated for the development environment. In order to release your app, the app will have to request production tokens.</p><p>As I mentioned earlier, retrieving production tokens is usually done by your backend server. Auth0 can act as this service and retrieve those tokens for you, thanks to a potent tool called <em>Auth0 Actions</em>. </p><p>You can use Auth0 Actions to handle your application logic and fit it into a particular flow. They are secure, tenant-specific, versioned functions written in Node.js that execute at specific points when Auth0 is doing its work. This allows you to customize and extend Auth0&#39;s capabilities with custom logic. Think of Actions as serverless functions, such as AWS Lambda or Google Cloud Functions.</p><p>You can determine when and where to execute an Action in the Auth0 runtime environment. Your flows might be:</p><ul><li><strong>Login:</strong> Executed after a user logs in and when refresh tokens are issued.</li><li><strong>Machine to Machine:</strong> Executed after a user logs in after the Client Credentials hook.</li><li><strong>Pre-User Registration:</strong> Executed before a user is added to the database or passwordless connections.</li><li><strong>Post-User Registration:</strong> Executed after a user is added to a database or passwordless connections. The execution is asynchronous and will not affect the transaction.</li><li><strong>Post-Change Password:</strong> Executed after a password is changed for a database connection user.</li><li><strong>Send Phone Message:</strong> Executed when using a custom MFA provider.</li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7fpne9yUGBpXYzAT5km5l5/83ab5c891c02495d53a9d2661e10083e/actions_flow.png" alt="Actions flow"/></p><p>You’ve probably already thought of several use cases for each of these scenarios.</p><p>Let&#39;s create a custom action to exchange Stream production user tokens for users after they logged in and hooked it up to the ID token and user metadata received by the Flutter app.</p><p>First, you need to create a new action. Go to the Custom Actions menu under Actions in Auth0 Dashboard and hit the &#34;Create&#34; button.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/oR6jv9IA92twMdtRrAvIz/e414cac9a740c5fdd5eaab85a7795ebb/create_action.png" alt="Create action"/></p><p>🛠 You should provide a name for the action, select a trigger from the list, and then create it. For the purpose of generating a chat token and attaching it to <code>idToken</code>, select the <strong>Login / Post Login</strong> trigger, which allows you to use the action in the login flow.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5wbUmlcD0qq7FrgBCiURrS/a95bb544b5d4fdaa4eac2a87b5fd9361/create_action_trigger.png" alt="Create action trigger"/></p><p>You&#39;ll see an editor where you can write your logic. You can run the code, try it out before deploying it, add your secrets to the environment instead of putting it in the application code, and even add almost all public NPM packages!</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/46DWkLU05SPD1kTE6i5oGF/54f46b0d30cd13bf141b4beb28a2445e/action_module.png" alt=" action module"/></p><p>🛠 Start by adding the <code>getstream</code> npm package. At the time of writing, the current version of the package is <code><span>7.2</span><span>.10</span></code>.</p><p>🛠 Go back to the Stream dashboard, copy your secret and client keys...</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5aLtEOAjfXguB6BQlI8fmB/b55f3fd1d0c7c44c91c760c5850d8457/chat_app_secret.png" alt="chat app secret"/></p><p>🛠 ...and then add them with the name of <code><span>GET_STREAM_CHAT_SECRET_KEY</span></code> and <code><span>GET_STREAM_CHAT_CLIENT_KEY</span></code>, respectively, to this function in Auth0.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4JgG1WLTfWa2RTlkzAkV8j/1704cdf6b2e7abfd23e611171440dce5/action_secrets.png" alt=" action secrets"/></p><p>🛠 Lastly, you can import <code>getStream</code> and connect and create a user token bypassing <code>user_id</code>.</p><pre><code><span>// Javascript</span>
+
+<span>const</span> stream <span>=</span> <span>require</span><span>(</span><span>&#39;getstream&#39;</span><span>)</span><span>;</span>
+
+exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async</span> <span>(</span><span>event<span>,</span> api</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>const</span> getStreamClient <span>=</span> stream<span>.</span><span>connect</span><span>(</span>
+    event<span>.</span>secrets<span>.</span><span>GET_STREAM_CHAT_CLIENT_KEY</span><span>,</span>
+    event<span>.</span>secrets<span>.</span><span>GET_STREAM_CHAT_SECRET_KEY</span>
+  <span>)</span><span>;</span>
+  <span>const</span> getStreamToken <span>=</span> getStreamClient<span>.</span><span>createUserToken</span><span>(</span>
+    <span><span>`</span><span><span>${</span>event<span>.</span>user<span>.</span>user_id<span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>}</span></span><span>`</span></span> <span>// getstream does not support `|` in the ID yet, so we have to omit it.</span>
+  <span>)</span><span>;</span>
+
+  <span>// api.user.setAppMetadata(&#34;stream_chat_token&#34;, getStreamToken);</span>
+  <span>// api.user.setUserMetadata(&#34;stream_chat_token&#34;, getStreamToken);</span>
+  <span>const</span> namespace <span>=</span> <span>&#39;https://getstream.mjcoffee.app&#39;</span><span>;</span>
+  <span>if</span> <span>(</span>event<span>.</span>authorization<span>)</span> <span>{</span>
+    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/user_token</span><span>`</span></span><span>,</span> getStreamToken<span>)</span><span>;</span>
+    api<span>.</span>accessToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/user_token</span><span>`</span></span><span>,</span> getStreamToken<span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span><span>;</span></code></pre><p>Let&#39;s explore the implementation above. </p><p>Once you get the token, you can set a user or app metadata named <code>stream_chat_token</code> with the token value. </p><p>Alternately, you can set a custom claim on <code>idToken</code> and <code>accessToken</code>. A custom claim must take the form of a URI, which means that <code>https<span>:</span><span>/</span><span>/</span>getstream<span>.</span>mjcoffee<span>.</span>app<span>/</span>user_token</code> is an acceptable name for a claim, while <code>user_token</code> alone is not.</p><blockquote><p><strong>Important:</strong> In Stream, only the characters <code>a</code> through <code>z</code>, <code><span>0</span></code> through <code><span>9</span></code>, <code>@</code>, <code>_</code>, and <code><span>-</span></code> are allowed in the user ID. Therefore, we shouldn’t use the <code><span>|</span></code> for <code>user_id</code> in Auth0.</p></blockquote><p>Let&#39;s run and test this function before we deploy. Click on the play icon and run with the example event, which is automatically generated for you.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1b3pOpx8O1g4MBOqmhI6ix/88e2335e0b2bb8a3730dba6ebcc57e44/action_run.png" alt=" action run"/></p><p>If everything goes well, you’ll get a generated token in JWT format. Its payload will contain <code>user_id</code>, and it will be signed with your secret key by the Stream servers.</p><p>Here’s an example of what you’ll get:</p><pre><code><span>// response in Action run</span>
+
+<span>[</span>
+  <span>{</span>
+    name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>,</span>
+    target<span>:</span> <span>&#39;idToken&#39;</span><span>,</span>
+    type<span>:</span> <span>&#39;SetCustomClaim&#39;</span><span>,</span>
+    value<span>:</span>
+      <span>&#39;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYXV0aDA1ZjdjOGVjN2MzM2M2YzAwNGJiYWZlODIifQ.7ZIyr27skgrGm6REEz5o-WvoCArNblDnwiOdxXW4dp8&#39;</span><span>,</span>
+  <span>}</span><span>,</span>
+  <span>{</span>
+    name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>,</span>
+    target<span>:</span> <span>&#39;accessToken&#39;</span><span>,</span>
+    type<span>:</span> <span>&#39;SetCustomClaim&#39;</span><span>,</span>
+    value<span>:</span>
+      <span>&#39;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYXV0aDA1ZjdjOGVjN2MzM2M2YzAwNGJiYWZlODIifQ.7ZIyr27skgrGm6REEz5o-WvoCArNblDnwiOdxXW4dp8&#39;</span><span>,</span>
+  <span>}</span><span>,</span>
+<span>]</span><span>;</span></code></pre><p><img src="https://images.ctfassets.net/23aumh6u8s0i/Ax6b4nRMkHyjvfGBK47bV/d15969eb0f4740dfe1057372e04c4437/jwt_stream.png" alt="action run"/></p><p>🛠 Next, go back to <strong>Flow</strong>, select <strong>Login</strong>, and drag your newly-created custom action to the flow and apply the changes:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5oYj9z0hIawXOi3dSW8dEZ/4684098fb3b108dd0cc4f32e01aa4e59/login_flow.png" alt=" action run"/></p><p>For the last step, the Flutter app needs to read this token and add it to the user model. That way, when you connect a user to Stream’s chat, instead of the development tokens you’ve been using, you can replace it with the token that Auth0 received.</p><p>🛠 Since it&#39;s a custom claim, it will show up in <code>idToken</code>; thus you’ll need to modify your <code>Auth0IdToken</code> model class (located in <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_id_token<span>.</span>dart</code>)...</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0IdToken</span> <span>{</span>
+  <span>Auth0IdToken</span><span>(</span><span>{</span>
+  
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+  
+    required <span>this</span><span>.</span>streamChatUserToken<span>,</span>
+  
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+  
+<span>}</span><span>)</span>
+
+<span>.</span><span>.</span><span>.</span><span>.</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>)</span>
+  <span>final</span> String streamChatUserToken<span>;</span>
+
+<span>.</span><span>.</span><span>.</span><span>.</span>
+
+<span>}</span></code></pre><p>🛠 Then do the same with your <code>Auth0User</code> class (located in <code><span>/</span>lib<span>/</span>models<span>/</span>auth0_user<span>.</span>dart</code>), as it will be part of the user details:</p><pre><code><span>// m/lib/models/auth0_user.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0User</span> <span>{</span>
+  <span>Auth0User</span><span>(</span><span>{</span>
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+      required <span>this</span><span>.</span>streamChatUserToken<span>,</span>
+  <span>.</span><span>.</span><span>.</span><span>.</span>
+<span>}</span><span>)</span>
+<span>.</span><span>.</span><span>.</span><span>.</span>
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://getstream.mjcoffee.app/user_token&#39;</span><span>)</span>
+  <span>final</span> String streamChatUserToken<span>;</span>
+<span>.</span><span>.</span><span>.</span><span>.</span>
+<span>}</span></code></pre><p>🛠 Once you are done, run the <code>build_runner</code> command to generate models again.</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>🛠 Locate <code>connectUser</code> in the <code>ChatService</code> class (located in <code><span>/</span>lib<span>/</span>services<span>/</span>chat_service<span>.</span>dart</code>) and replace <code><span>devToken</span><span>(</span><span>)</span></code> with the newly-received token on the user object.</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+<span>await</span> client<span>.</span><span>connectUser</span><span>(</span>
+  <span>User</span><span>(</span>
+    id<span>:</span> user<span>.</span>id<span>,</span>
+    extraData<span>:</span> <span>{</span>
+      <span>&#39;image&#39;</span><span>:</span> user<span>.</span>picture<span>,</span>
+      <span>&#39;name&#39;</span><span>:</span> user<span>.</span>name<span>,</span>
+    <span>}</span><span>,</span>
+  <span>)</span><span>,</span>
+  <span>// client.devToken(user.id).rawValue,</span>
+    user<span>.</span>streamChatUserToken<span>,</span>
+<span>)</span><span>;</span></code></pre><p>Well done! Log out of the app, restart it. and log in again. This time, you&#39;ll receive a production-ready user token. When you go to the support chat screen, everything should work as expected.</p><h2 id="Looking-Ahead">Looking Ahead</h2><p>Now that the app has a real-time chat is ready with a proper authentication flow, you can move on to the next section to focus on authorization, roles, and permissions.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
     <item>
