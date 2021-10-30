@@ -1125,13 +1125,6 @@ app<span>.</span><span>UseEndpoints</span><span>(</span>endpoints <span>=&gt;</s
       <pubDate>Tue, 05 Oct 2021 13:54:00 +0000</pubDate>
     </item>
     <item>
-      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
-      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
-      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
-      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
-    </item>
-    <item>
       <title>Flutter Authentication and Authorization with Auth0, Part 3: Adding Real-Time Chat to the App</title>
       <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-3-adding-real-time-chat-to-the-app/</link>
       <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
@@ -2018,6 +2011,13 @@ Future<span>&lt;</span><span>void</span><span>&gt;</span> <span>archiveSupportCh
     <span>)</span><span>;</span>
   <span>}</span>
 <span>}</span></code></pre><p>The <code>actions</code> parameter adds a list of additional actions to the <code>GetStream</code> chat input UI. You can call the <code>archiveSupportChat</code> method <code><span>OnPressed</span><span>(</span><span>)</span></code> and hide the chat, and redirect the user to the menu screen to show a proper message that the discussion is closed. They can reopen by returning to the support screen.</p><h2 id="Conclusion">Conclusion</h2><p>Authentication and authorization are complex but necessary features of most applications, and they can be tricky to implement and manage. Auth0 provides a reliable service that takes on these tasks. You can this service in Flutter applications without having to set up a server or maintain infrastructure. You can also make use of serverless tools such as Auth0 Actions, which you can use to add sophistication to your authentication and authorization process.</p><p>You have seen how you can speed up your development by adding a support chat using <code>GetStreamChat</code> to a Flutter application. You’ve also seen how you can limit the functionality available to users by leveraging roles and permissions received from Auth0 via tokens.</p><p>Congratulations! You’ve come a long way over this tutorial’s four parts, and I hope that you have learned a lot. This is just the beginning — you can still implement and configure a lot, using both Stream and Auth0, and take your apps to the next level.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
     <item>
