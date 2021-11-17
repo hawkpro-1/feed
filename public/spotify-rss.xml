@@ -4,7 +4,185 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
-      <title>&#xA;                                            The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part I)&#xA;                                        </title>
+      <title>&#xA;                                            Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%&#xA;                                        </title>
+      <link>https://engineering.atspotify.com/2021/11/16/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/</link>
+      <description>At Spotify, we constantly work on creating the best developer experience possible for our iOS engineers. Improving build times is one of the most common requests for infrastructure teams and, as such, we constantly seek to improve our infrastructure toolchain. We are excited to be open sourcing X</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
+        
+        
+
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>November 16, 2021</span>
+                
+            </p>
+        </div>
+        
+        <p><a href="https://engineering.atspotify.com/2021/11/16/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/" title="Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" alt="" loading="lazy" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-768x378.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p>At Spotify, we constantly work on creating the best developer experience possible for our iOS engineers. Improving build times is one of the most common requests for infrastructure teams and, as such, we constantly seek to improve our infrastructure toolchain.</p>
+
+
+
+<p>We are excited to be open sourcing <a href="https://github.com/spotify/XCRemoteCache" target="_blank" rel="noreferrer noopener">XCRemoteCache</a>, the library we created to mitigate long local builds. As the name suggests, this library is a remote caching implementation for iOS projects with an aim to reuse Xcode target artifacts generated on Continuous Integration (CI) machines. It supports Objective-C, Swift, and ObjC+Swift targets and can be easily integrated with existing Xcode projects, including ones managed by CocoaPods or Carthage.</p>
+
+
+
+<p>Best of all, XCRemoteCache resulted in a <strong>70% decrease in clean build times</strong> (we classify a build as <em>clean</em> when at least 50% of all targets compile at least one file).</p>
+
+
+
+<h2><strong>Background</strong></h2>
+
+
+
+<p>Using our Xcode build metrics (for more details on how this works, take a look at our open source <a href="https://xcmetrics.io/" target="_blank" rel="noreferrer noopener">XCMetrics project</a>), we found out that it often takes our developers more than 10 minutes to build the main Spotify iOS application. Even though the number of these builds is relatively small (less than 3% of all builds), they take more than 50% of global building times (Figure 1). </p>
+
+
+
+<p>After some investigation, it was revealed that long-lasting builds usually happen after rebasing or merging remote branches. Implementing a remote cache solution was the perfect fit.</p>
+
+
+
+<figure><img loading="lazy" width="700" height="354" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/BuildsBuild-Times-700x354.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/BuildsBuild-Times-700x354.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/BuildsBuild-Times-250x127.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/BuildsBuild-Times-768x389.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/BuildsBuild-Times-120x61.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/BuildsBuild-Times.png 1205w" sizes="(max-width: 700px) 100vw, 700px"/><figcaption>Figure 1: Distribution of local machines’ build times and their total build times.</figcaption></figure>
+
+
+
+<h2><strong>Remote cache principle</strong></h2>
+
+
+
+<p>A remote cache is a popular technique to speed up builds of big applications by applying the “compile once, use everywhere” approach. As long as all input files and compilation parameters are the same, instead of building a target locally, one can download artifacts that were built and shared from some other machine. A key success factor for remote caching is finding an optimal caching level. Caching units that are too granular, where every single piece of the compilation step is cacheable, may lead to extensive network traffic overhead, which can offset CPU savings. On the other hand, putting the entire codebase into a single cacheable unit may significantly degrade the caching hit rate; every single local change invalidates remotely available cache artifacts, triggering a full build, locally.</p>
+
+
+
+<p>The main Spotify iOS application is highly modularized and contains more than 400 independent modules configured as separate Xcode targets. Applying target-level caching was natural, and as we found out later, the right decision.</p>
+
+
+
+<h2><strong>Designing the remote cache solution </strong></h2>
+
+
+
+<p>In the design phase, our aim was to come up with a solution generic enough that it could be applied to a broad range of iOS applications with minimal or no project changes. That was an ambitious goal given how the Xcode build system works. Before going straight to the applied solution, let’s consider how an Xcode build actually works. </p>
+
+
+
+<h2><strong>How does XCRemoteCache work?</strong></h2>
+
+
+
+<p>In general, all caching mechanisms use a fingerprint of input files to recognize if build products can be reused. However, finding a precise set of these files is a nontrivial task. The Xcode build system is very liberal when it comes to dependency attribution. It tries to optimistically find a definition of the dependency (header files, <code>.swiftmodule</code>, etc.) in all available search paths — provided either by the developer in the Xcode project settings or in the current build product directory. As a result, developers don’t have to explicitly specify all dependencies a target uses, but just have to make sure that those dependencies will be placed in a correct location <em>before</em> Xcode actually needs them. The fact that compilers are able to implicitly find required dependencies, hinders the simple fingerprint generation by hashing all available files in header and framework search paths — a list of files to consider in the fingerprinting would often be too broad.</p>
+
+
+
+<p>On the other hand, we observed that Xcode works quite well for local incremental builds and executes only a narrow subset of steps that were affected since the last build. In other words, the Xcode build system knows which files are the actual input files for the compilation, but that list is generated as compiler’s output (.d files) and is not available ahead of a compilation.</p>
+
+
+
+<p>XCRemoteCache applies a unique approach to automatically identify all input files of the compilation based on Git history and dependency lists provided as a compilation output. The generation side, called <em>producer mode</em>, along with the compilation product, also uploads a meta file. That file contains a list of all compilation files the compiler used and the full SHA-1 (Secure Hash Algorithm 1) commit identifier it was built against. The producer mode should run on CI for each primary branch (like <code>master</code> or <code>develop</code>) commit, as a part of the post-merge phase.</p>
+
+
+
+<p>On the consumer side (aka <em>consumer mode</em>), XCRemoteCache finds the most recent history commit for which the remote server contains build artifacts and builds a fingerprint based on input files provided in the meta file. Let’s imagine two developers, <code>A</code> and <code>B</code>, working on their local branches <code>featureA </code>and <code>featureB</code>, branching out from <code>master </code>on <code>Commit1</code> and <code>Commit3</code>, respectively (Figure 2). A CI job that produces and uploads cache artifacts to the central server finished its work only for commits 1, 2, and 4. For some reason, <code>Commit3</code> artifacts are not ready — either the build is in progress or it has failed. Developer A’s machine will reuse the artifacts generated for <code>Commit1</code>, while Developer B’s takes them from <code>Commit2</code> — it tried with <code>Commit3</code>, but they are not ready yet.</p>
+
+
+
+<figure><img loading="lazy" width="700" height="440" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Commit_Artifacts-700x440.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Commit_Artifacts-700x440.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Commit_Artifacts-250x157.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Commit_Artifacts-768x483.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Commit_Artifacts-120x75.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Commit_Artifacts.png 1205w" sizes="(max-width: 700px) 100vw, 700px"/><figcaption>Figure 2: Finding a commit with artifacts to reuse.</figcaption></figure>
+
+
+
+<div><p>With that procedure, XCRemoteCache gets a strict list of input files almost for free.</p><p>Assuming we have an app split into several independent targets and local branches that don’t divert much from a primary branch, the caching hit rate will be high, minus only these targets that contain changes comparing the commit of which remote artifacts are used. </p></div>
+
+
+
+<h3>Build artifacts portability</h3>
+
+
+
+<p>Another problem to consider is “build artifacts portability” between multiple machines. Several types of compilation output files include absolute paths, so for full compatibility, some kind of normalization is required. For iOS projects, such a step is required for <code>.swiftmodule</code> files and debug symbols. </p>
+
+
+
+<p>Projects cloned to <code>/dir1</code> and <code>/dir2</code> generate <code>.swiftmodule </code>files that do not match on a byte level. Swiftmodule represents an inter-module API (Swift counterparts to .h) that can be included in the list of fingerprinting files. To overcome falsy cache misses if two machines don’t have the same absolute source root paths, XCRemoteCache carries an extra fingerprint file (called a fingerprint override) next to the <code>.swiftmodule </code>that includes a fingerprint of all the files used in the compilation step. A fingerprint override is path agnostic, so contrary to the <code>.swiftmodule</code> file, it can be used as a byte-level stable fingerprint of a Swift target. </p>
+
+
+
+<p>Debug symbols, other path-sensitive files, are appended to the binary package to associate the machine code with the corresponding source location when debugging. The XCRemoteCache leverages support for LLDB runtime path rewrites using <code>settings set target.source-map</code>. Both producer and consumer pass <code>debug-prefix-map</code> parameters to the Swift and Clang compilers to align the source root of all debug symbols making the LLDB source mapping a simple, single-line command.</p>
+
+
+
+<h2><strong>The Spotify story</strong></h2>
+
+
+
+<p>At Spotify, we have fast, well-optimized CI jobs that no longer slow down our development feedback loop (please head to <a href="https://engineering.atspotify.com/2020/05/01/how-we-gave-superpowers-to-our-macos-ci/" target="_blank" rel="noreferrer noopener">How We Gave Superpowers to Our macOS CI</a> to read more about that), so we focused on applying XCRemoteCache on local machines. Keep in mind that the tool is able to work on CI machines and accelerate PR jobs, too.</p>
+
+
+
+<p>In controlled conditions, XCRemoteCache was able to cut the very first iOS Spotify application build time by 85%. This was a great achievement, but in practice, developers introduce changes locally, and some targets have to be compiled locally. Our goal was to evaluate real-world scenarios to understand their true impact. To estimate that, we rolled out the remote cache to 50% of our developers for a week and compared all build metrics. </p>
+
+
+
+<p>Results exceeded our expectations — we observed a huge improvement of the local build times: <strong>median clean build and incremental build times decreased by 70% and 6%, respectively. </strong>We classify builds as <em>clean</em> when at least 50% of all targets compile at least one file.  Other builds that compile at least one file are <em>incremental</em>.</p>
+
+
+
+<p>So, we enabled XCRemoteCache into our main application more than a year ago, and since then, it has worked flawlessly. We get very positive feedback from our developers and, as a side effect, we’ve seen the portion of clean builds almost double compared to the pre-remote cache times. Developers nowadays are twice more likely to rebase their working branches, eventually leading to fewer conflicts when creating a pull request. </p>
+
+
+
+<h2><strong>How to integrate XCRemoteCache into your existing project</strong></h2>
+
+
+
+<p>Now that XCRemoteCache is open source, you can apply it to your own project with minimum effort. It supports multiple project setups, including the ones managed by CocoaPods, Carthage, or any other custom dependency management. Keep in mind, though, that for best results, your project should be split into several targets or you risk frequent cache invalidations, as described above.</p>
+
+
+
+<div><p>For seamless integration, we are open sourcing a <a href="https://github.com/spotify/XCRemoteCache/tree/master/cocoapods-plugin" target="_blank" rel="noreferrer noopener">CocoaPods plugin</a> and provide an automated script to modify the existing .xcodeproj project.</p><p>XCRemoteCache works with any HTTP server that supports PUT, HEAD, and GET requests. You are free to pick a server that works best for you, including the two popular storage options provided by Amazon S3 and Google’s Google Cloud Storage. We also provide a simple docker image that hosts a local server, perfect for the development phase.</p></div>
+
+
+
+<p>With that in place, you should be able to try out XCRemoteCache within minutes. For a list of integration steps, head to the <a href="https://github.com/spotify/XCRemoteCache#how-to-integrate-xcremotecache-with-your-xcode-project" target="_blank" rel="noreferrer noopener"><em>How-to</em></a><em> </em>section in the GitHub repo.</p>
+
+
+
+<h2><strong>Contributing to XCRemoteCache</strong></h2>
+
+
+
+<p>The XCRemoteCache tool is written fully in Swift, so iOS developers can easily familiarize themselves with the codebase and potentially contribute to it. We tried to cover most of the common scenarios but, keeping in mind that Xcode projects may have very custom setups, some of them may not be compatible right now. Therefore, any inputs from the community, both raising issues or pull requests, are very welcome. We believe that, together, we will be able to move the project even further and support a wider audience of iOS developers. </p>
+
+
+
+<p>If you want to contribute to the codebase, make sure to check out our <a href="https://github.com/spotify/XCRemoteCache/blob/master/docs/Development.md" target="_blank" rel="noreferrer noopener">development</a> guide. And if you want to work full-time on tools like that, please check out our <a rel="noreferrer noopener" href="https://www.lifeatspotify.com/jobs" target="_blank">open job positions</a>.</p>
+
+
+
+<p>I want to personally thank Erick Camacho for his help in preparing this blog post.</p>
+
+
+
+<p><em>Xcode is a trademark of Apple Inc., registered in the U.S. and other countries.</em></p>
+        <p>
+
+        Tags: <a href="https://engineering.atspotify.com/tag/mobile/" rel="tag">Mobile</a></p>
+
+        
+
+            </div></div>]]></content:encoded>
+      <author>Published by Bartosz Polaczyk, Senior Engineer</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" length="0" type="image/png"></enclosure>
+      <pubDate>Tue, 16 Nov 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>&#xA;                                            The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part I)&#xA;</title>
       <link>https://engineering.atspotify.com/2021/11/15/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-i/</link>
       <description>At Spotify, our goal is to connect listeners with creators, and one way we do that is by recommending quality music and podcasts on the Home page. In this two-part blog series, we will talk about the ML models we build and use to recommend diverse and fulfilling content to our listeners, and the les</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
