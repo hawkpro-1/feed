@@ -4,7 +4,7 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
-      <title>&#xA;                                            Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%&#xA;                                        </title>
+      <title>&#xA;                                            Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%&#xA;</title>
       <link>https://engineering.atspotify.com/2021/11/16/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/</link>
       <description>At Spotify, we constantly work on creating the best developer experience possible for our iOS engineers. Improving build times is one of the most common requests for infrastructure teams and, as such, we constantly seek to improve our infrastructure toolchain. We are excited to be open sourcing X</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
