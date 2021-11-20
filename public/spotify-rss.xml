@@ -4,7 +4,7 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
-      <title>&#xA;                                            The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)&#xA;                                        </title>
+      <title>&#xA;                                            The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)&#xA;</title>
       <link>https://engineering.atspotify.com/2021/11/18/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/</link>
       <description>In Part I of this two-part series, we talked about the challenges we faced with the models we use to recommend content on Home, including: The Podcast Model: Predicts podcasts a listener is likely to listen to in the Shows you might like shelf. The Shortcuts Model: Predicts the listener’s next fa</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
