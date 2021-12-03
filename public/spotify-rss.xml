@@ -4,6 +4,100 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
+      <title>&#xA;                                            How Spotify Uses ML to Create the Future of Personalization&#xA;                                        </title>
+      <link>https://engineering.atspotify.com/2021/12/02/how-spotify-uses-ml-to-create-the-future-of-personalization/</link>
+      <description>Machine learning is what drives personalization on Spotify. We may have a single platform with 381 million different users, but it may actually be more accurate to say there are 381 million individual versions of Spotify, each one filled with different Home pages, playlists, and recommendations. But</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
+
+                        
+
+                <article id="post-4904">
+    <div>
+        
+        
+
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>December 2, 2021</span>
+                
+            </p>
+        </div>
+        
+        <p><a href="https://engineering.atspotify.com/2021/12/02/how-spotify-uses-ml-to-create-the-future-of-personalization/" title="How Spotify Uses ML to Create the Future of Personalization">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header.png" alt="" loading="lazy" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header.png 1920w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header-250x141.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header-700x394.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header-768x432.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header-1536x864.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header-120x68.png 120w" sizes="(max-width: 1920px) 100vw, 1920px"/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p>Machine learning is what drives personalization on Spotify. We may have a single platform with 381 million different users, but it may actually be more accurate to say there are 381 million individual versions of Spotify, each one filled with different Home pages, playlists, and recommendations. But with a library of over 70 million tracks to thumb through, how do our ML models actually go about making these decisions?</p>
+
+
+
+<p>Well, Spotify’s VP of Personalization Oskar Stål recently gave a talk at TransformX, a summit for leaders in ML and AI, to discuss just that. Read on to get a glimpse of how ML and reinforcement learning help inform our music and podcast recommendations, and don’t forget to check out Oskar’s presentation <a href="https://www.youtube.com/watch?v=n16LOyba-SE&amp;list=PLf1KFlSkDLIBNfiMCsXfj_pegmiyRwrSc" target="_blank" rel="noreferrer noopener">here</a> (or below!) to hear even more about the future of ML at Spotify.</p>
+
+
+
+<h2><strong>How do we use ML? </strong></h2>
+
+
+
+<p>It all starts with data. At the most fundamental level, all sorts of user info — playlists, listening history, interactions with Spotify’s UI, etc. — are fed into our ML models, while keeping trust and responsibility top of mind. Every day, nearly half a trillion events are processed, and the more info our models gather, the smarter they become about making associations between different artists, songs, podcasts, and playlists.</p>
+
+
+
+<p>But our ML models even go beyond this, incorporating other factors in their decision-making processes. What time of day is it? Is this playlist for working out or chilling out? Are you on mobile or desktop? By incorporating several of these ML models throughout Spotify’s infrastructure, we’re able to offer increasingly intelligent, specialized recommendations that can, as Oskar puts it, “serve even the narrowest of tastes”.</p>
+
+
+
+<p>We aren’t just looking for our users’ instant gratification, though. We want to provide listeners with a lifetime of great audio experiences and be with them on every step of that journey. And that brings us to what we’re working on now.</p>
+
+
+
+<h2><strong>The future is reinforcement learning</strong></h2>
+
+
+
+<p>Reinforcement learning, or RL, is a type of ML model that responds to its current environment in an effort to maximize the ultimate, long-term reward, whatever that may be. In our case, that reward is our users’ long-term satisfaction with Spotify. RL isn’t about short-term solutions. It’s always playing the long game.</p>
+
+
+
+<p>In a general sense, our RL model tries to predict how satisfied our users are with their current experience, and attempts to nudge them toward consuming more fulfilling content in their audio diet to make them happier with the service. In other words, rather than handing users the “empty calories” of a content diet that will only satisfy them in the moment, RL aims to push them to a more sustainable, diverse, and fulfilling content diet that will last a lifetime. </p>
+
+
+
+<p>This could mean playing a new dance track we think might fit a user’s current mood, or it could mean suggesting a calming, ambient piece to help them study. Predicting what a user will want 10 minutes from now, a day from now, a week from now, means creating a ton of simulations and running the RL model against those simulations to make it smarter, like a computer playing against itself in chess to get better at the game.</p>
+
+
+
+<p>With ML and RL, we’re trying to create a more holistic audio experience, focused on recommendations that ensure long-term satisfaction and enjoyment. Our approach to personalization doesn’t just benefit listeners: better and more satisfying recommendations help out artists, exposing their work to a larger audience more likely to enjoy it. After all, there’s a reason there are 16 billion artist discoveries every month on our platform. And the best is yet to come.</p>
+
+
+
+<figure><p>
+<iframe loading="lazy" title="VP of Personalization Oskar Stål Talks the Future of ML at TransformX" width="900" height="506" src="https://www.youtube.com/embed/n16LOyba-SE?list=PLf1KFlSkDLIBNfiMCsXfj_pegmiyRwrSc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</p></figure>
+        <p>
+
+        Tags: <a href="https://engineering.atspotify.com/tag/machine-learning/" rel="tag">machine learning</a></p>
+
+        
+
+            </div>
+    
+
+
+</article>
+                
+
+            
+        
+    </section></div>]]></content:encoded>
+      <author>Published by Spotify Engineering</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Oskar-at-TransformX_Header.png" length="0" type="image/png"></enclosure>
+      <pubDate>Thu, 02 Dec 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>&#xA;                                            The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)&#xA;</title>
       <link>https://engineering.atspotify.com/2021/11/18/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/</link>
       <description>In Part I of this two-part series, we talked about the challenges we faced with the models we use to recommend content on Home, including: The Podcast Model: Predicts podcasts a listener is likely to listen to in the Shows you might like shelf. The Shortcuts Model: Predicts the listener’s next fa</description>
