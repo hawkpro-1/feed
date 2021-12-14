@@ -714,6 +714,176 @@ Security rules like this use your Vault audit logs as the basis to detect possib
       <pubDate>Wed, 01 Dec 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
+      <title>Monitor your HCP Vault cluster with Datadog</title>
+      <link>https://www.datadoghq.com/blog/hcp-vault-monitoring-datadog/</link>
+      <description>&lt;img class=&#34;webfeedsFeaturedVisual rss&#34; src=&#34;https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_hero.png&#34; width=&#34;100%&#34;/&gt;HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With Vault, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via VPC peering in order to securely access and modify secrets from your own system.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
+
+
+<p>HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With <a href="https://www.datadoghq.com/blog/monitor-vault-metrics-and-logs/">Vault</a>, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via <a href="https://learn.hashicorp.com/tutorials/cloud/amazon-peering-hcp?in=vault/cloud-ops">VPC peering</a> in order to securely access and modify secrets from your own system.</p>
+<p>Datadog’s new HCP Vault integration gives you an out-of-the-box dashboard that lets you start monitoring activity across your cluster right away. You can also analyze how teams across your organization are using Vault and set up alerts to detect possible security vulnerabilities.</p>
+<div>
+<figure>
+<picture>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
+<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=847" alt="Out-of-the-box dashboard for HCP Vault monitoring."/>
+</picture>
+</figure>
+</div>
+<h2 id="spot-vulnerabilities-in-token-ttls"><a href="#spot-vulnerabilities-in-token-ttls">Spot vulnerabilities in token TTLs</a></h2><p>HCP Vault manages secret access with tokens. Once a client—such as a user, application, or container—has been successfully authenticated, Vault assigns it a token with the correct access control list (ACL) policies. The client can then use this token to make future requests without needing to repeat the full authentication process.</p>
+<p>Tokens may be associated with <a href="https://www.vaultproject.io/docs/concepts/lease">leases</a>. Vault leases use time-to-live (TTL) settings to determine their length. Before their TTLs are up, leases must be manually renewed—otherwise, both the leases and their associated tokens expire. This minimizes the amount of damage a bad actor can do in the event of an attack. Long TTLs present a security risk, and HashiCorp <a href="https://learn.hashicorp.com/tutorials/vault/performance-tuning?in=vault/operations#lease-expiration-and-ttl-values">recommends</a> setting TTL values that are shorter than the default 32 days. A sudden increase in tokens with unexpectedly long TTLs can be a sign of an attack.</p>
+<p>Datadog’s dashboard helps you stay on top of potential TTL-based security threats. Once you enable the integration, Datadog instantly starts collecting data on every Vault token. You can track token counts, grouped by their TTLs (<code>hcp.vault_token_count_by_ttl</code>), as well as set up alerts to automatically notify you of suspicious spikes in the number of tokens that have long TTLs.</p>
+<div>
+<figure>
+<picture>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
+<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by ttl."/>
+</picture>
+</figure>
+</div>
+<p>If you identify unusual token activity, you can easily pivot to <a href="https://cloud.hashicorp.com/docs/vault/audit-log">audit logs</a> for additional context. The logs allow you to pinpoint which clients were assigned the unexpected tokens and when. In the event of a security breach, you can stop new tokens from being assigned and revoke existing tokens. Tracking token revoke latency with the <code>hcp.vault_expire_revoke</code> metric lets you stay on top of how quickly your organization can respond to potential threats.</p>
+<h2 id="visualize-client-usage-across-namespaces"><a href="#visualize-client-usage-across-namespaces">Visualize client usage across namespaces</a></h2><p>Vault uses <a href="https://learn.hashicorp.com/tutorials/cloud/vault-namespaces?in=vault/cloud">namespaces</a> to support multiple tenants, including different teams and applications. You can manage data access and storage in Vault separately for every tenant in your organization, with dedicated policies, authentication methods, and tokens for each namespace.</p>
+<p>Datadog helps you get granular insights into how and when your clients are interacting with Vault. Since Vault assigns each client a unique token after the authentication process, you can use token counts to judge how many clients are using the system. For example, you can view the number of available tokens in each namespace (<code>hcp.vault_token_count</code> broken down by the <code>namespace</code> tag) to understand which teams in your organization are getting the most out of Vault. You can also gauge traffic to the system with the number of authentication requests submitted (<code>hcp.vault_core_handle_login_request_count</code>).</p>
+<div>
+<figure>
+<picture>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
+<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by namespace."/>
+</picture>
+</figure>
+</div>
+<p>When combined with metrics for monitoring your cluster’s resource usage (e.g., CPU, memory, and disk usage), namespace token and authentication request counts allow you to optimize how your organization uses Vault. You can decide whether you need to scale your cluster up or down based on traffic and cluster efficiency, and determine accurate spending estimates and limits based on the number of clients per billing period. In addition to potential cost savings, your organization can use this data to effectively track and plan your cloud resources.</p>
+<p>For additional insight into Vault usage and security, you can also use Datadog’s HCP Vault dashboard to analyze tokens by the authentication method used to create them (<code>hcp.vault_token_count_by_auth</code>) and the policies they are associated with (<code>hcp.vault_token_count_by_policy</code>). These metrics are useful for identifying abnormal usage patterns that could point to potential threats. With <a href="https://www.datadoghq.com/blog/introducing-anomaly-detection-datadog/">anomaly detection</a>, you can assess unusual activity and analyze it with recent metric history.</p>
+<h2 id="start-monitoring-hcp-vault-with-datadog"><a href="#start-monitoring-hcp-vault-with-datadog">Start monitoring HCP Vault with Datadog</a></h2><p>With <a href="https://cloud.hashicorp.com/">HCP Vault</a>, you get tried-and-true Vault security without any of the overhead of self-hosting. Datadog’s new HCP Vault integration enables you to easily detect threats in your cluster and optimize client usage across your organization. Use <a href="https://docs.datadoghq.com/integrations/hcp_vault/">our documentation</a> to start streaming HCP Vault metrics and audit logs to your existing account, or get started with a 14-day <a href="#">free trial</a> of Datadog.</p>
+</div></div>]]></content:encoded>
+      <author>Addie Beach</author>
+      <pubDate>Wed, 01 Dec 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Monitor your HCP Vault cluster with Datadog</title>
+      <link>https://www.datadoghq.com/blog/hcp-vault-monitoring-datadog/</link>
+      <description>&lt;img class=&#34;webfeedsFeaturedVisual rss&#34; src=&#34;https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_hero.png&#34; width=&#34;100%&#34;/&gt;HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With Vault, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via VPC peering in order to securely access and modify secrets from your own system.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
+
+
+<p>HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With <a href="https://www.datadoghq.com/blog/monitor-vault-metrics-and-logs/">Vault</a>, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via <a href="https://learn.hashicorp.com/tutorials/cloud/amazon-peering-hcp?in=vault/cloud-ops">VPC peering</a> in order to securely access and modify secrets from your own system.</p>
+<p>Datadog’s new HCP Vault integration gives you an out-of-the-box dashboard that lets you start monitoring activity across your cluster right away. You can also analyze how teams across your organization are using Vault and set up alerts to detect possible security vulnerabilities.</p>
+<div>
+<figure>
+<picture>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
+<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=847" alt="Out-of-the-box dashboard for HCP Vault monitoring."/>
+</picture>
+</figure>
+</div>
+<h2 id="spot-vulnerabilities-in-token-ttls"><a href="#spot-vulnerabilities-in-token-ttls">Spot vulnerabilities in token TTLs</a></h2><p>HCP Vault manages secret access with tokens. Once a client—such as a user, application, or container—has been successfully authenticated, Vault assigns it a token with the correct access control list (ACL) policies. The client can then use this token to make future requests without needing to repeat the full authentication process.</p>
+<p>Tokens may be associated with <a href="https://www.vaultproject.io/docs/concepts/lease">leases</a>. Vault leases use time-to-live (TTL) settings to determine their length. Before their TTLs are up, leases must be manually renewed—otherwise, both the leases and their associated tokens expire. This minimizes the amount of damage a bad actor can do in the event of an attack. Long TTLs present a security risk, and HashiCorp <a href="https://learn.hashicorp.com/tutorials/vault/performance-tuning?in=vault/operations#lease-expiration-and-ttl-values">recommends</a> setting TTL values that are shorter than the default 32 days. A sudden increase in tokens with unexpectedly long TTLs can be a sign of an attack.</p>
+<p>Datadog’s dashboard helps you stay on top of potential TTL-based security threats. Once you enable the integration, Datadog instantly starts collecting data on every Vault token. You can track token counts, grouped by their TTLs (<code>hcp.vault_token_count_by_ttl</code>), as well as set up alerts to automatically notify you of suspicious spikes in the number of tokens that have long TTLs.</p>
+<div>
+<figure>
+<picture>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
+<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by ttl."/>
+</picture>
+</figure>
+</div>
+<p>If you identify unusual token activity, you can easily pivot to <a href="https://cloud.hashicorp.com/docs/vault/audit-log">audit logs</a> for additional context. The logs allow you to pinpoint which clients were assigned the unexpected tokens and when. In the event of a security breach, you can stop new tokens from being assigned and revoke existing tokens. Tracking token revoke latency with the <code>hcp.vault_expire_revoke</code> metric lets you stay on top of how quickly your organization can respond to potential threats.</p>
+<h2 id="visualize-client-usage-across-namespaces"><a href="#visualize-client-usage-across-namespaces">Visualize client usage across namespaces</a></h2><p>Vault uses <a href="https://learn.hashicorp.com/tutorials/cloud/vault-namespaces?in=vault/cloud">namespaces</a> to support multiple tenants, including different teams and applications. You can manage data access and storage in Vault separately for every tenant in your organization, with dedicated policies, authentication methods, and tokens for each namespace.</p>
+<p>Datadog helps you get granular insights into how and when your clients are interacting with Vault. Since Vault assigns each client a unique token after the authentication process, you can use token counts to judge how many clients are using the system. For example, you can view the number of available tokens in each namespace (<code>hcp.vault_token_count</code> broken down by the <code>namespace</code> tag) to understand which teams in your organization are getting the most out of Vault. You can also gauge traffic to the system with the number of authentication requests submitted (<code>hcp.vault_core_handle_login_request_count</code>).</p>
+<div>
+<figure>
+<picture>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
+<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360px 1x,
+                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
+<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by namespace."/>
+</picture>
+</figure>
+</div>
+<p>When combined with metrics for monitoring your cluster’s resource usage (e.g., CPU, memory, and disk usage), namespace token and authentication request counts allow you to optimize how your organization uses Vault. You can decide whether you need to scale your cluster up or down based on traffic and cluster efficiency, and determine accurate spending estimates and limits based on the number of clients per billing period. In addition to potential cost savings, your organization can use this data to effectively track and plan your cloud resources.</p>
+<p>For additional insight into Vault usage and security, you can also use Datadog’s HCP Vault dashboard to analyze tokens by the authentication method used to create them (<code>hcp.vault_token_count_by_auth</code>) and the policies they are associated with (<code>hcp.vault_token_count_by_policy</code>). These metrics are useful for identifying abnormal usage patterns that could point to potential threats. With <a href="https://www.datadoghq.com/blog/introducing-anomaly-detection-datadog/">anomaly detection</a>, you can assess unusual activity and analyze it with recent metric history.</p>
+<h2 id="start-monitoring-hcp-vault-with-datadog"><a href="#start-monitoring-hcp-vault-with-datadog">Start monitoring HCP Vault with Datadog</a></h2><p>With <a href="https://cloud.hashicorp.com/">HCP Vault</a>, you get tried-and-true Vault security without any of the overhead of self-hosting. Datadog’s new HCP Vault integration enables you to easily detect threats in your cluster and optimize client usage across your organization. Use <a href="https://docs.datadoghq.com/integrations/hcp_vault/">our documentation</a> to start streaming HCP Vault metrics and audit logs to your existing account, or get started with a 14-day <a href="#">free trial</a> of Datadog.</p>
+</div></div>]]></content:encoded>
+      <author>Addie Beach</author>
+      <pubDate>Wed, 01 Dec 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Understand the scope of user impact with Watchdog Impact Analysis</title>
       <link>https://www.datadoghq.com/blog/watchdog-impact-analysis/</link>
       <description>&lt;img class=&#34;webfeedsFeaturedVisual rss&#34; src=&#34;https://imgix.datadoghq.com/img/blog/watchdog-impact-analysis/watchdog-impact-analysis-hero-r2.png&#34; width=&#34;100%&#34;/&gt;Watchdog is Datadog’s machine learning and AI engine, which leverages algorithms like anomaly detection to automatically surface performance issues in your infrastructure and applications. Without any manual setup or configuration, Watchdog generates a feed of Alerts—on anomalies such as latency spikes, elevated error rates, and network issues in cloud providers—to help you reduce your mean time to detection.Watchdog now includes Impact Analysis, which shows you how performance issues in your application may be impacting users.</description>
@@ -865,176 +1035,6 @@ Security rules like this use your Vault audit logs as the basis to detect possib
 <h2 id="start-using-watchdog-impact-analysis"><a href="#start-using-watchdog-impact-analysis">Start using Watchdog Impact Analysis</a></h2><p>Watchdog Impact Analysis is now automatically enabled for all Datadog APM and RUM users, so you can immediately get deeper visibility into the real-world impact of service performance issues, easily prioritize troubleshooting efforts, and streamline the postmortem process. See our <a href="https://docs.datadoghq.com/watchdog/#watchdog-impact-analysis">documentation</a> to learn more. If you’re new to Datadog, sign up for a 14-day <a href="#">free trial</a>.</p>
 </div></div>]]></content:encoded>
       <author>Nicholas Thomson</author>
-      <pubDate>Wed, 01 Dec 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Monitor your HCP Vault cluster with Datadog</title>
-      <link>https://www.datadoghq.com/blog/hcp-vault-monitoring-datadog/</link>
-      <description>&lt;img class=&#34;webfeedsFeaturedVisual rss&#34; src=&#34;https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_hero.png&#34; width=&#34;100%&#34;/&gt;HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With Vault, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via VPC peering in order to securely access and modify secrets from your own system.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
-
-
-<p>HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With <a href="https://www.datadoghq.com/blog/monitor-vault-metrics-and-logs/">Vault</a>, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via <a href="https://learn.hashicorp.com/tutorials/cloud/amazon-peering-hcp?in=vault/cloud-ops">VPC peering</a> in order to securely access and modify secrets from your own system.</p>
-<p>Datadog’s new HCP Vault integration gives you an out-of-the-box dashboard that lets you start monitoring activity across your cluster right away. You can also analyze how teams across your organization are using Vault and set up alerts to detect possible security vulnerabilities.</p>
-<div>
-<figure>
-<picture>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
-<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=847" alt="Out-of-the-box dashboard for HCP Vault monitoring."/>
-</picture>
-</figure>
-</div>
-<h2 id="spot-vulnerabilities-in-token-ttls"><a href="#spot-vulnerabilities-in-token-ttls">Spot vulnerabilities in token TTLs</a></h2><p>HCP Vault manages secret access with tokens. Once a client—such as a user, application, or container—has been successfully authenticated, Vault assigns it a token with the correct access control list (ACL) policies. The client can then use this token to make future requests without needing to repeat the full authentication process.</p>
-<p>Tokens may be associated with <a href="https://www.vaultproject.io/docs/concepts/lease">leases</a>. Vault leases use time-to-live (TTL) settings to determine their length. Before their TTLs are up, leases must be manually renewed—otherwise, both the leases and their associated tokens expire. This minimizes the amount of damage a bad actor can do in the event of an attack. Long TTLs present a security risk, and HashiCorp <a href="https://learn.hashicorp.com/tutorials/vault/performance-tuning?in=vault/operations#lease-expiration-and-ttl-values">recommends</a> setting TTL values that are shorter than the default 32 days. A sudden increase in tokens with unexpectedly long TTLs can be a sign of an attack.</p>
-<p>Datadog’s dashboard helps you stay on top of potential TTL-based security threats. Once you enable the integration, Datadog instantly starts collecting data on every Vault token. You can track token counts, grouped by their TTLs (<code>hcp.vault_token_count_by_ttl</code>), as well as set up alerts to automatically notify you of suspicious spikes in the number of tokens that have long TTLs.</p>
-<div>
-<figure>
-<picture>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
-<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by ttl."/>
-</picture>
-</figure>
-</div>
-<p>If you identify unusual token activity, you can easily pivot to <a href="https://cloud.hashicorp.com/docs/vault/audit-log">audit logs</a> for additional context. The logs allow you to pinpoint which clients were assigned the unexpected tokens and when. In the event of a security breach, you can stop new tokens from being assigned and revoke existing tokens. Tracking token revoke latency with the <code>hcp.vault_expire_revoke</code> metric lets you stay on top of how quickly your organization can respond to potential threats.</p>
-<h2 id="visualize-client-usage-across-namespaces"><a href="#visualize-client-usage-across-namespaces">Visualize client usage across namespaces</a></h2><p>Vault uses <a href="https://learn.hashicorp.com/tutorials/cloud/vault-namespaces?in=vault/cloud">namespaces</a> to support multiple tenants, including different teams and applications. You can manage data access and storage in Vault separately for every tenant in your organization, with dedicated policies, authentication methods, and tokens for each namespace.</p>
-<p>Datadog helps you get granular insights into how and when your clients are interacting with Vault. Since Vault assigns each client a unique token after the authentication process, you can use token counts to judge how many clients are using the system. For example, you can view the number of available tokens in each namespace (<code>hcp.vault_token_count</code> broken down by the <code>namespace</code> tag) to understand which teams in your organization are getting the most out of Vault. You can also gauge traffic to the system with the number of authentication requests submitted (<code>hcp.vault_core_handle_login_request_count</code>).</p>
-<div>
-<figure>
-<picture>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
-<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by namespace."/>
-</picture>
-</figure>
-</div>
-<p>When combined with metrics for monitoring your cluster’s resource usage (e.g., CPU, memory, and disk usage), namespace token and authentication request counts allow you to optimize how your organization uses Vault. You can decide whether you need to scale your cluster up or down based on traffic and cluster efficiency, and determine accurate spending estimates and limits based on the number of clients per billing period. In addition to potential cost savings, your organization can use this data to effectively track and plan your cloud resources.</p>
-<p>For additional insight into Vault usage and security, you can also use Datadog’s HCP Vault dashboard to analyze tokens by the authentication method used to create them (<code>hcp.vault_token_count_by_auth</code>) and the policies they are associated with (<code>hcp.vault_token_count_by_policy</code>). These metrics are useful for identifying abnormal usage patterns that could point to potential threats. With <a href="https://www.datadoghq.com/blog/introducing-anomaly-detection-datadog/">anomaly detection</a>, you can assess unusual activity and analyze it with recent metric history.</p>
-<h2 id="start-monitoring-hcp-vault-with-datadog"><a href="#start-monitoring-hcp-vault-with-datadog">Start monitoring HCP Vault with Datadog</a></h2><p>With <a href="https://cloud.hashicorp.com/">HCP Vault</a>, you get tried-and-true Vault security without any of the overhead of self-hosting. Datadog’s new HCP Vault integration enables you to easily detect threats in your cluster and optimize client usage across your organization. Use <a href="https://docs.datadoghq.com/integrations/hcp_vault/">our documentation</a> to start streaming HCP Vault metrics and audit logs to your existing account, or get started with a 14-day <a href="#">free trial</a> of Datadog.</p>
-</div></div>]]></content:encoded>
-      <author>Addie Beach</author>
-      <pubDate>Wed, 01 Dec 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Monitor your HCP Vault cluster with Datadog</title>
-      <link>https://www.datadoghq.com/blog/hcp-vault-monitoring-datadog/</link>
-      <description>&lt;img class=&#34;webfeedsFeaturedVisual rss&#34; src=&#34;https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_hero.png&#34; width=&#34;100%&#34;/&gt;HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With Vault, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via VPC peering in order to securely access and modify secrets from your own system.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
-
-
-<p>HashiCorp Cloud Platform (HCP) provides fully managed versions of some of HashiCorp’s most popular offerings, including Vault. With <a href="https://www.datadoghq.com/blog/monitor-vault-metrics-and-logs/">Vault</a>, users have a centralized way to secure, store, and manage access to secrets across distributed systems. HCP Vault handles the day-to-day cluster maintenance, patches, and overall system security, making it easy to deploy a cluster without needing to host or manage your own infrastructure. You can also connect HCP Vault to your existing AWS accounts via <a href="https://learn.hashicorp.com/tutorials/cloud/amazon-peering-hcp?in=vault/cloud-ops">VPC peering</a> in order to securely access and modify secrets from your own system.</p>
-<p>Datadog’s new HCP Vault integration gives you an out-of-the-box dashboard that lets you start monitoring activity across your cluster right away. You can also analyze how teams across your organization are using Vault and set up alerts to detect possible security vulnerabilities.</p>
-<div>
-<figure>
-<picture>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
-<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/hcp_vault_dashboard.png?auto=format&amp;w=847" alt="Out-of-the-box dashboard for HCP Vault monitoring."/>
-</picture>
-</figure>
-</div>
-<h2 id="spot-vulnerabilities-in-token-ttls"><a href="#spot-vulnerabilities-in-token-ttls">Spot vulnerabilities in token TTLs</a></h2><p>HCP Vault manages secret access with tokens. Once a client—such as a user, application, or container—has been successfully authenticated, Vault assigns it a token with the correct access control list (ACL) policies. The client can then use this token to make future requests without needing to repeat the full authentication process.</p>
-<p>Tokens may be associated with <a href="https://www.vaultproject.io/docs/concepts/lease">leases</a>. Vault leases use time-to-live (TTL) settings to determine their length. Before their TTLs are up, leases must be manually renewed—otherwise, both the leases and their associated tokens expire. This minimizes the amount of damage a bad actor can do in the event of an attack. Long TTLs present a security risk, and HashiCorp <a href="https://learn.hashicorp.com/tutorials/vault/performance-tuning?in=vault/operations#lease-expiration-and-ttl-values">recommends</a> setting TTL values that are shorter than the default 32 days. A sudden increase in tokens with unexpectedly long TTLs can be a sign of an attack.</p>
-<p>Datadog’s dashboard helps you stay on top of potential TTL-based security threats. Once you enable the integration, Datadog instantly starts collecting data on every Vault token. You can track token counts, grouped by their TTLs (<code>hcp.vault_token_count_by_ttl</code>), as well as set up alerts to automatically notify you of suspicious spikes in the number of tokens that have long TTLs.</p>
-<div>
-<figure>
-<picture>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
-<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_ttl.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by ttl."/>
-</picture>
-</figure>
-</div>
-<p>If you identify unusual token activity, you can easily pivot to <a href="https://cloud.hashicorp.com/docs/vault/audit-log">audit logs</a> for additional context. The logs allow you to pinpoint which clients were assigned the unexpected tokens and when. In the event of a security breach, you can stop new tokens from being assigned and revoke existing tokens. Tracking token revoke latency with the <code>hcp.vault_expire_revoke</code> metric lets you stay on top of how quickly your organization can respond to potential threats.</p>
-<h2 id="visualize-client-usage-across-namespaces"><a href="#visualize-client-usage-across-namespaces">Visualize client usage across namespaces</a></h2><p>Vault uses <a href="https://learn.hashicorp.com/tutorials/cloud/vault-namespaces?in=vault/cloud">namespaces</a> to support multiple tenants, including different teams and applications. You can manage data access and storage in Vault separately for every tenant in your organization, with dedicated policies, authentication methods, and tokens for each namespace.</p>
-<p>Datadog helps you get granular insights into how and when your clients are interacting with Vault. Since Vault assigns each client a unique token after the authentication process, you can use token counts to judge how many clients are using the system. For example, you can view the number of available tokens in each namespace (<code>hcp.vault_token_count</code> broken down by the <code>namespace</code> tag) to understand which teams in your organization are getting the most out of Vault. You can also gauge traffic to the system with the number of authentication requests submitted (<code>hcp.vault_core_handle_login_request_count</code>).</p>
-<div>
-<figure>
-<picture>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=1140&amp;dpr=2 2x" media="(min-width: 1200px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=942&amp;dpr=2 2x" media="(min-width: 992px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=720&amp;dpr=2 2x" media="(min-width: 759px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=600&amp;dpr=2 2x" media="(min-width: 630px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=500&amp;dpr=2 2x" media="(min-width: 530px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=420&amp;dpr=2 2x" media="(min-width: 361px)"/>
-<source srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360px 1x,
-                    https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=360&amp;dpr=2 2x" media="(min-width: 0px)"/>
-<img loading="lazy" srcset="https://imgix.datadoghq.com/img/blog/hcp-vault-monitoring-datadog/tokens_by_namespace.png?auto=format&amp;w=847" alt="Graph of HCP Vault token counts, tagged by namespace."/>
-</picture>
-</figure>
-</div>
-<p>When combined with metrics for monitoring your cluster’s resource usage (e.g., CPU, memory, and disk usage), namespace token and authentication request counts allow you to optimize how your organization uses Vault. You can decide whether you need to scale your cluster up or down based on traffic and cluster efficiency, and determine accurate spending estimates and limits based on the number of clients per billing period. In addition to potential cost savings, your organization can use this data to effectively track and plan your cloud resources.</p>
-<p>For additional insight into Vault usage and security, you can also use Datadog’s HCP Vault dashboard to analyze tokens by the authentication method used to create them (<code>hcp.vault_token_count_by_auth</code>) and the policies they are associated with (<code>hcp.vault_token_count_by_policy</code>). These metrics are useful for identifying abnormal usage patterns that could point to potential threats. With <a href="https://www.datadoghq.com/blog/introducing-anomaly-detection-datadog/">anomaly detection</a>, you can assess unusual activity and analyze it with recent metric history.</p>
-<h2 id="start-monitoring-hcp-vault-with-datadog"><a href="#start-monitoring-hcp-vault-with-datadog">Start monitoring HCP Vault with Datadog</a></h2><p>With <a href="https://cloud.hashicorp.com/">HCP Vault</a>, you get tried-and-true Vault security without any of the overhead of self-hosting. Datadog’s new HCP Vault integration enables you to easily detect threats in your cluster and optimize client usage across your organization. Use <a href="https://docs.datadoghq.com/integrations/hcp_vault/">our documentation</a> to start streaming HCP Vault metrics and audit logs to your existing account, or get started with a 14-day <a href="#">free trial</a> of Datadog.</p>
-</div></div>]]></content:encoded>
-      <author>Addie Beach</author>
       <pubDate>Wed, 01 Dec 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
