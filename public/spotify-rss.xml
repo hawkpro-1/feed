@@ -4,6 +4,149 @@
     <link>https://engineering.atspotify.com/</link>
     <description></description>
     <item>
+      <title>&#xA;                                            The Audio Aura Story: Mystical to Mathematical&#xA;                                        </title>
+      <link>https://engineering.atspotify.com/2021/12/17/the-audio-aura-story-mystical-to-mathematical/</link>
+      <description>TL;DR For 2021 Wrapped, we were challenged to visually express a user’s Audio Aura based on how they listened this year. I like to think of it like this: if your music listening data became a person and walked down the street to the neighborhood aura reader, what would that person’s aura look like?</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
+        
+        
+
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>December 17, 2021</span>
+                
+            </p>
+        </div>
+        
+        <p><a href="https://engineering.atspotify.com/2021/12/17/the-audio-aura-story-mystical-to-mathematical/" title="The Audio Aura Story: Mystical to Mathematical">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3.png" alt="" loading="lazy" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3-250x124.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3-700x347.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3-768x380.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3-1536x761.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p><strong>TL;DR </strong>For 2021 Wrapped, we were challenged to visually express a user’s <a href="https://newsroom.spotify.com/2021-12-01/learn-more-about-the-audio-aura-in-your-spotify-2021-wrapped-with-aura-reader-mystic-michaela/" target="_blank" rel="noreferrer noopener">Audio Aura</a> based on how they listened this year. I like to think of it like this: if your music listening data became a person and walked down the street to the neighborhood aura reader, what would that person’s aura look like? That’s the 2021 Wrapped Audio Aura story. </p>
+
+
+
+<h2><strong>A new Wrapped experience</strong></h2>
+
+
+
+<p>Spotify Wrapped is a company-wide effort with 300+ Spotifiers across 20+ teams. My team in particular is a design/engineering team and our main focus is to design, build, and launch the Wrapped personalized user experience to millions of Spotify users around the world. These personalized stories bring users’ annual listening habits to life through creative storytelling. </p>
+
+
+
+<p>The personalized experience shows listeners’ data stories such as their top songs, top artists, and top genres of the year. In addition to building these stories, our Brand and Creative team thinks outside the box and ideates new ways to illuminate insights into a user’s audio streams. </p>
+
+
+
+<p><em>Imagine.</em> A meeting room full of professionals — a virtual meeting room, of course. Brows furrowed, pens clicking, and fingers scratching heads. We were brainstorming the answer to the question: how do we <em>define</em> a Spotify user’s Audio Aura? To help with this question and guarantee the auras we create are valid, we consulted an aura reader, <a href="https://www.mysticmichaela.com/" target="_blank" rel="noreferrer noopener">Mystic Michaela</a>. </p>
+
+
+
+<p>According to Mystic Michaela, auras are “your personal energy signature. Everyone has one, and aura readers see them as a combination of colors, each representative of the traits that make you, you” (check out Michaela’s full take on auras <a href="https://newsroom.spotify.com/2021-12-01/learn-more-about-the-audio-aura-in-your-spotify-2021-wrapped-with-aura-reader-mystic-michaela/" target="_blank" rel="noreferrer noopener">here</a>). For the purposes of our Audio Aura story, we can extend the definition to say that a 2021 Spotify Wrapped Audio Aura is a colorful energy made up of two colors that help our listeners understand the vibe or mood of the music they streamed this year.</p>
+
+
+
+<h2><strong>Let’s get to the whiteboard </strong></h2>
+
+
+
+<h5><strong>Challenge #1</strong> </h5>
+
+
+
+<p>Return the top two mood categories and the descriptor associated with their 2021 listening history for each user.</p>
+
+
+
+<h5><strong>Challenge #2</strong></h5>
+
+
+
+<p>Identify how much of a user’s music is represented by each mood aka the mood weight.</p>
+
+
+
+<p>To address the above challenges, we utilized a track mood descriptor dataset, aggregated each user’s listening history, and created six broad mood categories (i.e. “Happy”, “Calm”, “Hopeful”) that would then be narrowed down to two to create the audio aura.</p>
+
+
+
+<ol><li>Count the number of streams for a given track and retrieve its top mood descriptor as determined by the mood descriptor dataset.</li><li>Bucket those moods into one of the six mood categories.</li><li>Perform an aggregation to find the total number of streams for each mood category and take the mood descriptor with the highest number of streams.</li><li>Carry out one last calculation to find the percentage of streams of a mood over the total number of streams.</li></ol>
+
+
+
+<div><figure><img loading="lazy" width="700" height="505" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weight-700x505.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weight-700x505.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weight-250x180.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weight-768x554.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weight-1536x1107.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weight-120x87.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weight.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure></div>
+
+
+
+<p>In the example above, tracks that are “happy” or “calm” are the most streamed, making them the top two moods found in a specific user’s music. “happy” makes up 47% of the user’s listening with the mood descriptor being “blissful”. “calm” makes up 29% of the user’s listening with the granular descriptor being “chill”.</p>
+
+
+
+<div><figure><img loading="lazy" width="700" height="394" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weightdescriptor-700x394.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weightdescriptor-700x394.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weightdescriptor-250x141.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weightdescriptor-768x432.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weightdescriptor-1536x864.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weightdescriptor-120x68.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Mood-Weightdescriptor.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure></div>
+
+
+
+<h2><strong>Now, let’s turn these moods into colors</strong></h2>
+
+
+
+<p>Dry-erase pen caps click… we’ve identified a user’s top two Audio Aura moods and their mood weights. Now let’s turn this data into colors. Mystic Michaela stepped in to lend her expertise on auras and their colors. With her guidance, we assigned six core colors to the six mood descriptor categories mentioned above (which include “happy”, “calm”, and “hopeful”). To provide secondary colors to the aura visual, our designer represents mood weights through varying levels of contrast. The more a mood is present in a user’s listening, the darker the color. The less a mood is present in a user’s listening, the lighter the color. In the graphic above, the user has a mood weight of 0.47; therefore, the secondary color would be found in the row labeled Encore 100. Their second mood weight was 0.29; therefore, the secondary color would be found in the row labeled Encore 180.</p>
+
+
+
+<div><figure><img loading="lazy" width="700" height="394" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Core-Colors-700x394.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Core-Colors-700x394.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Core-Colors-250x141.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Core-Colors-768x432.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Core-Colors-1536x864.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Core-Colors-120x68.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Core-Colors.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure></div>
+
+
+
+<h2><strong>Creativity and embracing constraints</strong></h2>
+
+
+
+<p>Now that we have a user’s Audio Aura colors, all that’s left is for design and engineering to consider the last question: how can we engineer an ethereal Aura visual?</p>
+
+
+
+<p>Our deadline was two weeks away. In our milestones planning, we allocated a few days of engineering per story since we committed to a number of data stories and several new features. We had a few days to explore an elegant aura visual that was feasible on both iOS and Android. Part of the challenge for design is knowing what’s possible for engineering to execute in a dedicated amount of time. And part of the challenge for engineering is accurately estimating the time it will take to build a given design. We had to come up with a solution that made good use of our time and garnered a confident engineering sign-off. Situations like this are very unique to the Wrapped design/engineering experience and through such situations, I’ve learned that creativity comes from embracing constraints and making use of what we have in novel ways. Our designer made use of three elements: </p>
+
+
+
+<ol><li>An animated gradient built for last year’s 2020 Wrapped campaign to create a “lava lamp” effect.</li><li>Ribbons built for 2021 Wrapped to create organic and unique shapes.</li><li>A blur effect to blend everything together in a dreamlike fashion.</li></ol>
+
+
+
+<div><figure><img loading="lazy" width="700" height="394" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Gradient-ribbons-blur-700x394.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Gradient-ribbons-blur-700x394.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Gradient-ribbons-blur-250x141.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Gradient-ribbons-blur-768x432.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Gradient-ribbons-blur-1536x864.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Gradient-ribbons-blur-120x68.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Gradient-ribbons-blur.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure></div>
+
+
+
+<p>Since we had already built the animated gradient and ribbons, we were able to build the aura visual with high confidence, on time, and to accurately depict an ethereal aura!</p>
+
+
+
+<div><figure><img loading="lazy" width="250" height="501" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Audio-Aura-250x501.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Audio-Aura-250x501.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Audio-Aura-700x1403.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Audio-Aura-768x1540.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Audio-Aura-766x1536.png 766w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Audio-Aura-120x241.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/Audio-Aura.png 858w" sizes="(max-width: 250px) 100vw, 250px"/></figure></div>
+
+
+
+<h2><strong>To wrap it up</strong></h2>
+
+
+
+<p>The 2021 Wrapped Audio Aura story is a peek into the unique experience of engineering and design. We took an esoteric concept and broke it down into its basic elements to build an exciting feature for the Wrapped experience. Our ability to work together with teams across Spotify allows us to find creative solutions, enabling us to create stories that, hopefully, delight our users. If you’re interested in joining our efforts to bring Spotify listeners new experiences, check out our <a href="https://www.lifeatspotify.com/jobs?c=engineering" target="_blank" rel="noreferrer noopener">open roles</a>!</p>
+        <br/>
+
+        
+        
+
+        
+
+            </div></div>]]></content:encoded>
+      <author>Published by Zela Taino, Engineer</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/12/image3.png" length="0" type="image/png"></enclosure>
+      <pubDate>Fri, 17 Dec 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>&#xA;                                            A Look Behind Blend: The Personalized Playlist for You…and You&#xA;</title>
       <link>https://engineering.atspotify.com/2021/12/07/a-look-behind-blend-the-personalized-playlist-for-youand-you/</link>
       <description>What does it take to go from an idea for a new playlist, to shipping that playlist to Spotify users all around the world? From inception, to prototyping, to QAing, and finally shipping, releasing a new playlist at Spotify is a long process full of new learnings every time. We recently launched a</description>
