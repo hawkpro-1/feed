@@ -4,6 +4,373 @@
     <link>https://blog.sentry.io/feed.xml</link>
     <description></description>
     <item>
+      <title>Deprecation From U2F API to WebAuthn</title>
+      <link>https://blog.sentry.io/2022/01/18/deprecation-from-u2f-api-to-webauthn/</link>
+      <description>If you’re using the U2F API for registration and authentication of your U2F devices, you will notice a dire situation is coming soon: Google…</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>If you’re using the U2F API for registration and authentication of your U2F devices, you will notice a dire situation is coming soon: Google Chrome will no longer support U2F API after February 2022:</p>
+<p><img src="https://images.ctfassets.net/em6l9zw4tzag/uSlUcXwqq05dFcOqLGemG/64d1f8d8145a076d8187b1de0a77a920/u2fwarning.png" alt="u2f-api warning"/></p>
+<p>For anyone using U2F API in their web apps, like us at Sentry, their users who had 2FA enabled with U2F devices would not be able to sign in. To remedy this, there’s a shiny new specification written by the World Wide Web Consortium (W3C) and the Fast IDentity Online Alliance (FIDO) that will solve all our problems. </p>
+<p>In this blog post, we will go into the weeds on migrating from U2F API to WebAuthn.</p>
+<h2 id="webauthn"><a href="#webauthn" aria-label="webauthn permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>WebAuthn</h2>
+<p>WebAuthn is an API that allows web services to seamlessly integrate strong authentication into applications. With WebAuthn, web services can offer the user a choice of authenticators, such as security keys (Yubikeys, Titan Keys, for example) or built-in platform authenticators (biometric readers). In addition, it is supported by all the leading browsers — including Safari, which U2F API was not — and web platforms, which standardizes the integration of strong authentication. You can read more on <a href="https://webauthn.io/">WebAuthn’s</a> website.</p>
+<h2 id="migrating-to-webauthn-from-u2f-api"><a href="#migrating-to-webauthn-from-u2f-api" aria-label="migrating to webauthn from u2f api permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Migrating to WebAuthn From U2F API</h2>
+<p>Now, here’s the part you’re all here for, the migration to WebAuthn. Let’s break this down into two main parts:</p>
+<h4 id="part-1-authenticating-existing-u2f-and-new-webauthn-devices-with-webauthn"><a href="#part-1-authenticating-existing-u2f-and-new-webauthn-devices-with-webauthn" aria-label="part 1 authenticating existing u2f and new webauthn devices with webauthn permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a><a href="#part-1-authentication">Part 1: Authenticating existing U2F and new WebAuthn devices with WebAuthn</a></h4>
+<ul>
+<li><a href="#step-1-generating-the-challenge-and-state">Step 1: Generating the challenge and state</a></li>
+<li><a href="#step-2-creating-publickeycredential-for-authentication">Step 2: Creating PublicKeyCredential data</a></li>
+<li><a href="#step-3-verifying-the-device">Step 3: Verifying the device</a></li>
+</ul>
+<h4 id="part-2-registering-new-devices-with-webauthn"><a href="#part-2-registering-new-devices-with-webauthn" aria-label="part 2 registering new devices with webauthn permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a><a href="#part-2-registration">Part 2: Registering new devices with WebAuthn</a></h4>
+<ul>
+<li><a href="#step-1-generating-the-publickeycredentialrpentity-and-state">Step 1: Generating the PublicKeyCredentialRpEntity and state</a></li>
+<li><a href="#step-2-creating-publickeycredential-for-registration">Step 2: Creating PublicKeyCredential data</a></li>
+<li><a href="#step-3-registering-the-device">Step 3: Registering the device</a></li>
+</ul>
+<h2 id="part-1-authentication"><a href="#part-1-authentication" aria-label="part 1 authentication permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Part 1: Authentication</h2>
+<p>Let’s start with authentication so existing users can continue to log in. This is also important because newly registered WebAuthn devices can’t log in without a working WebAuthn login.</p>
+<p>To understand the authentication flow, we can look at the following diagrams:</p>
+</div><div>
+<p>We’ll be using Python for the backend APIs. The <a href="https://github.com/Yubico/python-u2flib-server">U2F API</a> sequence (left) is very similar to the <a href="https://github.com/Yubico/python-fido2">WebAuthn</a> sequence (on the right). We simply have to replace three API calls: <span>u2f.start_authentication()</span> and <span>u2f.finish_authentication()</span> in the backend, and <span>u2f.sign()</span> in the frontend.   </p>
+<p>Let’s start with <span>u2f.start_authentication()</span>, which takes in the browser’s application ID and the currently registered devices. </p>
+<p>The U2F API authentication process starts with the backend generating a challenge, an example of which is shown below:</p>
+<div data-language="text"><pre><code>{
+  &#34;appId&#34;: &#34;https://your-webauthn-app.io/2fa/u2fappid.json&#34;,
+  &#34;challenge&#34;: &#34;VwmGI-4…&#34;,
+  &#34;registeredKeys&#34;: [
+      {
+          &#34;appId&#34;: &#34;https://your-webauthn-app.io/2fa/u2fappid.json&#34;,
+          &#34;keyHandle&#34;: &#34;cxSl4oQ…&#34;,
+          &#34;publicKey&#34;: &#34;BP4Q8MR…&#34;,
+          &#34;transports&#34;: [
+                &#34;usb&#34;
+          ],
+          &#34;version&#34;: &#34;U2F_V2&#34;
+      }
+  ]
+}</code></pre></div>
+<p>This challenge is sent to the browser where <span>u2f.sign()</span> takes the challenge as an input and returns a promise that is the result of:
+</p><ul>
+<li>verifying the application identity of the caller</li>
+<li>creating a client data object and using the client data</li>
+<li>the application ID</li>
+<li>the key handle </li>
+</ul>
+<p>This creates a raw authentication request message and sends it to the U2F device. The result of the promise should look like this:</p>
+<div data-language="text"><pre><code>{
+    &#34;keyHandle&#34;: &#34;cxSl4oQ…&#34;,
+    &#34;clientData&#34;: &#34;eyJ0eXA…&#34;,
+    &#34;signatureData&#34;: &#34;AQAAAQ4…&#34;
+}</code></pre></div>
+<p>Once the result of the promise is sent to the server, we call U2f.complete_authentication() with the following two parameters: the original challenge data and the newly generated client data object passed in. This method will verify the device with the parameters and return the device info if it succeeded. From there, the server can allow the user to pass through the 2FA process.
+</p><h3 id="step-1-generating-the-challenge-and-state"><a href="#step-1-generating-the-challenge-and-state" aria-label="step 1 generating the challenge and state permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Step 1: Generating the challenge and state</h3>
+<p>To start the migration process, let’s first replace <span>u2f.start_authentication()</span> with its counterpart. The data types that the <a href="https://github.com/Yubico/python-fido2">WebAuthn API</a> takes are not quite the same ones used in U2F API. In fact, one of the main pain points was converting the necessary fields into the correct data type. </p>
+<p>We want to authenticate users on legacy U2F API and WebAuthn, so we will create an authentication server first. The following will create an authentication server using WebAuthn that is backwards compatible with U2F API:</p>
+<div data-language="text"><pre><code>webauthn_authentication_server = U2FFido2Server(
+    app_id=u2f_app_id, 
+    rp={
+        &#34;id&#34;: “sentry-webauthn.io”, 
+        &#34;name&#34;: &#34;Sentry with WebAuthn&#34;}
+)</code></pre></div>
+<p>Your <span>app_id</span> will be the same value as before. The <span>rp</span>, or Relying Party, is an object that contains an ID, which is the hostname of the URL, and the name of your Relying Party.
+</p><p>Next, we need to generate a list of credentials, which is the same as the list of devices for U2F API. Keep in mind that the list of credentials will contain both WebAuthn and U2F API registered devices and that list needs to be manipulated. </p>
+<div data-language="text"><pre><code>credentials = []
+
+for device in self.get_u2f_devices():
+    if type(device) == AuthenticatorData:
+        credentials.append(device.credential_data)
+    else:
+        credentials.append(create_credential_object(device))</code></pre></div>
+<p>The devices that are registered with WebAuthn have the type AuthenticatorData. For devices registered with U2F API, we need to create an AttestedCredentialData object for them to be compatible with WebAuthn. The following is the function we wrote that decodes the necessary parameters and creates the credential data:
+</p><div data-language="text"><pre><code>def create_credential_object(registeredKey):
+    return base.AttestedCredentialData.from_ctap1(
+        websafe_decode(registeredKey[&#34;keyHandle&#34;]),
+        websafe_decode(registeredKey[&#34;publicKey&#34;]),
+    )</code></pre></div>
+<center>[Source of function][16]</center>
+<p>With that, we can begin the registration process by calling <span><a href="https://developers.yubico.com/WebAuthn/">register_begin()</a></span> on the WebAuthn server that we created earlier, with credentials as its parameter. This will return a challenge and state. </p>
+<p>The challenge is needed for the browser to perform authentication, but we will only use the PublicKey object within the challenge. In addition, you should store the state in your sessions, as it will be needed later. </p>
+<div data-language="text"><pre><code>challenge, state = self.webauthn_authentication_server.authenticate_begin(
+    credentials=credentials
+)
+request.session[&#34;webauthn_authentication_state&#34;] = state
+return ActivationChallengeResult(
+    challenge=cbor.encode(challenge[&#34;publicKey&#34;])
+)</code></pre></div>
+<p>We also encoded the challenge using the [FIDO2 CBOR][18] library, as we will be sending it to the frontend using JSON, which does not handle binary representation well on its own. On the frontend, we convert the JSON string back into a byte array and decode it to return the challenge to its original form. 
+</p><h3 id="step-2-creating-publickeycredential-for-authentication"><a href="#step-2-creating-publickeycredential-for-authentication" aria-label="step 2 creating publickeycredential for authentication permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Step 2: Creating PublicKeyCredential for authentication</h3>
+<p>To replace <span>u2f.sign()</span>, we can call its WebAuthn equivalent <span>navigator.credentials.get()</span> with the challenge data. This library is now native to modern browsers, so don’t worry about importing any libraries. </p>
+<div data-language="text"><pre><code>const challengeArray = base64urlToBuffer(
+    challengeData.webAuthnAuthenticationData
+);
+const challenge = cbor.decodeFirst(challengeArray);
+
+challenge.then(data =&gt; {
+    webAuthnSignIn(data);
+}).catch(err =&gt; {
+    const failure = &#39;DEVICE_ERROR&#39;;
+    Sentry.captureException(err);
+    this.setState({
+        deviceFailure: failure,
+        hasBeenTapped: false,
+    });
+});
+
+function webAuthnSignIn(publicKeyCredentialRequestOptions) {
+    return navigator.credentials.get({
+        publicKey: publicKeyCredentialRequestOptions,
+    }).then(data =&gt; {
+        // Send to backend
+    })
+}</code></pre></div>
+<p>When the promise is resolved after calling <span>navigator.credentials.get()</span>, we need to send the appropriate data to the backend to finish authentication. To convert the PublicKeyCredential that was obtained from <span>navigator.credentials.get()</span>, we can run it through the following function:
+</p><div data-language="text"><pre><code>getU2FResponse(data) {
+    if (data.response) {
+        const authenticatorData = {
+          keyHandle: data.id,
+          clientData: bufferToBase64url(data.response.clientDataJSON),
+          signatureData: bufferToBase64url(data.response.signature),
+          authenticatorData: bufferToBase64url(data.response.authenticatorData),
+        };
+        return JSON.stringify(authenticatorData);
+    }
+
+    return JSON.stringify(data);
+}</code></pre></div>
+<h3 id="step-3-verifying-the-device"><a href="#step-3-verifying-the-device" aria-label="step 3 verifying the device permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Step 3: Verifying the device</h3>
+<p>For the final step, we can pass the original challenge and this new response to the backend. We need to create a list of credentials to validate the device, then call <span>authenticate_complete</span> on the authentication server that was made earlier with the following parameters:</p>
+<ul>
+<li><strong>state</strong>: the value which we stored in session from start_authentication</li>
+<li><strong>credentials</strong>: list which we just generated</li>
+<li>
+<p>A websafe_decode for the following:</p>
+<ul>
+<li><strong>credential_id</strong>: a “keyHandle” of the response object</li>
+<li><strong>client_data</strong>: a “clientData” of the response object passed through  fido2.client.ClientData</li>
+<li><strong>auth_data</strong>: an “authenticatorData” of the response object passed through fido2.ctap2.authenticatorData</li>
+<li><strong>signature</strong>: a “signatureData” of the response object</li>
+</ul>
+</li>
+</ul>
+<div data-language="text"><pre><code>self.webauthn_authentication_server.authenticate_complete(
+    state=request.session[&#34;webauthn_authentication_state&#34;],
+    credentials=credentials,
+    credential_id=websafe_decode(response[&#34;keyHandle&#34;]),
+    client_data=ClientData(websafe_decode(response[&#34;clientData&#34;])),
+    auth_data=AuthenticatorData(websafe_decode(response[&#34;authenticatorData&#34;])),
+    signature=websafe_decode(response[&#34;signatureData&#34;]),
+)</code></pre></div>
+<p>If this function returns true, you are now fully authenticated and good to go! 
+</p><p>For our deployment, this feature was behind a flag to manage the rollout and for error monitoring. (We recommend using Sentry 😉.)  We deployed this feature independently from registration because the area of effect is limited in the event of an incident.</p>
+<p>Congrats! The authentication part of the migration is finished.</p>
+<h2 id="part-2-registration"><a href="#part-2-registration" aria-label="part 2 registration permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Part 2: Registration</h2>
+<p>Similar to authentication, first, let’s take a look at the flow: </p>
+</div><div>
+<p>The flow of registration is almost identical to that of the authentication process. The three components we need to deprecate in order to migrate to WebAuthn are <span>u2f.begin_registration()</span> and <span>u2f.complete_registration()</span> in the backend, and <span>u2f.register()</span> in the frontend. </p>
+<p>Once again, we will start with <span>u2f.begin_registration()</span>. This API call takes in the u2f application ID and list of registered devices. This results in the following data being sent to the browser to begin the registration process:</p>
+<div data-language="text"><pre><code>{
+    &#34;appId&#34;: &#34;https://your-webauthn-app/2fa/u2fappid.jso&#34;,
+    &#34;registerRequests&#34;: [
+        {
+            &#34;challenge&#34;: &#34;uexgFSl…&#34;,
+            &#34;version&#34;: &#34;U2F_V2&#34;
+        }
+    ],
+    &#34;registeredKeys&#34;: []
+}</code></pre></div>
+<p>Similar to <span>u2f.sign()</span>, <span>u2f.register()</span> will take the previously generated results and return a promise that will look like the following if the device is registrable: 
+</p><div data-language="text"><pre><code>{
+    &#34;registrationData&#34;: &#34;BQQ1xlC…&#34;,
+    &#34;version&#34;: &#34;U2F_V2&#34;,
+    &#34;challenge&#34;: &#34;Jkh_Tfo…&#34;,
+    &#34;appId&#34;: &#34;https://your-webauthn-app.io/2fa/u2fappid.json&#34;,
+    &#34;clientData&#34;: &#34;eyJ0eXA…&#34;
+}  </code></pre></div>
+<p>Along with the previously generated challenge, this result is sent to the backend where <span>u2f.complete_registration()</span> takes in both parameters and generates the following data object:  
+</p><div data-language="text"><pre><code>{
+    &#34;appId&#34;: &#34;https://your-webauthn-app.io/2fa/u2fappid.json&#34;,
+    &#34;keyHandle&#34;: &#34;SnllNGC…&#34;,
+    &#34;publicKey&#34;: &#34;BIs-gsW…&#34;,
+    &#34;transports&#34;: [
+        &#34;usb&#34;
+    ],
+    &#34;version&#34;: &#34;U2F_V2&#34;
+}</code></pre></div>
+<p>You can save this dictionary and name of the device. They will be used for authentication.
+</p><p>Just like before, let’s replace <span>u2f.begin_registration()</span> with its counterpart. We need to create a FIDO2Server and import it from <span>fido2.server</span>. We don’t need to make it backward compatible, as all new devices will be registered with WebAuthn.</p>
+<h3 id="step-1-generating-the-publickeycredentialrpentity-and-state"><a href="#step-1-generating-the-publickeycredentialrpentity-and-state" aria-label="step 1 generating the publickeycredentialrpentity and state permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Step 1: Generating the PublicKeyCredentialRpEntity and state</h3>
+<p>We start with importing the <a href="https://github.com/Yubico/python-fido2"><span>fido2.webauthn</span> library</a> to create a PublicKeyCredentialRpEntity. To create the entity, we need to pass in the Relying Party’s ID and name. With the entity, we pass it into Fido2Server to set things up.</p>
+<div data-language="text"><pre><code>from fido2.server import Fido2Server
+from fido2.webauthn import PublicKeyCredentialRpEntity
+
+rp = PublicKeyCredentialRpEntity(rp_id, &#34;Sentry&#34;)
+webauthn_registration_server = Fido2Server(rp)  </code></pre></div>
+<p>When the server is created, we can optionally pass in a list of registered devices to avoid duplicate registrations.
+</p><p>Next, we call <span>register_begin()</span> with:</p>
+<ul>
+<li><strong>user</strong>: dictionary with the user’s id, name, and display name</li>
+<li><strong>credentials</strong>: the list we just generated </li>
+<li><strong>user_verification</strong>: normally defaulted to discouraged</li>
+</ul>
+<p>You should get a result similar to this:</p>
+<div data-language="text"><pre><code>  &#34;publicKey&#34;: {
+    &#34;authenticatorSelection&#34;: {
+      &#34;userVerification&#34;: &lt;UserVerificationRequirement.DISCOURAGED: &#34;discouraged&#34;&gt;},
+      &#34;challenge&#34;: b&#34;\xe9)#\x86\xfa.\xa9\x82r\x86\xf7\x15e\xb5m\xdc&#34;
+                   b&#34;\x1dR\xc4\x1b\xdb\xab\x94\x88\xb8\x94\xf43&#34;
+                   b&#34;b\x03\xab\n&#34;,
+      &#34;excludeCredentials&#34;: [],
+      &#34;pubKeyCredParams&#34;: [
+        {&#34;alg&#34;: -7,
+         &#34;type&#34;: &lt;PublicKeyCredentialType.PUBLIC_KEY: &#34;public-key&#34;&gt;},
+        {&#34;alg&#34;: -8,
+         &#34;type&#34;: &lt;PublicKeyCredentialType.PUBLIC_KEY: &#34;public-key&#34;&gt;},
+        {&#34;alg&#34;: -37,
+         &#34;type&#34;: &lt;PublicKeyCredentialType.PUBLIC_KEY: &#34;public-key&#34;&gt;},
+        {&#34;alg&#34;: -257,
+         &#34;type&#34;: &lt;PublicKeyCredentialType.PUBLIC_KEY: &#34;public-key&#34;&gt;}],
+      &#34;rp&#34;: {&#34;id&#34;: &#34;&lt;$YOUR_APP&gt;&#34;,
+      &#34;name&#34;: &#34;Sentry&#34;},
+      &#34;user&#34;: {&#34;displayName&#34;: &#34;&lt;$YOUR_NAME&gt;&#34;,
+      &#34;id&#34;: b&#34;\x00&#34;,
+      &#34;name&#34;: &#34;&lt;$YOUR_APP&gt;&#34;
+    }
+  }
+}</code></pre></div>
+<p>The registration data as seen above will be returned. Encode the registration data with the <span>cbor.encode()</span> method and base64 encode that to a string. 
+</p><div data-language="text"><pre><code>publicKeyCredentialCreate = cbor.encode(registration_data)
+return b64encode(publicKeyCredentialCreate)</code></pre></div>
+<p>Set the state for later use in the session. 
+</p><p>Interestingly, the data from WebAuthn is exactly the same from U2F API, despite looking different on first glance. WebAuthn sets the challenge in a byte array and the clientData in a COSE key object (which is a <a href="https://www.jacobcasper.com/u2f2webauthn.html">CBOR map</a>), while U2F API uses an encoded string. </p>
+<h3 id="step-2-creating-publickeycredential-for-registration"><a href="#step-2-creating-publickeycredential-for-registration" aria-label="step 2 creating publickeycredential for registration permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Step 2: Creating PublicKeyCredential for registration</h3>
+<p>Once the registration data is received by the browser, we convert the string into a buffer and decode it with <a href="https://github.com/hildjj/node-cbor/tree/main/packages/cbor-web">this library</a>. This gives us the data that will be used as  the input parameter of <a href="https://developer.mozilla.org/en-US/docs/Web/API/CredentialsContainer/create"><span>navigator.credentials.create()</span></a>:</p>
+<div data-language="text"><pre><code>challenge, state = self.webauthn_authentication_server.authenticate_begin(
+    credentials=credentials
+)
+request.session[&#34;webauthn_authentication_state&#34;] = state
+
+return ActivationChallengeResult(challenge=cbor.encode(challenge[&#34;publicKey&#34;]))
+
+webAuthnRegister(publicKey) {
+    const promise = navigator.credentials.create({publicKey});
+    this.submitU2fResponse(promise);
+}</code></pre></div>
+<p>  When the promise from <span>navigator.credentials.create()</span> is resolved, we need to run it through <span>getU2FResponse()</span> before returning it to the server again. 
+</p><h3 id="step-3-registering-the-device"><a href="#step-3-registering-the-device" aria-label="step 3 registering the device permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Step 3: Registering the device</h3>
+<p>We have reached the final step where we need to extract some data from the response from <span>navigator.credentials.create()</span>. The following are needed for <span>register_complete()</span>:</p>
+<ul>
+<li><strong>state</strong>: from user sessions, set earlier after <span>begin_registration()</span></li>
+<li><strong>client_data</strong>: from decoding the data’s cliendDataJSON and creating a ClientData Object with it </li>
+<li><strong>AttestationObject</strong>:  from decoding the data’s attestationObject and creating an AttestationObject Object with it </li>
+</ul>
+<div data-language="text"><pre><code>data = json.loads(response_data)
+client_data = ClientData(
+    websafe_decode(data[&#34;response&#34;][&#34;clientDataJSON&#34;])
+)
+att_obj = base.AttestationObject(
+    websafe_decode(data[&#34;response&#34;][&#34;attestationObject&#34;])
+)
+
+binding = webauthn_registration_server.register_complete(
+    state, client_data, att_obj
+)  </code></pre></div>
+<p>ClientData should look like this:
+</p><div data-language="text"><pre><code>{
+    &#34;type&#34;: &#34;webauthn.create&#34;,
+    &#34;challenge&#34;: &#34;_Uas89Y…&#34;,
+    &#34;origin&#34;: &#34;https://&lt;$YOUR_APP&gt;&#34;,
+    &#34;crossOrigin&#34;: false
+}</code></pre></div>
+<p>AttestationObject should look like this: 
+</p><div data-language="text"><pre><code>AttestationObject(
+    fmt: &#39;none&#39;, 
+    auth_data: AuthenticatorData(
+        rp_id_hash: h&#39;74cb1ce…5&#39;,
+        flags: 0x41, 
+        counter: 281, 
+        credential_data: AttestedCredentialData(
+            aaguid: h&#39;0000000…&#39;, 
+            credential_id: h&#39;63af2c9…&#39;, 
+            public_key: {...}
+        ), 
+        att_statement: {}, 
+        ep_attr: None, 
+        large_blob_key: None
+    )
+)</code></pre></div>
+<p>Registered device data:
+</p><div data-language="text"><pre><code>AuthenticatorData(
+    rp_id_hash: h&#39;74cb1ce…&#39;,
+    flags: 0x41, 
+    counter: 281, 
+    credential_data: AttestedCredentialData(
+        aaguid: h&#39;0000000…&#39;, 
+        credential_id: h&#39;63af2c9…&#39;, 
+        public_key: {...}
+    )
+)</code></pre></div>
+<p>With that, you can save the registered device data. The registration process is complete.
+</p><p>Just like authentication, the deployment of this feature was behind a feature flag to manage the rollout. There were no database migrations needed as WebAuthn is backward compatible with U2F API.</p>
+<h2 id="thats-a-wrap"><a href="#thats-a-wrap" aria-label="thats a wrap permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>That’s a wrap</h2>
+<p>With that, WebAuthn should be set up and you can purge U2F API from your codebase. If you have made it this far, we hope that this guide was useful to you. With some planning, you will make it in time before Chrome locks out users from your application. All the best!</p>
+<p>—</p>
+<p>Everything we do at Sentry is built in the open. Find us on <a href="https://github.com/getsentry/sentry-mobile">GitHub</a>.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/55gvYs2TqvaBJABtAVdHsC/4b8b7e8b2129f3b9bc64289fd2958925/WebAuth-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 18 Jan 2022 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Yes, Open Source Is Sustainable</title>
       <link>https://blog.sentry.io/2021/12/16/yes-open-source-is-sustainable/</link>
       <description>Two months ago, we announced our annual investment in open source maintainers, mostly folks whose work we depend on to deliver Sentry to you…</description>
@@ -1359,6 +1726,81 @@ https://images.ctfassets.net/em6l9zw4tzag/3H1PD9KHHcRYgcOuBIBRIA/314a3f6687ca0ea
       <pubDate>Thu, 16 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
+      <title>Using Segment Explorer to improve App Performance</title>
+      <link>https://blog.sentry.io/2021/09/09/using-segment-explorer-to-improve-app-performance/</link>
+      <description>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also…</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also user conditions of the slowest transactions, such as OS, browser type, and even connection type. When you’re looking at performance data, it can be hard to see the forest through the trees. Segment Explorer makes it easier to find specific performance issues, rule out user conditions outside your control, and in general have a better grasp of performance within your application. </p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313&amp;fm=webp 313w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625&amp;fm=webp 625w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250&amp;fm=webp 1250w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313 313w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625 625w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250 1250w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="SegmentExplorer" title="" src="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>We use Segment Explorer to find slow requests in Sentry. For our frontend project, we wanted to improve <a href="https://blog.sentry.io/2020/11/10/sentry-fall-semester-web-vitals-101">LCP</a> to speed up our users’ experience. Adding tags makes it easy to find and visualize performance groups within transactions — you can compare performance without the noise.</p>
+<p>To do that, we wanted to focus on the slowest transactions. Once you click on the transactions, you’ll see an overview page with a list of suspect tags. By default, suspect tags on the left are sorted by total time lost, helping us quickly shortlist suspicious tags.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349&amp;fm=webp 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697&amp;fm=webp 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="SuspectTags" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>Here, we’re looking at tags affecting the largest segment of users. We usually use multiple tags, on top of the default tags such as the user’s effective connection type, filtering out users on a 3G network or controlling for specific hardware. With Web Vitals, we can exclude things like the CLS element — a heuristic that may not pick a page’s most appropriate visually complete element.</p>
+<p>To give you more control when narrowing down transactions, we’ll select filters that correspond to a majority of users. We might also filter out users with the Edge browser since that’s not our typical use case. By eliminating conditions like hardware or battery level, we can focus on conditions that affect our key user base. Once you select the Tags tab, you’ll see a heatmap, filtered by the list of suspect tags.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349&amp;fm=webp 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697&amp;fm=webp 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="HeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>This heatmap shows a list of user conditions and corresponding performance behavior. You can refine the heatmap by changing transaction duration bounds in the filter (eg. transaction.duration:&lt;15m). Now, just click on a purple box to isolate and add filters based on different <a href="https://docs.sentry.io/product/performance/transaction-summary/#tags">suspect tags</a> to create your custom heatmap.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349&amp;fm=webp 349w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697&amp;fm=webp 697w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349 349w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697 697w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="CustomHeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>Segment Explorer helps you find the issues that affect your customers the most, giving you a clear signal on what broke and how to fix it efficiently. To start exploring latency issues in your app, check out <a href="https://docs.sentry.io/product/performance/getting-started/">Segment Explorer with Sentry Performance.</a></p>
+<p>Try Sentry for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or contact us at <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/7LLI0QOFlsyNpnThyXZyFr/51ec12e9014a31639ffb5d8f23641279/Errors3-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Use Suspect Tags to improve App Performance</title>
       <link>https://blog.sentry.io/2021/09/09/use-suspect-tags-to-improve-app-performance/</link>
       <description>When you’re optimizing your application for performance, it helps to understand the user conditions where the slowest transactions occurred…</description>
@@ -1432,81 +1874,6 @@ https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9f
 <p><strong>Next Steps:</strong><br/>
 First, watch a demo of this feature from the developer that built it, <a href="https://www.youtube.com/watch?v=a5ShMQVYFIA">watch this video.</a>
 Next, start using suspect tags to find latency issues in your app with <a href="https://docs.sentry.io/product/performance/getting-started">Sentry Performance</a>.</p>
-<p>Try Sentry for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or contact us at <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/7LLI0QOFlsyNpnThyXZyFr/51ec12e9014a31639ffb5d8f23641279/Errors3-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Using Segment Explorer to improve App Performance</title>
-      <link>https://blog.sentry.io/2021/09/09/using-segment-explorer-to-improve-app-performance/</link>
-      <description>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also…</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also user conditions of the slowest transactions, such as OS, browser type, and even connection type. When you’re looking at performance data, it can be hard to see the forest through the trees. Segment Explorer makes it easier to find specific performance issues, rule out user conditions outside your control, and in general have a better grasp of performance within your application. </p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313&amp;fm=webp 313w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625&amp;fm=webp 625w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250&amp;fm=webp 1250w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313 313w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625 625w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250 1250w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="SegmentExplorer" title="" src="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>We use Segment Explorer to find slow requests in Sentry. For our frontend project, we wanted to improve <a href="https://blog.sentry.io/2020/11/10/sentry-fall-semester-web-vitals-101">LCP</a> to speed up our users’ experience. Adding tags makes it easy to find and visualize performance groups within transactions — you can compare performance without the noise.</p>
-<p>To do that, we wanted to focus on the slowest transactions. Once you click on the transactions, you’ll see an overview page with a list of suspect tags. By default, suspect tags on the left are sorted by total time lost, helping us quickly shortlist suspicious tags.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349&amp;fm=webp 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697&amp;fm=webp 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="SuspectTags" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>Here, we’re looking at tags affecting the largest segment of users. We usually use multiple tags, on top of the default tags such as the user’s effective connection type, filtering out users on a 3G network or controlling for specific hardware. With Web Vitals, we can exclude things like the CLS element — a heuristic that may not pick a page’s most appropriate visually complete element.</p>
-<p>To give you more control when narrowing down transactions, we’ll select filters that correspond to a majority of users. We might also filter out users with the Edge browser since that’s not our typical use case. By eliminating conditions like hardware or battery level, we can focus on conditions that affect our key user base. Once you select the Tags tab, you’ll see a heatmap, filtered by the list of suspect tags.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349&amp;fm=webp 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697&amp;fm=webp 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="HeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>This heatmap shows a list of user conditions and corresponding performance behavior. You can refine the heatmap by changing transaction duration bounds in the filter (eg. transaction.duration:&lt;15m). Now, just click on a purple box to isolate and add filters based on different <a href="https://docs.sentry.io/product/performance/transaction-summary/#tags">suspect tags</a> to create your custom heatmap.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349&amp;fm=webp 349w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697&amp;fm=webp 697w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349 349w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697 697w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="CustomHeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>Segment Explorer helps you find the issues that affect your customers the most, giving you a clear signal on what broke and how to fix it efficiently. To start exploring latency issues in your app, check out <a href="https://docs.sentry.io/product/performance/getting-started/">Segment Explorer with Sentry Performance.</a></p>
 <p>Try Sentry for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or contact us at <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
       <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/7LLI0QOFlsyNpnThyXZyFr/51ec12e9014a31639ffb5d8f23641279/Errors3-meta.jpg" length="0" type="image/jpeg"></enclosure>
       <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
@@ -3774,135 +4141,6 @@ https://images.ctfassets.net/em6l9zw4tzag/1gHe7UkKVdpTLF9kKVQQK2/374c257ae67d8dd
       <link>https://blog.sentry.io/2021/08/03/fluttering-our-mobile-wings/</link>
       <description>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates, like <a href="https://blog.sentry.io/2021/03/16/building-dark-mode/">dark mode</a> support, design them and implement prototypes. </p>
-<p>The mobile engineering team came up with the idea for a Sentry mobile app that focuses on Release Health. We wanted to give developers a concise but comprehensive view of whether a release was healthy, errored, or experiencing abnormal crash sessions across multiple projects.</p>
-<p>Because we wanted to bring this to both <a href="https://apps.apple.com/us/app/sentry-io/id1546709967">iOS</a> and <a href="https://play.google.com/store/apps/details?id=io.sentry.mobile.app">Android</a>, and we only had a week to build a proof of concept we decided to build the app in Flutter. Oh by the way, we also have a <a href="https://sentry.io/for/flutter/">Flutter Sentry SDK</a>, it’s great.</p>
-<h2 id="application-overview"><a href="#application-overview" aria-label="application overview permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Application Overview</h2>
-<h3 id="sessions"><a href="#sessions" aria-label="sessions permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Sessions</h3>
-<p>We fetch all projects from all your linked organizations that have session data. Every card represents one project and shows the name, organization, platform and a graph with the total session data over the last 24 hours. Below the cards the sessions are split up into healthy, errored, abnormal and crashed, all with individual graphs. There are also two cards showing crashfree sessions and users in percent.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=150&amp;fm=webp 150w,
-https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=300&amp;fm=webp 300w,
-https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=600&amp;fm=webp 600w" sizes="(max-width: 600px) 100vw, 600px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=150 150w,
-https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=300 300w,
-https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=600 600w" sizes="(max-width: 600px) 100vw, 600px"/>
-          <img alt="mobile-app-sessions" title="" src="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<h3 id="settings"><a href="#settings" aria-label="settings permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Settings</h3>
-<p>In the settings screen users can view a list of all projects and favorite them. Those will show up first on the main screen. Apart from that, we show the usual suspects, like terms, sharing and logout, in the settings screen.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=150&amp;fm=webp 150w,
-https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=300&amp;fm=webp 300w,
-https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=600&amp;fm=webp 600w" sizes="(max-width: 600px) 100vw, 600px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=150 150w,
-https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=300 300w,
-https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=600 600w" sizes="(max-width: 600px) 100vw, 600px"/>
-          <img alt="mobile-app-settings" title="" src="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<h3 id="widgets"><a href="#widgets" aria-label="widgets permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Widgets!</h3>
-<p>Flutter takes the main concept of view rendering from react. The user interface is described using widgets which are derived from the applications state. When the state changes, the system creates the new widgets from it and only redraws the interface elements. You can head over to the <a href="https://flutter.dev/docs/development/ui/widgets-intro">widgets intro documentation</a> to learn more about this.</p>
-<h3 id="redux"><a href="#redux" aria-label="redux permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Redux</h3>
-<p>We use Redux for state management. There is a central object holding the global application state. When an event in the application occurs, let’s say a reload of the session data, an action is dispatched.</p>
-<p>This action then goes through multiple middlewares. In this case, it would go through our API middleware, where it would trigger a network request. This request would then itself trigger new actions when it (asynchronously) finishes with success or a failure. All those actions travel through other middlewares as well and finally reach the reducer.</p>
-<p>The reducer is the only place where the global app state is mutated. In the sample above it would set a loading state when started and replace the loaded data upon success, or set an error state when there was a problem we want the user to know about.</p>
-<p>Pros</p>
-<ul>
-<li>When state changes, widgets can be updated automatically. With the help of ViewModels implementing BLA, the Widget will only be rendered if the derived state changed. Neat!</li>
-<li>With the reducer it,s explicit where state is mutated</li>
-</ul>
-<p>Cons</p>
-<ul>
-<li>The global state tends to get large quickly, even for such a small application. As the app will grow, we will have to think about how to best split this up.</li>
-<li>Some Flutter API relies on Futures which does not yet play well with the Redux concept. One example of this is the “RefreshIndicator” widget.</li>
-</ul>
-<h3 id="sentry-sdk"><a href="#sentry-sdk" aria-label="sentry sdk permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Sentry SDK</h3>
-<p>Of course we use our own Sentry SDK to check for issues. This was especially helpful during development, as we started out without sound null safety (more on that below) and were able to catch many issues with our SDK that would just show up in the console and could go easily unnoticed otherwise.</p>
-<h3 id="custom-drawing"><a href="#custom-drawing" aria-label="custom drawing permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Custom Drawing</h3>
-<p>The prototype used a dependency with embedded <a href="https://pub.dev/packages/flutter_echarts">ECharts</a> for chart drawing. This made use of web views, so every chart we would draw would also embed a full blown web view into our widget hierarchy. We would quickly encounter performance issues as well as flickering UI when redrawing.</p>
-<p>This was a great way for us to get started during hackweek, as we use this JS dependency in the Sentry web application, but it was clear to us that we would need to replace this for the production app.</p>
-<p>We decided to draw the charts that our designers prepared for us in the Figma design ourselves with the help of the canvas API. Android developers will feel right at home with this API, as it is basically the same on Android. Flutter also uses Skia as the drawing library, so no surprise there.</p>
-<p>So in just a couple of lines of code we were able to draw the charts that our designers came up with, including gradients and cubic lines (which we removed again). Drawing was faster, pixel perfect and we could also get rid of a large dependency. </p>
-
-<h3 id="android-studio"><a href="#android-studio" aria-label="android studio permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Android Studio</h3>
-<p>We mainly used Android Studio with the Flutter plugin for application development. This is especially convenient for Android developers, as they can use a familiar environment when starting out with Flutter applications. Of course, you have the freedom to use <a href="https://flutter.dev/docs/get-started/editor">whichever editor</a> you are comfortable with.</p>
-<h3 id="fastlane"><a href="#fastlane" aria-label="fastlane permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Fastlane</h3>
-<p>Fastlane is an open source tool written in Ruby. It is mostly used by the iOS community, but also works exceptionally well for Android. We use it locally to create release builds and ship them to the respective stores, as well as upload debug symbols to Sentry. </p>
-<h3 id="static-analysis"><a href="#static-analysis" aria-label="static analysis permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Static Analysis</h3>
-<p>We used the <a href="https://github.com/flutter/flutter/wiki/Using-the-Dart-analyzer">Dart analyzer</a> during development. It helped us to keep track of code issues that might come up during development.</p>
-<h3 id="sound-null-safety"><a href="#sound-null-safety" aria-label="sound null safety permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Sound Null Safety</h3>
-<p>We migrated the application to <a href="https://dart.dev/null-safety">sound null safety</a> during development when we were already pretty far along with the app. Luckily, the Flutter team came up with an <a href="https://dart.dev/null-safety/migration-guide">incremental way</a> to do this. So we were able to convert file by file and have a working application during migration. I’m sure there are some Swift developers reading this who remember migrating in the early days. Yeah, my deepest condolences, I have been there.</p>
-<h2 id="thats-a-wrap"><a href="#thats-a-wrap" aria-label="thats a wrap permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>That’s a wrap</h2>
-<p>Everything we do at Sentry is built in the open. Find us on <a href="https://github.com/getsentry/sentry-mobile">GitHub</a>.</p>
-<p>We have many ideas for future releases of the application, but ultimately it should be a tool that users find useful. So we can’t wait to hear your feedback, please give it a try!</p>
-<p>Download it now on the <a href="https://apps.apple.com/us/app/sentry-io/id1546709967">Apple App Store</a> and <a href="https://play.google.com/store/apps/details?id=io.sentry.mobile.app">Google PlayStore</a> and become a part of our Flutter journey.</p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/2ugLNDbMbX6VlbMYdQuXkm/0f3dd8459bdc5d7a6b31499d98270c56/mobileApp-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Tue, 03 Aug 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Fluttering our Mobile Wings</title>
-      <link>https://blog.sentry.io/2021/08/03/fluttering-our-mobile-wings/</link>
-      <description>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates…</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates, like <a href="https://blog.sentry.io/2021/03/16/building-dark-mode/">dark mode</a> support, design them and implement prototypes. </p>
 <p>The mobile engineering team came up with the idea for a Sentry mobile app that focuses on Release Health. We wanted to give developers a concise but comprehensive view of whether a release a release was healthy, errored, or experiencing abnormal crash sessions across multiple projects.</p>
 <p>Because we wanted to bring this to both <a href="https://apps.apple.com/us/app/sentry-io/id1546709967">iOS</a> and <a href="https://play.google.com/store/apps/details?id=io.sentry.mobile.app">Android</a>, and we only had a week to build a proof of concept we decided to build the app in Flutter. Oh by the way, we also have a <a href="https://sentry.io/for/flutter/">Flutter Sentry SDK</a>, it’s great.</p>
 <h2 id="application-overview"><a href="#application-overview" aria-label="application overview permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -4157,6 +4395,135 @@ https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f
       <pubDate>Tue, 03 Aug 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
+      <title>Fluttering our Mobile Wings</title>
+      <link>https://blog.sentry.io/2021/08/03/fluttering-our-mobile-wings/</link>
+      <description>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates…</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates, like <a href="https://blog.sentry.io/2021/03/16/building-dark-mode/">dark mode</a> support, design them and implement prototypes. </p>
+<p>The mobile engineering team came up with the idea for a Sentry mobile app that focuses on Release Health. We wanted to give developers a concise but comprehensive view of whether a release was healthy, errored, or experiencing abnormal crash sessions across multiple projects.</p>
+<p>Because we wanted to bring this to both <a href="https://apps.apple.com/us/app/sentry-io/id1546709967">iOS</a> and <a href="https://play.google.com/store/apps/details?id=io.sentry.mobile.app">Android</a>, and we only had a week to build a proof of concept we decided to build the app in Flutter. Oh by the way, we also have a <a href="https://sentry.io/for/flutter/">Flutter Sentry SDK</a>, it’s great.</p>
+<h2 id="application-overview"><a href="#application-overview" aria-label="application overview permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Application Overview</h2>
+<h3 id="sessions"><a href="#sessions" aria-label="sessions permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Sessions</h3>
+<p>We fetch all projects from all your linked organizations that have session data. Every card represents one project and shows the name, organization, platform and a graph with the total session data over the last 24 hours. Below the cards the sessions are split up into healthy, errored, abnormal and crashed, all with individual graphs. There are also two cards showing crashfree sessions and users in percent.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=150&amp;fm=webp 150w,
+https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=300&amp;fm=webp 300w,
+https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=600&amp;fm=webp 600w" sizes="(max-width: 600px) 100vw, 600px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=150 150w,
+https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=300 300w,
+https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png?w=600 600w" sizes="(max-width: 600px) 100vw, 600px"/>
+          <img alt="mobile-app-sessions" title="" src="https://images.ctfassets.net/em6l9zw4tzag/6OyHn1wQfjozT3wdHRsBmk/ea05d32f893d4731814d8f03231a76bb/image3.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h3 id="settings"><a href="#settings" aria-label="settings permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Settings</h3>
+<p>In the settings screen users can view a list of all projects and favorite them. Those will show up first on the main screen. Apart from that, we show the usual suspects, like terms, sharing and logout, in the settings screen.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=150&amp;fm=webp 150w,
+https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=300&amp;fm=webp 300w,
+https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=600&amp;fm=webp 600w" sizes="(max-width: 600px) 100vw, 600px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=150 150w,
+https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=300 300w,
+https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png?w=600 600w" sizes="(max-width: 600px) 100vw, 600px"/>
+          <img alt="mobile-app-settings" title="" src="https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f29ce9e44f63e7bf6/image1.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h3 id="widgets"><a href="#widgets" aria-label="widgets permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Widgets!</h3>
+<p>Flutter takes the main concept of view rendering from react. The user interface is described using widgets which are derived from the applications state. When the state changes, the system creates the new widgets from it and only redraws the interface elements. You can head over to the <a href="https://flutter.dev/docs/development/ui/widgets-intro">widgets intro documentation</a> to learn more about this.</p>
+<h3 id="redux"><a href="#redux" aria-label="redux permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Redux</h3>
+<p>We use Redux for state management. There is a central object holding the global application state. When an event in the application occurs, let’s say a reload of the session data, an action is dispatched.</p>
+<p>This action then goes through multiple middlewares. In this case, it would go through our API middleware, where it would trigger a network request. This request would then itself trigger new actions when it (asynchronously) finishes with success or a failure. All those actions travel through other middlewares as well and finally reach the reducer.</p>
+<p>The reducer is the only place where the global app state is mutated. In the sample above it would set a loading state when started and replace the loaded data upon success, or set an error state when there was a problem we want the user to know about.</p>
+<p>Pros</p>
+<ul>
+<li>When state changes, widgets can be updated automatically. With the help of ViewModels implementing BLA, the Widget will only be rendered if the derived state changed. Neat!</li>
+<li>With the reducer it,s explicit where state is mutated</li>
+</ul>
+<p>Cons</p>
+<ul>
+<li>The global state tends to get large quickly, even for such a small application. As the app will grow, we will have to think about how to best split this up.</li>
+<li>Some Flutter API relies on Futures which does not yet play well with the Redux concept. One example of this is the “RefreshIndicator” widget.</li>
+</ul>
+<h3 id="sentry-sdk"><a href="#sentry-sdk" aria-label="sentry sdk permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Sentry SDK</h3>
+<p>Of course we use our own Sentry SDK to check for issues. This was especially helpful during development, as we started out without sound null safety (more on that below) and were able to catch many issues with our SDK that would just show up in the console and could go easily unnoticed otherwise.</p>
+<h3 id="custom-drawing"><a href="#custom-drawing" aria-label="custom drawing permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Custom Drawing</h3>
+<p>The prototype used a dependency with embedded <a href="https://pub.dev/packages/flutter_echarts">ECharts</a> for chart drawing. This made use of web views, so every chart we would draw would also embed a full blown web view into our widget hierarchy. We would quickly encounter performance issues as well as flickering UI when redrawing.</p>
+<p>This was a great way for us to get started during hackweek, as we use this JS dependency in the Sentry web application, but it was clear to us that we would need to replace this for the production app.</p>
+<p>We decided to draw the charts that our designers prepared for us in the Figma design ourselves with the help of the canvas API. Android developers will feel right at home with this API, as it is basically the same on Android. Flutter also uses Skia as the drawing library, so no surprise there.</p>
+<p>So in just a couple of lines of code we were able to draw the charts that our designers came up with, including gradients and cubic lines (which we removed again). Drawing was faster, pixel perfect and we could also get rid of a large dependency. </p>
+
+<h3 id="android-studio"><a href="#android-studio" aria-label="android studio permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Android Studio</h3>
+<p>We mainly used Android Studio with the Flutter plugin for application development. This is especially convenient for Android developers, as they can use a familiar environment when starting out with Flutter applications. Of course, you have the freedom to use <a href="https://flutter.dev/docs/get-started/editor">whichever editor</a> you are comfortable with.</p>
+<h3 id="fastlane"><a href="#fastlane" aria-label="fastlane permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Fastlane</h3>
+<p>Fastlane is an open source tool written in Ruby. It is mostly used by the iOS community, but also works exceptionally well for Android. We use it locally to create release builds and ship them to the respective stores, as well as upload debug symbols to Sentry. </p>
+<h3 id="static-analysis"><a href="#static-analysis" aria-label="static analysis permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Static Analysis</h3>
+<p>We used the <a href="https://github.com/flutter/flutter/wiki/Using-the-Dart-analyzer">Dart analyzer</a> during development. It helped us to keep track of code issues that might come up during development.</p>
+<h3 id="sound-null-safety"><a href="#sound-null-safety" aria-label="sound null safety permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Sound Null Safety</h3>
+<p>We migrated the application to <a href="https://dart.dev/null-safety">sound null safety</a> during development when we were already pretty far along with the app. Luckily, the Flutter team came up with an <a href="https://dart.dev/null-safety/migration-guide">incremental way</a> to do this. So we were able to convert file by file and have a working application during migration. I’m sure there are some Swift developers reading this who remember migrating in the early days. Yeah, my deepest condolences, I have been there.</p>
+<h2 id="thats-a-wrap"><a href="#thats-a-wrap" aria-label="thats a wrap permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>That’s a wrap</h2>
+<p>Everything we do at Sentry is built in the open. Find us on <a href="https://github.com/getsentry/sentry-mobile">GitHub</a>.</p>
+<p>We have many ideas for future releases of the application, but ultimately it should be a tool that users find useful. So we can’t wait to hear your feedback, please give it a try!</p>
+<p>Download it now on the <a href="https://apps.apple.com/us/app/sentry-io/id1546709967">Apple App Store</a> and <a href="https://play.google.com/store/apps/details?id=io.sentry.mobile.app">Google PlayStore</a> and become a part of our Flutter journey.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/2ugLNDbMbX6VlbMYdQuXkm/0f3dd8459bdc5d7a6b31499d98270c56/mobileApp-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 03 Aug 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Instrumenting Our Frontend Test Suite (...and fixing what we found)</title>
       <link>https://blog.sentry.io/2021/07/27/instrumenting-our-frontend-test-suite-and-fixing-what-we-found/</link>
       <description>Adding Instrumentation to Jest Here at Sentry, we like to dogfood our product as much as possible. Sometimes, it results in unusual…</description>
@@ -4956,6 +5323,84 @@ https://images.ctfassets.net/em6l9zw4tzag/4LfWG3BtvhqtctS8GaZ0ep/6ec509bb8401961
 <p>And this month, we’ll be riffing on ways you can trace performance issues from the frontend to the backend — stay tuned. In the meantime, drop us a line at our <a href="https://forum.sentry.io/">forum</a> or on <a href="https://discord.com/invite/sentry">discord</a>. And if you’re new to Sentry, you can try it for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or write to <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></article><div><p>Your code is broken. Let&#39;s Fix it.</p><p><a href="https://sentry.io/signup"><span>Get Started</span></a></p></div></div></div>]]></content:encoded>
       <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/6nDncXOAUbcY8Xy0zLdHQ0/c943c8fb7e8de9a33f7d5c6efc4cb8fc/Jamstack-meta.jpg" length="0" type="image/jpeg"></enclosure>
       <pubDate>Thu, 01 Jul 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Why Debugging JavaScript Sucks — And What You Can Do About It</title>
+      <link>https://blog.sentry.io/2021/06/29/why-debugging-javascript-sucks-and-what-you-can-do-about-it/</link>
+      <description>What makes JavaScript great is also what makes it frustrating to debug, but there are methods you can use to improve this unfortunate debugging experience.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>What makes JavaScript great is also what makes it frustrating to debug. Its asynchronous nature makes it easy to manipulate the DOM in response to user events, but it also makes it difficult to locate problems. And JavaScript’s ubiquity has resulted in a variety of runtimes (e.g. Chromium’s V8,  Safari’s JavaScriptCore, and Firefox’s SpiderMonkey) but having so many platforms can cause dizzying idiosyncracies — all of which need to be supported equally.</p>
+<p>This makes debugging Javascript and pinning down the root cause of your errors difficult. Is it a memory leak?  Browser-specific bug? Or maybe you referenced the wrong value of <code>this</code>? And while there are options to debug your JavaScript, none of them are particularly pleasant: </p>
+<p><strong>Reproducing the issue</strong> is the equivalent of cooking a poorly received dinner again just to taste what went wrong. And it’s borderline impossible to reproduce the exact conditions of runtime environments, hardware, and network inconsistencies.</p>
+<p>While <strong>console.log</strong> is great if you’re debugging JavaScript locally, it’s not really helpful if you can’t reproduce it — or if you want to debug in production. That’s because logging merely identifies where in the codebase you are — but not what the problem is.   </p>
+<p>If you have managed to successfully reproduce a bug, <strong>in-browser debugging tools</strong> are the next step, but if you don’t have <a href="https://docs.sentry.io/platforms/javascript/sourcemaps/">source maps</a> available in production, good luck finding the root cause as you squint at minified JavaScript and opaque error codes.</p>
+<h2 id="its-ok-to-be-lazy"><a href="#its-ok-to-be-lazy" aria-label="its ok to be lazy permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>It’s Ok To Be Lazy</h2>
+<p>Let’s be honest: you didn’t get this far by working hard. You did it by figuring out which tools can do the hard work for you. And <a href="http://sentry.io/for/javascript">Sentry’s suite of JavaScript monitoring tools</a> seamlessly hooks into your runtime environment to do the heavy lifting of debugging for you:</p>
+<p><strong><a href="https://docs.sentry.io/platforms/javascript/">Sentry for JavaScript</a></strong> gives you complete context in the form of full stack traces, support for source maps that unminify your code, and direct integration with your source code management tool to help you <a href="https://docs.sentry.io/product/sentry-basics/guides/integrate-frontend/configure-scms/">identify the commit</a> that broke your code.</p>
+</div><div>
+<p>Our <strong><a href="https://docs.sentry.io/product/issues/issue-details/">Issue Details</a></strong> page gives you the device, OS, browser of your user to give you full visibility into what led up to your JavaScript incident. And if you are using <code>console.log</code> to debug in production, we can capture <a href="https://docs.sentry.io/product/issues/issue-details/breadcrumbs/">breadcrumbs</a> to create the trail of events that happened prior to an issue — then use our rich, structured data to see beyond what any log can give you.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188&amp;fm=webp 188w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375&amp;fm=webp 375w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750&amp;fm=webp 750w" sizes="(max-width: 750px) 100vw, 750px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188 188w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375 375w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750 750w" sizes="(max-width: 750px) 100vw, 750px"/>
+          <img alt="smallScreen Shot 2021-06-28 at 8.47.49 PM copy" title="" src="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>And with <strong><a href="https://docs.sentry.io/product/discover-queries/">Discover</a></strong>, our intuitive query builder, you can debug JavaScript with pre-built searches that filter your JavaScript events, unique errors, errors by URL, and client. Check out Discover’s <a href="https://blog.sentry.io/2020/02/11/new-debugging-superpowers-with-discover">debugging superpowers</a> — and how we used it to root out our own <a href="https://blog.sentry.io/2021/02/11/patching-a-flood-of-404s">404 errors</a>.</p>
+<p>Brian Kernighan — the inventor of Unix — said the most effective debugging tool is careful thought. Well, Kernighan didn’t have to debug why a valid regular expression throws an exception on Safari — or deal with the rapid increase of JavaScript-driven web APIs. But with Sentry’s application monitoring tools, you can save your careful thought for where it belongs: your code, not your errors.</p>
+<p>If you’re new to Sentry, you can try it for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or write to <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/6L8G5xKVLlbfRGF3BcVb6Z/222282ceff456d9020f9a7cd0cc87d14/Errors2-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 29 Jun 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Why Debugging JavaScript Sucks — And What You Can Do About It</title>
+      <link>https://blog.sentry.io/2021/06/29/why-debugging-javascript-sucks-and-what-you-can-do-about-it/</link>
+      <description>What makes JavaScript great is also what makes it frustrating to debug, but there are methods you can use to improve this unfortunate debugging experience.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>What makes JavaScript great is also what makes it frustrating to debug. Its asynchronous nature makes it easy to manipulate the DOM in response to user events, but it also makes it difficult to locate problems. And JavaScript’s ubiquity has resulted in a variety of runtimes (e.g. Chromium’s V8,  Safari’s JavaScriptCore, and Firefox’s SpiderMonkey) but having so many platforms can cause dizzying idiosyncracies — all of which need to be supported equally.</p>
+<p>This makes debugging Javascript and pinning down the root cause of your errors difficult. Is it a memory leak?  Browser-specific bug? Or maybe you referenced the wrong value of <code>this</code>? And while there are options to debug your JavaScript, none of them are particularly pleasant: </p>
+<p><strong>Reproducing the issue</strong> is the equivalent of cooking a poorly received dinner again just to taste what went wrong. And it’s borderline impossible to reproduce the exact conditions of runtime environments, hardware, and network inconsistencies.</p>
+<p>While <strong>console.log</strong> is great if you’re debugging JavaScript locally, it’s not really helpful if you can’t reproduce it — or if you want to debug in production. That’s because logging merely identifies where in the codebase you are — but not what the problem is.   </p>
+<p>If you have managed to successfully reproduce a bug, <strong>in-browser debugging tools</strong> are the next step, but if you don’t have <a href="https://docs.sentry.io/platforms/javascript/sourcemaps/">source maps</a> available in production, good luck finding the root cause as you squint at minified JavaScript and opaque error codes.</p>
+<h2 id="its-ok-to-be-lazy"><a href="#its-ok-to-be-lazy" aria-label="its ok to be lazy permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>It’s Ok To Be Lazy</h2>
+<p>Let’s be honest: you didn’t get this far by working hard. You did it by figuring out which tools can do the hard work for you. And <a href="http://sentry.io/for/javascript">Sentry’s suite of JavaScript monitoring tools</a> seamlessly hooks into your runtime environment to do the heavy lifting of debugging for you:</p>
+<p><strong><a href="https://docs.sentry.io/platforms/javascript/">Sentry for JavaScript</a></strong> gives you complete context in the form of full stack traces, support for source maps that unminify your code, and direct integration with your source code management tool to help you <a href="https://docs.sentry.io/product/sentry-basics/guides/integrate-frontend/configure-scms/">identify the commit</a> that broke your code.</p>
+</div><div>
+<p>Our <strong><a href="https://docs.sentry.io/product/issues/issue-details/">Issue Details</a></strong> page gives you the device, OS, browser of your user to give you full visibility into what led up to your JavaScript incident. And if you are using <code>console.log</code> to debug in production, we can capture <a href="https://docs.sentry.io/product/issues/issue-details/breadcrumbs/">breadcrumbs</a> to create the trail of events that happened prior to an issue — then use our rich, structured data to see beyond what any log can give you.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188&amp;fm=webp 188w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375&amp;fm=webp 375w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750&amp;fm=webp 750w" sizes="(max-width: 750px) 100vw, 750px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188 188w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375 375w,
+https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750 750w" sizes="(max-width: 750px) 100vw, 750px"/>
+          <img alt="smallScreen Shot 2021-06-28 at 8.47.49 PM copy" title="" src="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>And with <strong><a href="https://docs.sentry.io/product/discover-queries/">Discover</a></strong>, our intuitive query builder, you can debug JavaScript with pre-built searches that filter your JavaScript events, unique errors, errors by URL, and client. Check out Discover’s <a href="https://blog.sentry.io/2020/02/11/new-debugging-superpowers-with-discover">debugging superpowers</a> — and how we used it to root out our own <a href="https://blog.sentry.io/2021/02/11/patching-a-flood-of-404s">404 errors</a>.</p>
+<p>Brian Kernighan — the inventor of Unix — said the most effective debugging tool is careful thought. Well, Kernighan didn’t have to debug why a valid regular expression throws an exception on Safari — or deal with the rapid increase of JavaScript-driven web APIs. But with Sentry’s application monitoring tools, you can save your careful thought for where it belongs: your code, not your errors.</p>
+<p>If you’re new to Sentry, you can try it for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or write to <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/6L8G5xKVLlbfRGF3BcVb6Z/222282ceff456d9020f9a7cd0cc87d14/Errors2-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 29 Jun 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
       <title>Why Debugging JavaScript Sucks — And What You Can Do About It</title>
@@ -4991,84 +5436,6 @@ https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a231
       </span>
         </a></p>
 <p>And with <strong><a href="https://docs.sentry.io/product/discover-queries/">Discover</a></strong>, our intuitive query builder, you can debug with pre-built searches that filter your JavaScript events, unique errors, errors by URL, and client. Check out Discover’s <a href="https://blog.sentry.io/2020/02/11/new-debugging-superpowers-with-discover">debugging superpowers</a> — and how we used it to root out our own <a href="https://blog.sentry.io/2021/02/11/patching-a-flood-of-404s">404 errors</a>.</p>
-<p>Brian Kernighan — the inventor of Unix — said the most effective debugging tool is careful thought. Well, Kernighan didn’t have to debug why a valid regular expression throws an exception on Safari — or deal with the rapid increase of JavaScript-driven web APIs. But with Sentry’s application monitoring tools, you can save your careful thought for where it belongs: your code, not your errors.</p>
-<p>If you’re new to Sentry, you can try it for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or write to <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/6L8G5xKVLlbfRGF3BcVb6Z/222282ceff456d9020f9a7cd0cc87d14/Errors2-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Tue, 29 Jun 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Why Debugging JavaScript Sucks — And What You Can Do About It</title>
-      <link>https://blog.sentry.io/2021/06/29/why-debugging-javascript-sucks-and-what-you-can-do-about-it/</link>
-      <description>What makes JavaScript great is also what makes it frustrating to debug, but there are methods you can use to improve this unfortunate debugging experience.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>What makes JavaScript great is also what makes it frustrating to debug. Its asynchronous nature makes it easy to manipulate the DOM in response to user events, but it also makes it difficult to locate problems. And JavaScript’s ubiquity has resulted in a variety of runtimes (e.g. Chromium’s V8,  Safari’s JavaScriptCore, and Firefox’s SpiderMonkey) but having so many platforms can cause dizzying idiosyncracies — all of which need to be supported equally.</p>
-<p>This makes debugging Javascript and pinning down the root cause of your errors difficult. Is it a memory leak?  Browser-specific bug? Or maybe you referenced the wrong value of <code>this</code>? And while there are options to debug your JavaScript, none of them are particularly pleasant: </p>
-<p><strong>Reproducing the issue</strong> is the equivalent of cooking a poorly received dinner again just to taste what went wrong. And it’s borderline impossible to reproduce the exact conditions of runtime environments, hardware, and network inconsistencies.</p>
-<p>While <strong>console.log</strong> is great if you’re debugging JavaScript locally, it’s not really helpful if you can’t reproduce it — or if you want to debug in production. That’s because logging merely identifies where in the codebase you are — but not what the problem is.   </p>
-<p>If you have managed to successfully reproduce a bug, <strong>in-browser debugging tools</strong> are the next step, but if you don’t have <a href="https://docs.sentry.io/platforms/javascript/sourcemaps/">source maps</a> available in production, good luck finding the root cause as you squint at minified JavaScript and opaque error codes.</p>
-<h2 id="its-ok-to-be-lazy"><a href="#its-ok-to-be-lazy" aria-label="its ok to be lazy permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>It’s Ok To Be Lazy</h2>
-<p>Let’s be honest: you didn’t get this far by working hard. You did it by figuring out which tools can do the hard work for you. And <a href="http://sentry.io/for/javascript">Sentry’s suite of JavaScript monitoring tools</a> seamlessly hooks into your runtime environment to do the heavy lifting of debugging for you:</p>
-<p><strong><a href="https://docs.sentry.io/platforms/javascript/">Sentry for JavaScript</a></strong> gives you complete context in the form of full stack traces, support for source maps that unminify your code, and direct integration with your source code management tool to help you <a href="https://docs.sentry.io/product/sentry-basics/guides/integrate-frontend/configure-scms/">identify the commit</a> that broke your code.</p>
-</div><div>
-<p>Our <strong><a href="https://docs.sentry.io/product/issues/issue-details/">Issue Details</a></strong> page gives you the device, OS, browser of your user to give you full visibility into what led up to your JavaScript incident. And if you are using <code>console.log</code> to debug in production, we can capture <a href="https://docs.sentry.io/product/issues/issue-details/breadcrumbs/">breadcrumbs</a> to create the trail of events that happened prior to an issue — then use our rich, structured data to see beyond what any log can give you.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188&amp;fm=webp 188w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375&amp;fm=webp 375w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750&amp;fm=webp 750w" sizes="(max-width: 750px) 100vw, 750px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188 188w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375 375w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750 750w" sizes="(max-width: 750px) 100vw, 750px"/>
-          <img alt="smallScreen Shot 2021-06-28 at 8.47.49 PM copy" title="" src="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>And with <strong><a href="https://docs.sentry.io/product/discover-queries/">Discover</a></strong>, our intuitive query builder, you can debug JavaScript with pre-built searches that filter your JavaScript events, unique errors, errors by URL, and client. Check out Discover’s <a href="https://blog.sentry.io/2020/02/11/new-debugging-superpowers-with-discover">debugging superpowers</a> — and how we used it to root out our own <a href="https://blog.sentry.io/2021/02/11/patching-a-flood-of-404s">404 errors</a>.</p>
-<p>Brian Kernighan — the inventor of Unix — said the most effective debugging tool is careful thought. Well, Kernighan didn’t have to debug why a valid regular expression throws an exception on Safari — or deal with the rapid increase of JavaScript-driven web APIs. But with Sentry’s application monitoring tools, you can save your careful thought for where it belongs: your code, not your errors.</p>
-<p>If you’re new to Sentry, you can try it for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or write to <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/6L8G5xKVLlbfRGF3BcVb6Z/222282ceff456d9020f9a7cd0cc87d14/Errors2-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Tue, 29 Jun 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Why Debugging JavaScript Sucks — And What You Can Do About It</title>
-      <link>https://blog.sentry.io/2021/06/29/why-debugging-javascript-sucks-and-what-you-can-do-about-it/</link>
-      <description>What makes JavaScript great is also what makes it frustrating to debug, but there are methods you can use to improve this unfortunate debugging experience.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>What makes JavaScript great is also what makes it frustrating to debug. Its asynchronous nature makes it easy to manipulate the DOM in response to user events, but it also makes it difficult to locate problems. And JavaScript’s ubiquity has resulted in a variety of runtimes (e.g. Chromium’s V8,  Safari’s JavaScriptCore, and Firefox’s SpiderMonkey) but having so many platforms can cause dizzying idiosyncracies — all of which need to be supported equally.</p>
-<p>This makes debugging Javascript and pinning down the root cause of your errors difficult. Is it a memory leak?  Browser-specific bug? Or maybe you referenced the wrong value of <code>this</code>? And while there are options to debug your JavaScript, none of them are particularly pleasant: </p>
-<p><strong>Reproducing the issue</strong> is the equivalent of cooking a poorly received dinner again just to taste what went wrong. And it’s borderline impossible to reproduce the exact conditions of runtime environments, hardware, and network inconsistencies.</p>
-<p>While <strong>console.log</strong> is great if you’re debugging JavaScript locally, it’s not really helpful if you can’t reproduce it — or if you want to debug in production. That’s because logging merely identifies where in the codebase you are — but not what the problem is.   </p>
-<p>If you have managed to successfully reproduce a bug, <strong>in-browser debugging tools</strong> are the next step, but if you don’t have <a href="https://docs.sentry.io/platforms/javascript/sourcemaps/">source maps</a> available in production, good luck finding the root cause as you squint at minified JavaScript and opaque error codes.</p>
-<h2 id="its-ok-to-be-lazy"><a href="#its-ok-to-be-lazy" aria-label="its ok to be lazy permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>It’s Ok To Be Lazy</h2>
-<p>Let’s be honest: you didn’t get this far by working hard. You did it by figuring out which tools can do the hard work for you. And <a href="http://sentry.io/for/javascript">Sentry’s suite of JavaScript monitoring tools</a> seamlessly hooks into your runtime environment to do the heavy lifting of debugging for you:</p>
-<p><strong><a href="https://docs.sentry.io/platforms/javascript/">Sentry for JavaScript</a></strong> gives you complete context in the form of full stack traces, support for source maps that unminify your code, and direct integration with your source code management tool to help you <a href="https://docs.sentry.io/product/sentry-basics/guides/integrate-frontend/configure-scms/">identify the commit</a> that broke your code.</p>
-</div><div>
-<p>Our <strong><a href="https://docs.sentry.io/product/issues/issue-details/">Issue Details</a></strong> page gives you the device, OS, browser of your user to give you full visibility into what led up to your JavaScript incident. And if you are using <code>console.log</code> to debug in production, we can capture <a href="https://docs.sentry.io/product/issues/issue-details/breadcrumbs/">breadcrumbs</a> to create the trail of events that happened prior to an issue — then use our rich, structured data to see beyond what any log can give you.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188&amp;fm=webp 188w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375&amp;fm=webp 375w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750&amp;fm=webp 750w" sizes="(max-width: 750px) 100vw, 750px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=188 188w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=375 375w,
-https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png?w=750 750w" sizes="(max-width: 750px) 100vw, 750px"/>
-          <img alt="smallScreen Shot 2021-06-28 at 8.47.49 PM copy" title="" src="https://images.ctfassets.net/em6l9zw4tzag/86E4dfSSOOGpWwBzKbjA4/4b05d1013226a23135251ed2de5a70c5/Screen_Shot_2021-06-28_at_8.47.49_PM.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>And with <strong><a href="https://docs.sentry.io/product/discover-queries/">Discover</a></strong>, our intuitive query builder, you can debug JavaScript with pre-built searches that filter your JavaScript events, unique errors, errors by URL, and client. Check out Discover’s <a href="https://blog.sentry.io/2020/02/11/new-debugging-superpowers-with-discover">debugging superpowers</a> — and how we used it to root out our own <a href="https://blog.sentry.io/2021/02/11/patching-a-flood-of-404s">404 errors</a>.</p>
 <p>Brian Kernighan — the inventor of Unix — said the most effective debugging tool is careful thought. Well, Kernighan didn’t have to debug why a valid regular expression throws an exception on Safari — or deal with the rapid increase of JavaScript-driven web APIs. But with Sentry’s application monitoring tools, you can save your careful thought for where it belongs: your code, not your errors.</p>
 <p>If you’re new to Sentry, you can try it for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or write to <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
       <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/6L8G5xKVLlbfRGF3BcVb6Z/222282ceff456d9020f9a7cd0cc87d14/Errors2-meta.jpg" length="0" type="image/jpeg"></enclosure>
