@@ -4,6 +4,31 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Ably&#39;s Fully Featured Scalable Chat App</title>
+      <link>https://auth0.com/blog/ably-fully-featured-scalable-chat-app/</link>
+      <description>Creating a Universal Authentication System with Auth0 for Ably&#39;s scalable chat application.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>This is the second part of <a href="https://ably.com/blog/fully-featured-scalable-chat-app" target="_blank" rel="noreferrer noopener">Ably’s Fully Featured Scalable Chat App</a> series. We have been working on creating a prototype for an open-source chat application that anyone could use at real-world scales of traffic, with many of the bells and whistles one would expect from a modern chat application. This means integrated media, notifications, and more.</p><p>If you want to try out this application yourself, you can get the code from <a href="https://github.com/ably-labs/fully-featured-scalable-chat-app" target="_blank" rel="noreferrer noopener">GitHub</a> and follow the <a href="https://github.com/ably-labs/fully-featured-scalable-chat-app#readme" target="_blank" rel="noreferrer noopener">README</a> on the steps for local setup.</p><p>Our goal is for you to be able to take the code and create your own scalable chat application or mix and match elements from it into other applications that need a chat element.</p><p>Ably handles the complexity of distributed messaging between clients, presence checks, and authorization of messages. By making use of <a href="https://ably.com/topic/websockets" target="_blank" rel="noreferrer noopener">WebSockets</a> we can have persisted, realtime communication. Making use of Ably as a <a href="https://ably.com/pub-sub-messaging" target="_blank" rel="noreferrer noopener">Pub/Sub broker</a>, we will be able to have the consistent ordering of messages and reliable message ordering. You can try out these features by <a href="https://ably.com/signup" target="_blank" rel="noreferrer noopener">signing up for a free Ably account</a>.</p><p>Before starting on these elements, however, we need the absolute fundamentals of chat. One of the most crucial things to get right is the authentication of users.</p><p>Authentication requires:</p><ul><li>All information we store on users to be secure</li><li>We should provide 2FA and reasonable methods to recover an account should login credentials be forgotten</li><li>Password resetting should be possible</li><li>We need to be able to assign permissions, user information, and more to a user</li></ul><h2 id="Starting-Off">Starting Off</h2><p>Prior to starting on our authentication system, we already have a few things in place.</p><p>We have a frontend server that is hosting a <a href="https://reactjs.org/" target="_blank" rel="noreferrer noopener">ReactJS</a> application, compiled using <a href="https://www.snowpack.dev/" target="_blank" rel="noreferrer noopener">Snowpack</a>. On this, we have a basic page as seen below which allows for a user to set a username for themselves.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/10HfnKU3xmw1aTcBXfQNwP/36fc8f2a57b7a7dc1f323cfd090c7ea8/Uploaded_from_Fully_Functional_Scalable_Chat_App" alt="Starting Off"/></p><p>Once a user sets their username, they’ll be taken to the main chat application page, which has the available hard-coded chat channels on the left, which you can click on to load a <a href="https://reactjs.org/docs/react-component.html" target="_blank" rel="noreferrer noopener">React Component</a> on the right of the screen for chatting within that channel.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6UCmezwQzxO2oDofbC3JaX/5433dd6b9b2d8409fb4a6f79b599c8e5/ably-chat.png" alt="Starting Off"/></p><p>The chat uses Ably. When a user clicks on one of the chat channels on the left of the screen, we use the <a href="https://ably.com/blog/ably-react-hooks-npm-package" target="_blank" rel="noreferrer noopener">Ably React Hooks</a> library to connect to one of Ably’s servers and subscribe to its associated <a href="https://ably.com/documentation/realtime/channels" target="_blank" rel="noreferrer noopener">Ably Channel</a>. For example, to subscribe to the Ably Channel for the ‘global-welcome’ chat room:</p><pre><code><span>[</span> channel <span>]</span> <span>=</span> <span>useChannel</span><span>(</span>“global<span>-</span>welcome”<span>,</span> <span>(</span><span>message</span><span>)</span> <span>=&gt;</span> <span>{</span>
+<span>// Append message to our chat box component</span>
+<span>}</span><span>)</span><span>;</span></code></pre><p>If we want to publish a message to this channel, we can make use of the channel object returned by the <code>useChannel</code> function:</p><pre><code>channel<span>.</span><span>publish</span><span>(</span><span>&#34;message&#34;</span><span>,</span> messageFromChatBox<span>)</span><span>;</span></code></pre><p>We do both of these within the FFS app inside our <a href="https://github.com/ably-labs/fully-featured-scalable-chat-app/blob/main/app/src/components/Chat/ChatContainer.jsx" target="_blank" rel="noreferrer noopener">ChatContainer</a> code, which you can check if you’d like to see real examples.</p><p>With the above, we’re able to allow for non-authenticated usage of some hard-coded chat rooms with a username. However, we have no form of authentication at this stage. We trust the user to set themselves to have any name, even if it’s the same as someone else. We have no way to uniquely identify a user, which is something that is crucial for having any form of permissioning, private discussions, notifications, and more.</p><h2 id="Creating-a-Basic-Authentication-System">Creating a Basic Authentication System</h2><p>For an absolutely rudimentary authentication system, we need to have:</p><ul><li>A signup page where users can create a username and password</li><li>A database to store these, with the password being encrypted</li><li>A backend system that can authenticate a user when logging in by checking their login details to the database, and return a token that the user can use for any actions which require authentication</li><li>An endpoint that can be used to get authentication credentials to be used with Ably</li></ul><p>In addition, we’d want:</p><ul><li>2-Factor Authentication</li><li>Password Resetting</li><li>Social media logins</li></ul><p>Each would be complex to implement, with many edge-cases and many security concerns to address. However, we thankfully knew of an existing solution for this, which <a href="https://auth0.com/blog/dependable-and-secure-realtime-in-spring-boot-with-auth0-and-ably/" target="_blank" rel="noreferrer noopener">we’ve used in numerous projects</a> before, known as <a href="https://auth0.com/" target="_blank" rel="noreferrer noopener">Auth0</a>.</p><p>Auth0, an authentication and authorization platform, simplifies this process immensely. Not only does it allow for easy integration with your login systems, but it also makes integrating other login services such as Google and Twitter simple. It allows for a quick setup of permissions, roles with set permissions attached, and these roles to be assigned to users. These users can then use various login systems to access the same account and thus have the same permissions.</p><h3 id="Setting-up-Auth0">Setting up Auth0</h3><p>To make use of Auth0, you firstly need to create and configure an account with them. To do this, firstly, <a href="https://auth0.com/signup" target="_blank" rel="noreferrer noopener">sign up to Auth0</a> on their website. Go through the signup process, setting whatever <a href="https://auth0.com/docs/get-started/create-tenants" target="_blank" rel="noreferrer noopener">tenant name and region you&#39;d like</a>. Once you’re signed up, go to the ‘Applications’ part of the website. You should see ‘Default App’ here, which you can use for this tutorial, or you can create a new app if you so wish.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/62NYAkeQ25FA41mP2aspir/c6b325272a4447284036388fcae8a51c/Uploaded_from_Fully_Functional_Scalable_Chat_App" alt="Setting up Auth0"/></p><p>If you go to your app, you should arrive on the ‘Settings’ page for the app. From here, you should make a note of the <strong>Domain</strong>, <strong>Client</strong> <strong>ID</strong>, and <strong>Client Secret</strong>.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5ksyxBrksEBwQSeCkZe5VP/945e24c31578d98a6425b52c61eefbe0/Uploaded_from_Fully_Functional_Scalable_Chat_App" alt="Setting up Auth0"/></p><p>On this <em>settings</em> tab, scroll down to the section called ‘Application URIs.’ In it, you should see a field for ‘Allowed Callback URLs’ and ‘Allowed Logout URLs.’ For context, the flow of a webpage using Auth0 is:</p><ul><li>Your site links a user to your Auth0 app’s login page, where they sign in</li><li>The Auth0 page redirects the user back to your website’s ‘callback’ page</li><li>When the user wants to log out, they are directed to the Auth0 app’s logout page and then redirected back to the page specified in the ‘returnTo’ query passed to the logout page</li></ul><p>To avoid potential misuse and abuse, you need to specify what URLs Auth0 can redirect to. When hosting this chat app locally, it is hosted on localhost:8080, so set the <strong>Allowed Callback URLs</strong> to ‘<a href="http://localhost:8080/auth0-landing" target="_blank" rel="noreferrer noopener">http://localhost:8080/auth0-landing</a>’. When a user logs out, we’ll have the user redirected back to our main page, so set the <strong>Allowed Logout URLs</strong> to ‘<a href="http://localhost:8080/" target="_blank" rel="noreferrer noopener">http://localhost:8080/</a>’.</p><h3 id="Using-an-Auth0-application-from-the-chat-application">Using an Auth0 application from the chat application</h3><p>With the Auth0 application set up, the actual chat application needs to make use of it. When someone attempts to sign up or log in via Auth0, we will need to redirect a user to the appropriate Auth0 endpoint, and the same needs to occur when a user logs out.</p><p>Auth0 provides both a <a href="https://www.npmjs.com/package/@auth0/auth0-react" target="_blank" rel="noreferrer noopener">React library</a> as well as a standard node module. Both work well, and in most cases, you’d probably want to use the React library as it will automatically handle a lot of authentication state sharing between different components.</p><p>For this project, however, we decided to go with the node module. This was due to a few reasons:</p><ul><li>We want the code to be easily understood, and as we will need to use the node module version from the <a href="https://azure.microsoft.com/en-gb/services/functions/" target="_blank" rel="noreferrer noopener">Serverless Functions</a> we’re using for our database, it makes sense to keep consistency between both frontend and backend</li><li>To use the Auth0 library, it needs to have specific details such as the endpoint name specified as part of a compilation. To have these details adjustable by anyone using the project, we’d need to set this as part of the environment variables. This variable would be required at two different stages, the compilation (which we do on GitHub using <a href="https://github.com/features/actions" target="_blank" rel="noreferrer noopener">GitHub Actions</a>) and at runtime (for the Serverless Functions which we’re hosting on Azure), we’d need to specify it in 2 separate environments.</li></ul><p>To avoid these complications, we decided only to store these Auth0 variables on the Serverless Functions and make them available via a Serverless Function to clients to use. We couldn’t use the React library to do this, as it has no method for asynchronous instantiation of details.</p><p>Using the node library, we just need to fetch the Auth0 configuration details from the appropriate Serverless Function endpoint, and then use those to instantiate an Auth0 client:</p><pre><code><span>import</span> createAuth0Client <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
+
+<span>const</span> response <span>=</span> <span>await</span> <span>fetch</span><span>(</span><span>&#34;/api/oauth/config&#34;</span><span>)</span><span>;</span>
+<span>const</span> configuration <span>=</span> <span>await</span> response<span>.</span><span>json</span><span>(</span><span>)</span><span>;</span>
+cachedClient <span>=</span> <span>await</span> <span>createAuth0Client</span><span>(</span>configuration<span>)</span><span>;</span></code></pre><p>The Serverless Function at <code><span>/</span>api<span>/</span>oauth<span>/</span>config</code> simply responds with the configuration details we obtained earlier when setting up Auth0:</p><pre><code>  context<span>.</span>res <span>=</span> <span>{</span>
+    status<span>:</span> <span>200</span><span>,</span>
+    body<span>:</span> <span>JSON</span><span>.</span><span>stringify</span><span>(</span><span>{</span>
+          domain<span>:</span> process<span>.</span>env<span>.</span><span>AUTH0_DOMAIN</span><span>,</span>
+          clientID<span>:</span> process<span>.</span>env<span>.</span><span>AUTH0_CLIENTID</span><span>,</span>
+          client_id<span>:</span> process<span>.</span>env<span>.</span><span>AUTH0_CLIENTID</span><span>,</span>
+          redirect_uri<span>:</span> process<span>.</span>env<span>.</span><span>AUTH0_REDIRECT_URI</span>
+    <span>}</span><span>)</span>
+  <span>}</span><span>;</span></code></pre><p>Now we can add a button to our chat application which will instantiate our Auth0 client as seen above, and then use the Auth0 library’s login method to redirect the user to the Auth0 login page for our app:</p><pre><code><span>export</span> <span>async</span> <span>function</span> <span>loginWithRedirect</span><span>(</span><span>event</span><span>)</span> <span>{</span>
+  event<span>.</span><span>preventDefault</span><span>(</span><span>)</span><span>;</span>
+  <span>const</span> auth0 <span>=</span> <span>await</span> <span>useAuth0</span><span>(</span><span>)</span><span>;</span>
+  <span>await</span> auth0<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>;</span>
+<span>}</span></code></pre><p><img src="https://images.ctfassets.net/23aumh6u8s0i/Ce4CuRSlp8zXsf3nNvzmG/896b959bb5619c99cad5234d4d18f8f7/Uploaded_from_Fully_Functional_Scalable_Chat_App" alt="Setting up Auth0"/></p><p>When the user either signs up or enters valid credentials for logging in via Auth0, they need to be redirected to the page we specified when setting up Auth0, <code>localhost<span>:</span><span>8080</span><span>/</span>auth0<span>-</span>landing</code>.</p><p>With that, Auth0 is now up and running and we can use it as an authentication method!</p><h2 id="Storing-user-credentials">Storing user credentials</h2><p>We now have login credentials of our users stored in Auth0, but we need that data to be accessible and associated with data in our CosmosDB database as well. Ideally we’d <a href="https://auth0.com/docs/users/import-and-export-users/configure-automatic-migration-from-your-database" target="_blank" rel="noreferrer noopener">migrate our database’s contents over to Auth0</a> to avoid duplication of information, however for the time being we decided to keep data in CosmosDB.</p><p>As we will be treating our own database as the definitive location of data, we will want to also have our Auth0 users stored in our database as well. To do this, we can just intercept the response of signup via Auth0, and get the Auth0 ID and other details to store in our database.</p><p>Our CosmosDB will thus end up with a data structure for Users, defined in our <a href="https://github.com/ably-labs/fully-featured-scalable-chat-app/blob/main/api/common/metadata/User.ts" target="_blank" rel="noreferrer noopener">Users.ts</a> file, of:</p><ul><li>id: Unique ID for the User in our database</li><li>username: the login name they use if using our custom login system</li><li>oauthSub: The unique Auth0 ID if the user has an Auth0 login method associated with them</li><li>firstName: The user’s first name</li><li>lastName: The user’s last name</li><li>profileImgUrl: User’s profile image</li></ul><p>With the above, we can provide users with login methods for both Auth0. We will also have representations of all our users within our database.</p><h2 id="Conclusion">Conclusion</h2><p>With that, we have a way to authenticate users. With Auth0 we’re able to have 2FA, password recovery, and a smooth signup process handled for us. We have additional user information stored within CosmosDB, which we can use for providing additional information on users, which we can potentially use for profile pages, attaching details to messages.</p><p>With authentication done now, we still need to be able to authorize these users. We may know who someone is when they’re logged in, but we’re yet to define what permissions they should have, and how we’ll control them.</p><p>Next, we’ll be diving into how we can make use of a combination of Role-based Access Control (RBAC) and fine-grained permissions to define an authorization structure for users, as well as how to apply these permissions to both our backend as well as our real-time communications over WebSockets using Ably.</p><p>If you have any questions or thoughts about this project, please get in touch on <a href="https://twitter.com/ablyrealtime/" target="_blank" rel="noreferrer noopener">Twitter</a> or via <a href="mailto:devrel@ably.com" target="_blank" rel="noreferrer noopener">email</a> and we’d love to talk with you!</p></div></div>]]></content:encoded>
+      <pubDate>Wed, 26 Jan 2022 15:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Application Session Management</title>
       <link>https://auth0.com/blog/application-session-management-best-practices/</link>
       <description>Let&#39;s see how to maintain application sessions in different scenarios</description>
@@ -7324,586 +7349,6 @@ app<span>.</span><span>UseEndpoints</span><span>(</span>endpoints <span>=&gt;</s
       <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
       <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
       <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous section, you learned how to add real-time chat to the application and set up the <em>MJ Coffee</em> app to load different chat screens. </p><p>In this section, you will learn how to manage roles and permissions in Auth0 and a Flutter app, as well as how to apply a proper authorization flow. You&#39;ll also learn how to leverage RBAC and permission-based functionalities in a Flutter application.</p><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong></p></blockquote><h2 id="Managing-Roles">Managing Roles</h2><p>In a previous section in this tutorial, you learned how to create roles in the Auth0 dashboard. It’s time to see why you need roles and learn how you can leverage them into your app.</p><p>Role-based access control (RBAC) is a way to assign permissions to users based on their roles. It offers a simple approach to access management that is less prone to error than assigning permissions to users individually.</p><p>For example, suppose you use RBAC to control Customer/Employee access in the <em>MJ Coffee</em> application. In that case, you could give employees a role that allows them to update users’ details or access the community chat screen. In contrast, customers would view the support screen, but wouldn’t be authorized to perform tasks such as deleting messages or uploading attachments.</p><p>When planning your access control strategy, it’s generally a good idea to assign users a smalled number of permissions that allow them to get their work done.</p><p>You can leverage Auth0 Actions to assign roles automatically to each user after they sign up.</p><p>🛠 Once more, create a new custom action. In the left column menu of the Auth0 dashboard, select <strong>Actions</strong>, then <strong>Flows</strong>. The <strong>Choose Flow</strong> page will appear. Select <strong>Post User Registration</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1pbuab4m48ur5r0abMjpx5/0c67319150786f3ccff7a1fd4f788b60/create_new_post_user_registration.png" alt="Creating a new post user registration"/></p><p>🛠 Name the action <code>Assign Role</code> and add the <code>auth0</code> npm module with version <code><span>2.35</span><span>.1</span></code>.</p><p>🛠 Add the following handler, which will be called during the execution of a <code>PostUserRegistration</code> flow:</p><pre><code><span>// Auth0 Actions</span>
-
-<span>const</span> ManagementClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>ManagementClient<span>;</span>
-<span>const</span> AuthenticationClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>AuthenticationClient<span>;</span>
-
-exports<span>.</span><span>onExecutePostUserRegistration</span> <span>=</span> <span>async</span> <span>(</span><span>event</span><span>)</span> <span>=&gt;</span> <span>{</span>
-  <span>const</span> <span>DOMAIN</span> <span>=</span> <span>&#39;{YOUR_DOMAIN}&#39;</span><span>;</span>
-  <span>const</span> auth0 <span>=</span> <span>new</span> <span>AuthenticationClient</span><span>(</span><span>{</span>
-    domain<span>:</span> <span>DOMAIN</span><span>,</span>
-    clientId<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_ID</span><span>,</span>
-    clientSecret<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_SECRET</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-  <span>const</span> response <span>=</span> <span>await</span> auth0<span>.</span><span>clientCredentialsGrant</span><span>(</span><span>{</span>
-    audience<span>:</span> <span><span>`</span><span>https://</span><span><span>${</span><span>DOMAIN</span><span>}</span></span><span>/api/v2/</span><span>`</span></span><span>,</span>
-    scope<span>:</span> <span>&#39;read:users update:users&#39;</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-  <span>const</span> <span>API_TOKEN</span> <span>=</span> response<span>.</span>access_token<span>;</span>
-  <span>const</span> management <span>=</span> <span>new</span> <span>ManagementClient</span><span>(</span><span>{</span>
-    domain<span>:</span> <span>DOMAIN</span><span>,</span>
-    token<span>:</span> <span>API_TOKEN</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-
-  <span>if</span> <span>(</span>event<span>.</span>user<span>.</span>email<span>.</span><span>endsWith</span><span>(</span><span>&#39;@mjcoffee.app&#39;</span><span>)</span><span>)</span> <span>{</span>
-    <span>// employee</span>
-    <span>await</span> management<span>.</span><span>assignRolestoUser</span><span>(</span>
-      <span>{</span> id<span>:</span> event<span>.</span>user<span>.</span>user_id <span>}</span><span>,</span>
-      <span>{</span> roles<span>:</span> <span>[</span><span>&#39;rol_CHpJMdZUPCLzo6E2&#39;</span><span>]</span> <span>}</span>
-    <span>)</span><span>;</span>
-  <span>}</span> <span>else</span> <span>{</span>
-    <span>// customer</span>
-    <span>await</span> management<span>.</span><span>assignRolestoUser</span><span>(</span>
-      <span>{</span> id<span>:</span> event<span>.</span>user<span>.</span>user_id <span>}</span><span>,</span>
-      <span>{</span> roles<span>:</span> <span>[</span><span>&#39;rol_fG50GuNE9S72jNZn&#39;</span><span>]</span> <span>}</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span><span>;</span></code></pre><p>Let&#39;s analyze this handler’s logic step by step.</p><p>The handler imports both <code>ManagementClient</code> and <code>AuthenticationClient</code> from the <code>auth0</code> module, a Node.js SDK that conveniently provides official Auth0 public APIs.</p><p>It then defines your domain name, <code><span>DOMAIN</span></code>. </p><p>🛠 In the handler, replace <code><span>{</span><span>YOUR_DOMAIN</span><span>}</span></code> with your application’s domain, which you’ll find in the Auth0 dashboard.</p><p>The handler initializes an authentication client, passing its constructor the application’s domain, client ID, and client secret. </p><p><strong>Note that the application client is a bit special here!</strong> This is <em>not</em> the application you have created and worked with so far. You need to create a Machine-to-Machine (M2M) application or Auth0 non-interactive client, which makes it possible to request a client credentials grant.</p><p>🛠 Open the Auth0 dashboard in a new tab in your browser. Go to the <strong>Applications</strong> page and creating a new application, selecting the <strong>Machine to Machine Applications</strong> type:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4s9EPsMj5Lg5StnSURGU4X/df7a4f7a97be3e83a4ff84d446137df3/create_new_m2m_app.png" alt="Creating a new M2M application in the Auth0 dashboard"/></p><p>🛠 Once the M2M application is created, take a note of Client ID and Client Secret. You will need to add them to your Actions’ secrets in the next step, then go to the <strong>APIs</strong> tab and authorize the Auth0 Management API.</p><p>As mentioned before, it&#39;s always a good idea to limit the permissions. Hence, select only those permissions needed to perform actions with this Client. </p><p>🛠 We want to be able to add roles to users, so select the <code>read<span>:</span>users</code> and <code>update<span>:</span>users</code> permissions:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1zQbWKfW0orBdHROj3RR3j/ce856b0663b4f78610c9d3aa1ea9e0e5/authorize_api.png" alt="Authorizing the API"/></p><p>🛠 Add the following to the action:</p><ul><li>The key <code><span>M2M_CLIENT_ID</span></code>, with the client ID as its corresponding value</li><li>The key <code><span>M2M_CLIENT_SECRET</span></code>, with the client secret as the value</li></ul><p>You can now successfully authenticate an Auth0 client and request a management API token by specifying audiences and scopes. Scopes are the ones that you have selected in the previous steps in the permission tab under Auth0 management API.</p><p>Once access is granted and the token is received, you can create a management client.</p><p>The logic is relatively simple for this MJ Coffee app.</p><pre><code><span>if</span> <span>(</span>event<span>.</span>user<span>.</span>email<span>.</span><span>endsWith</span><span>(</span><span>&#39;@mjcoffee.app&#39;</span><span>)</span><span>)</span> <span>{</span>
-  <span>// employee</span>
-<span>}</span> <span>else</span> <span>{</span>
-  <span>// customer</span>
-<span>}</span></code></pre><p>Simply put, if the user’s email address ends with  <code>@mjcoffee<span>.</span>app</code> they will be assigned the <em>employee</em> role; otherwise, they’ll be assigned the <em>customer</em> role. This, of course, could change based on your implementation.</p><p>Finally, the handler calls <code><span>assignRolesToUser</span><span>(</span><span>)</span></code> on the <code>management</code> client and passes:</p><ul><li>a map containing the user ID, and</li><li>a list of role IDs.</li></ul><p>To get a role’s ID, select <strong>User Management</strong> in the Auth0 dashboard’s left column menu, then select <strong>Roles</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4WKeTj5YRcq1IZUcxCO32d/d627b895fe44352d1e4f7de01fa406c6/role_id.png" alt="Getting a Role’s ID"/></p><p>Fantastic! Don’t forget to deploy your function.</p><p>🛠 For the last step, go to <strong>Flows</strong>, then <strong>Post User Registration</strong>. Add your <code>Assign Role</code> custom action to the flow.</p><p>If you are impatient to test what you have created so far, navigate to the Auth0 dashboard’s <strong>Users</strong> page and create new users with and without email addresses that you have specified in your function logic. Then, go to the <strong>Role</strong> tab — you should see that for each user, their role was assigned automatically:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/30XsYPDx2euHspY9BGnk6s/ddcaf08706e6dda515179b46611cd724/user_role.png" alt="Users and their automatically assigned roles"/></p><h2 id="Managing-Permissions">Managing Permissions</h2><p>You’ll often need to create a custom API that defines permissions. Then you can assign those permissions to roles, which can then be assigned to users.</p><p>🛠 In the Auth0 dashboard, select <strong>Applications</strong> in the left column menu, select <strong>APIs</strong> in the submenu, and then click the <strong>Create API</strong> button to create a new custom API.</p><p>🛠 Give the API a recognizable name, such as <code>StreamChat Management <span>API</span></code>, then define your identifier. This identifier will become your API audience. Note that the identifier cannot be modified. A good practice for naming identifiers is to use a URL, even if that URL is not publicly available. For example, you could name the identifier <code>https<span>:</span><span>/</span><span>/</span>getStreamChat<span>.</span>mjcoffee<span>.</span>app<span>/</span>v1<span>/</span></code>.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4NdodtRf9CZSY8O8Onb5fP/7b0216eed696a44a99ef5a99437431a5/custom_api.png" alt="Creating a new custom API"/></p><p>🛠 Once the API is created, go to the RBAC Settings section and enable RBAC and Add Permissions in the Access Token. The API is supposed to be flagged as First Party so that you can turn on Allow Skipping User Consent. Turn on Allow Offline Access so that Auth0 will allow applications to ask for Refresh Tokens for this API.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1egWhGNMvy0g12Oh6ccQyq/ee28278cf4831101c95dc9ceb5acbf50/rbac-api.png" alt="RBAC API"/></p><p>🛠 Navigate to the <strong>Permissions</strong> tab and add your permissions and description. I recommend at adding at least these permissions:</p><ul><li><code><span>delete</span><span>.</span>user<span>.</span>message</code></li><li><code>edit<span>.</span>user<span>.</span>message</code></li><li><code>upload<span>.</span>attachments</code></li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/47v9LpCiZKbnsTL3VDBQoe/fc80c54e22f8d316b3bf02a6ab3e656f/custom_permissions.png" alt="Custome permissions"/></p><p>The more permissions you define, and the more explicit they are,  the better you can control the resources.</p><p>🛠 Next, head over to <strong>Roles</strong> under <strong>User Management</strong>. Go to each role and assign the following permissions:</p><ul><li><strong>Employee</strong>
-<ul><li><code>edit<span>.</span>user<span>.</span>message</code></li><li><code>upload<span>.</span>attachments</code></li></ul></li><li><strong>Customer</strong>
-<ul><li><code>edit<span>.</span>user<span>.</span>message</code></li></ul></li><li><strong>Admin</strong>
-<ul><li><code><span>delete</span><span>.</span>user<span>.</span>message</code></li><li><code>edit<span>.</span>user<span>.</span>message</code></li><li><code>upload<span>.</span>attachments</code></li></ul></li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6JylazPCTIIvUKwrSicEib/116523b7e52452211349376dff85dba0/role_permission.png" alt="Defining custom permissions"/></p><p>You have managed to create roles and users are automatically assigned roles on registration. Although role assignment is automatic now, you can still alter user roles manually. For example, you can add the <strong>Admin</strong> role to specific users in the Auth0 dashboard.</p><p>The only step remaining is to expose the roles and permissions to <code>idToken</code> and <code>accessToken</code> that the Flutter app can consume.</p><h2 id="Exposing-Roles-and-Permission">Exposing Roles and Permission</h2><p>🛠 This step is pretty similar to what you have done when assigning roles. As a reminder, here are the steps:</p><ul><li>Create a custom action, triggering Login/Post Login</li><li>Name the action “Revealing User Roles &amp; Permissions”</li><li>Add the machine-to-machine application’s client ID and client key to the action’s secrets</li><li>Add <code>auth0</code> npm package version <code><span>2.35</span><span>.1</span></code></li></ul><p>🛠 Once you’ve done that, follow the code below:</p><pre><code><span>// Auth0 Actions</span>
-
-<span>const</span> ManagementClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>ManagementClient<span>;</span>
-<span>const</span> AuthenticationClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>AuthenticationClient<span>;</span>
-exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async</span> <span>(</span><span>event<span>,</span> api</span><span>)</span> <span>=&gt;</span> <span>{</span>
-  <span>const</span> <span>DOMAIN</span> <span>=</span> <span>&#39;mhadaily.eu.auth0.com&#39;</span><span>;</span>
-  <span>const</span> auth0 <span>=</span> <span>new</span> <span>AuthenticationClient</span><span>(</span><span>{</span>
-    domain<span>:</span> <span>DOMAIN</span><span>,</span>
-    clientId<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_ID</span><span>,</span>
-    clientSecret<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_SECRET</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-  <span>const</span> response <span>=</span> <span>await</span> auth0<span>.</span><span>clientCredentialsGrant</span><span>(</span><span>{</span>
-    audience<span>:</span> <span><span>`</span><span>https://</span><span><span>${</span><span>DOMAIN</span><span>}</span></span><span>/api/v2/</span><span>`</span></span><span>,</span>
-    scope<span>:</span> <span>&#39;read:users update:users read:roles&#39;</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-  <span>const</span> <span>API_TOKEN</span> <span>=</span> response<span>.</span>access_token<span>;</span>
-  <span>const</span> management <span>=</span> <span>new</span> <span>ManagementClient</span><span>(</span><span>{</span>
-    domain<span>:</span> <span>DOMAIN</span><span>,</span>
-    token<span>:</span> <span>API_TOKEN</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-
-  <span>const</span> params <span>=</span> <span>{</span> id<span>:</span> event<span>.</span>user<span>.</span>user_id <span>}</span><span>;</span>
-  <span>const</span> roles <span>=</span> <span>await</span> management<span>.</span><span>getUserRoles</span><span>(</span>params<span>)</span><span>;</span>
-  <span>const</span> permissions <span>=</span> <span>await</span> management<span>.</span><span>getUserPermissions</span><span>(</span>params<span>)</span><span>;</span>
-
-  <span>const</span> namespace <span>=</span> <span>&#39;https://users.mjcoffee.app&#39;</span><span>;</span>
-  <span>if</span> <span>(</span>event<span>.</span>authorization<span>)</span> <span>{</span>
-    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/roles</span><span>`</span></span><span>,</span> roles<span>)</span><span>;</span>
-    api<span>.</span>accessToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/roles</span><span>`</span></span><span>,</span> roles<span>)</span><span>;</span>
-    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/permissions</span><span>`</span></span><span>,</span> permissions<span>)</span><span>;</span>
-    api<span>.</span>accessToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/permissions</span><span>`</span></span><span>,</span> permissions<span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span><span>;</span></code></pre><p>The code is pretty similar to what you have written once before. The first change is that it adds <code>read<span>:</span>roles</code> to the scope. Make sure you have enabled this permission under the M2M application as you have done once for the <code>read<span>:</span>users update<span>:</span>users</code> permissions; otherwise, you will face an “unauthorized” error.</p><p>It then calls <code><span>getUserRoles</span><span>(</span><span>)</span></code> and <code><span>getUserPermissions</span><span>(</span><span>)</span></code>,  passing the user ID. These functions will return user roles and permissions respectively.</p><p>After defining a namespace, the code calls <code><span>setCustomClaim</span><span>(</span><span>)</span></code> to add both roles and permission custom claims to the ID and access tokens.</p><p>🛠 Make sure you deploy and then navigate to <strong>Flows</strong>. You want to add the new custom action to the login flow right before the previous action you created earlier:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5XinnapiJ1AUQN0LiHY5sV/bf95d7da7f1333aafe30f80f0e81f14e/new_login_flow.png" alt="new flow login"/></p><p>So far so good, but you still need to go to the Flutter app and add roles and permissions to the models.</p><h2 id="Read-Roles-and-Permissions-in-Flutter">Read Roles and Permissions in Flutter</h2><p>Now that both roles and permissions are available in the ID and access tokens, you can add them to <code>Auth0IdToken</code> and <code>Auth0UserInfo</code>, respectively.</p><p>🛠 First, create a file named <code>auth0_roles<span>.</span>dart</code> file in the <code><span>/</span>lib<span>/</span>models</code> folder:</p><pre><code><span>// /lib/models/auth0_roles.dart</span>
-
-<span>import</span> <span>&#39;package:json_annotation/json_annotation.dart&#39;</span><span>;</span>
-
-<span>part</span> <span>&#39;auth0_roles.g.dart&#39;</span><span>;</span>
-
-<span>enum</span> Role <span>{</span>
-  Employee<span>,</span>
-  Admin<span>,</span>
-  Customer<span>,</span>
-<span>}</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0Role</span> <span>{</span>
-  <span>Auth0Role</span><span>(</span><span>{</span>
-    required <span>this</span><span>.</span>id<span>,</span>
-    required <span>this</span><span>.</span>name<span>,</span>
-    required <span>this</span><span>.</span>description<span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-
-  <span>final</span> String id<span>;</span>
-  <span>final</span> Role name<span>;</span>
-  <span>final</span> String description<span>;</span>
-
-  <span>factory</span> Auth0Role<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
-      _$<span>Auth0RoleFromJson</span><span>(</span>json<span>)</span><span>;</span>
-
-  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0RoleToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
-
-  <span>@override</span>
-  String <span>toString</span><span>(</span><span>)</span> <span>{</span>
-    <span>return</span> <span>&#39;&#39;&#39;$name&#39;&#39;&#39;</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>🛠 Then create <code>auth0_permissions<span>.</span>dart</code> in the same directory, with the code below:</p><pre><code><span>// /lib/models/auth0_permissions.dart</span>
-
-<span>import</span> <span>&#39;package:json_annotation/json_annotation.dart&#39;</span><span>;</span>
-
-<span>part</span> <span>&#39;auth0_permissions.g.dart&#39;</span><span>;</span>
-
-<span>class</span> <span>UserPermissions</span> <span>{</span>
-  <span>static</span> <span>const</span> String delete <span>=</span> <span>&#39;delete.user.message&#39;</span><span>;</span>
-  <span>static</span> <span>const</span> String edit <span>=</span> <span>&#39;edit.user.message&#39;</span><span>;</span>
-  <span>static</span> <span>const</span> String upload <span>=</span> <span>&#39;upload.attachments&#39;</span><span>;</span>
-<span>}</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0Permission</span> <span>{</span>
-  <span>Auth0Permission</span><span>(</span><span>{</span>
-    required <span>this</span><span>.</span>permissionName<span>,</span>
-    required <span>this</span><span>.</span>description<span>,</span>
-    required <span>this</span><span>.</span>resourceServerName<span>,</span>
-    required <span>this</span><span>.</span>resourceServerIdentifier<span>,</span>
-    required <span>this</span><span>.</span>sources<span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;permission_name&#39;</span><span>)</span>
-  <span>final</span> String permissionName<span>;</span>
-
-  <span>final</span> String description<span>;</span>
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;resource_server_name&#39;</span><span>)</span>
-  <span>final</span> String resourceServerName<span>;</span>
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;resource_server_identifier&#39;</span><span>)</span>
-  <span>final</span> String resourceServerIdentifier<span>;</span>
-
-  <span>final</span> List<span>&lt;</span>Auth0PermissionsSource<span>&gt;</span> sources<span>;</span>
-
-  <span>factory</span> Auth0Permission<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
-      _$<span>Auth0PermissionFromJson</span><span>(</span>json<span>)</span><span>;</span>
-
-  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0PermissionToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
-
-  <span>@override</span>
-  String <span>toString</span><span>(</span><span>)</span> <span>{</span>
-    <span>return</span> <span>&#39;&#39;&#39;$permissionName&#39;&#39;&#39;</span><span>;</span>
-  <span>}</span>
-<span>}</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0PermissionsSource</span> <span>{</span>
-  <span>Auth0PermissionsSource</span><span>(</span><span>{</span>
-    required <span>this</span><span>.</span>sourceId<span>,</span>
-    required <span>this</span><span>.</span>sourceName<span>,</span>
-    required <span>this</span><span>.</span>sourceType<span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;source_id&#39;</span><span>)</span>
-  <span>final</span> String sourceId<span>;</span>
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;source_name&#39;</span><span>)</span>
-  <span>final</span> String sourceName<span>;</span>
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;source_type&#39;</span><span>)</span>
-  <span>final</span> String sourceType<span>;</span>
-
-  <span>factory</span> Auth0PermissionsSource<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
-      _$<span>Auth0PermissionsSourceFromJson</span><span>(</span>json<span>)</span><span>;</span>
-
-  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0PermissionsSourceToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
-
-  <span>@override</span>
-  String <span>toString</span><span>(</span><span>)</span> <span>{</span>
-    <span>return</span> <span>&#39;&#39;&#39;
-      sourceId: $sourceId,
-      sourceName: $sourceName,
-      sourceType: $sourceType,
-      &#39;&#39;&#39;</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>What you want to achieve here is to serialize and deserialize the roles and permissions for each model.</p><p>🛠 The next step is to update the <code>Auth0IdToken</code> model:</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0IdToken</span> <span>{</span>
-  <span>Auth0IdToken</span><span>(</span><span>{</span>
-  
-<span>.</span><span>.</span><span>.</span>
-
-    required <span>this</span><span>.</span>roles<span>,</span>
-    required <span>this</span><span>.</span>permissions<span>,</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-<span>}</span><span>}</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/roles&#39;</span><span>)</span>
-  <span>final</span> List<span>&lt;</span>Auth0Role<span>&gt;</span> roles<span>;</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/permissions&#39;</span><span>)</span>
-  <span>final</span> List<span>&lt;</span>Auth0Permission<span>&gt;</span> permissions<span>;</span>
-  
-<span>.</span><span>.</span><span>.</span>
-
-<span>}</span></code></pre><p>🛠 Do the same for the <code>Auth0User</code> model:</p><pre><code><span>// /lib/models/auth0_user.dart</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0User</span> <span>{</span>
-  <span>Auth0User</span><span>(</span><span>{</span>
-  
-<span>.</span><span>.</span><span>.</span>
-
-    required <span>this</span><span>.</span>permissions<span>,</span>
-    required <span>this</span><span>.</span>roles<span>,</span>
-    
-<span>.</span><span>.</span><span>.</span>
-
-<span>}</span><span>)</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/roles&#39;</span><span>)</span>
-  <span>final</span> List<span>&lt;</span>Auth0Role<span>&gt;</span> roles<span>;</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/permissions&#39;</span><span>)</span>
-  <span>final</span> List<span>&lt;</span>Auth0Permission<span>&gt;</span> permissions<span>;</span>
-  
-<span>.</span><span>.</span><span>.</span>
-
-<span>}</span></code></pre><p>🛠 Finally, run the <code>build_runner</code> command to ensure that the models are generated properly:</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>You can now restart the <em>MJ Coffee</em> app, and everything should work as expected.</p><h2 id="Role-Based-Screens-in-Flutter">Role-Based Screens in Flutter</h2><p>It’s finally time to have a loading screen based on the user&#39;s role. If you remember, we wanted to add Support and Community screens for customers and employees, respectively. You created both screens earlier.</p><p>It would be easier to define getter methods in <code>Auth0User</code> to determine whether a user has a particular role or permission.</p><p>🛠 Add code to the <code>Auth0User</code> class as shown below:</p><pre><code><span>// /lib/models/auth0_user.dart</span>
-
-<span>class</span> <span>Auth0User</span> <span>{</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-  bool <span>get</span> hasImage <span>=</span><span>&gt;</span> picture<span>.</span>isNotEmpty<span>;</span>
-  bool <span>can</span><span>(</span>String permission<span>)</span> <span>=</span><span>&gt;</span> permissions
-      <span>.</span><span>where</span><span>(</span>
-        <span>(</span>p<span>)</span> <span>=</span><span>&gt;</span> p<span>.</span>permissionName <span>==</span> permission<span>,</span>
-      <span>)</span>
-      <span>.</span>isNotEmpty<span>;</span>
-
-  <span>get</span> isAdmin <span>=</span><span>&gt;</span> roles<span>.</span><span>where</span><span>(</span><span>(</span>role<span>)</span> <span>=</span><span>&gt;</span> role<span>.</span>name <span>==</span> Role<span>.</span>Admin<span>)</span><span>.</span>isNotEmpty<span>;</span>
-  <span>get</span> isEmployee <span>=</span><span>&gt;</span>
-      roles<span>.</span><span>where</span><span>(</span><span>(</span>role<span>)</span> <span>=</span><span>&gt;</span> role<span>.</span>name <span>==</span> Role<span>.</span>Employee<span>)</span><span>.</span>isNotEmpty<span>;</span>
-  <span>get</span> isCustomer <span>=</span><span>&gt;</span>
-      roles<span>.</span><span>where</span><span>(</span><span>(</span>role<span>)</span> <span>=</span><span>&gt;</span> role<span>.</span>name <span>==</span> Role<span>.</span>Customer<span>)</span><span>.</span>isNotEmpty<span>;</span>
-      
-<span>.</span><span>.</span><span>.</span>
-
-<span>}</span></code></pre><p>These getters are pretty self-explanatory.</p><p>🛠 Next, open <code><span>/</span>lib<span>/</span>screens<span>/</span>menu<span>.</span>dart</code> and locate the <code>tabs</code> list in the <code>_MenuScreenState</code> class:</p><pre><code><span>// /lib/screens/menu.dart</span>
-
-  <span>.</span><span>.</span><span>.</span>
-  
-  <span>final</span> List<span>&lt;</span>Widget<span>&gt;</span> tabs <span>=</span> <span>[</span>
-      <span>MenuList</span><span>(</span>coffees<span>:</span> coffees<span>)</span><span>,</span>
-      <span>if</span> <span>(</span>AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer<span>)</span>
-        <span>SupportChatScreen</span><span>(</span><span>)</span>
-      <span>else</span>
-        <span>CommunityScreen</span><span>(</span><span>)</span><span>,</span>
-      <span>ProfileScreen</span><span>(</span><span>)</span><span>,</span>
-    <span>]</span><span>;</span>
-    
-  <span>.</span><span>.</span><span>.</span></code></pre><p>🛠 In the same file, find <code>BottomNavigationBar</code> and add <code>BottomNavigationBarItem</code> to the second position in the list:</p><pre><code><span>// /lib/screens/menu.dart</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-BottomNavigationBar <span>_bottomNavigationBar</span><span>(</span>Auth0User<span>?</span> user<span>)</span> <span>{</span>
-    <span>return</span> <span>BottomNavigationBar</span><span>(</span>
-      
-      <span>.</span><span>.</span><span>.</span>
-      
-      items<span>:</span> <span>&lt;</span>BottomNavigationBarItem<span>&gt;</span><span>[</span>
-      
-        <span>.</span><span>.</span><span>.</span>
-      
-        <span>BottomNavigationBarItem</span><span>(</span>
-          icon<span>:</span> AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer
-              <span>?</span> <span>Icon</span><span>(</span>Icons<span>.</span>support_agent<span>)</span>
-              <span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>group<span>)</span><span>,</span>
-          label<span>:</span> AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer
-              <span>?</span> <span>&#34;Support&#34;</span>
-              <span>:</span> <span>&#34;Community&#34;</span><span>,</span>
-        <span>)</span><span>,</span>
-        
-       <span>.</span><span>.</span><span>.</span>
-       
-      <span>]</span><span>,</span>
-      
-     <span>.</span><span>.</span><span>.</span>
-     
-    <span>)</span><span>;</span>
-  <span>}</span>
-  
-<span>.</span><span>.</span><span>.</span></code></pre><p>🛠 To make the UI look better, you can add the user&#39;s avatar to the <code>appBar</code> so that the complete implementation is as follows:</p><pre><code><span>// /lib/screens/menu.dart</span>
-
-<span>class</span> <span>MenuScreen</span> <span>extends</span> <span>StatefulWidget</span> <span>{</span>
-  <span>static</span> String routeName <span>=</span> <span>&#39;menuScreen&#39;</span><span>;</span>
-  <span>static</span> Route<span>&lt;</span>MenuScreen<span>&gt;</span> <span>route</span><span>(</span><span>)</span> <span>{</span>
-    <span>return</span> MaterialPageRoute<span>&lt;</span>MenuScreen<span>&gt;</span><span>(</span>
-      settings<span>:</span> <span>RouteSettings</span><span>(</span>name<span>:</span> routeName<span>)</span><span>,</span>
-      builder<span>:</span> <span>(</span>BuildContext context<span>)</span> <span>=</span><span>&gt;</span> <span>MenuScreen</span><span>(</span><span>)</span><span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>@override</span>
-  _MenuScreenState <span>createState</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> <span>_MenuScreenState</span><span>(</span><span>)</span><span>;</span>
-<span>}</span>
-
-<span>class</span> <span>_MenuScreenState</span> <span>extends</span> <span>State</span><span>&lt;</span>MenuScreen<span>&gt;</span> <span>{</span>
-  int _selectedIndex <span>=</span> <span>0</span><span>;</span>
-  Auth0User<span>?</span> profile <span>=</span> AuthService<span>.</span>instance<span>.</span>profile<span>;</span>
-
-  <span>@override</span>
-  <span>void</span> <span>initState</span><span>(</span><span>)</span> <span>{</span>
-    <span>super</span><span>.</span><span>initState</span><span>(</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>final</span> List<span>&lt;</span>Widget<span>&gt;</span> tabs <span>=</span> <span>[</span>
-    <span>MenuList</span><span>(</span>coffees<span>:</span> coffees<span>)</span><span>,</span>
-    <span>if</span> <span>(</span>AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer<span>)</span>
-      <span>SupportChatScreen</span><span>(</span><span>)</span>
-    <span>else</span>
-      <span>CommunityScreen</span><span>(</span><span>)</span><span>,</span>
-    <span>ProfileScreen</span><span>(</span><span>)</span><span>,</span>
-  <span>]</span><span>;</span>
-
-  <span>void</span> <span>_onItemTapped</span><span>(</span>int index<span>)</span> <span>{</span>
-    <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
-      _selectedIndex <span>=</span> index<span>;</span>
-    <span>}</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>@override</span>
-  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
-    <span>return</span> <span>Scaffold</span><span>(</span>
-      backgroundColor<span>:</span> Colors<span>.</span>white<span>,</span>
-      appBar<span>:</span> <span>AppBar</span><span>(</span>
-        automaticallyImplyLeading<span>:</span> <span>false</span><span>,</span>
-        centerTitle<span>:</span> <span>false</span><span>,</span>
-        title<span>:</span> <span>Text</span><span>(</span><span>&#34;Welcome ${profile?.name}&#34;</span><span>)</span><span>,</span>
-        actions<span>:</span> <span>[</span>
-          <span>_avatar</span><span>(</span>profile<span>)</span><span>,</span>
-        <span>]</span><span>,</span>
-      <span>)</span><span>,</span>
-      body<span>:</span> tabs<span>[</span>_selectedIndex<span>]</span><span>,</span>
-      bottomNavigationBar<span>:</span> <span>_bottomNavigationBar</span><span>(</span>profile<span>)</span><span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-
-  BottomNavigationBar <span>_bottomNavigationBar</span><span>(</span>Auth0User<span>?</span> user<span>)</span> <span>{</span>
-    <span>return</span> <span>BottomNavigationBar</span><span>(</span>
-      backgroundColor<span>:</span> Colors<span>.</span>white<span>,</span>
-      type<span>:</span> BottomNavigationBarType<span>.</span>fixed<span>,</span>
-      unselectedItemColor<span>:</span> Colors<span>.</span>brown<span>.</span>shade300<span>,</span>
-      items<span>:</span> <span>&lt;</span>BottomNavigationBarItem<span>&gt;</span><span>[</span>
-        <span>BottomNavigationBarItem</span><span>(</span>
-          icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>list_alt<span>)</span><span>,</span>
-          label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span>
-        <span>)</span><span>,</span>
-        <span>BottomNavigationBarItem</span><span>(</span>
-          icon<span>:</span>
-              user<span>?</span><span>.</span>isCustomer <span>?</span> <span>Icon</span><span>(</span>Icons<span>.</span>support_agent<span>)</span> <span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>group<span>)</span><span>,</span>
-          label<span>:</span> user<span>?</span><span>.</span>isCustomer <span>?</span> <span>&#34;Support&#34;</span> <span>:</span> <span>&#34;Community&#34;</span><span>,</span>
-        <span>)</span><span>,</span>
-        <span>BottomNavigationBarItem</span><span>(</span>
-          icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>person<span>)</span><span>,</span>
-          label<span>:</span> <span>&#34;Profile&#34;</span><span>,</span>
-        <span>)</span><span>,</span>
-      <span>]</span><span>,</span>
-      currentIndex<span>:</span> _selectedIndex<span>,</span>
-      selectedItemColor<span>:</span> Colors<span>.</span>brown<span>.</span>shade800<span>,</span>
-      onTap<span>:</span> _onItemTapped<span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-
-  Padding <span>_avatar</span><span>(</span>Auth0User<span>?</span> profile<span>)</span> <span>{</span>
-    <span>return</span> <span>Padding</span><span>(</span>
-      padding<span>:</span> <span>const</span> EdgeInsets<span>.</span><span>all</span><span>(</span><span>8.0</span><span>)</span><span>,</span>
-      child<span>:</span> <span>FittedBox</span><span>(</span>
-        fit<span>:</span> BoxFit<span>.</span>cover<span>,</span>
-        child<span>:</span> <span>ClipRRect</span><span>(</span>
-          clipBehavior<span>:</span> Clip<span>.</span>antiAlias<span>,</span>
-          borderRadius<span>:</span> BorderRadius<span>.</span><span>all</span><span>(</span>Radius<span>.</span><span>circular</span><span>(</span><span>600</span><span>)</span><span>)</span><span>,</span>
-          child<span>:</span> <span>Container</span><span>(</span>
-            child<span>:</span> <span>_avatarPhoto</span><span>(</span>profile<span>)</span><span>,</span>
-          <span>)</span><span>,</span>
-        <span>)</span><span>,</span>
-      <span>)</span><span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-
-  Widget <span>_avatarPhoto</span><span>(</span>Auth0User<span>?</span> profile<span>)</span> <span>{</span>
-    <span>return</span> profile <span>!=</span> <span>null</span> <span>&amp;&amp;</span> profile<span>.</span>hasImage
-        <span>?</span> Image<span>.</span><span>network</span><span>(</span>
-            profile<span>.</span>picture<span>,</span>
-            width<span>:</span> <span>20</span><span>,</span>
-            height<span>:</span> <span>20</span><span>,</span>
-          <span>)</span>
-        <span>:</span> <span>Container</span><span>(</span>
-            width<span>:</span> <span>20</span><span>,</span>
-            height<span>:</span> <span>20</span><span>,</span>
-            color<span>:</span> darkBrown<span>,</span>
-            child<span>:</span> <span>Center</span><span>(</span>
-              child<span>:</span> <span>Text</span><span>(</span><span>&#39;${profile?.name[0].toUpperCase()}&#39;</span><span>)</span><span>,</span>
-            <span>)</span><span>,</span>
-          <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>You can create a new user and assign it the “employee” role so that you can also test the Employee role screen.</p><p>Well done! Restart your app, log out, and log in again, and you’ll see the appropriate screen for your role:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4viiFWih2Zdu8FzWeIQYmS/489c1e5a9dda80abbf13e97a3541b945/role_based_screens.png" alt=" role base screen flutter "/></p><p>But that&#39;s not all! You still need an employee ID to create a private channel between the currently signed-in customer and an employee.</p><p>You can define an API that can return available agents to create a channel. However, another strategy that would work for the <em>MJ Coffee</em> app is to retrieve all employees&#39; user IDs via ID tokens’ custom claims and randomly pick one of them.</p><p>You can create other custom actions, similar to the previous steps for permissions and roles. I won’t walk you through all steps since you’ve already done it twice.</p><p>🛠 Name this action <code>Retrieve Employees User IDs</code> and define its logic as follows:</p><pre><code><span>// Auth0 Action</span>
-
-<span>const</span> ManagementClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>ManagementClient<span>;</span>
-<span>const</span> AuthenticationClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>AuthenticationClient<span>;</span>
-exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async</span> <span>(</span><span>event<span>,</span> api</span><span>)</span> <span>=&gt;</span> <span>{</span>
-  <span>const</span> <span>DOMAIN</span> <span>=</span> <span>&#39;mhadaily.eu.auth0.com&#39;</span><span>;</span>
-  <span>const</span> auth0 <span>=</span> <span>new</span> <span>AuthenticationClient</span><span>(</span><span>{</span>
-    domain<span>:</span> <span>DOMAIN</span><span>,</span>
-    clientId<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_ID</span><span>,</span>
-    clientSecret<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_SECRET</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-  <span>const</span> response <span>=</span> <span>await</span> auth0<span>.</span><span>clientCredentialsGrant</span><span>(</span><span>{</span>
-    audience<span>:</span> <span><span>`</span><span>https://</span><span><span>${</span><span>DOMAIN</span><span>}</span></span><span>/api/v2/</span><span>`</span></span><span>,</span>
-    scope<span>:</span> <span>&#39;read:users read:roles&#39;</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-  <span>const</span> <span>API_TOKEN</span> <span>=</span> response<span>.</span>access_token<span>;</span>
-  <span>const</span> management <span>=</span> <span>new</span> <span>ManagementClient</span><span>(</span><span>{</span>
-    domain<span>:</span> <span>DOMAIN</span><span>,</span>
-    token<span>:</span> <span>API_TOKEN</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-  <span>const</span> params <span>=</span> <span>{</span> id<span>:</span> event<span>.</span>secrets<span>.</span><span>EMPLOYEE_ROLE_ID</span><span>,</span> per_page<span>:</span> <span>10</span><span>,</span> page<span>:</span> <span>0</span> <span>}</span><span>;</span>
-  <span>const</span> employees <span>=</span> <span>await</span> management<span>.</span><span>getUsersInRole</span><span>(</span>params<span>)</span><span>;</span>
-  <span>const</span> employee_ids <span>=</span> employees<span>.</span><span>map</span><span>(</span><span>(</span><span>employee</span><span>)</span> <span>=&gt;</span> employee<span>.</span>user_id<span>)</span><span>;</span>
-  <span>const</span> namespace <span>=</span> <span>&#39;https://employees.mjcoffee.app&#39;</span><span>;</span>
-  <span>if</span> <span>(</span>event<span>.</span>authorization<span>)</span> <span>{</span>
-    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/id</span><span>`</span></span><span>,</span> employee_ids<span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span><span>;</span></code></pre><p>Again, you will use <code>ManagementClient</code> to get the first ten users based on their role by calling <code><span>getUsersInRole</span><span>(</span><span>)</span></code> and passing the role ID that <code><span>EMPLOYEE_ROLE_ID</span></code> identifies from secrets, then define the namespace and set a custom claim on <code>idToken</code>.</p><p>🛠 Lastly, deploy this action and add it to the <strong>Login</strong> flow right after the GetStream User Token action and apply:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3T7JSFv4ogGggqg8ig34hh/d12e912be13cf17ce9f74f0ac73f9ca7/role-actions.png" alt=" role in login flow "/></p><p>Locate the <code>Auth0IdToken</code> and <code>Auth0User</code> classes in the Flutter app and add a new property, <code>availableAgents</code>, to both of them.</p><p>🛠 In <code>Auth0IdToken</code> you should have:</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0IdToken</span> <span>{</span>
-  <span>Auth0IdToken</span><span>(</span><span>{</span>
-  
-  <span>.</span><span>.</span><span>.</span>
-  
-    required <span>this</span><span>.</span>availableAgents<span>,</span>
-    
-    <span>.</span><span>.</span><span>.</span>
-    
-  <span>}</span><span>)</span><span>;</span>
-  
-<span>.</span><span>.</span><span>.</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://employees.mjcoffee.app/id&#39;</span><span>,</span> defaultValue<span>:</span> <span>[</span><span>]</span><span>)</span>
-  <span>final</span> List<span>&lt;</span>String<span>&gt;</span> availableAgents<span>;</span>
-  
-<span>.</span><span>.</span><span>.</span>
-
-<span>}</span></code></pre><p>🛠 ...and in <code>Auth0User</code> you can do the same:</p><pre><code><span>// /lib/models/auth0_user.dart</span>
-
-<span>@JsonSerializable</span><span>(</span><span>)</span>
-<span>class</span> <span>Auth0User</span> <span>{</span>
-  <span>Auth0User</span><span>(</span><span>{</span>
-  
-  <span>.</span><span>.</span><span>.</span>
-  
-    required <span>this</span><span>.</span>availableAgents<span>,</span>
-  
-    <span>.</span><span>.</span><span>.</span>
-    
-  <span>}</span><span>)</span><span>;</span>
-  
-<span>.</span><span>.</span><span>.</span>
-
-  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://employees.mjcoffee.app/id&#39;</span><span>,</span> defaultValue<span>:</span> <span>[</span><span>]</span><span>)</span>
-  <span>final</span> List<span>&lt;</span>String<span>&gt;</span> availableAgents<span>;</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-<span>}</span></code></pre><p>🛠 Don’t forget to run this:</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>🛠 It&#39;s perfectly fine if you decide to make this change only to the user class. Locate <code>createSupportChat</code> in <code>ChatService</code> class. You left the employee ID blank, so now you can refactor this to pick an employee ID randomly:</p><pre><code><span>// /lib/services/chat_service.dart</span>
-
- String<span>?</span> _currentEmployeeId<span>;</span>
-
-Future<span>&lt;</span>Channel<span>&gt;</span> <span>createSupportChat</span><span>(</span>List<span>&lt;</span>String<span>&gt;</span> availableAgents<span>)</span> <span>async</span> <span>{</span>
-    <span>// skip if the chat is still open with current employeeId</span>
-    <span>if</span> <span>(</span>_currentEmployeeId <span>==</span> <span>null</span><span>)</span> <span>{</span>
-      <span>final</span> _random <span>=</span> <span>new</span> <span>Random</span><span>(</span><span>)</span><span>;</span>
-      <span>final</span> randomNumber <span>=</span> <span>0</span> <span>+</span> _random<span>.</span><span>nextInt</span><span>(</span>availableAgents<span>.</span>length <span>-</span> <span>0</span><span>)</span><span>;</span>
-      <span>final</span> String employeeId <span>=</span> availableAgents<span>[</span>randomNumber<span>]</span><span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>;</span>
-      _currentEmployeeId <span>=</span> employeeId<span>;</span>
-    <span>}</span>
-
-    <span>final</span> channel <span>=</span> client<span>.</span><span>channel</span><span>(</span>
-      <span>&#39;support&#39;</span><span>,</span>
-      id<span>:</span> _currentChannelId<span>,</span>
-      extraData<span>:</span> <span>{</span>
-        <span>&#39;name&#39;</span><span>:</span> <span>&#39;MJCoffee Support&#39;</span><span>,</span>
-        <span>&#39;members&#39;</span><span>:</span> <span>[</span>
-          _currentEmployeeId<span>,</span>
-          client<span>.</span>state<span>.</span>user<span>!</span><span>.</span>id<span>,</span>
-        <span>]</span>
-      <span>}</span><span>,</span>
-    <span>)</span><span>;</span>
-    <span>await</span> channel<span>.</span><span>watch</span><span>(</span><span>)</span><span>;</span>
-    _currentChannelId <span>=</span> channel<span>.</span>id<span>;</span>
-    <span>return</span> channel<span>;</span>
-  <span>}</span></code></pre><p>Let&#39;s examine this code. First, it passes a list of employee IDs to <code>createSupportChat</code>. Then, it makes sure it is storing the current employee ID that has an open support chat in order to avoid recreating a new channel.</p><p>Finally, it randomly picks an ID from the list and creates a channel with the current customer.</p><p>This solution might not be the best possible one. However, it would work for our small coffee store. Ideally, you would define an API that can return an available employee to a customer on-demand. I may write another article to show you how you can better with other solutions.</p><p>🛠 Lastly, locate the <code><span>createChannel</span><span>(</span><span>)</span></code> method in the <code>_SupportChatScreenState</code> class (it’s in the <code><span>/</span>lib<span>/</span>screens<span>/</span>support<span>.</span>dart</code> file) and refactor it to pass the <code>availableAgents</code>.</p><pre><code><span>// /lib/screens/support.dart</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-<span>createChannel</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
-    <span>if</span> <span>(</span>profile <span>!=</span> <span>null</span><span>)</span> <span>{</span>
-      <span>final</span> _channel <span>=</span> <span>await</span> ChatService<span>.</span>instance<span>.</span><span>createSupportChat</span><span>(</span>
-        profile<span>!</span><span>.</span>availableAgents<span>,</span>
-      <span>)</span><span>;</span>
-      <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
-        channel <span>=</span> _channel<span>;</span>
-      <span>}</span><span>)</span><span>;</span>
-    <span>}</span>
-  <span>}</span>
-  
-  <span>.</span><span>.</span><span>.</span></code></pre><blockquote><p>It&#39;s very important that you have registered all of your employees’ IDs in Stream chat. Typically, users can log in as employees should log in and everything will work. However, if you still have not registered all of your employees, you might get an error with the message <code>The following users are specified <span>in</span> channel<span>.</span>members but don&#39;t exist</code>. This usually happens if you have created any users before the Login flow and Custom token generation action have been created.</p></blockquote><p>Nicely done! You can restart your app, and this time you can see the support channel screen.</p><h2 id="Permission-Based-Functionalities">Permission-Based Functionalities</h2><p>After applying roles to have specific kinds of access in the app, you can go one step deeper and use functionalities based on the user&#39;s permission inherited from the role.</p><p>You have already defined the <code>can</code> method on <code>Auth0User</code> in the previous section. The purpose of this method is to check if the user has given permission. Let&#39;s use it.</p><p>🛠 Locate <code>MessageInput</code> in the <code>support<span>.</span>dart</code> file, and you can replace it with</p><pre><code><span>// /lib/screens/support.dart</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-<span>MessageInput</span><span>(</span>
-  disableAttachments<span>:</span> <span>!</span>profile<span>!</span><span>.</span><span>can</span><span>(</span>UserPermissions<span>.</span>upload<span>)</span><span>,</span>
-  sendButtonLocation<span>:</span> SendButtonLocation<span>.</span>inside<span>,</span>
-  actionsLocation<span>:</span> ActionsLocation<span>.</span>leftInside<span>,</span>
-  showCommandsButton<span>:</span> <span>!</span>profile<span>?</span><span>.</span>isCustomer<span>,</span>
-<span>)</span><span>,</span>
-
-<span>.</span><span>.</span><span>.</span></code></pre><p>In the implementation above, <code>disableAttachments</code> is enabled based on the user&#39;s permission, or <code>showCommandsButton</code> is active only for the Customer role.</p><p>Another approach you can take is to limit the delete message functionality and apply <code>UserPermissions<span>.</span>delete</code> to remove the applicable UI.</p><p>Moreover, you may want to apply for these permissions on your back-end or API to perform. I will leave this part as homework.</p><h2 id="Closing-a-Support-Chat-Channel">Closing a Support Chat Channel</h2><p>For the last section of this tutorial, I&#39;d like to show you how to close a support channel chat.</p><p>🛠 First, you need to create a method for the <code>ChatService</code> class to send the command to close a channel.</p><pre><code><span>// /lib/services/chat_service.dart</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-Future<span>&lt;</span><span>void</span><span>&gt;</span> <span>archiveSupportChat</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
-   <span>await</span> client<span>.</span><span>hideChannel</span><span>(</span>
-      _currentChannelId<span>!</span><span>,</span>
-      <span>&#39;support&#39;</span><span>,</span>
-      clearHistory<span>:</span> <span>true</span><span>,</span>
-    <span>)</span><span>;</span>
-  client<span>.</span><span>channel</span><span>(</span><span>&#39;support&#39;</span><span>,</span> id<span>:</span> _currentChannelId<span>)</span><span>.</span><span>dispose</span><span>(</span><span>)</span><span>;</span>
-  _currentChannelId <span>=</span> <span>null</span><span>;</span>
-  _currentEmployeeId <span>=</span> <span>null</span><span>;</span>
-<span>}</span>
-
-<span>.</span><span>.</span><span>.</span></code></pre><p>In this implementation, you can hide a chat with an existing ID and the type <code>support</code> and finally, set both <code>_currentChannelId</code> and <code>_currentEmployeeId</code> to <code><span>null</span></code> so that next time users come to a support screen, they’ll see a new channel created, and it will connect them to another employee.</p><blockquote><p>Hiding a channel makes it invisible to the query channels. It can be retrieved if the user adds a new message to it or calls the <code><span>show</span><span>(</span><span>)</span></code> method to remove the hidden status.</p></blockquote><p>However, there are other possibilities. For example, you can <code>archive</code> or <code><span>delete</span></code> a channel. At the moment, <code>archive</code> is not exposed to the Stream Dart SDK. Therefore, for now, you can hide a channel.</p><p>🛠 Next, locate <code>MessageInput</code> in the <code>support<span>.</span>dart</code> file, and add <code>actions</code>.</p><pre><code><span>// /lib/screens/support.dart</span>
-<span>{</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-<span>MessageInput</span><span>(</span>
-  actions<span>:</span> <span>[</span><span>_closeChat</span><span>(</span><span>)</span><span>]</span><span>,</span>
-  disableAttachments<span>:</span> <span>!</span>profile<span>!</span><span>.</span><span>can</span><span>(</span>UserPermissions<span>.</span>upload<span>)</span><span>,</span>
-  sendButtonLocation<span>:</span> SendButtonLocation<span>.</span>inside<span>,</span>
-  actionsLocation<span>:</span> ActionsLocation<span>.</span>leftInside<span>,</span>
-  showCommandsButton<span>:</span> <span>!</span>profile<span>?</span><span>.</span>isCustomer<span>,</span>
-<span>)</span><span>,</span>
-
-<span>.</span><span>.</span><span>.</span>
-
-  <span>/// method in the class</span>
-  CommonButton <span>_closeChat</span><span>(</span><span>)</span> <span>{</span>
-    <span>return</span> <span>CommonButton</span><span>(</span>
-      onPressed<span>:</span> <span>(</span><span>)</span> <span>{</span>
-        ChatService<span>.</span>instance<span>.</span><span>archiveSupportChat</span><span>(</span><span>)</span><span>;</span>
-        CoffeeRouter<span>.</span>instance<span>.</span><span>push</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
-      <span>}</span><span>,</span>
-      child<span>:</span> <span>Icon</span><span>(</span>
-        Icons<span>.</span>close<span>,</span>
-        color<span>:</span> Colors<span>.</span>white<span>,</span>
-      <span>)</span><span>,</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>The <code>actions</code> parameter adds a list of additional actions to the <code>GetStream</code> chat input UI. You can call the <code>archiveSupportChat</code> method <code><span>OnPressed</span><span>(</span><span>)</span></code> and hide the chat, and redirect the user to the menu screen to show a proper message that the discussion is closed. They can reopen by returning to the support screen.</p><h2 id="Conclusion">Conclusion</h2><p>Authentication and authorization are complex but necessary features of most applications, and they can be tricky to implement and manage. Auth0 provides a reliable service that takes on these tasks. You can this service in Flutter applications without having to set up a server or maintain infrastructure. You can also make use of serverless tools such as Auth0 Actions, which you can use to add sophistication to your authentication and authorization process.</p><p>You have seen how you can speed up your development by adding a support chat using <code>GetStreamChat</code> to a Flutter application. You’ve also seen how you can limit the functionality available to users by leveraging roles and permissions received from Auth0 via tokens.</p><p>Congratulations! You’ve come a long way over this tutorial’s four parts, and I hope that you have learned a lot. This is just the beginning — you can still implement and configure a lot, using both Stream and Auth0, and take your apps to the next level.</p></div></div>]]></content:encoded>
-      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
-      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
-      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
@@ -8523,6 +7968,586 @@ exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async<
   <span>// client.devToken(user.id).rawValue,</span>
     user<span>.</span>streamChatUserToken<span>,</span>
 <span>)</span><span>;</span></code></pre><p>Well done! Log out of the app, restart it. and log in again. This time, you&#39;ll receive a production-ready user token. When you go to the support chat screen, everything should work as expected.</p><h2 id="Looking-Ahead">Looking Ahead</h2><p>Now that the app has a real-time chat is ready with a proper authentication flow, you can move on to the next section to focus on authorization, roles, and permissions.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous section, you learned how to add real-time chat to the application and set up the <em>MJ Coffee</em> app to load different chat screens. </p><p>In this section, you will learn how to manage roles and permissions in Auth0 and a Flutter app, as well as how to apply a proper authorization flow. You&#39;ll also learn how to leverage RBAC and permission-based functionalities in a Flutter application.</p><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong></p></blockquote><h2 id="Managing-Roles">Managing Roles</h2><p>In a previous section in this tutorial, you learned how to create roles in the Auth0 dashboard. It’s time to see why you need roles and learn how you can leverage them into your app.</p><p>Role-based access control (RBAC) is a way to assign permissions to users based on their roles. It offers a simple approach to access management that is less prone to error than assigning permissions to users individually.</p><p>For example, suppose you use RBAC to control Customer/Employee access in the <em>MJ Coffee</em> application. In that case, you could give employees a role that allows them to update users’ details or access the community chat screen. In contrast, customers would view the support screen, but wouldn’t be authorized to perform tasks such as deleting messages or uploading attachments.</p><p>When planning your access control strategy, it’s generally a good idea to assign users a smalled number of permissions that allow them to get their work done.</p><p>You can leverage Auth0 Actions to assign roles automatically to each user after they sign up.</p><p>🛠 Once more, create a new custom action. In the left column menu of the Auth0 dashboard, select <strong>Actions</strong>, then <strong>Flows</strong>. The <strong>Choose Flow</strong> page will appear. Select <strong>Post User Registration</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1pbuab4m48ur5r0abMjpx5/0c67319150786f3ccff7a1fd4f788b60/create_new_post_user_registration.png" alt="Creating a new post user registration"/></p><p>🛠 Name the action <code>Assign Role</code> and add the <code>auth0</code> npm module with version <code><span>2.35</span><span>.1</span></code>.</p><p>🛠 Add the following handler, which will be called during the execution of a <code>PostUserRegistration</code> flow:</p><pre><code><span>// Auth0 Actions</span>
+
+<span>const</span> ManagementClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>ManagementClient<span>;</span>
+<span>const</span> AuthenticationClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>AuthenticationClient<span>;</span>
+
+exports<span>.</span><span>onExecutePostUserRegistration</span> <span>=</span> <span>async</span> <span>(</span><span>event</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>const</span> <span>DOMAIN</span> <span>=</span> <span>&#39;{YOUR_DOMAIN}&#39;</span><span>;</span>
+  <span>const</span> auth0 <span>=</span> <span>new</span> <span>AuthenticationClient</span><span>(</span><span>{</span>
+    domain<span>:</span> <span>DOMAIN</span><span>,</span>
+    clientId<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_ID</span><span>,</span>
+    clientSecret<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_SECRET</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>const</span> response <span>=</span> <span>await</span> auth0<span>.</span><span>clientCredentialsGrant</span><span>(</span><span>{</span>
+    audience<span>:</span> <span><span>`</span><span>https://</span><span><span>${</span><span>DOMAIN</span><span>}</span></span><span>/api/v2/</span><span>`</span></span><span>,</span>
+    scope<span>:</span> <span>&#39;read:users update:users&#39;</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>const</span> <span>API_TOKEN</span> <span>=</span> response<span>.</span>access_token<span>;</span>
+  <span>const</span> management <span>=</span> <span>new</span> <span>ManagementClient</span><span>(</span><span>{</span>
+    domain<span>:</span> <span>DOMAIN</span><span>,</span>
+    token<span>:</span> <span>API_TOKEN</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  <span>if</span> <span>(</span>event<span>.</span>user<span>.</span>email<span>.</span><span>endsWith</span><span>(</span><span>&#39;@mjcoffee.app&#39;</span><span>)</span><span>)</span> <span>{</span>
+    <span>// employee</span>
+    <span>await</span> management<span>.</span><span>assignRolestoUser</span><span>(</span>
+      <span>{</span> id<span>:</span> event<span>.</span>user<span>.</span>user_id <span>}</span><span>,</span>
+      <span>{</span> roles<span>:</span> <span>[</span><span>&#39;rol_CHpJMdZUPCLzo6E2&#39;</span><span>]</span> <span>}</span>
+    <span>)</span><span>;</span>
+  <span>}</span> <span>else</span> <span>{</span>
+    <span>// customer</span>
+    <span>await</span> management<span>.</span><span>assignRolestoUser</span><span>(</span>
+      <span>{</span> id<span>:</span> event<span>.</span>user<span>.</span>user_id <span>}</span><span>,</span>
+      <span>{</span> roles<span>:</span> <span>[</span><span>&#39;rol_fG50GuNE9S72jNZn&#39;</span><span>]</span> <span>}</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span><span>;</span></code></pre><p>Let&#39;s analyze this handler’s logic step by step.</p><p>The handler imports both <code>ManagementClient</code> and <code>AuthenticationClient</code> from the <code>auth0</code> module, a Node.js SDK that conveniently provides official Auth0 public APIs.</p><p>It then defines your domain name, <code><span>DOMAIN</span></code>. </p><p>🛠 In the handler, replace <code><span>{</span><span>YOUR_DOMAIN</span><span>}</span></code> with your application’s domain, which you’ll find in the Auth0 dashboard.</p><p>The handler initializes an authentication client, passing its constructor the application’s domain, client ID, and client secret. </p><p><strong>Note that the application client is a bit special here!</strong> This is <em>not</em> the application you have created and worked with so far. You need to create a Machine-to-Machine (M2M) application or Auth0 non-interactive client, which makes it possible to request a client credentials grant.</p><p>🛠 Open the Auth0 dashboard in a new tab in your browser. Go to the <strong>Applications</strong> page and creating a new application, selecting the <strong>Machine to Machine Applications</strong> type:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4s9EPsMj5Lg5StnSURGU4X/df7a4f7a97be3e83a4ff84d446137df3/create_new_m2m_app.png" alt="Creating a new M2M application in the Auth0 dashboard"/></p><p>🛠 Once the M2M application is created, take a note of Client ID and Client Secret. You will need to add them to your Actions’ secrets in the next step, then go to the <strong>APIs</strong> tab and authorize the Auth0 Management API.</p><p>As mentioned before, it&#39;s always a good idea to limit the permissions. Hence, select only those permissions needed to perform actions with this Client. </p><p>🛠 We want to be able to add roles to users, so select the <code>read<span>:</span>users</code> and <code>update<span>:</span>users</code> permissions:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1zQbWKfW0orBdHROj3RR3j/ce856b0663b4f78610c9d3aa1ea9e0e5/authorize_api.png" alt="Authorizing the API"/></p><p>🛠 Add the following to the action:</p><ul><li>The key <code><span>M2M_CLIENT_ID</span></code>, with the client ID as its corresponding value</li><li>The key <code><span>M2M_CLIENT_SECRET</span></code>, with the client secret as the value</li></ul><p>You can now successfully authenticate an Auth0 client and request a management API token by specifying audiences and scopes. Scopes are the ones that you have selected in the previous steps in the permission tab under Auth0 management API.</p><p>Once access is granted and the token is received, you can create a management client.</p><p>The logic is relatively simple for this MJ Coffee app.</p><pre><code><span>if</span> <span>(</span>event<span>.</span>user<span>.</span>email<span>.</span><span>endsWith</span><span>(</span><span>&#39;@mjcoffee.app&#39;</span><span>)</span><span>)</span> <span>{</span>
+  <span>// employee</span>
+<span>}</span> <span>else</span> <span>{</span>
+  <span>// customer</span>
+<span>}</span></code></pre><p>Simply put, if the user’s email address ends with  <code>@mjcoffee<span>.</span>app</code> they will be assigned the <em>employee</em> role; otherwise, they’ll be assigned the <em>customer</em> role. This, of course, could change based on your implementation.</p><p>Finally, the handler calls <code><span>assignRolesToUser</span><span>(</span><span>)</span></code> on the <code>management</code> client and passes:</p><ul><li>a map containing the user ID, and</li><li>a list of role IDs.</li></ul><p>To get a role’s ID, select <strong>User Management</strong> in the Auth0 dashboard’s left column menu, then select <strong>Roles</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4WKeTj5YRcq1IZUcxCO32d/d627b895fe44352d1e4f7de01fa406c6/role_id.png" alt="Getting a Role’s ID"/></p><p>Fantastic! Don’t forget to deploy your function.</p><p>🛠 For the last step, go to <strong>Flows</strong>, then <strong>Post User Registration</strong>. Add your <code>Assign Role</code> custom action to the flow.</p><p>If you are impatient to test what you have created so far, navigate to the Auth0 dashboard’s <strong>Users</strong> page and create new users with and without email addresses that you have specified in your function logic. Then, go to the <strong>Role</strong> tab — you should see that for each user, their role was assigned automatically:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/30XsYPDx2euHspY9BGnk6s/ddcaf08706e6dda515179b46611cd724/user_role.png" alt="Users and their automatically assigned roles"/></p><h2 id="Managing-Permissions">Managing Permissions</h2><p>You’ll often need to create a custom API that defines permissions. Then you can assign those permissions to roles, which can then be assigned to users.</p><p>🛠 In the Auth0 dashboard, select <strong>Applications</strong> in the left column menu, select <strong>APIs</strong> in the submenu, and then click the <strong>Create API</strong> button to create a new custom API.</p><p>🛠 Give the API a recognizable name, such as <code>StreamChat Management <span>API</span></code>, then define your identifier. This identifier will become your API audience. Note that the identifier cannot be modified. A good practice for naming identifiers is to use a URL, even if that URL is not publicly available. For example, you could name the identifier <code>https<span>:</span><span>/</span><span>/</span>getStreamChat<span>.</span>mjcoffee<span>.</span>app<span>/</span>v1<span>/</span></code>.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4NdodtRf9CZSY8O8Onb5fP/7b0216eed696a44a99ef5a99437431a5/custom_api.png" alt="Creating a new custom API"/></p><p>🛠 Once the API is created, go to the RBAC Settings section and enable RBAC and Add Permissions in the Access Token. The API is supposed to be flagged as First Party so that you can turn on Allow Skipping User Consent. Turn on Allow Offline Access so that Auth0 will allow applications to ask for Refresh Tokens for this API.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1egWhGNMvy0g12Oh6ccQyq/ee28278cf4831101c95dc9ceb5acbf50/rbac-api.png" alt="RBAC API"/></p><p>🛠 Navigate to the <strong>Permissions</strong> tab and add your permissions and description. I recommend at adding at least these permissions:</p><ul><li><code><span>delete</span><span>.</span>user<span>.</span>message</code></li><li><code>edit<span>.</span>user<span>.</span>message</code></li><li><code>upload<span>.</span>attachments</code></li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/47v9LpCiZKbnsTL3VDBQoe/fc80c54e22f8d316b3bf02a6ab3e656f/custom_permissions.png" alt="Custome permissions"/></p><p>The more permissions you define, and the more explicit they are,  the better you can control the resources.</p><p>🛠 Next, head over to <strong>Roles</strong> under <strong>User Management</strong>. Go to each role and assign the following permissions:</p><ul><li><strong>Employee</strong>
+<ul><li><code>edit<span>.</span>user<span>.</span>message</code></li><li><code>upload<span>.</span>attachments</code></li></ul></li><li><strong>Customer</strong>
+<ul><li><code>edit<span>.</span>user<span>.</span>message</code></li></ul></li><li><strong>Admin</strong>
+<ul><li><code><span>delete</span><span>.</span>user<span>.</span>message</code></li><li><code>edit<span>.</span>user<span>.</span>message</code></li><li><code>upload<span>.</span>attachments</code></li></ul></li></ul><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6JylazPCTIIvUKwrSicEib/116523b7e52452211349376dff85dba0/role_permission.png" alt="Defining custom permissions"/></p><p>You have managed to create roles and users are automatically assigned roles on registration. Although role assignment is automatic now, you can still alter user roles manually. For example, you can add the <strong>Admin</strong> role to specific users in the Auth0 dashboard.</p><p>The only step remaining is to expose the roles and permissions to <code>idToken</code> and <code>accessToken</code> that the Flutter app can consume.</p><h2 id="Exposing-Roles-and-Permission">Exposing Roles and Permission</h2><p>🛠 This step is pretty similar to what you have done when assigning roles. As a reminder, here are the steps:</p><ul><li>Create a custom action, triggering Login/Post Login</li><li>Name the action “Revealing User Roles &amp; Permissions”</li><li>Add the machine-to-machine application’s client ID and client key to the action’s secrets</li><li>Add <code>auth0</code> npm package version <code><span>2.35</span><span>.1</span></code></li></ul><p>🛠 Once you’ve done that, follow the code below:</p><pre><code><span>// Auth0 Actions</span>
+
+<span>const</span> ManagementClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>ManagementClient<span>;</span>
+<span>const</span> AuthenticationClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>AuthenticationClient<span>;</span>
+exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async</span> <span>(</span><span>event<span>,</span> api</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>const</span> <span>DOMAIN</span> <span>=</span> <span>&#39;mhadaily.eu.auth0.com&#39;</span><span>;</span>
+  <span>const</span> auth0 <span>=</span> <span>new</span> <span>AuthenticationClient</span><span>(</span><span>{</span>
+    domain<span>:</span> <span>DOMAIN</span><span>,</span>
+    clientId<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_ID</span><span>,</span>
+    clientSecret<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_SECRET</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>const</span> response <span>=</span> <span>await</span> auth0<span>.</span><span>clientCredentialsGrant</span><span>(</span><span>{</span>
+    audience<span>:</span> <span><span>`</span><span>https://</span><span><span>${</span><span>DOMAIN</span><span>}</span></span><span>/api/v2/</span><span>`</span></span><span>,</span>
+    scope<span>:</span> <span>&#39;read:users update:users read:roles&#39;</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>const</span> <span>API_TOKEN</span> <span>=</span> response<span>.</span>access_token<span>;</span>
+  <span>const</span> management <span>=</span> <span>new</span> <span>ManagementClient</span><span>(</span><span>{</span>
+    domain<span>:</span> <span>DOMAIN</span><span>,</span>
+    token<span>:</span> <span>API_TOKEN</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  <span>const</span> params <span>=</span> <span>{</span> id<span>:</span> event<span>.</span>user<span>.</span>user_id <span>}</span><span>;</span>
+  <span>const</span> roles <span>=</span> <span>await</span> management<span>.</span><span>getUserRoles</span><span>(</span>params<span>)</span><span>;</span>
+  <span>const</span> permissions <span>=</span> <span>await</span> management<span>.</span><span>getUserPermissions</span><span>(</span>params<span>)</span><span>;</span>
+
+  <span>const</span> namespace <span>=</span> <span>&#39;https://users.mjcoffee.app&#39;</span><span>;</span>
+  <span>if</span> <span>(</span>event<span>.</span>authorization<span>)</span> <span>{</span>
+    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/roles</span><span>`</span></span><span>,</span> roles<span>)</span><span>;</span>
+    api<span>.</span>accessToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/roles</span><span>`</span></span><span>,</span> roles<span>)</span><span>;</span>
+    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/permissions</span><span>`</span></span><span>,</span> permissions<span>)</span><span>;</span>
+    api<span>.</span>accessToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/permissions</span><span>`</span></span><span>,</span> permissions<span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span><span>;</span></code></pre><p>The code is pretty similar to what you have written once before. The first change is that it adds <code>read<span>:</span>roles</code> to the scope. Make sure you have enabled this permission under the M2M application as you have done once for the <code>read<span>:</span>users update<span>:</span>users</code> permissions; otherwise, you will face an “unauthorized” error.</p><p>It then calls <code><span>getUserRoles</span><span>(</span><span>)</span></code> and <code><span>getUserPermissions</span><span>(</span><span>)</span></code>,  passing the user ID. These functions will return user roles and permissions respectively.</p><p>After defining a namespace, the code calls <code><span>setCustomClaim</span><span>(</span><span>)</span></code> to add both roles and permission custom claims to the ID and access tokens.</p><p>🛠 Make sure you deploy and then navigate to <strong>Flows</strong>. You want to add the new custom action to the login flow right before the previous action you created earlier:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5XinnapiJ1AUQN0LiHY5sV/bf95d7da7f1333aafe30f80f0e81f14e/new_login_flow.png" alt="new flow login"/></p><p>So far so good, but you still need to go to the Flutter app and add roles and permissions to the models.</p><h2 id="Read-Roles-and-Permissions-in-Flutter">Read Roles and Permissions in Flutter</h2><p>Now that both roles and permissions are available in the ID and access tokens, you can add them to <code>Auth0IdToken</code> and <code>Auth0UserInfo</code>, respectively.</p><p>🛠 First, create a file named <code>auth0_roles<span>.</span>dart</code> file in the <code><span>/</span>lib<span>/</span>models</code> folder:</p><pre><code><span>// /lib/models/auth0_roles.dart</span>
+
+<span>import</span> <span>&#39;package:json_annotation/json_annotation.dart&#39;</span><span>;</span>
+
+<span>part</span> <span>&#39;auth0_roles.g.dart&#39;</span><span>;</span>
+
+<span>enum</span> Role <span>{</span>
+  Employee<span>,</span>
+  Admin<span>,</span>
+  Customer<span>,</span>
+<span>}</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0Role</span> <span>{</span>
+  <span>Auth0Role</span><span>(</span><span>{</span>
+    required <span>this</span><span>.</span>id<span>,</span>
+    required <span>this</span><span>.</span>name<span>,</span>
+    required <span>this</span><span>.</span>description<span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  <span>final</span> String id<span>;</span>
+  <span>final</span> Role name<span>;</span>
+  <span>final</span> String description<span>;</span>
+
+  <span>factory</span> Auth0Role<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
+      _$<span>Auth0RoleFromJson</span><span>(</span>json<span>)</span><span>;</span>
+
+  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0RoleToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
+
+  <span>@override</span>
+  String <span>toString</span><span>(</span><span>)</span> <span>{</span>
+    <span>return</span> <span>&#39;&#39;&#39;$name&#39;&#39;&#39;</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>🛠 Then create <code>auth0_permissions<span>.</span>dart</code> in the same directory, with the code below:</p><pre><code><span>// /lib/models/auth0_permissions.dart</span>
+
+<span>import</span> <span>&#39;package:json_annotation/json_annotation.dart&#39;</span><span>;</span>
+
+<span>part</span> <span>&#39;auth0_permissions.g.dart&#39;</span><span>;</span>
+
+<span>class</span> <span>UserPermissions</span> <span>{</span>
+  <span>static</span> <span>const</span> String delete <span>=</span> <span>&#39;delete.user.message&#39;</span><span>;</span>
+  <span>static</span> <span>const</span> String edit <span>=</span> <span>&#39;edit.user.message&#39;</span><span>;</span>
+  <span>static</span> <span>const</span> String upload <span>=</span> <span>&#39;upload.attachments&#39;</span><span>;</span>
+<span>}</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0Permission</span> <span>{</span>
+  <span>Auth0Permission</span><span>(</span><span>{</span>
+    required <span>this</span><span>.</span>permissionName<span>,</span>
+    required <span>this</span><span>.</span>description<span>,</span>
+    required <span>this</span><span>.</span>resourceServerName<span>,</span>
+    required <span>this</span><span>.</span>resourceServerIdentifier<span>,</span>
+    required <span>this</span><span>.</span>sources<span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;permission_name&#39;</span><span>)</span>
+  <span>final</span> String permissionName<span>;</span>
+
+  <span>final</span> String description<span>;</span>
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;resource_server_name&#39;</span><span>)</span>
+  <span>final</span> String resourceServerName<span>;</span>
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;resource_server_identifier&#39;</span><span>)</span>
+  <span>final</span> String resourceServerIdentifier<span>;</span>
+
+  <span>final</span> List<span>&lt;</span>Auth0PermissionsSource<span>&gt;</span> sources<span>;</span>
+
+  <span>factory</span> Auth0Permission<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
+      _$<span>Auth0PermissionFromJson</span><span>(</span>json<span>)</span><span>;</span>
+
+  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0PermissionToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
+
+  <span>@override</span>
+  String <span>toString</span><span>(</span><span>)</span> <span>{</span>
+    <span>return</span> <span>&#39;&#39;&#39;$permissionName&#39;&#39;&#39;</span><span>;</span>
+  <span>}</span>
+<span>}</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0PermissionsSource</span> <span>{</span>
+  <span>Auth0PermissionsSource</span><span>(</span><span>{</span>
+    required <span>this</span><span>.</span>sourceId<span>,</span>
+    required <span>this</span><span>.</span>sourceName<span>,</span>
+    required <span>this</span><span>.</span>sourceType<span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;source_id&#39;</span><span>)</span>
+  <span>final</span> String sourceId<span>;</span>
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;source_name&#39;</span><span>)</span>
+  <span>final</span> String sourceName<span>;</span>
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;source_type&#39;</span><span>)</span>
+  <span>final</span> String sourceType<span>;</span>
+
+  <span>factory</span> Auth0PermissionsSource<span>.</span><span>fromJson</span><span>(</span>Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> json<span>)</span> <span>=</span><span>&gt;</span>
+      _$<span>Auth0PermissionsSourceFromJson</span><span>(</span>json<span>)</span><span>;</span>
+
+  Map<span>&lt;</span>String<span>,</span> <span>dynamic</span><span>&gt;</span> <span>toJson</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> _$<span>Auth0PermissionsSourceToJson</span><span>(</span><span>this</span><span>)</span><span>;</span>
+
+  <span>@override</span>
+  String <span>toString</span><span>(</span><span>)</span> <span>{</span>
+    <span>return</span> <span>&#39;&#39;&#39;
+      sourceId: $sourceId,
+      sourceName: $sourceName,
+      sourceType: $sourceType,
+      &#39;&#39;&#39;</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>What you want to achieve here is to serialize and deserialize the roles and permissions for each model.</p><p>🛠 The next step is to update the <code>Auth0IdToken</code> model:</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0IdToken</span> <span>{</span>
+  <span>Auth0IdToken</span><span>(</span><span>{</span>
+  
+<span>.</span><span>.</span><span>.</span>
+
+    required <span>this</span><span>.</span>roles<span>,</span>
+    required <span>this</span><span>.</span>permissions<span>,</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+<span>}</span><span>}</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/roles&#39;</span><span>)</span>
+  <span>final</span> List<span>&lt;</span>Auth0Role<span>&gt;</span> roles<span>;</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/permissions&#39;</span><span>)</span>
+  <span>final</span> List<span>&lt;</span>Auth0Permission<span>&gt;</span> permissions<span>;</span>
+  
+<span>.</span><span>.</span><span>.</span>
+
+<span>}</span></code></pre><p>🛠 Do the same for the <code>Auth0User</code> model:</p><pre><code><span>// /lib/models/auth0_user.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0User</span> <span>{</span>
+  <span>Auth0User</span><span>(</span><span>{</span>
+  
+<span>.</span><span>.</span><span>.</span>
+
+    required <span>this</span><span>.</span>permissions<span>,</span>
+    required <span>this</span><span>.</span>roles<span>,</span>
+    
+<span>.</span><span>.</span><span>.</span>
+
+<span>}</span><span>)</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/roles&#39;</span><span>)</span>
+  <span>final</span> List<span>&lt;</span>Auth0Role<span>&gt;</span> roles<span>;</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://users.mjcoffee.app/permissions&#39;</span><span>)</span>
+  <span>final</span> List<span>&lt;</span>Auth0Permission<span>&gt;</span> permissions<span>;</span>
+  
+<span>.</span><span>.</span><span>.</span>
+
+<span>}</span></code></pre><p>🛠 Finally, run the <code>build_runner</code> command to ensure that the models are generated properly:</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>You can now restart the <em>MJ Coffee</em> app, and everything should work as expected.</p><h2 id="Role-Based-Screens-in-Flutter">Role-Based Screens in Flutter</h2><p>It’s finally time to have a loading screen based on the user&#39;s role. If you remember, we wanted to add Support and Community screens for customers and employees, respectively. You created both screens earlier.</p><p>It would be easier to define getter methods in <code>Auth0User</code> to determine whether a user has a particular role or permission.</p><p>🛠 Add code to the <code>Auth0User</code> class as shown below:</p><pre><code><span>// /lib/models/auth0_user.dart</span>
+
+<span>class</span> <span>Auth0User</span> <span>{</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+  bool <span>get</span> hasImage <span>=</span><span>&gt;</span> picture<span>.</span>isNotEmpty<span>;</span>
+  bool <span>can</span><span>(</span>String permission<span>)</span> <span>=</span><span>&gt;</span> permissions
+      <span>.</span><span>where</span><span>(</span>
+        <span>(</span>p<span>)</span> <span>=</span><span>&gt;</span> p<span>.</span>permissionName <span>==</span> permission<span>,</span>
+      <span>)</span>
+      <span>.</span>isNotEmpty<span>;</span>
+
+  <span>get</span> isAdmin <span>=</span><span>&gt;</span> roles<span>.</span><span>where</span><span>(</span><span>(</span>role<span>)</span> <span>=</span><span>&gt;</span> role<span>.</span>name <span>==</span> Role<span>.</span>Admin<span>)</span><span>.</span>isNotEmpty<span>;</span>
+  <span>get</span> isEmployee <span>=</span><span>&gt;</span>
+      roles<span>.</span><span>where</span><span>(</span><span>(</span>role<span>)</span> <span>=</span><span>&gt;</span> role<span>.</span>name <span>==</span> Role<span>.</span>Employee<span>)</span><span>.</span>isNotEmpty<span>;</span>
+  <span>get</span> isCustomer <span>=</span><span>&gt;</span>
+      roles<span>.</span><span>where</span><span>(</span><span>(</span>role<span>)</span> <span>=</span><span>&gt;</span> role<span>.</span>name <span>==</span> Role<span>.</span>Customer<span>)</span><span>.</span>isNotEmpty<span>;</span>
+      
+<span>.</span><span>.</span><span>.</span>
+
+<span>}</span></code></pre><p>These getters are pretty self-explanatory.</p><p>🛠 Next, open <code><span>/</span>lib<span>/</span>screens<span>/</span>menu<span>.</span>dart</code> and locate the <code>tabs</code> list in the <code>_MenuScreenState</code> class:</p><pre><code><span>// /lib/screens/menu.dart</span>
+
+  <span>.</span><span>.</span><span>.</span>
+  
+  <span>final</span> List<span>&lt;</span>Widget<span>&gt;</span> tabs <span>=</span> <span>[</span>
+      <span>MenuList</span><span>(</span>coffees<span>:</span> coffees<span>)</span><span>,</span>
+      <span>if</span> <span>(</span>AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer<span>)</span>
+        <span>SupportChatScreen</span><span>(</span><span>)</span>
+      <span>else</span>
+        <span>CommunityScreen</span><span>(</span><span>)</span><span>,</span>
+      <span>ProfileScreen</span><span>(</span><span>)</span><span>,</span>
+    <span>]</span><span>;</span>
+    
+  <span>.</span><span>.</span><span>.</span></code></pre><p>🛠 In the same file, find <code>BottomNavigationBar</code> and add <code>BottomNavigationBarItem</code> to the second position in the list:</p><pre><code><span>// /lib/screens/menu.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+BottomNavigationBar <span>_bottomNavigationBar</span><span>(</span>Auth0User<span>?</span> user<span>)</span> <span>{</span>
+    <span>return</span> <span>BottomNavigationBar</span><span>(</span>
+      
+      <span>.</span><span>.</span><span>.</span>
+      
+      items<span>:</span> <span>&lt;</span>BottomNavigationBarItem<span>&gt;</span><span>[</span>
+      
+        <span>.</span><span>.</span><span>.</span>
+      
+        <span>BottomNavigationBarItem</span><span>(</span>
+          icon<span>:</span> AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer
+              <span>?</span> <span>Icon</span><span>(</span>Icons<span>.</span>support_agent<span>)</span>
+              <span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>group<span>)</span><span>,</span>
+          label<span>:</span> AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer
+              <span>?</span> <span>&#34;Support&#34;</span>
+              <span>:</span> <span>&#34;Community&#34;</span><span>,</span>
+        <span>)</span><span>,</span>
+        
+       <span>.</span><span>.</span><span>.</span>
+       
+      <span>]</span><span>,</span>
+      
+     <span>.</span><span>.</span><span>.</span>
+     
+    <span>)</span><span>;</span>
+  <span>}</span>
+  
+<span>.</span><span>.</span><span>.</span></code></pre><p>🛠 To make the UI look better, you can add the user&#39;s avatar to the <code>appBar</code> so that the complete implementation is as follows:</p><pre><code><span>// /lib/screens/menu.dart</span>
+
+<span>class</span> <span>MenuScreen</span> <span>extends</span> <span>StatefulWidget</span> <span>{</span>
+  <span>static</span> String routeName <span>=</span> <span>&#39;menuScreen&#39;</span><span>;</span>
+  <span>static</span> Route<span>&lt;</span>MenuScreen<span>&gt;</span> <span>route</span><span>(</span><span>)</span> <span>{</span>
+    <span>return</span> MaterialPageRoute<span>&lt;</span>MenuScreen<span>&gt;</span><span>(</span>
+      settings<span>:</span> <span>RouteSettings</span><span>(</span>name<span>:</span> routeName<span>)</span><span>,</span>
+      builder<span>:</span> <span>(</span>BuildContext context<span>)</span> <span>=</span><span>&gt;</span> <span>MenuScreen</span><span>(</span><span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>@override</span>
+  _MenuScreenState <span>createState</span><span>(</span><span>)</span> <span>=</span><span>&gt;</span> <span>_MenuScreenState</span><span>(</span><span>)</span><span>;</span>
+<span>}</span>
+
+<span>class</span> <span>_MenuScreenState</span> <span>extends</span> <span>State</span><span>&lt;</span>MenuScreen<span>&gt;</span> <span>{</span>
+  int _selectedIndex <span>=</span> <span>0</span><span>;</span>
+  Auth0User<span>?</span> profile <span>=</span> AuthService<span>.</span>instance<span>.</span>profile<span>;</span>
+
+  <span>@override</span>
+  <span>void</span> <span>initState</span><span>(</span><span>)</span> <span>{</span>
+    <span>super</span><span>.</span><span>initState</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>final</span> List<span>&lt;</span>Widget<span>&gt;</span> tabs <span>=</span> <span>[</span>
+    <span>MenuList</span><span>(</span>coffees<span>:</span> coffees<span>)</span><span>,</span>
+    <span>if</span> <span>(</span>AuthService<span>.</span>instance<span>.</span>profile<span>?</span><span>.</span>isCustomer<span>)</span>
+      <span>SupportChatScreen</span><span>(</span><span>)</span>
+    <span>else</span>
+      <span>CommunityScreen</span><span>(</span><span>)</span><span>,</span>
+    <span>ProfileScreen</span><span>(</span><span>)</span><span>,</span>
+  <span>]</span><span>;</span>
+
+  <span>void</span> <span>_onItemTapped</span><span>(</span>int index<span>)</span> <span>{</span>
+    <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+      _selectedIndex <span>=</span> index<span>;</span>
+    <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>@override</span>
+  Widget <span>build</span><span>(</span>BuildContext context<span>)</span> <span>{</span>
+    <span>return</span> <span>Scaffold</span><span>(</span>
+      backgroundColor<span>:</span> Colors<span>.</span>white<span>,</span>
+      appBar<span>:</span> <span>AppBar</span><span>(</span>
+        automaticallyImplyLeading<span>:</span> <span>false</span><span>,</span>
+        centerTitle<span>:</span> <span>false</span><span>,</span>
+        title<span>:</span> <span>Text</span><span>(</span><span>&#34;Welcome ${profile?.name}&#34;</span><span>)</span><span>,</span>
+        actions<span>:</span> <span>[</span>
+          <span>_avatar</span><span>(</span>profile<span>)</span><span>,</span>
+        <span>]</span><span>,</span>
+      <span>)</span><span>,</span>
+      body<span>:</span> tabs<span>[</span>_selectedIndex<span>]</span><span>,</span>
+      bottomNavigationBar<span>:</span> <span>_bottomNavigationBar</span><span>(</span>profile<span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+
+  BottomNavigationBar <span>_bottomNavigationBar</span><span>(</span>Auth0User<span>?</span> user<span>)</span> <span>{</span>
+    <span>return</span> <span>BottomNavigationBar</span><span>(</span>
+      backgroundColor<span>:</span> Colors<span>.</span>white<span>,</span>
+      type<span>:</span> BottomNavigationBarType<span>.</span>fixed<span>,</span>
+      unselectedItemColor<span>:</span> Colors<span>.</span>brown<span>.</span>shade300<span>,</span>
+      items<span>:</span> <span>&lt;</span>BottomNavigationBarItem<span>&gt;</span><span>[</span>
+        <span>BottomNavigationBarItem</span><span>(</span>
+          icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>list_alt<span>)</span><span>,</span>
+          label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span>
+        <span>)</span><span>,</span>
+        <span>BottomNavigationBarItem</span><span>(</span>
+          icon<span>:</span>
+              user<span>?</span><span>.</span>isCustomer <span>?</span> <span>Icon</span><span>(</span>Icons<span>.</span>support_agent<span>)</span> <span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>group<span>)</span><span>,</span>
+          label<span>:</span> user<span>?</span><span>.</span>isCustomer <span>?</span> <span>&#34;Support&#34;</span> <span>:</span> <span>&#34;Community&#34;</span><span>,</span>
+        <span>)</span><span>,</span>
+        <span>BottomNavigationBarItem</span><span>(</span>
+          icon<span>:</span> <span>Icon</span><span>(</span>Icons<span>.</span>person<span>)</span><span>,</span>
+          label<span>:</span> <span>&#34;Profile&#34;</span><span>,</span>
+        <span>)</span><span>,</span>
+      <span>]</span><span>,</span>
+      currentIndex<span>:</span> _selectedIndex<span>,</span>
+      selectedItemColor<span>:</span> Colors<span>.</span>brown<span>.</span>shade800<span>,</span>
+      onTap<span>:</span> _onItemTapped<span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+
+  Padding <span>_avatar</span><span>(</span>Auth0User<span>?</span> profile<span>)</span> <span>{</span>
+    <span>return</span> <span>Padding</span><span>(</span>
+      padding<span>:</span> <span>const</span> EdgeInsets<span>.</span><span>all</span><span>(</span><span>8.0</span><span>)</span><span>,</span>
+      child<span>:</span> <span>FittedBox</span><span>(</span>
+        fit<span>:</span> BoxFit<span>.</span>cover<span>,</span>
+        child<span>:</span> <span>ClipRRect</span><span>(</span>
+          clipBehavior<span>:</span> Clip<span>.</span>antiAlias<span>,</span>
+          borderRadius<span>:</span> BorderRadius<span>.</span><span>all</span><span>(</span>Radius<span>.</span><span>circular</span><span>(</span><span>600</span><span>)</span><span>)</span><span>,</span>
+          child<span>:</span> <span>Container</span><span>(</span>
+            child<span>:</span> <span>_avatarPhoto</span><span>(</span>profile<span>)</span><span>,</span>
+          <span>)</span><span>,</span>
+        <span>)</span><span>,</span>
+      <span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+
+  Widget <span>_avatarPhoto</span><span>(</span>Auth0User<span>?</span> profile<span>)</span> <span>{</span>
+    <span>return</span> profile <span>!=</span> <span>null</span> <span>&amp;&amp;</span> profile<span>.</span>hasImage
+        <span>?</span> Image<span>.</span><span>network</span><span>(</span>
+            profile<span>.</span>picture<span>,</span>
+            width<span>:</span> <span>20</span><span>,</span>
+            height<span>:</span> <span>20</span><span>,</span>
+          <span>)</span>
+        <span>:</span> <span>Container</span><span>(</span>
+            width<span>:</span> <span>20</span><span>,</span>
+            height<span>:</span> <span>20</span><span>,</span>
+            color<span>:</span> darkBrown<span>,</span>
+            child<span>:</span> <span>Center</span><span>(</span>
+              child<span>:</span> <span>Text</span><span>(</span><span>&#39;${profile?.name[0].toUpperCase()}&#39;</span><span>)</span><span>,</span>
+            <span>)</span><span>,</span>
+          <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>You can create a new user and assign it the “employee” role so that you can also test the Employee role screen.</p><p>Well done! Restart your app, log out, and log in again, and you’ll see the appropriate screen for your role:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4viiFWih2Zdu8FzWeIQYmS/489c1e5a9dda80abbf13e97a3541b945/role_based_screens.png" alt=" role base screen flutter "/></p><p>But that&#39;s not all! You still need an employee ID to create a private channel between the currently signed-in customer and an employee.</p><p>You can define an API that can return available agents to create a channel. However, another strategy that would work for the <em>MJ Coffee</em> app is to retrieve all employees&#39; user IDs via ID tokens’ custom claims and randomly pick one of them.</p><p>You can create other custom actions, similar to the previous steps for permissions and roles. I won’t walk you through all steps since you’ve already done it twice.</p><p>🛠 Name this action <code>Retrieve Employees User IDs</code> and define its logic as follows:</p><pre><code><span>// Auth0 Action</span>
+
+<span>const</span> ManagementClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>ManagementClient<span>;</span>
+<span>const</span> AuthenticationClient <span>=</span> <span>require</span><span>(</span><span>&#39;auth0&#39;</span><span>)</span><span>.</span>AuthenticationClient<span>;</span>
+exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async</span> <span>(</span><span>event<span>,</span> api</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>const</span> <span>DOMAIN</span> <span>=</span> <span>&#39;mhadaily.eu.auth0.com&#39;</span><span>;</span>
+  <span>const</span> auth0 <span>=</span> <span>new</span> <span>AuthenticationClient</span><span>(</span><span>{</span>
+    domain<span>:</span> <span>DOMAIN</span><span>,</span>
+    clientId<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_ID</span><span>,</span>
+    clientSecret<span>:</span> event<span>.</span>secrets<span>.</span><span>M2M_CLIENT_SECRET</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>const</span> response <span>=</span> <span>await</span> auth0<span>.</span><span>clientCredentialsGrant</span><span>(</span><span>{</span>
+    audience<span>:</span> <span><span>`</span><span>https://</span><span><span>${</span><span>DOMAIN</span><span>}</span></span><span>/api/v2/</span><span>`</span></span><span>,</span>
+    scope<span>:</span> <span>&#39;read:users read:roles&#39;</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>const</span> <span>API_TOKEN</span> <span>=</span> response<span>.</span>access_token<span>;</span>
+  <span>const</span> management <span>=</span> <span>new</span> <span>ManagementClient</span><span>(</span><span>{</span>
+    domain<span>:</span> <span>DOMAIN</span><span>,</span>
+    token<span>:</span> <span>API_TOKEN</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+  <span>const</span> params <span>=</span> <span>{</span> id<span>:</span> event<span>.</span>secrets<span>.</span><span>EMPLOYEE_ROLE_ID</span><span>,</span> per_page<span>:</span> <span>10</span><span>,</span> page<span>:</span> <span>0</span> <span>}</span><span>;</span>
+  <span>const</span> employees <span>=</span> <span>await</span> management<span>.</span><span>getUsersInRole</span><span>(</span>params<span>)</span><span>;</span>
+  <span>const</span> employee_ids <span>=</span> employees<span>.</span><span>map</span><span>(</span><span>(</span><span>employee</span><span>)</span> <span>=&gt;</span> employee<span>.</span>user_id<span>)</span><span>;</span>
+  <span>const</span> namespace <span>=</span> <span>&#39;https://employees.mjcoffee.app&#39;</span><span>;</span>
+  <span>if</span> <span>(</span>event<span>.</span>authorization<span>)</span> <span>{</span>
+    api<span>.</span>idToken<span>.</span><span>setCustomClaim</span><span>(</span><span><span>`</span><span><span>${</span>namespace<span>}</span></span><span>/id</span><span>`</span></span><span>,</span> employee_ids<span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span><span>;</span></code></pre><p>Again, you will use <code>ManagementClient</code> to get the first ten users based on their role by calling <code><span>getUsersInRole</span><span>(</span><span>)</span></code> and passing the role ID that <code><span>EMPLOYEE_ROLE_ID</span></code> identifies from secrets, then define the namespace and set a custom claim on <code>idToken</code>.</p><p>🛠 Lastly, deploy this action and add it to the <strong>Login</strong> flow right after the GetStream User Token action and apply:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3T7JSFv4ogGggqg8ig34hh/d12e912be13cf17ce9f74f0ac73f9ca7/role-actions.png" alt=" role in login flow "/></p><p>Locate the <code>Auth0IdToken</code> and <code>Auth0User</code> classes in the Flutter app and add a new property, <code>availableAgents</code>, to both of them.</p><p>🛠 In <code>Auth0IdToken</code> you should have:</p><pre><code><span>// /lib/models/auth0_id_token.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0IdToken</span> <span>{</span>
+  <span>Auth0IdToken</span><span>(</span><span>{</span>
+  
+  <span>.</span><span>.</span><span>.</span>
+  
+    required <span>this</span><span>.</span>availableAgents<span>,</span>
+    
+    <span>.</span><span>.</span><span>.</span>
+    
+  <span>}</span><span>)</span><span>;</span>
+  
+<span>.</span><span>.</span><span>.</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://employees.mjcoffee.app/id&#39;</span><span>,</span> defaultValue<span>:</span> <span>[</span><span>]</span><span>)</span>
+  <span>final</span> List<span>&lt;</span>String<span>&gt;</span> availableAgents<span>;</span>
+  
+<span>.</span><span>.</span><span>.</span>
+
+<span>}</span></code></pre><p>🛠 ...and in <code>Auth0User</code> you can do the same:</p><pre><code><span>// /lib/models/auth0_user.dart</span>
+
+<span>@JsonSerializable</span><span>(</span><span>)</span>
+<span>class</span> <span>Auth0User</span> <span>{</span>
+  <span>Auth0User</span><span>(</span><span>{</span>
+  
+  <span>.</span><span>.</span><span>.</span>
+  
+    required <span>this</span><span>.</span>availableAgents<span>,</span>
+  
+    <span>.</span><span>.</span><span>.</span>
+    
+  <span>}</span><span>)</span><span>;</span>
+  
+<span>.</span><span>.</span><span>.</span>
+
+  <span>@JsonKey</span><span>(</span>name<span>:</span> <span>&#39;https://employees.mjcoffee.app/id&#39;</span><span>,</span> defaultValue<span>:</span> <span>[</span><span>]</span><span>)</span>
+  <span>final</span> List<span>&lt;</span>String<span>&gt;</span> availableAgents<span>;</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+<span>}</span></code></pre><p>🛠 Don’t forget to run this:</p><pre><code>flutter pub run build_runner build --delete-conflicting-outputs</code></pre><p>🛠 It&#39;s perfectly fine if you decide to make this change only to the user class. Locate <code>createSupportChat</code> in <code>ChatService</code> class. You left the employee ID blank, so now you can refactor this to pick an employee ID randomly:</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+ String<span>?</span> _currentEmployeeId<span>;</span>
+
+Future<span>&lt;</span>Channel<span>&gt;</span> <span>createSupportChat</span><span>(</span>List<span>&lt;</span>String<span>&gt;</span> availableAgents<span>)</span> <span>async</span> <span>{</span>
+    <span>// skip if the chat is still open with current employeeId</span>
+    <span>if</span> <span>(</span>_currentEmployeeId <span>==</span> <span>null</span><span>)</span> <span>{</span>
+      <span>final</span> _random <span>=</span> <span>new</span> <span>Random</span><span>(</span><span>)</span><span>;</span>
+      <span>final</span> randomNumber <span>=</span> <span>0</span> <span>+</span> _random<span>.</span><span>nextInt</span><span>(</span>availableAgents<span>.</span>length <span>-</span> <span>0</span><span>)</span><span>;</span>
+      <span>final</span> String employeeId <span>=</span> availableAgents<span>[</span>randomNumber<span>]</span><span>.</span><span>split</span><span>(</span><span>&#39;|&#39;</span><span>)</span><span>.</span><span>join</span><span>(</span><span>&#39;&#39;</span><span>)</span><span>;</span>
+      _currentEmployeeId <span>=</span> employeeId<span>;</span>
+    <span>}</span>
+
+    <span>final</span> channel <span>=</span> client<span>.</span><span>channel</span><span>(</span>
+      <span>&#39;support&#39;</span><span>,</span>
+      id<span>:</span> _currentChannelId<span>,</span>
+      extraData<span>:</span> <span>{</span>
+        <span>&#39;name&#39;</span><span>:</span> <span>&#39;MJCoffee Support&#39;</span><span>,</span>
+        <span>&#39;members&#39;</span><span>:</span> <span>[</span>
+          _currentEmployeeId<span>,</span>
+          client<span>.</span>state<span>.</span>user<span>!</span><span>.</span>id<span>,</span>
+        <span>]</span>
+      <span>}</span><span>,</span>
+    <span>)</span><span>;</span>
+    <span>await</span> channel<span>.</span><span>watch</span><span>(</span><span>)</span><span>;</span>
+    _currentChannelId <span>=</span> channel<span>.</span>id<span>;</span>
+    <span>return</span> channel<span>;</span>
+  <span>}</span></code></pre><p>Let&#39;s examine this code. First, it passes a list of employee IDs to <code>createSupportChat</code>. Then, it makes sure it is storing the current employee ID that has an open support chat in order to avoid recreating a new channel.</p><p>Finally, it randomly picks an ID from the list and creates a channel with the current customer.</p><p>This solution might not be the best possible one. However, it would work for our small coffee store. Ideally, you would define an API that can return an available employee to a customer on-demand. I may write another article to show you how you can better with other solutions.</p><p>🛠 Lastly, locate the <code><span>createChannel</span><span>(</span><span>)</span></code> method in the <code>_SupportChatScreenState</code> class (it’s in the <code><span>/</span>lib<span>/</span>screens<span>/</span>support<span>.</span>dart</code> file) and refactor it to pass the <code>availableAgents</code>.</p><pre><code><span>// /lib/screens/support.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+<span>createChannel</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+    <span>if</span> <span>(</span>profile <span>!=</span> <span>null</span><span>)</span> <span>{</span>
+      <span>final</span> _channel <span>=</span> <span>await</span> ChatService<span>.</span>instance<span>.</span><span>createSupportChat</span><span>(</span>
+        profile<span>!</span><span>.</span>availableAgents<span>,</span>
+      <span>)</span><span>;</span>
+      <span>setState</span><span>(</span><span>(</span><span>)</span> <span>{</span>
+        channel <span>=</span> _channel<span>;</span>
+      <span>}</span><span>)</span><span>;</span>
+    <span>}</span>
+  <span>}</span>
+  
+  <span>.</span><span>.</span><span>.</span></code></pre><blockquote><p>It&#39;s very important that you have registered all of your employees’ IDs in Stream chat. Typically, users can log in as employees should log in and everything will work. However, if you still have not registered all of your employees, you might get an error with the message <code>The following users are specified <span>in</span> channel<span>.</span>members but don&#39;t exist</code>. This usually happens if you have created any users before the Login flow and Custom token generation action have been created.</p></blockquote><p>Nicely done! You can restart your app, and this time you can see the support channel screen.</p><h2 id="Permission-Based-Functionalities">Permission-Based Functionalities</h2><p>After applying roles to have specific kinds of access in the app, you can go one step deeper and use functionalities based on the user&#39;s permission inherited from the role.</p><p>You have already defined the <code>can</code> method on <code>Auth0User</code> in the previous section. The purpose of this method is to check if the user has given permission. Let&#39;s use it.</p><p>🛠 Locate <code>MessageInput</code> in the <code>support<span>.</span>dart</code> file, and you can replace it with</p><pre><code><span>// /lib/screens/support.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+<span>MessageInput</span><span>(</span>
+  disableAttachments<span>:</span> <span>!</span>profile<span>!</span><span>.</span><span>can</span><span>(</span>UserPermissions<span>.</span>upload<span>)</span><span>,</span>
+  sendButtonLocation<span>:</span> SendButtonLocation<span>.</span>inside<span>,</span>
+  actionsLocation<span>:</span> ActionsLocation<span>.</span>leftInside<span>,</span>
+  showCommandsButton<span>:</span> <span>!</span>profile<span>?</span><span>.</span>isCustomer<span>,</span>
+<span>)</span><span>,</span>
+
+<span>.</span><span>.</span><span>.</span></code></pre><p>In the implementation above, <code>disableAttachments</code> is enabled based on the user&#39;s permission, or <code>showCommandsButton</code> is active only for the Customer role.</p><p>Another approach you can take is to limit the delete message functionality and apply <code>UserPermissions<span>.</span>delete</code> to remove the applicable UI.</p><p>Moreover, you may want to apply for these permissions on your back-end or API to perform. I will leave this part as homework.</p><h2 id="Closing-a-Support-Chat-Channel">Closing a Support Chat Channel</h2><p>For the last section of this tutorial, I&#39;d like to show you how to close a support channel chat.</p><p>🛠 First, you need to create a method for the <code>ChatService</code> class to send the command to close a channel.</p><pre><code><span>// /lib/services/chat_service.dart</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+Future<span>&lt;</span><span>void</span><span>&gt;</span> <span>archiveSupportChat</span><span>(</span><span>)</span> <span>async</span> <span>{</span>
+   <span>await</span> client<span>.</span><span>hideChannel</span><span>(</span>
+      _currentChannelId<span>!</span><span>,</span>
+      <span>&#39;support&#39;</span><span>,</span>
+      clearHistory<span>:</span> <span>true</span><span>,</span>
+    <span>)</span><span>;</span>
+  client<span>.</span><span>channel</span><span>(</span><span>&#39;support&#39;</span><span>,</span> id<span>:</span> _currentChannelId<span>)</span><span>.</span><span>dispose</span><span>(</span><span>)</span><span>;</span>
+  _currentChannelId <span>=</span> <span>null</span><span>;</span>
+  _currentEmployeeId <span>=</span> <span>null</span><span>;</span>
+<span>}</span>
+
+<span>.</span><span>.</span><span>.</span></code></pre><p>In this implementation, you can hide a chat with an existing ID and the type <code>support</code> and finally, set both <code>_currentChannelId</code> and <code>_currentEmployeeId</code> to <code><span>null</span></code> so that next time users come to a support screen, they’ll see a new channel created, and it will connect them to another employee.</p><blockquote><p>Hiding a channel makes it invisible to the query channels. It can be retrieved if the user adds a new message to it or calls the <code><span>show</span><span>(</span><span>)</span></code> method to remove the hidden status.</p></blockquote><p>However, there are other possibilities. For example, you can <code>archive</code> or <code><span>delete</span></code> a channel. At the moment, <code>archive</code> is not exposed to the Stream Dart SDK. Therefore, for now, you can hide a channel.</p><p>🛠 Next, locate <code>MessageInput</code> in the <code>support<span>.</span>dart</code> file, and add <code>actions</code>.</p><pre><code><span>// /lib/screens/support.dart</span>
+<span>{</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+<span>MessageInput</span><span>(</span>
+  actions<span>:</span> <span>[</span><span>_closeChat</span><span>(</span><span>)</span><span>]</span><span>,</span>
+  disableAttachments<span>:</span> <span>!</span>profile<span>!</span><span>.</span><span>can</span><span>(</span>UserPermissions<span>.</span>upload<span>)</span><span>,</span>
+  sendButtonLocation<span>:</span> SendButtonLocation<span>.</span>inside<span>,</span>
+  actionsLocation<span>:</span> ActionsLocation<span>.</span>leftInside<span>,</span>
+  showCommandsButton<span>:</span> <span>!</span>profile<span>?</span><span>.</span>isCustomer<span>,</span>
+<span>)</span><span>,</span>
+
+<span>.</span><span>.</span><span>.</span>
+
+  <span>/// method in the class</span>
+  CommonButton <span>_closeChat</span><span>(</span><span>)</span> <span>{</span>
+    <span>return</span> <span>CommonButton</span><span>(</span>
+      onPressed<span>:</span> <span>(</span><span>)</span> <span>{</span>
+        ChatService<span>.</span>instance<span>.</span><span>archiveSupportChat</span><span>(</span><span>)</span><span>;</span>
+        CoffeeRouter<span>.</span>instance<span>.</span><span>push</span><span>(</span>MenuScreen<span>.</span><span>route</span><span>(</span><span>)</span><span>)</span><span>;</span>
+      <span>}</span><span>,</span>
+      child<span>:</span> <span>Icon</span><span>(</span>
+        Icons<span>.</span>close<span>,</span>
+        color<span>:</span> Colors<span>.</span>white<span>,</span>
+      <span>)</span><span>,</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>The <code>actions</code> parameter adds a list of additional actions to the <code>GetStream</code> chat input UI. You can call the <code>archiveSupportChat</code> method <code><span>OnPressed</span><span>(</span><span>)</span></code> and hide the chat, and redirect the user to the menu screen to show a proper message that the discussion is closed. They can reopen by returning to the support screen.</p><h2 id="Conclusion">Conclusion</h2><p>Authentication and authorization are complex but necessary features of most applications, and they can be tricky to implement and manage. Auth0 provides a reliable service that takes on these tasks. You can this service in Flutter applications without having to set up a server or maintain infrastructure. You can also make use of serverless tools such as Auth0 Actions, which you can use to add sophistication to your authentication and authorization process.</p><p>You have seen how you can speed up your development by adding a support chat using <code>GetStreamChat</code> to a Flutter application. You’ve also seen how you can limit the functionality available to users by leveraging roles and permissions received from Auth0 via tokens.</p><p>Congratulations! You’ve come a long way over this tutorial’s four parts, and I hope that you have learned a lot. This is just the beginning — you can still implement and configure a lot, using both Stream and Auth0, and take your apps to the next level.</p></div></div>]]></content:encoded>
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
     <item>
