@@ -4,6 +4,410 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Developing RESTful APIs with Lumen (A PHP Micro-framework)</title>
+      <link>https://auth0.com/blog/developing-restful-apis-with-lumen-a-php-micro-framework/</link>
+      <description>Learn how to build a secured Lumen API server using Auth0</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><strong>TL;DR:</strong> In this tutorial, you will learn how to easily build a secured API with <a href="https://lumen.laravel.com/" target="_blank" rel="noreferrer noopener">Lumen</a>. The complete source code for this tutorial can be found here on <a href="https://github.com/yemiwebby/lumen-api-auth0" target="_blank" rel="noreferrer noopener">GitHub</a>.</p><p>Built on Laravel&#39;s <a href="https://github.com/illuminate" target="_blank" rel="noreferrer noopener">core components</a>, Lumen is able to provide speed without sacrificing any of the goodies we love about Laravel - clean and concise syntax; flexibility, and out-of-the-box support for just about anything you can think of. The scalability of an application is also not affected as Lumen is built to upgrade directly to Laravel painlessly should the application needs to outgrow Lumen&#39;s offerings.</p><h2 id="Features-Overview">Features Overview</h2><p>These are some of the built-in features of Lumen:</p><ul><li><strong>Routing</strong> is provided out of the box in Lumen. This includes basic routing, routing parameters, named routes, and route groups such as middleware.</li><li><strong>Authentication</strong> does not support the session state. However, incoming requests are authenticated via stateless mechanisms such as tokens.</li><li><strong>Caching</strong> is implemented the same as in Laravel. Cache drivers such as <em>Database</em>, <em>Memcached</em>, and <em>Redis</em> are supported. For example, you can install the <code>illuminate<span>/</span>redis</code> package via Composer to use a Redis cache with Lumen.</li><li><strong>Errors and Logging</strong> are implemented via the <a href="https://github.com/Seldaek/monolog" target="_blank" rel="noreferrer noopener">Monolog library</a>, which provides support for various log handlers.</li><li><strong>Queuing</strong> services are similar to the ones offered by Laravel. A unified API is provided across a variety of different queue back-ends.</li><li><strong>Events</strong> provide a simple observer implementation that allows you to subscribe and listen for events in your application.</li><li><strong>Bootstrapping</strong> processes are located in a <a href="https://github.com/laravel/lumen/blob/master/bootstrap/app.php" target="_blank" rel="noreferrer noopener">single file</a>.</li></ul><h2 id="Lumen-Key-Requirements">Lumen Key Requirements</h2><p>To use Lumen, you need to have the following tools installed on your machine:</p><ul><li><strong>PHP</strong>: Make sure <a href="http://php.net/manual/en/install.php" target="_blank" rel="noreferrer noopener">PHP &gt;= 7.3</a> is installed on your machine. Furthermore, ensure that the following PHP extensions are installed. <a href="https://www.php.net/manual/en/openssl.installation.php" target="_blank" rel="noreferrer noopener">OpenSSL</a>, <a href="https://www.php.net/manual/en/pdo.installation.php" target="_blank" rel="noreferrer noopener">PDO</a>, and <a href="https://www.php.net/manual/en/mbstring.installation.php" target="_blank" rel="noreferrer noopener">Mbstring</a>.</li><li><strong>Composer</strong>: Navigate to the <a href="https://getcomposer.org/" target="_blank" rel="noreferrer noopener">Composer website</a> and install it on your machine. A composer is needed to install Lumen&#39;s dependencies.</li><li><strong>Postman</strong>: You also need to ensure that <a href="https://www.getpostman.com/" target="_blank" rel="noreferrer noopener">Postman</a>, or a similar application, to test endpoints is installed.</li></ul><blockquote><p>Note: You&#39;ll need MySQL for this tutorial. Navigate to the <a href="https://www.mysql.com/" target="_blank" rel="noreferrer noopener">MySQL</a> website and install the community server edition. If you are using a Mac, I recommend following <a href="https://flaviocopes.com/mysql-how-to-install/" target="_blank" rel="noreferrer noopener">these instructions</a>. For this tutorial, you can use MySQL straight from the terminal, but if you&#39;d prefer a MySQL GUI, check out <a href="https://sequelpro.com/" target="_blank" rel="noreferrer noopener">Sequel Pro</a> for Mac or <a href="https://www.heidisql.com/" target="_blank" rel="noreferrer noopener">HeidiSQL</a> for Windows.</p></blockquote><p>At Auth0, we have many technical writers, otherwise known as authors. A directive has been given to developing an app to manage Auth0 authors. The front-end app will be built with ReactJS. However, it needs to pull data from a source and also push to it. Yes, we need an API!</p><p>An author will have the following attributes:</p><ul><li>Name</li><li>Email address</li><li>Link to Twitter profile</li><li>Link to GitHub profile</li><li>Location</li><li>Title of the latest article published by the author</li></ul><p>Additionally, we will have timestamps for each author corresponding to when the author was added or edited.<br/>The API will provide endpoints for basic CRUD (Create, Read, Update and Delete) operations related to authors. These endpoints are as follows:</p><ul><li>Get all authors — <code><span>GET</span> <span>/</span>api<span>/</span>authors</code></li><li>Get one author — <code><span>GET</span> <span>/</span>api<span>/</span>authors<span>/</span><span>23</span></code></li><li>Create an author — <code><span>POST</span> <span>/</span>api<span>/</span>authors</code></li><li>Edit an author — <code><span>PUT</span> <span>/</span>api<span>/</span>authors<span>/</span><span>23</span></code></li><li>Delete an author — <code><span>DELETE</span> <span>/</span>api<span>/</span>authors<span>/</span><span>23</span></code></li></ul><h3 id="Getting-Started">Getting Started</h3><p>Run the following command in your terminal to create a new project with <a href="https://lumen.laravel.com/" target="_blank" rel="noreferrer noopener">Lumen</a>:</p><pre><code><span>composer</span> create-project --prefer-dist laravel/lumen authors</code></pre><p>Navigate into the newly created project using the <code>cd</code> command.</p><pre><code><span>cd</span> authors</code></pre><p>You can run the application using the following command.</p><pre><code>php -S localhost:8000 -t public</code></pre><p>This will make the application available at <a href="http://localhost:8000" target="_blank" rel="noreferrer noopener">http://localhost:8000</a>, which will return the index page shown below.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1BY3YynNm9xA4D0A2hVf1u/6b1dcbb402f73996b29711489993ea34/01_rest.png" alt="Lumen Homepage"/></p><h3 id="Activate-Eloquent-and-Facades">Activate Eloquent and Facades</h3><p>As I mentioned earlier, the entire bootstrap process is located in a <a href="https://github.com/laravel/lumen/blob/master/bootstrap/app.php" target="_blank" rel="noreferrer noopener">single file</a>.
+Open up the <code>bootstrap<span>/</span>app<span>.</span>php</code> and uncomment the following lines.</p><pre><code><span>// $app-&gt;withFacades();</span>
+
+<span>// $app-&gt;withEloquent();</span></code></pre><p>Once uncommented, the <code>withEloquent</code> function instructs Lumen to hook the <a href="https://github.com/illuminate/database/tree/master/Eloquent" target="_blank" rel="noreferrer noopener">Eloquent ORM</a> with your database using the connections configured in the <code><span>.</span>env</code> file.</p><blockquote><p>Make sure you set the right details for your database in the .env file.</p></blockquote><p>In the same vein, calling the <code>withFacades</code> function call enables the use of <a href="https://laravel.com/docs/5.5/facades" target="_blank" rel="noreferrer noopener">Facades</a> in our project.</p><h3 id="Setup-Database--Models--and-Migrations">Setup Database, Models, and Migrations</h3><p>At the time of this writing, Lumen supports four database systems: MySQL, Postgres, SQLite, and SQL Server. We are making use of MySQL in this tutorial. First, we&#39;ll create a migration for the <code>authors</code> table.</p><blockquote><p>Migrations are like version control for your database, allowing your team to modify and share the application&#39;s database schema easily.</p></blockquote><p>Stop the application from running using <code><span>CTRL</span> <span>+</span> <span>C</span></code> from the terminal and hit return on your keyboard. Now, run the command below in the terminal to create the <code>authors</code> table migration:</p><pre><code>php artisan make:migration create_authors_table</code></pre><p>The new migration will be placed in your <code>database<span>/</span>migrations</code> directory. The migration file name is prepended with a timestamp in the format <code><span>YYYY_MM_DD_HHMMSS</span></code>. This allows Lumen to determine the order of the migrations.</p><p>Open the migration file <code>database<span>/</span>migrations<span>/</span>YYYY_MM_DD_HHMMSS_create_authors_table<span>.</span>php</code> update it to match the following.</p><pre><code><span><span>&lt;?php</span>
+
+<span>use</span> <span>Illuminate<span>\</span>Database<span>\</span>Migrations<span>\</span>Migration</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Database<span>\</span>Schema<span>\</span>Blueprint</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Support<span>\</span>Facades<span>\</span>Schema</span><span>;</span>
+
+<span>class</span> <span>CreateAuthorsTable</span> <span>extends</span> <span>Migration</span> <span>{</span>
+
+    <span>/**
+     * Run the migrations.
+     *
+     * @return void
+     */</span>
+    <span>public</span> <span>function</span> <span>up</span><span>(</span><span>)</span> <span>{</span>
+
+        <span>Schema</span><span>::</span><span>create</span><span>(</span><span>&#39;authors&#39;</span><span>,</span> <span>function</span> <span>(</span><span>Blueprint</span> <span>$table</span><span>)</span> <span>{</span>
+
+            <span>$table</span><span>-&gt;</span><span>increments</span><span>(</span><span>&#39;id&#39;</span><span>)</span><span>;</span>
+            <span>$table</span><span>-&gt;</span><span>string</span><span>(</span><span>&#39;name&#39;</span><span>)</span><span>;</span>
+            <span>$table</span><span>-&gt;</span><span>string</span><span>(</span><span>&#39;email&#39;</span><span>)</span><span>;</span>
+            <span>$table</span><span>-&gt;</span><span>string</span><span>(</span><span>&#39;github&#39;</span><span>)</span><span>;</span>
+            <span>$table</span><span>-&gt;</span><span>string</span><span>(</span><span>&#39;twitter&#39;</span><span>)</span><span>;</span>
+            <span>$table</span><span>-&gt;</span><span>string</span><span>(</span><span>&#39;location&#39;</span><span>)</span><span>;</span>
+            <span>$table</span><span>-&gt;</span><span>string</span><span>(</span><span>&#39;latest_article_published&#39;</span><span>)</span><span>;</span>
+            <span>$table</span><span>-&gt;</span><span>timestamps</span><span>(</span><span>)</span><span>;</span>
+        <span>}</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>/**
+     * Reverse the migrations.
+     *
+     * @return void
+     */</span>
+    <span>public</span> <span>function</span> <span>down</span><span>(</span><span>)</span> <span>{</span>
+
+        <span>Schema</span><span>::</span><span>dropIfExists</span><span>(</span><span>&#39;authors&#39;</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></span></code></pre><p>In the <code>up</code> function, we specify the columns to be added to the <code>authors</code> table. A column is declared for each author attribute we highlighted earlier.</p><p>Now, go ahead and run the migration like so:</p><pre><code>php artisan migrate</code></pre><p>Check your database. You should now have the <code>authors</code> and <code>migrations</code> tables present.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2D7EmXiABIlf8BtYlGNjvz/8e65b8d3e40f44bc9300bfe9c8dff14f/01_rest_2.png" alt="Database View"/></p><p>Next, let&#39;s create the <code>Author</code> model. Create an <code>app<span>/</span>Models<span>/</span>Author<span>.</span>php</code> file and add the code below to it:</p><pre><code><span><span>&lt;?php</span>
+
+<span>namespace</span> <span>App<span>\</span>Models</span><span>;</span>
+
+<span>use</span> <span>Illuminate<span>\</span>Database<span>\</span>Eloquent<span>\</span>Model</span><span>;</span>
+
+<span>class</span> <span>Author</span> <span>extends</span> <span>Model</span> <span>{</span>
+
+    <span>/**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */</span>
+    <span>protected</span> <span>$fillable</span> <span>=</span> <span>[</span>
+        <span>&#39;name&#39;</span><span>,</span>
+        <span>&#39;email&#39;</span><span>,</span>
+        <span>&#39;github&#39;</span><span>,</span>
+        <span>&#39;twitter&#39;</span><span>,</span>
+        <span>&#39;location&#39;</span><span>,</span>
+        <span>&#39;latest_article_published&#39;</span><span>,</span>
+    <span>]</span><span>;</span>
+
+    <span>/**
+     * The attributes are excluded from the model&#39;s JSON form.
+     *
+     * @var array
+     */</span>
+    <span>protected</span> <span>$hidden</span> <span>=</span> <span>[</span><span>]</span><span>;</span>
+<span>}</span></span></code></pre><p>In the code above, we made the author attributes <a href="https://laravel.com/docs/5.5/eloquent#mass-assignment" target="_blank" rel="noreferrer noopener">mass assignable</a>.</p><h3 id="Set-up-Routes">Set up Routes</h3><p>Routing is fairly straightforward. Open up <code>routes<span>/</span>web<span>.</span>php</code> and modify it like so:</p><pre><code><span><span>&lt;?php</span>
+
+<span>/** @var Router $router */</span>
+
+<span>/*
+|--------------------------------------------------------------------------
+| Application Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register all of the routes for an application.
+| It is a breeze. Simply tell Lumen the URIs it should respond to
+| and give it the Closure to call when that URI is requested.
+|
+*/</span>
+
+<span>use</span> <span>Laravel<span>\</span>Lumen<span>\</span>Routing<span>\</span>Router</span><span>;</span>
+
+<span>$router</span><span>-&gt;</span><span>get</span><span>(</span><span>&#39;/&#39;</span><span>,</span> <span>function</span> <span>(</span><span>)</span> <span>use</span> <span>(</span><span>$router</span><span>)</span> <span>{</span>
+
+    <span>return</span> <span>$router</span><span>-&gt;</span><span>app</span><span>-&gt;</span><span>version</span><span>(</span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>;</span>
+
+<span>$router</span><span>-&gt;</span><span>group</span><span>(</span><span>[</span><span>&#39;prefix&#39;</span> <span>=&gt;</span> <span>&#39;api&#39;</span><span>]</span><span>,</span> <span>function</span> <span>(</span><span>)</span> <span>use</span> <span>(</span><span>$router</span><span>)</span> <span>{</span>
+
+    <span>$router</span><span>-&gt;</span><span>get</span><span>(</span><span>&#39;authors&#39;</span><span>,</span> <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@showAllAuthors&#39;</span><span>]</span><span>)</span><span>;</span>
+
+    <span>$router</span><span>-&gt;</span><span>get</span><span>(</span><span>&#39;authors/{id}&#39;</span><span>,</span> <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@showOneAuthor&#39;</span><span>]</span><span>)</span><span>;</span>
+
+    <span>$router</span><span>-&gt;</span><span>post</span><span>(</span><span>&#39;authors&#39;</span><span>,</span> <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@create&#39;</span><span>]</span><span>)</span><span>;</span>
+
+    <span>$router</span><span>-&gt;</span><span>delete</span><span>(</span><span>&#39;authors/{id}&#39;</span><span>,</span> <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@delete&#39;</span><span>]</span><span>)</span><span>;</span>
+
+    <span>$router</span><span>-&gt;</span><span>put</span><span>(</span><span>&#39;authors/{id}&#39;</span><span>,</span> <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@update&#39;</span><span>]</span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>;</span></span></code></pre><p>In the code above, we have abstracted the functionality for each route into a controller, <code>AuthorController</code>. Route groups allow you to share route attributes, such as middleware or namespaces, across a large number of routes without needing to define those attributes on each route. Therefore, every route will have a prefix of <code><span>/</span>api</code>. Next, let&#39;s create the <code>AuthorController</code>.</p><h3 id="Set-up-Author-Controller">Set up Author Controller</h3><p>Create a new file, <code>AuthorController<span>.</span>php</code> in <code>app<span>/</span>Http<span>/</span>Controllers</code> directory and add the following code to it:</p><pre><code><span><span>&lt;?php</span>
+
+<span>namespace</span> <span>App<span>\</span>Http<span>\</span>Controllers</span><span>;</span>
+
+<span>use</span> <span>App<span>\</span>Models<span>\</span>Author</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>JsonResponse</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>Request</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>Response</span><span>;</span>
+
+<span>class</span> <span>AuthorController</span> <span>extends</span> <span>Controller</span> <span>{</span>
+
+    <span>public</span> <span>function</span> <span>showAllAuthors</span><span>(</span><span>)</span>
+    <span>:</span> <span>JsonResponse</span> <span>{</span>
+
+        <span>return</span> <span>response</span><span>(</span><span>)</span><span>-&gt;</span><span>json</span><span>(</span><span>Author</span><span>::</span><span>all</span><span>(</span><span>)</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>function</span> <span>showOneAuthor</span><span>(</span><span>$id</span><span>)</span>
+    <span>:</span> <span>JsonResponse</span> <span>{</span>
+
+        <span>return</span> <span>response</span><span>(</span><span>)</span><span>-&gt;</span><span>json</span><span>(</span><span>Author</span><span>::</span><span>find</span><span>(</span><span>$id</span><span>)</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>function</span> <span>create</span><span>(</span><span>Request</span> <span>$request</span><span>)</span>
+    <span>:</span> <span>JsonResponse</span> <span>{</span>
+
+        <span>$author</span> <span>=</span> <span>Author</span><span>::</span><span>create</span><span>(</span><span>$request</span><span>-&gt;</span><span>all</span><span>(</span><span>)</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>response</span><span>(</span><span>)</span><span>-&gt;</span><span>json</span><span>(</span><span>$author</span><span>,</span> <span>Response</span><span>::</span><span>HTTP_CREATED</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>function</span> <span>update</span><span>(</span><span>$id</span><span>,</span> <span>Request</span> <span>$request</span><span>)</span>
+    <span>:</span> <span>JsonResponse</span> <span>{</span>
+
+        <span>$author</span> <span>=</span> <span>Author</span><span>::</span><span>findOrFail</span><span>(</span><span>$id</span><span>)</span><span>;</span>
+        <span>$author</span><span>-&gt;</span><span>update</span><span>(</span><span>$request</span><span>-&gt;</span><span>all</span><span>(</span><span>)</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>response</span><span>(</span><span>)</span><span>-&gt;</span><span>json</span><span>(</span><span>$author</span><span>,</span> <span>Response</span><span>::</span><span>HTTP_OK</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>function</span> <span>delete</span><span>(</span><span>$id</span><span>)</span> <span>{</span>
+
+        <span>Author</span><span>::</span><span>findOrFail</span><span>(</span><span>$id</span><span>)</span><span>-&gt;</span><span>delete</span><span>(</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>response</span><span>(</span><span>&#39;Deleted Successfully&#39;</span><span>,</span> <span>Response</span><span>::</span><span>HTTP_OK</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></span></code></pre><p>Let&#39;s analyze the code above. First, we have <code>use App\Author</code>, which allowed us to require the <code>Author</code> model that we created earlier.</p><p>Next, we&#39;ve created the following five methods:</p><ul><li><code>showAllAuthors</code> — /GET</li><li><code>showOneAuthor</code> — /GET</li><li><code>create</code> — /POST</li><li><code>update</code> — /PUT</li><li><code><span>delete</span></code> — /DELETE</li></ul><p>These will allow us to use that <code>Author</code> model to interact with author data. For example, if you make a POST request to <code><span>/</span>api<span>/</span>authors</code> API endpoint, the <code>create</code> function will be invoked, and a new entry will be added to the <code>authors</code> table.</p><p><strong>Author controller method overview:</strong></p><ul><li><code><span>showAllAuthors</span><span>(</span><span>)</span></code>: checks for all the author resources</li><li><code><span>create</span><span>(</span><span>)</span></code>:creates a new author resource</li><li><code><span>showOneAuthor</span><span>(</span><span>)</span></code>: checks for a single author resource</li><li><code><span>update</span><span>(</span><span>)</span></code>: checks if an author resource exists and allows the resource to be updated</li><li><code><span>delete</span><span>(</span><span>)</span></code>: checks if an author resource exists and deletes it</li></ul><p><strong>Controller responses:</strong></p><ul><li><code><span>response</span><span>(</span><span>)</span></code>: global helper function that obtains an instance of the response factory</li><li><code><span>response</span><span>(</span><span>)</span><span>-</span><span>&gt;</span><span>json</span><span>(</span><span>)</span></code>: returns the response in JSON format.</li><li><code>Response<span>:</span><span>:</span><span>HTTP_OK</span></code>: This is a constant that represent the <code><span>200</span></code> HTTP status code. This indicates that the request was successful.</li><li><code>Response<span>:</span><span>:</span><span>HTTP_CREATED</span></code>: This is a constant that represent the <code><span>201</span></code> HTTP status code. This indicates that a new resource (in this case, author) was created.</li><li><code>findOrFail</code>: throws a <code>ModelNotFoundException</code> if no result is not found.</li></ul><p>At this point, we can test the API routes with <a href="https://www.getpostman.com/" target="_blank" rel="noreferrer noopener">Postman</a>. To do that, restart the application with:</p><pre><code>php -S localhost:8000 -t public</code></pre><p><em>Author POST operation</em> - <code><span>POST</span> http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>8000</span><span>/</span>api<span>/</span>authors</code></p><p>Use the JSON requests below:</p><pre><code><span>{</span>
+  <span>&#34;name&#34;</span><span>:</span> <span>&#34;John Doe&#34;</span><span>,</span>
+  <span>&#34;email&#34;</span><span>:</span> <span>&#34;john@john.ng&#34;</span><span>,</span>
+  <span>&#34;twitter&#34;</span><span>:</span> <span>&#34;yemiwebby&#34;</span><span>,</span>
+  <span>&#34;github&#34;</span><span>:</span> <span>&#34;yemiwebby&#34;</span><span>,</span>
+  <span>&#34;location&#34;</span><span>:</span> <span>&#34;Nigeria&#34;</span><span>,</span>
+  <span>&#34;latest_article_published&#34;</span><span>:</span> <span>&#34;Auth0_laravel&#34;</span>
+<span>}</span></code></pre><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2V3xL7COPSUqX2IJtlOwgU/f8d9bf8ac32127414d8784d1e320be28/02_rest.png" alt="Create a new Author"/></p><p><em>Author GET operation</em> - <code><span>GET</span> http<span>:</span><span>/</span><span>/</span>localhost<span>:</span><span>8000</span><span>/</span>api<span>/</span>authors</code></p><p>You should now see an array of objects, including the author you just created, plus any others in the database.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/oST0zLLs9JZLBi8SMs5Mg/42fa8aed8e18128993168e05cf0c5487/03_rest.png" alt="Get Author"/></p><p><em>Author PUT operation</em></p><p>The <code><span>PUT</span></code> operation allows us to edit an existing author. Notice the author&#39;s <code>id</code> in the URL.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4uMFyFfIQKhCnRmSpckgvI/c691e3e289ac81d248105480e28cb9e5/04_rest.png" alt="Edit Author Details"/></p><p><em>Author DELETE operation</em></p><p>Finally, we can delete a specific author as well.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4Puqxq9fFEceV85Z0T4cVP/eabd66896ef3ba1a167fca2cfe6b7f19/05_rest.png" alt="Delete a specific Author"/></p><p>Now we have a working API. Awesome!</p><h2 id="Lumen-API-Validation">Lumen API Validation</h2><p>In Lumen, it&#39;s very easy to validate your application&#39;s incoming data. Lumen provides access to the <code>$<span>this</span><span>-</span><span>&gt;</span>validate</code> helper method from within Route closures.</p><p>Currently, we&#39;re not checking what people are sending through to our <code>create</code> method in our API. Let&#39;s fix that now. Open up the <code>AuthorController</code> file and modify the <code>create</code> method as shown below.</p><pre><code><span>// ...</span>
+<span>public</span> <span>function</span> <span>create</span><span>(</span><span>Request</span> <span>$request</span><span>)</span>
+    <span>:</span> <span>JsonResponse</span> <span>{</span>
+
+        <span>$this</span><span>-&gt;</span><span>validate</span><span>(</span><span>$request</span><span>,</span> <span>[</span>
+            <span>&#39;name&#39;</span> <span>=&gt;</span> <span>&#39;required&#39;</span><span>,</span>
+            <span>&#39;email&#39;</span> <span>=&gt;</span> <span>&#39;required|email|unique:authors&#39;</span><span>,</span>
+            <span>&#39;location&#39;</span> <span>=&gt;</span> <span>&#39;required|alpha&#39;</span>
+        <span>]</span><span>)</span><span>;</span>
+
+        <span>$author</span> <span>=</span> <span>Author</span><span>::</span><span>create</span><span>(</span><span>$request</span><span>-&gt;</span><span>all</span><span>(</span><span>)</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>response</span><span>(</span><span>)</span><span>-&gt;</span><span>json</span><span>(</span><span>$author</span><span>,</span> <span>Response</span><span>::</span><span>HTTP_CREATED</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>// ...</span></code></pre><p>Now test the API POST route with Postman.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/25Xk9zQsla813goecyPDRk/ae5ba0db9736671b8939e54e2091a537/06_rest.png" alt="Validation"/></p><p>It validated the incoming requests and returned the appropriate error message.</p><ul><li><em>name</em>, <em>email</em>, and <em>location</em> were required. In testing the API, <em>name</em> and <em>email</em> were not provided.</li><li><em>email</em> was required to be in email format.</li><li><em>location</em> was required to be entirely alphabetic characters, <code>alpha</code>. Nothing more. Numbers were provided as the value for <em>location</em>.</li></ul><p>Lumen comes with <a href="https://laravel.com/docs/5.8/validation#available-validation-rules" target="_blank" rel="noreferrer noopener">a plethora of validation rules</a> that you can use to ensure that the incoming request meets the expected quality before it can be handled.</p><h2 id="Securing-the-Authors-API-with-Auth0">Securing the Authors API with Auth0</h2><p>Right now, an application can make requests to any of the endpoints present in our API. In a real-world scenario, we would want to restrict our API so that only  <a href="https://auth0.com/docs/flows/concepts/auth-code" target="_blank" rel="noreferrer noopener">authorized users</a> have the ability to do this. A few things need to happen here.</p><ol start="1"><li>A user signs in with their credentials (to prove who they are, i.e., <strong>authenticate</strong>)</li><li>If the user is authorized to use the API, the application is issued an API access token</li><li>Whenever an API request is made, the application will send that API access token along with the request</li><li>If the access token is valid, the API will respond with the requested data</li></ol><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6h5D5eYlM1lEzBpV0FlZ0/fbc3c0f5bc9643e45949f9e36763f1aa/07_rest.png" alt="auth0-flow.png"/></p><p>In this tutorial, we&#39;re going to focus on what happens in <strong>step 4</strong> of that list (step 9-10 in the diagram). Since we&#39;re only building the backend API here, you&#39;ll need to create a separate front-end to accomplish the first two steps. <a href="https://auth0.com/blog/reactjs-authentication-tutorial/" target="_blank" rel="noreferrer noopener">Here</a> is an awesome example of how you can do that using Auth0 with React. For now, let&#39;s focus on generating access tokens using <a href="https://jwt.io/" target="_blank" rel="noreferrer noopener">JSON Web Tokens</a>.</p><p>JSON Web Token, commonly known as JWT, is an open standard for creating JSON-based access tokens that make some claim, usually <a href="https://jwt.io/introduction/" target="_blank" rel="noreferrer noopener">authorizing a user or exchanging information</a>. This technology has gained popularity over the past few years because it enables backends to accept requests simply by validating the contents of these JWTs.</p><p>JWTs can be used for authorization or information exchange. In this tutorial, we&#39;ll use JWTs to grant applications (users) authorization using our API.</p><p>Whenever the user wants to access a protected route or resource (an endpoint), the user agent must send the JWT, usually in the <em>Authorization</em> header using the <a href="http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html" target="_blank" rel="noreferrer noopener">Bearer schema</a>, along with the request.</p><p>When the API receives a request with an access token, the first thing it needs to do is <strong>validate the token</strong>. If the validation fails, then the request must be rejected.</p><p>For more information about <strong>JSON Web Tokens</strong>, check out our <em>free ebook</em> below.</p><div><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2MJmGvwbRWQZLpEkAEEGXF/0b527a4db1cb1bea63393352c0093b4c/jwt-handbook.svg" alt="JWT Handbook"/></p></div><p>We will make use of Auth0 to issue our access tokens. With Auth0, we only have to write a few lines of code to get an in-depth <a href="https://auth0.com/docs/identityproviders" target="_blank" rel="noreferrer noopener">identity management solution</a> which includes:</p><ul><li><a href="https://auth0.com/docs/sso/single-sign-on" target="_blank" rel="noreferrer noopener">Single sign-on</a></li><li><a href="https://auth0.com/docs/user-profile" target="_blank" rel="noreferrer noopener">User management</a></li><li>Support for <a href="https://auth0.com/docs/identityproviders" target="_blank" rel="noreferrer noopener">social identity providers (like Facebook, GitHub, Twitter, etc.)</a></li><li><a href="https://auth0.com/enterprise" target="_blank" rel="noreferrer noopener">Enterprise (Active Directory, LDAP, SAML, etc.)</a></li><li>Your <a href="https://auth0.com/docs/connections/database/mysql" target="_blank" rel="noreferrer noopener">own database of users</a></li></ul><p>If you haven&#39;t done so yet, this is a good time to sign up for a <a href="https://auth0.com/signup" target="_blank" rel="noreferrer noopener">free Auth0 account</a>.</p><blockquote><p>Try out the most powerful authentication platform for free. <strong><a href="https://auth0.com/signup?promo=sup&amp;place=in-blog-banner&amp;type=link&amp;text=get-started&amp;origin=blog" target="_blank" rel="noreferrer noopener">Get started →</a></strong></p></blockquote><p>Once you have your Auth0 account, go ahead and <a href="https://manage.auth0.com/#/apis" target="_blank" rel="noreferrer noopener">create a new API in the dashboard</a>. An API is an entity that represents an external resource, capable of accepting and responding to requests made by clients, such as the authors API we just made.</p><blockquote><p>Auth0 offers a generous free tier to get started with modern authentication.</p></blockquote><p>Login to your Auth0 <a href="https://manage.auth0.com/" target="_blank" rel="noreferrer noopener">management dashboard</a> and create a new API client.</p><p>Click on the APIs menu item and then the <strong>Create API</strong> button.</p><p><em>Create a New API</em></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3N30QOPVYZJCQHrknTFhDp/8f38f811cb3302f000a341c1bff0e934/08_rest.png" alt="Create API on Auth0 Dashboard"/></p><p>Next, you will need to give your API a <code>Name</code> and an <code>Identifier</code>. The <code>Name</code> can be anything you choose, so make it as descriptive as you want. The <code>Identifier</code> will be used to specify your API and cannot be changed once set. We&#39;ll be using it as an <code>audience</code> later when configuring the access token verification.</p><p>Here&#39;s my setup for the author&#39;s API:</p><ul><li>Name: <strong>Authors API</strong></li><li>Identifier: <strong><a href="https://authorsapi.com/" target="_blank" rel="noreferrer noopener">https://authorsapi.com</a></strong>.</li><li>Signing algorithm: <strong>RS256</strong></li></ul><p>Once you have yours filled out, click on the <strong>Create API</strong> button.</p><p><em>Creating the Authors API</em></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2scoVbuN1Dri7mQ336a0T6/57019146d674a21dd28891c2b7ca9fee/09_rest.png" alt="Create Author&#39;s API"/></p><p>Next, head over to your terminal and install the <strong><a href="https://github.com/auth0/auth0-PHP" target="_blank" rel="noreferrer noopener">Auth0 PHP SDK</a></strong> in your project&#39;s root directory:</p><pre><code><span>composer</span> require auth0/auth0-php guzzlehttp/guzzle</code></pre><blockquote><p><a href="https://packagist.org/packages/guzzlehttp/guzzle" target="_blank" rel="noreferrer noopener">guzzlehttp/guzzle</a> provides psr/http-client-implementation which the auth0 PHP SDK requires.</p></blockquote><h3 id="Setting-up-environment-variables">Setting up environment variables</h3><p>In this section, we&#39;re going to create the middleware to validate access tokens. The middleware will use some environment variables, so let&#39;s set those up first.</p><p>Open up <code><span>.</span>env</code> and add the following:</p><pre><code><span>AUTH0_DOMAIN</span><span>=</span>https<span>:</span><span>/</span><span><span>/</span><span>your-domain.auth0.com</span><span>/</span></span>
+
+<span>AUTH0_AUD</span><span>=</span>https<span>:</span><span>/</span><span>/</span>authorsapi<span>.</span>com</code></pre><p>Replace these values with your own from the <a href="https://manage.auth0.com/dashboard" target="_blank" rel="noreferrer noopener">Auth0 dashboard</a>.</p><p><strong>AUTH0_DOMAIN</strong></p><p>Click on <code>APIs</code> &gt; <code>Authors <span>API</span></code> &gt; <code>Quick Start</code> &gt; <code><span>PHP</span></code> in the dashboard to find your domain. Copy the value listed for <code>authorized_iss</code> and paste it into <code><span>.</span>env</code> as <code><span>AUTH0_DOMAIN</span></code>.</p><blockquote><p>When specifying the <code><span>AUTH0_DOMAIN</span></code> value, make sure you add the trailing slash: <code>https<span>:</span><span>/</span><span><span>/</span><span>xyz.auth0.com</span><span>/</span></span></code>.</p></blockquote><p><strong>AUTH0_AUD</strong></p><p>You can find this value in the Auth0 dashboard in the same place as the domain:</p><p><code>APIs</code> &gt; <code>Quick Start</code> &gt; <code><span>PHP</span></code>.</p><p>Copy the value listed for <code>valid_audiences</code> and paste it in for <code><span>AUTH0_AUD</span></code>. If you followed the naming conventions of this tutorial, it would be <code>https<span>:</span><span>/</span><span>/</span>authorsapi<span>.</span>com</code>.</p><h3 id="Create-the-Auth0-Middleware">Create the Auth0 Middleware</h3><p>Create a new middleware file, <code>Auth0Middleware<span>.</span>php</code>, in the <code>app<span>/</span>Http<span>/</span>Middleware</code> directory. Add the following code to it:</p><pre><code><span><span>&lt;?php</span>
+
+<span>namespace</span> <span>App<span>\</span>Http<span>\</span>Middleware</span><span>;</span>
+
+<span>use</span> <span>Auth0<span>\</span>SDK<span>\</span>Auth0</span><span>;</span>
+<span>use</span> <span>Auth0<span>\</span>SDK<span>\</span>Exception<span>\</span>InvalidTokenException</span><span>;</span>
+<span>use</span> <span>Closure</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>Request</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>Response</span><span>;</span>
+
+<span>class</span> <span>Auth0Middleware</span> <span>{</span>
+
+    <span>/**
+     * Run the request filter.
+     *
+     * @param Request $request
+     * @param Closure $next
+     * @return mixed
+     */</span>
+    <span>public</span> <span>function</span> <span>handle</span><span>(</span><span>Request</span> <span>$request</span><span>,</span> <span>Closure</span> <span>$next</span><span>)</span> <span>{</span>
+
+        <span>$token</span> <span>=</span> <span>$request</span><span>-&gt;</span><span>bearerToken</span><span>(</span><span>)</span><span>;</span>
+
+        <span>if</span> <span>(</span><span>!</span><span>$token</span><span>)</span> <span>{</span>
+            <span>return</span> <span>response</span><span>(</span><span>)</span>
+                <span>-&gt;</span><span>json</span><span>(</span><span>&#39;No token provided&#39;</span><span>,</span> <span>Response</span><span>::</span><span>HTTP_UNAUTHORIZED</span><span>)</span><span>;</span>
+        <span>}</span>
+
+        <span>try</span> <span>{</span>
+            <span>$this</span><span>-&gt;</span><span>validateToken</span><span>(</span><span>$token</span><span>)</span><span>;</span>
+        <span>}</span> <span>catch</span> <span>(</span><span>InvalidTokenException</span> <span>$exception</span><span>)</span> <span>{</span>
+            <span>return</span> <span>response</span><span>(</span><span>)</span>
+                <span>-&gt;</span><span>json</span><span>(</span><span>$exception</span><span>-&gt;</span><span>getMessage</span><span>(</span><span>)</span><span>)</span><span>;</span>
+        <span>}</span>
+
+        <span>return</span> <span>$next</span><span>(</span><span>$request</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>function</span> <span>validateToken</span><span>(</span><span>$token</span><span>)</span> <span>{</span>
+
+        <span>$auth0</span> <span>=</span> <span>new</span> <span>Auth0</span><span>(</span>
+            <span>[</span>
+                <span>&#39;domain&#39;</span> <span>=&gt;</span> <span>env</span><span>(</span><span>&#39;AUTH0_DOMAIN&#39;</span><span>)</span><span>,</span>
+                <span>&#39;strategy&#39;</span> <span>=&gt;</span> <span>&#39;api&#39;</span><span>,</span>
+                <span>&#39;audience&#39;</span> <span>=&gt;</span> <span>[</span>
+                    <span>env</span><span>(</span><span>&#39;AUTH0_AUD&#39;</span><span>)</span><span>,</span>
+                <span>]</span><span>,</span>
+            <span>]</span>
+        <span>)</span><span>;</span>
+        <span>$auth0</span><span>-&gt;</span><span>decode</span><span>(</span><span>$token</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></span></code></pre><p>The <code>handle</code> function is the entry point for this middleware. When a route (or group of routes) applies this middleware, the <code>handle</code> function will be called before the request can proceed to the application. For now, we only want to ensure that the request has a valid JWT token.</p><p>The first check in the <code>handle</code> function ensures that a bearer token exists for the request. A response is returned with status code <code><span>403</span></code> and an appropriate error message in the absence of one.</p><p>Next, the <code>handle</code> function tries to validate the token by calling the <code>validateToken</code> function - passing the token as an argument. Using the Auth0 SDK, we try to decode the token by calling the <code>decode</code> function. If the token cannot be decoded successfully, an <code>InvalidTokenException</code> will be thrown; hence the <code>validate</code> token is wrapped in a try-catch block. A JSON response is returned with the message and code gotten from the exception when the exception is caught.</p><p>If all of this passes, the token is decoded, and the middleware allows the HTTP request to execute.</p><blockquote><p>While the <code>decode</code> function returns an object with which we can interact, we do not need that at the moment; hence the return value is ignored.</p></blockquote><h3 id="Assign-middleware-to-routes">Assign middleware to routes</h3><p>Now that the middleware is set up, we need to add it to our routes. The first step is to assign the middleware a short-hand key in <code>bootstrap<span>/</span>app<span>.</span>php</code> file&#39;s call to the <code>$app<span>-</span><span>&gt;</span><span>routeMiddleware</span><span>(</span><span>)</span></code> method.</p><p>Go ahead and open up <code>bootstrap<span>/</span>app<span>.</span>php</code> and uncomment this line of code:</p><pre><code><span>...</span>
+<span>// $app-&gt;routeMiddleware([</span>
+<span>//     &#39;auth&#39; =&gt; App\Http\Middleware\Authenticate::class,</span>
+<span>// ]);</span>
+<span>...</span></code></pre><p>Once uncommented, replace the <code>Authenticate<span>:</span><span>:</span><span>class</span></code> portion with <code>Auth0Middleware<span>:</span><span>:</span><span>class</span></code> like so:</p><pre><code><span>$app</span><span>-&gt;</span><span>routeMiddleware</span><span>(</span><span>[</span>
+    <span>&#39;auth&#39;</span> <span>=&gt;</span> <span>App<span>\</span>Http<span>\</span>Middleware<span>\</span>Auth0Middleware</span><span>::</span><span>class</span><span>,</span>
+<span>]</span><span>)</span><span>;</span></code></pre><p>This will allow us to use the <code>Auth0Midddleware</code> that we just created. And now we can use the middleware key in the route options array in the <code>routes<span>/</span>web<span>.</span>php</code> file like so:</p><pre><code><span>...</span>
+
+<span>$router</span><span>-&gt;</span><span>group</span><span>(</span>
+    <span>[</span><span>&#39;prefix&#39;</span> <span>=&gt;</span> <span>&#39;api&#39;</span><span>,</span> <span>&#39;middleware&#39;</span> <span>=&gt;</span> <span>&#39;auth&#39;</span><span>]</span><span>,</span>
+
+    <span>function</span> <span>(</span><span>)</span> <span>use</span> <span>(</span><span>$router</span><span>)</span> <span>{</span>
+
+        <span>$router</span><span>-&gt;</span><span>get</span><span>(</span>
+            <span>&#39;authors&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@showAllAuthors&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+
+        <span>$router</span><span>-&gt;</span><span>get</span><span>(</span>
+            <span>&#39;authors/{id}&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@showOneAuthor&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+
+        <span>$router</span><span>-&gt;</span><span>post</span><span>(</span>
+            <span>&#39;authors&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@create&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+
+        <span>$router</span><span>-&gt;</span><span>delete</span><span>(</span>
+            <span>&#39;authors/{id}&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@delete&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+
+        <span>$router</span><span>-&gt;</span><span>put</span><span>(</span>
+            <span>&#39;authors/{id}&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@update&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+    <span>}</span>
+<span>)</span><span>;</span></code></pre><p>Now, if a request is made to any endpoint, it first runs the <code>Auth0Middleware</code>. If the request doesn&#39;t have a valid access token or no token at all, it returns an error. Let&#39;s try all of this out.</p><p><em>Accessing any endpoint without an authorization header</em></p><p>When accessing the endpoint without an authorization header, we receive a &#34;no token provided&#34; message.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4oDmxblUGdG1wnPdyOPNgX/1bbdba919ecdb74d34faeef0215b5806/10_rest.png" alt="Accessing any endpoint without an authorization header"/></p><p><em>Accessing any endpoint without any token provided</em></p><p>When accessing the endpoint without a token, we receive a &#34;no token provided&#34; message.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4oDmxblUGdG1wnPdyOPNgX/1bbdba919ecdb74d34faeef0215b5806/10_rest.png" alt="Accessing any endpoint without any token provided"/></p><p><em>Accessing any endpoint without a valid access token</em></p><p>When accessing endpoint without a valid access token:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3tJtQSInf8CrV0DbhQzKtw/c6ab7a52d99467e953bdfeabeabc336e/11_rest.png" alt="Accessing any endpoint without a valid access token"/></p><p>Now, let&#39;s test it with a valid access token. Head over to the <code>test</code> tab of your newly created API on your Auth0 dashboard.</p><p>Grab the Access token from the <em>Test</em> tab</p><p><em>Grab the Access Token</em></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2Tb6VuUBIE6bpjqvFywQlf/0fc0dd98b20848d7bcc27d2b0b286203/12_rest.png" alt="Grab the Access Token"/></p><p>Now use this <code>access token</code> in Postman by sending it as an Authorization header to make a POST request to the <code>api<span>/</span>authors</code> endpoint.</p><p><em>Accessing the endpoint securely</em></p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2M3Wg9Bps6VPbbGyHn8adn/792aefca801187842437ffc4b8ede15a/13_rest.png" alt="Accessing the endpoint securely"/></p><h3 id="Adding-permissions">Adding permissions</h3><p>Currently, this single access token will allow an application to run any requests, as long as it has a valid token. Eventually, you may want to issue certain <strong>permissions</strong> with the access token. Let&#39;s try it out.</p><p>In the Auth0 dashboard, find the API we&#39;ve been using and click on <code>Permissions</code>. Create a new scope that will grant permission to create a new author (e.g. <code>create<span>:</span>authors</code>). Then add a short description of what that scope does and click <strong>&#34;Add&#34;</strong>.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7yeWKDcTLtCcV2rpYYRWyI/745bae041ddbc250a3cea836df12278f/14_rest.png" alt="Adding Permissions"/></p><p>Now our API expects that when an application makes a request to create a new author, it must also send an access token that includes the <code>create<span>:</span>authors</code> scope. To check for this, we need to update our middleware so that it checks the scope in the access token. Open up <code>Auth0Middleware<span>.</span>php</code> and replace it with:</p><pre><code><span><span>&lt;?php</span>
+
+<span>namespace</span> <span>App<span>\</span>Http<span>\</span>Middleware</span><span>;</span>
+
+<span>use</span> <span>App<span>\</span>Exceptions<span>\</span>InsufficientScopeException</span><span>;</span>
+<span>use</span> <span>Auth0<span>\</span>SDK<span>\</span>Auth0</span><span>;</span>
+<span>use</span> <span>Auth0<span>\</span>SDK<span>\</span>Exception<span>\</span>InvalidTokenException</span><span>;</span>
+<span>use</span> <span>Closure</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>Request</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>Response</span><span>;</span>
+
+<span>class</span> <span>Auth0Middleware</span> <span>{</span>
+
+    <span>public</span> <span>function</span> <span>handle</span><span>(</span>
+        <span>Request</span> <span>$request</span><span>,</span>
+        <span>Closure</span> <span>$next</span><span>,</span>
+        <span>?</span><span>string</span> <span>$requiredScope</span> <span>=</span> <span>null</span>
+    <span>)</span> <span>{</span>
+
+        <span>$token</span> <span>=</span> <span>$request</span><span>-&gt;</span><span>bearerToken</span><span>(</span><span>)</span><span>;</span>
+        <span>if</span> <span>(</span><span>!</span><span>$token</span><span>)</span> <span>{</span>
+            <span>return</span> <span>response</span><span>(</span><span>)</span>
+                <span>-&gt;</span><span>json</span><span>(</span><span>&#39;No token provided&#39;</span><span>,</span> <span>Response</span><span>::</span><span>HTTP_UNAUTHORIZED</span><span>)</span><span>;</span>
+        <span>}</span>
+
+        <span>try</span> <span>{</span>
+            <span>$this</span><span>-&gt;</span><span>validateToken</span><span>(</span><span>$token</span><span>,</span> <span>$requiredScope</span><span>)</span><span>;</span>
+        <span>}</span> <span>catch</span> <span>(</span><span>InsufficientScopeException</span> <span>|</span> <span>InvalidTokenException</span> <span>$exception</span><span>)</span> <span>{</span>
+            <span>return</span> <span>response</span><span>(</span><span>)</span>
+                <span>-&gt;</span><span>json</span><span>(</span><span>$exception</span><span>-&gt;</span><span>getMessage</span><span>(</span><span>)</span><span>,</span> <span>$exception</span><span>-&gt;</span><span>getCode</span><span>(</span><span>)</span><span>)</span><span>;</span>
+        <span>}</span>
+
+        <span>return</span> <span>$next</span><span>(</span><span>$request</span><span>)</span><span>;</span>
+    <span>}</span>
+
+    <span>public</span> <span>function</span> <span>validateToken</span><span>(</span><span>$token</span><span>,</span> <span>?</span><span>string</span> <span>$requiredScope</span><span>)</span> <span>{</span>
+
+        <span>$auth0</span> <span>=</span> <span>new</span> <span>Auth0</span><span>(</span>
+            <span>[</span>
+                <span>&#39;domain&#39;</span> <span>=&gt;</span> <span>env</span><span>(</span><span>&#39;AUTH0_DOMAIN&#39;</span><span>)</span><span>,</span>
+                <span>&#39;strategy&#39;</span> <span>=&gt;</span> <span>&#39;api&#39;</span><span>,</span>
+                <span>&#39;audience&#39;</span> <span>=&gt;</span> <span>[</span>
+                    <span>env</span><span>(</span><span>&#39;AUTH0_AUD&#39;</span><span>)</span><span>,</span>
+                <span>]</span><span>,</span>
+            <span>]</span>
+        <span>)</span><span>;</span>
+        <span>$decodedToken</span> <span>=</span> <span>$auth0</span><span>-&gt;</span><span>decode</span><span>(</span><span>$token</span><span>)</span><span>;</span>
+        <span>if</span> <span>(</span><span>!</span><span>empty</span><span>(</span><span>$requiredScope</span><span>)</span><span>)</span> <span>{</span>
+            <span>$this</span><span>-&gt;</span><span>ensureTokenHasScope</span><span>(</span><span>$decodedToken</span><span>-&gt;</span><span>toArray</span><span>(</span><span>)</span><span>,</span> <span>$requiredScope</span><span>)</span><span>;</span>
+        <span>}</span>
+    <span>}</span>
+
+    <span>private</span> <span>function</span> <span>ensureTokenHasScope</span><span>(</span><span>array</span> <span>$decodedToken</span><span>,</span> <span>string</span> <span>$requiredScope</span><span>)</span> <span>{</span>
+
+        <span>$tokenScope</span> <span>=</span> <span>$decodedToken</span><span>[</span><span>&#39;scope&#39;</span><span>]</span> <span>??</span> <span>&#39;&#39;</span><span>;</span>
+        <span>if</span> <span>(</span><span>empty</span><span>(</span><span>$tokenScope</span><span>)</span> <span>||</span> <span>!</span><span>$this</span><span>-&gt;</span><span>tokenHasScope</span><span>(</span><span>$tokenScope</span><span>,</span> <span>$requiredScope</span><span>)</span><span>)</span> <span>{</span>
+
+            <span>throw</span> <span>new</span> <span>InsufficientScopeException</span><span>;</span>
+        <span>}</span>
+
+    <span>}</span>
+
+    <span>private</span> <span>function</span> <span>tokenHasScope</span><span>(</span><span>string</span> <span>$scopeString</span><span>,</span> <span>string</span> <span>$requiredScope</span><span>)</span>
+    <span>:</span> <span>bool</span> <span>{</span>
+
+        <span>$tokenScopes</span> <span>=</span> <span>explode</span><span>(</span><span>&#39; &#39;</span><span>,</span> <span>$scopeString</span><span>)</span><span>;</span>
+
+        <span>return</span> <span>in_array</span><span>(</span><span>$requiredScope</span><span>,</span> <span>$tokenScopes</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></span></code></pre><p>We&#39;ve made a few changes to the middleware. First, we added a third parameter named <code>requiredScope</code> to the <code>handle</code> function. When this value is not null, our middleware should check and ensure that the provided token has that scope.</p><p>We also modified the <code>validateToken</code> function. Using the decoded token returned by the <code>decode</code> function, we check for the scopes in the token. To do this, we split the string value for <code>scope</code> in the decoded token and check if <code>requiredScope</code> is present in the array of split values. If not, we throw an <code>InsufficientScopeException</code> which is caught by the <code>handle</code> function and handled accordingly.</p><p>Next, we need to declare the <code>InsufficientScopeException</code> class. Create a new file in the <code>app<span>/</span>Exceptions</code> folder named <code>InsufficientScopeException<span>.</span>php</code>. Add the following to the newly created file.</p><pre><code><span><span>&lt;?php</span>
+
+<span>namespace</span> <span>App<span>\</span>Exceptions</span><span>;</span>
+
+<span>use</span> <span>Exception</span><span>;</span>
+<span>use</span> <span>Illuminate<span>\</span>Http<span>\</span>Response</span><span>;</span>
+
+<span>class</span> <span>InsufficientScopeException</span> <span>extends</span> <span>Exception</span> <span>{</span>
+
+    <span>public</span> <span>function</span> <span>__construct</span><span>(</span><span>)</span> <span>{</span>
+
+        <span>parent</span><span>::</span><span>__construct</span><span>(</span><span>&#39;Insufficient scope&#39;</span><span>,</span> <span>Response</span><span>::</span><span>HTTP_FORBIDDEN</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></span></code></pre><p>Next, we need to update our router and specify the required scope for the route to create authors. To do this, we append the scope to the middleware name (separated by a <code><span>:</span></code>). Modify <code>routes<span>/</span>web<span>.</span>php</code> to match the following.</p><pre><code><span><span>&lt;?php</span>
+
+<span>/** @var Router $router */</span>
+
+<span>/*
+|--------------------------------------------------------------------------
+| Application Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register all of the routes for an application.
+| It is a breeze. Simply tell Lumen the URIs it should respond to
+| and give it the Closure to call when that URI is requested.
+|
+*/</span>
+
+<span>use</span> <span>Laravel<span>\</span>Lumen<span>\</span>Routing<span>\</span>Router</span><span>;</span>
+
+<span>$router</span><span>-&gt;</span><span>get</span><span>(</span><span>&#39;/&#39;</span><span>,</span> <span>function</span> <span>(</span><span>)</span> <span>use</span> <span>(</span><span>$router</span><span>)</span> <span>{</span>
+
+    <span>return</span> <span>$router</span><span>-&gt;</span><span>app</span><span>-&gt;</span><span>version</span><span>(</span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>;</span>
+
+<span>$router</span><span>-&gt;</span><span>group</span><span>(</span>
+    <span>[</span><span>&#39;prefix&#39;</span> <span>=&gt;</span> <span>&#39;api&#39;</span><span>,</span> <span>&#39;middleware&#39;</span> <span>=&gt;</span> <span>&#39;auth&#39;</span><span>]</span><span>,</span>
+
+    <span>function</span> <span>(</span><span>)</span> <span>use</span> <span>(</span><span>$router</span><span>)</span> <span>{</span>
+
+        <span>$router</span><span>-&gt;</span><span>get</span><span>(</span>
+            <span>&#39;authors&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@showAllAuthors&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+
+        <span>$router</span><span>-&gt;</span><span>get</span><span>(</span>
+            <span>&#39;authors/{id}&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@showOneAuthor&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+
+        <span>$router</span><span>-&gt;</span><span>delete</span><span>(</span>
+            <span>&#39;authors/{id}&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@delete&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+
+        <span>$router</span><span>-&gt;</span><span>put</span><span>(</span>
+            <span>&#39;authors/{id}&#39;</span><span>,</span>
+            <span>[</span><span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@update&#39;</span><span>]</span>
+        <span>)</span><span>;</span>
+    <span>}</span>
+<span>)</span><span>;</span>
+
+<span>$router</span><span>-&gt;</span><span>post</span><span>(</span>
+    <span>&#39;api/authors&#39;</span><span>,</span>
+    <span>[</span>
+        <span>&#39;middleware&#39;</span> <span>=&gt;</span> <span>&#39;auth:create:authors&#39;</span><span>,</span>
+        <span>&#39;uses&#39;</span> <span>=&gt;</span> <span>&#39;AuthorController@create&#39;</span><span>,</span>
+    <span>]</span>
+<span>)</span><span>;</span></span></code></pre><blockquote><p>Notice we removed the <code>post</code> route from the group. We did this to allow us to pass the custom scope to the middleware.</p></blockquote><p>Now, if you try to create a new author in Postman using that same token as before, you&#39;ll receive the &#34;Insufficient scope&#34; message.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4vFkd5neC6l8BEWWlFuGIH/68396ca33a44ae36b74478418b8fc73f/15_rest.png" alt="Insufficient scope"/></p><p>To test that it works, make sure you&#39;re on the page with your API in the <a href="https://manage.auth0.com/dashboard/" target="_blank" rel="noreferrer noopener">Auth0 dashboard</a> and then go to the <code>Permissions</code> tab. Click on <code>Machine to Machine Applications</code> and find the API Application you&#39;ve been using. Make sure the <code>Authorized</code> toggle is on, and then click on the arrow. Now select the <code>create<span>:</span>authors</code> scope and press &#34;Update&#34;.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2JvC7MwAf7K6kbf2iAno98/9cfa531e144d179b96a1231fd058c569/16_rest.png" alt="Create Author Scope"/></p><p>The permission for <code>create<span>:</span>authors</code> has been added to our test token. Head back to the &#34;Test&#34; tab and press &#34;Copy token&#34; to get the updated one.</p><p>Paste that token into the Authorization header as you did before (make sure you have <code>Bearer</code> before it), try the <code><span>POST</span></code> request again, and now it should have worked!</p><h3 id="Adding-a-front-end">Adding a front-end</h3><p>This is just an example of how to create API access tokens. Once you&#39;re ready to actually <strong>issue and use them</strong>, you need to create a front-end. Here are some amazing <a href="https://auth0.com/blog/reactjs-authentication-tutorial/" target="_blank" rel="noreferrer noopener">React</a> and <a href="https://auth0.com/blog/beginner-vuejs-tutorial-with-user-login/" target="_blank" rel="noreferrer noopener">Vue.js authentication tutorials</a> that cover how you can accomplish that.</p><h2 id="Conclusion">Conclusion</h2><p>Well done! You have learned how to build a rest API with the powerful PHP micro-framework Lumen and secure it using JWTs. Need to use PHP to build your API or micro-service? I&#39;d bet on Lumen as the tool of choice for speed and ease of use.</p><p>As you&#39;ve seen, Auth0 can help secure your <strong>API</strong> with ease. Auth0 provides more than just username-password authentication. It provides features like <a href="https://auth0.com/multifactor-authentication" target="_blank" rel="noreferrer noopener">multifactor auth</a>, <a href="https://auth0.com/breached-passwords" target="_blank" rel="noreferrer noopener">breached password detection</a>, <a href="https://auth0.com/docs/anomaly-detection" target="_blank" rel="noreferrer noopener">anomaly detection</a>, <a href="https://auth0.com/docs/identityproviders" target="_blank" rel="noreferrer noopener">enterprise federation</a>, <a href="https://auth0.com/docs/sso" target="_blank" rel="noreferrer noopener">single sign-on (SSO)</a>, and more.</p><p><a href="https://auth0.com/signup" target="_blank" rel="noreferrer noopener">Sign up</a> today so you can take the stress out of authentication and instead focus on building unique features for your app.</p><p>The code for this article is available on <a href="https://github.com/yemiwebby/lumen-api-auth0" target="_blank" rel="noreferrer noopener">GitHub</a>. Happy coding!</p></div></div>]]></content:encoded>
+      <author>Building a Fast Authors API Rapidly With Lumen</author>
+      <pubDate>Fri, 04 Feb 2022 15:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Use Auth0 Actions to Send User Info to Apache Kafka When They Register</title>
       <link>https://auth0.com/blog/send-auth0-events-to-kafka-for-realtime-processing/</link>
       <description>Use Auth0 Actions to send authentication events to Apache Kafka.</description>
@@ -3525,501 +3929,6 @@ Go to the TODO API definition in the <a href="https://manage.auth0.com/#/apis" t
       <pubDate>Wed, 24 Nov 2021 15:24:00 +0000</pubDate>
     </item>
     <item>
-      <title>State Management in Angular Using NgRx: Pt. 2</title>
-      <link>https://auth0.com/blog/state-management-in-angular-with-ngrx-2/</link>
-      <description>See how it&#39;s easy to manage your Angular application&#39;s state using NgRx and learn how you can use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><h2 id="User-State-Management">User State Management</h2><p>The user store will work similarly to how the menus state management works. I won&#39;t detail how each part of the state works and focus more on the Auth0 and NgRx integration.</p><p>The starter app is using the Auth0 SDK directly and managing the roles through the <code>RolesService</code>, this section of the tutorial will walk you through migrating to using Auth0&#39;s SDK through NgRx and managing the roles by using selectors.</p><h3 id="Create-User-State">Create User State</h3><p>Let&#39;s start with defining the interface for the user state object and its initial state. Open <code>user<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.state.ts</span>
-
-<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>UserState</span> <span>{</span>
-  userDetails<span>:</span> Auth0User<span>;</span>
-<span>}</span>
-
-<span>export</span> <span>const</span> initialState<span>:</span> UserState <span>=</span> <span>{</span>
-  userDetails<span>:</span> <span>undefined</span><span>,</span>
-<span>}</span><span>;</span></code></pre><p>Create a barrel export for the <code>user</code> directory with the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span></code></pre><h4 id="Update-Core-State">Update Core State</h4><p>To access <code>UserState</code> from your Store, you will need to add it to your <code>CoreState</code>&#39;s state object. Open <code>core<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.state.ts</span>
-
-<span>import</span> <span>{</span> MenusState <span>}</span> <span>from</span> <span>&#34;./menus&#34;</span><span>;</span>
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>State</span> <span>{</span>
-  menus<span>:</span> MenusState<span>;</span>
-  <span>// ✨ New 👇</span>
-  user<span>:</span> UserState<span>;</span>
-<span>}</span></code></pre><h3 id="Create-User-Actions">Create User Actions</h3><p>We have three user-related Actions that we need for our user Store. Login, logout, and user changed Action to keep the user details in our Store in sync with Auth0&#39;s SDK.</p><p>Since we have several user Actions that will originate from the Navbar component, you can group them under <code>allNavbarAction</code> to ensure you aren&#39;t reusing these Actions in a different part of the application (following the Good Action Hygiene pattern).</p><p>Because the <code>userChangedFromAuth0SDK</code> Action originates from Auth0&#39;s SDK, let&#39;s name the source part of the Action type as <code>Auth0 <span>SDK</span></code>.</p><p>Open <code>user<span>.</span>actions<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.actions.ts</span>
-
-<span>import</span> <span>{</span> createAction<span>,</span> props <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
-
-<span>export</span> <span>const</span> allNavbarActions <span>=</span> <span>{</span>
-  loginFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Login Flow Initiated&#34;</span><span>)</span><span>,</span>
-  logoutFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Logout Flow Initiated&#34;</span><span>)</span><span>,</span>
-<span>}</span><span>;</span>
-
-<span>export</span> <span>const</span> userChangedFromAuth0SDK <span>=</span> <span>createAction</span><span>(</span>
-  <span>&#34;[Auth0 SDK] User Changed&#34;</span><span>,</span>
-  <span><span>props</span><span><span>&lt;</span><span>{</span> userDetails<span>:</span> Auth0User <span>}</span><span>&gt;</span></span></span><span>(</span><span>)</span>
-<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>actions</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Actions">Update Application to Use User Actions</h4><p>Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> allNavbarActions <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
-  to<span>:</span> <span>string</span><span>;</span>
-  icon<span>:</span> IconDefinition<span>;</span>
-  label<span>:</span> <span>string</span><span>;</span>
-<span>}</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
-  faUser <span>=</span> faUser<span>;</span>
-  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>isAuthenticated$<span>;</span>
-  user$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>user$<span>;</span>
-
-  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
-    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
-    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
-  <span>]</span><span>;</span>
-
-  <span>constructor</span><span>(</span>
-    <span>private</span> authService<span>:</span> AuthService<span>,</span>
-    <span>// ✨ New 👇</span>
-    <span>private</span> store<span>:</span> Store
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>// ✨ New 👇</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>// ✨ New 👇</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><h3 id="Create-User-Selectors">Create User Selectors</h3><p>Create two selectors, a feature selector and a selector that returns the <code>userDetails</code>. Open <code>user<span>.</span>selector<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
-
-<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
-  selectUser<span>,</span>
-  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
-<span>)</span><span>;</span></code></pre><p>Let&#39;s also add some utility Selectors for <code>isLoggedIn</code>, <code>userRoles</code>, and <code>isAdmin</code> to easily let your components access these properties. Open <code>user<span>.</span>selector<span>.</span>ts</code> and update it with the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
-
-<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
-<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> <span>USER_ROLES</span> <span>=</span> <span>{</span>
-  <span>MENU_ADMIN</span><span>:</span> <span>&#34;menu-admin&#34;</span><span>,</span>
-<span>}</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
-  selectUser<span>,</span>
-  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
-<span>)</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> selectIsLoggedIn <span>=</span> <span>createSelector</span><span>(</span>
-  selectUserDetails<span>,</span>
-  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> <span>!</span><span>!</span>userDetails
-<span>)</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> selectUserRoles <span>=</span> <span>createSelector</span><span>(</span>
-  selectUserDetails<span>,</span>
-  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> userDetails<span>[</span><span><span>`</span><span><span>${</span>environment<span>.</span>auth<span>.</span>audience<span>}</span></span><span>/roles</span><span>`</span></span><span>]</span>
-<span>)</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> selectIsAdmin <span>=</span> <span>createSelector</span><span>(</span>selectUserRoles<span>,</span> <span>(</span>userRoles<span>)</span> <span>=&gt;</span>
-  userRoles<span>?.</span><span>includes</span><span>(</span><span>USER_ROLES</span><span>.</span><span>MENU_ADMIN</span><span>)</span>
-<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>selector</code> to the list of exports in <code>index<span>.</span>ts</code> 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Selectors">Update Application to Use User Selectors</h4><p>The user role route guard was previously using the value of the roles from <code>RolesService</code>. Since you now have a user roles Selector, you can replace the current implementation with an NgRx Selector. Open <code>user<span>-</span>role<span>.</span>guard<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/guards/user-role.guard.ts</span>
-
-<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span>
-  CanActivate<span>,</span>
-  Router<span>,</span>
-  ActivatedRouteSnapshot<span>,</span>
-  RouterStateSnapshot<span>,</span>
-<span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-
-<span>import</span> <span>{</span> Observable<span>,</span> <span>of</span> <span>}</span> <span>from</span> <span>&#34;rxjs&#34;</span><span>;</span>
-<span>import</span> <span>{</span> catchError<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectUserRoles <span>}</span> <span>from</span> <span>&#34;../state/user&#34;</span><span>;</span>
-
-@<span>Injectable</span><span>(</span><span>{</span> providedIn<span>:</span> <span>&#34;root&#34;</span> <span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>UserRoleGuard</span> <span>implements</span> <span>CanActivate</span> <span>{</span>
-  <span>constructor</span><span>(</span>
-    <span>// ✨ New 👇</span>
-    <span>private</span> store<span>:</span> Store<span>,</span>
-    <span>private</span> router<span>:</span> Router
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>canActivate</span><span>(</span>
-    route<span>:</span> ActivatedRouteSnapshot<span>,</span>
-    state<span>:</span> RouterStateSnapshot
-  <span>)</span><span>:</span> Observable<span>&lt;</span><span>boolean</span><span>&gt;</span> <span>{</span>
-    <span>// ✨ New 👇</span>
-    <span>return</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserRoles<span>)</span><span>.</span><span>pipe</span><span>(</span>
-      <span>map</span><span>(</span><span>(</span>roles<span>)</span> <span>=&gt;</span> <span>{</span>
-        <span>if</span> <span>(</span>roles <span>&amp;&amp;</span> roles<span>.</span><span>includes</span><span>(</span>route<span>?.</span>data<span>?.</span>role<span>)</span><span>)</span> <span>{</span>
-          <span>return</span> <span>true</span><span>;</span>
-        <span>}</span>
-
-        <span>// redirect the user to home</span>
-        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
-        <span>return</span> <span>false</span><span>;</span>
-      <span>}</span><span>)</span><span>,</span>
-      <span>catchError</span><span>(</span><span>(</span>err<span>)</span> <span>=&gt;</span> <span>{</span>
-        <span>// redirect the user to home</span>
-        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
-        <span>return</span> <span>of</span><span>(</span><span>false</span><span>)</span><span>;</span>
-      <span>}</span><span>)</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>Another place we use user-related information is the Navbar. We display user information and conditionally display the login and logout button depending on the user&#39;s <code>isAuthenticated</code> state. Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span>
-  allNavbarActions<span>,</span>
-  selectIsLoggedIn<span>,</span>
-  selectUserDetails<span>,</span>
-<span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
-  to<span>:</span> <span>string</span><span>;</span>
-  icon<span>:</span> IconDefinition<span>;</span>
-  label<span>:</span> <span>string</span><span>;</span>
-<span>}</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
-  faUser <span>=</span> faUser<span>;</span>
-
-  <span>// ✨ New 👇</span>
-  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsLoggedIn<span>)</span><span>;</span>
-  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
-
-  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
-    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
-    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
-  <span>]</span><span>;</span>
-
-  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
-
-  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>The profile page displays some information about the user, such as name and photo. Since this is stored as part of the user Store, let&#39;s also update this to use the <code>selectUserDetails</code> Selector. Open <code>profile<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/profile/profile.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectUserDetails <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-profile&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./profile.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./profile.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>ProfileComponent</span> <span>{</span>
-  <span>// ✨ New 👇</span>
-  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
-
-  <span>// ✨ New 👇</span>
-  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
-<span>}</span></code></pre><p>We display an <code>Add</code> button when the logged-in user is an admin user on the Menu Items page. You can read more about setting up admin users on Auth0 in this <a href="https://auth0.com/blog/developing-a-secure-api-with-nestjs-adding-role-based-access-control/#Get-User-Roles" target="_blank" rel="noreferrer noopener">blog post</a>. Open <code>menu<span>-</span>items<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-items/menu-items.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectMenuItems <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-menu-items&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./menu-items.component.html&#34;</span><span>,</span>
-  styles<span>:</span> <span>[</span>
-    <span><span>`</span><span>
-      :host {
-        width: 100%;
-        height: 100%;
-      }
-    </span><span>`</span></span><span>,</span>
-  <span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>MenuItemsComponent</span> <span>{</span>
-  menuItems$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectMenuItems<span>)</span><span>;</span>
-  <span>// ✨ New 👇</span>
-  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
-
-  <span>constructor</span><span>(</span>
-    <span>private</span> router<span>:</span> Router<span>,</span>
-    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
-    <span>private</span> store<span>:</span> Store
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>addMenuItem</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;add&#34;</span><span>]</span><span>,</span> <span>{</span> relativeTo<span>:</span> <span>this</span><span>.</span>activatedRoute <span>}</span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>Lastly, we display a <code>Edit</code> and <code>Delete</code> buttons when the logged-in user is an admin user on the Menu Item page. Open <code>menu<span>-</span>item<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-item/menu-item.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Location <span>}</span> <span>from</span> <span>&#34;@angular/common&#34;</span><span>;</span>
-<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
-<span>import</span> <span>{</span> map<span>,</span> switchMap <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectMenuItem <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-menu-item&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./menu-item.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./menu-item.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>MenuItemComponent</span> <span>{</span>
-  menuItemId$ <span>=</span> <span>this</span><span>.</span>activatedRoute<span>.</span>params<span>.</span><span>pipe</span><span>(</span><span>map</span><span>(</span><span>(</span>params<span>)</span> <span>=&gt;</span> params<span>.</span>id<span>)</span><span>)</span><span>;</span>
-  menuItem$ <span>=</span> <span>this</span><span>.</span>menuItemId$<span>.</span><span>pipe</span><span>(</span>
-    <span>switchMap</span><span>(</span><span>(</span>id<span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span><span>selectMenuItem</span><span>(</span><span>{</span> id<span>:</span> id <span>}</span><span>)</span><span>)</span><span>)</span>
-  <span>)</span><span>;</span>
-
-  <span>// ✨ New 👇</span>
-  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
-
-  <span>constructor</span><span>(</span>
-    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
-    <span>private</span> router<span>:</span> Router<span>,</span>
-    <span>private</span> location<span>:</span> Location<span>,</span>
-    <span>private</span> store<span>:</span> Store
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>back</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>location<span>.</span><span>back</span><span>(</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>navigateTo</span><span>(</span>url<span>:</span> <span>string</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>router<span>.</span><span>navigateByUrl</span><span>(</span><span><span>`</span><span><span>${</span><span>this</span><span>.</span>router<span>.</span>url<span>}</span></span><span>/</span><span><span>${</span>url<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><h3 id="Create-User-Reducer">Create User Reducer</h3><p>The <code>userDetails</code> in the user Store will only be modified based on the <code>userChanged</code> event from Auth0&#39;s SDK to always keep them in sync. Open <code>user<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.reducer.ts</span>
-
-<span>import</span> <span>{</span> Action<span>,</span> createReducer<span>,</span> on <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-<span>import</span> <span>{</span> initialState<span>,</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>const</span> userReducer <span>=</span> <span>createReducer</span><span>(</span>
-  initialState<span>,</span>
-  <span>on</span><span>(</span>UserActions<span>.</span>userChangedFromAuth0SDK<span>,</span> <span>(</span>state<span>,</span> <span>{</span> userDetails <span>}</span><span>)</span> <span>=&gt;</span> <span>(</span><span>{</span>
-    <span>...</span>state<span>,</span>
-    userDetails<span>:</span> userDetails<span>,</span>
-  <span>}</span><span>)</span><span>)</span>
-<span>)</span><span>;</span>
-
-<span>export</span> <span>function</span> <span>reducer</span><span>(</span>state<span>:</span> UserState <span>|</span> <span>undefined</span><span>,</span> action<span>:</span> Action<span>)</span> <span>{</span>
-  <span>return</span> <span>userReducer</span><span>(</span>state<span>,</span> action<span>)</span><span>;</span>
-<span>}</span></code></pre><h4 id="Update-Core-Reducer">Update Core Reducer</h4><p>Similar to what you did for the menus Reducer, you will need to add the reducer to the <code>ActionReducerMap</code> to use the user reducer. Open <code>core<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.reducers.ts</span>
-
-<span>import</span> <span>{</span> ActionReducerMap<span>,</span> MetaReducer <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> State <span>}</span> <span>from</span> <span>&#34;./core.state&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> MenusReducer <span>from</span> <span>&#34;./menus/menus.reducer&#34;</span><span>;</span>
-<span>// ✨ New 👇</span>
-<span>import</span> <span>*</span> <span>as</span> UserReducer <span>from</span> <span>&#34;./user/user.reducer&#34;</span><span>;</span>
-
-<span>export</span> <span>const</span> reducers<span>:</span> ActionReducerMap<span>&lt;</span>State<span>&gt;</span> <span>=</span> <span>{</span>
-  menus<span>:</span> MenusReducer<span>.</span>reducer<span>,</span>
-  <span>// ✨ New 👇</span>
-  user<span>:</span> UserReducer<span>.</span>reducer<span>,</span>
-<span>}</span><span>;</span>
-
-<span>export</span> <span>const</span> metaReducers<span>:</span> MetaReducer<span>&lt;</span>State<span>&gt;</span><span>[</span><span>]</span> <span>=</span> <span>[</span><span>]</span><span>;</span></code></pre><h3 id="Create-User-Effects">Create User Effects</h3><p>You will be interacting with Auth0&#39;s SDK through the user Effects, to log in and log out the user and listen to changes in the user&#39;s state. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
-
-<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
-<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-
-@<span>Injectable</span><span>(</span><span>)</span>
-<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
-  <span>constructor</span><span>(</span>
-    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
-    <span>private</span> authService<span>:</span> AuthService
-  <span>)</span> <span>{</span><span>}</span>
-
-  login$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-
-  logout$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-<span>}</span></code></pre><p>To keep the user observable from the Auth0&#39;s SDK and our user Store in sync, you can use an actionless effect that listens to an external observable (in our case <code>authService<span>.</span>user$</code>) and dispatches another action whenever that observable emits a new value. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
-
-<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
-<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-
-@<span>Injectable</span><span>(</span><span>)</span>
-<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
-  <span>constructor</span><span>(</span>
-    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
-    <span>private</span> authService<span>:</span> AuthService
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>// ✨ New 👇</span>
-  userChanged$ <span>=</span> <span>createEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span>
-    <span>this</span><span>.</span>authService<span>.</span>user$<span>.</span><span>pipe</span><span>(</span>
-      <span>map</span><span>(</span><span>(</span>userDetails<span>)</span> <span>=&gt;</span>
-        UserActions<span>.</span><span>userChangedFromAuth0SDK</span><span>(</span><span>{</span> userDetails<span>:</span> userDetails <span>}</span><span>)</span>
-      <span>)</span>
-    <span>)</span>
-  <span>)</span><span>;</span>
-
-  login$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-
-  logout$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-<span>}</span></code></pre><p>Add <code>user<span>.</span>effects</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.effects&#34;</span><span>;</span></code></pre><h4 id="Update-Effects-Module">Update Effects Module</h4><p>You will then need to add <code>UserEffects</code> to the <code>EffectsModule</code> initialization. Open <code>app<span>.</span>module<span>.</span>ts</code> and add the following code</p><pre><code><span>// src/app/app.module.ts</span>
-
-<span>import</span> <span>{</span> BrowserModule <span>}</span> <span>from</span> <span>&#34;@angular/platform-browser&#34;</span><span>;</span>
-<span>import</span> <span>{</span> NgModule <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> HttpClientModule<span>,</span> <span>HTTP_INTERCEPTORS</span> <span>}</span> <span>from</span> <span>&#34;@angular/common/http&#34;</span><span>;</span>
-<span>import</span> <span>{</span> StoreModule <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> EffectsModule <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthHttpInterceptor<span>,</span> AuthModule <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-
-<span>import</span> <span>{</span> AppRoutingModule <span>}</span> <span>from</span> <span>&#34;./app-routing.module&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AppComponent <span>}</span> <span>from</span> <span>&#34;./app.component&#34;</span><span>;</span>
-<span>import</span> <span>{</span> NavBarModule <span>}</span> <span>from</span> <span>&#34;./shared&#34;</span><span>;</span>
-<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
-<span>import</span> <span>{</span> reducers<span>,</span> metaReducers <span>}</span> <span>from</span> <span>&#34;./core/state&#34;</span><span>;</span>
-<span>import</span> <span>{</span> MenusEffects <span>}</span> <span>from</span> <span>&#34;./core/state/menus&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> UserEffects <span>}</span> <span>from</span> <span>&#34;./core/state/user&#34;</span><span>;</span>
-
-@<span>NgModule</span><span>(</span><span>{</span>
-  imports<span>:</span> <span>[</span>
-    BrowserModule<span>,</span>
-    HttpClientModule<span>,</span>
-    AuthModule<span>.</span><span>forRoot</span><span>(</span><span>{</span>
-      <span>...</span>environment<span>.</span>auth<span>,</span>
-      httpInterceptor<span>:</span> <span>{</span>
-        allowedList<span>:</span> <span>[</span>
-          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items</span><span>`</span></span><span>,</span>
-          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items/*</span><span>`</span></span><span>,</span>
-        <span>]</span><span>,</span>
-      <span>}</span><span>,</span>
-    <span>}</span><span>)</span><span>,</span>
-    AppRoutingModule<span>,</span>
-    NavBarModule<span>,</span>
-
-    <span>// NgRx</span>
-    StoreModule<span>.</span><span>forRoot</span><span>(</span>reducers<span>,</span> <span>{</span>
-      metaReducers<span>,</span>
-    <span>}</span><span>)</span><span>,</span>
-
-    <span>// ✨ New 👇</span>
-    EffectsModule<span>.</span><span>forRoot</span><span>(</span><span>[</span>MenusEffects<span>,</span> UserEffects<span>]</span><span>)</span><span>,</span>
-  <span>]</span><span>,</span>
-  declarations<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
-  bootstrap<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
-  providers<span>:</span> <span>[</span>
-    <span>{</span>
-      provide<span>:</span> <span>HTTP_INTERCEPTORS</span><span>,</span>
-      useClass<span>:</span> AuthHttpInterceptor<span>,</span>
-      multi<span>:</span> <span>true</span><span>,</span>
-    <span>}</span><span>,</span>
-  <span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>AppModule</span> <span>{</span><span>}</span></code></pre><blockquote><p><strong>Checkpoint:</strong> There aren&#39;t any visible functional changes added in this section. The difference between the current state of the app compared to the previous checkpoint is its underlying implementation. The app now uses NgRx versus a <code>BehaviorSubject</code> to manage user-related states. The app should display the login button with an empty dashboard when the user is not authenticated, and display the logout button with the logged-in user&#39;s name along with the menu items on the dashboard when a user is authenticated. Clicking on the &#34;Log in&#34; and &#34;Log out&#34; buttons should trigger their respective flows using Auth0&#39;s SDK and update your application&#39;s state. If you open Redux Devtools in your browser, you should see the user state and actions every time you perform any user-related actions.</p></blockquote><h2 id="Conclusion">Conclusion</h2><p>State management is a key component when building applications. You added two Stores to our demo application to manage two distinct states - menus and user. This is a relatively small demo application with a few Stores, Actions, and Reducers to show how you can use NgRx to manage your Application&#39;s state, and use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</p></div></div>]]></content:encoded>
-      <pubDate>Tue, 23 Nov 2021 19:57:00 +0000</pubDate>
-    </item>
-    <item>
       <title>State Management in Angular Using NgRx: Pt. 1</title>
       <link>https://auth0.com/blog/state-management-in-angular-with-ngrx-1/</link>
       <description>See how it&#39;s easy to manage your Angular application&#39;s state using NgRx and learn how you can use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</description>
@@ -4902,6 +4811,501 @@ This blog post will focus on using NgRx as our state management solution. We wil
   <span>]</span><span>,</span>
 <span>}</span><span>)</span>
 <span>export</span> <span>class</span> <span>AppModule</span> <span>{</span><span>}</span></code></pre><blockquote><p><strong>Checkpoint:</strong> Executing any CRUD operations such as adding a new menu item and editting or deleting an existing menu item should make an API call to update the server&#39;s database and also update the app&#39;s state. Only authenticated users with a <code>menu<span>-</span>admin</code> role can create, update, and delete menu items. The <code>menu<span>-</span>admin</code> role bundles the necessary permissions to execute these write operations. Read more on how to configure role-based access control (RBAC) and how to create an admin user for this application in this <a href="https://auth0.com/blog/node-js-and-typescript-tutorial-secure-an-express-api/#Configure-Role-Based-Access-Control--RBAC-" target="_blank" rel="noreferrer noopener">blogpost</a></p></blockquote></div></div>]]></content:encoded>
+      <pubDate>Tue, 23 Nov 2021 19:57:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>State Management in Angular Using NgRx: Pt. 2</title>
+      <link>https://auth0.com/blog/state-management-in-angular-with-ngrx-2/</link>
+      <description>See how it&#39;s easy to manage your Angular application&#39;s state using NgRx and learn how you can use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><h2 id="User-State-Management">User State Management</h2><p>The user store will work similarly to how the menus state management works. I won&#39;t detail how each part of the state works and focus more on the Auth0 and NgRx integration.</p><p>The starter app is using the Auth0 SDK directly and managing the roles through the <code>RolesService</code>, this section of the tutorial will walk you through migrating to using Auth0&#39;s SDK through NgRx and managing the roles by using selectors.</p><h3 id="Create-User-State">Create User State</h3><p>Let&#39;s start with defining the interface for the user state object and its initial state. Open <code>user<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.state.ts</span>
+
+<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>UserState</span> <span>{</span>
+  userDetails<span>:</span> Auth0User<span>;</span>
+<span>}</span>
+
+<span>export</span> <span>const</span> initialState<span>:</span> UserState <span>=</span> <span>{</span>
+  userDetails<span>:</span> <span>undefined</span><span>,</span>
+<span>}</span><span>;</span></code></pre><p>Create a barrel export for the <code>user</code> directory with the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span></code></pre><h4 id="Update-Core-State">Update Core State</h4><p>To access <code>UserState</code> from your Store, you will need to add it to your <code>CoreState</code>&#39;s state object. Open <code>core<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.state.ts</span>
+
+<span>import</span> <span>{</span> MenusState <span>}</span> <span>from</span> <span>&#34;./menus&#34;</span><span>;</span>
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>State</span> <span>{</span>
+  menus<span>:</span> MenusState<span>;</span>
+  <span>// ✨ New 👇</span>
+  user<span>:</span> UserState<span>;</span>
+<span>}</span></code></pre><h3 id="Create-User-Actions">Create User Actions</h3><p>We have three user-related Actions that we need for our user Store. Login, logout, and user changed Action to keep the user details in our Store in sync with Auth0&#39;s SDK.</p><p>Since we have several user Actions that will originate from the Navbar component, you can group them under <code>allNavbarAction</code> to ensure you aren&#39;t reusing these Actions in a different part of the application (following the Good Action Hygiene pattern).</p><p>Because the <code>userChangedFromAuth0SDK</code> Action originates from Auth0&#39;s SDK, let&#39;s name the source part of the Action type as <code>Auth0 <span>SDK</span></code>.</p><p>Open <code>user<span>.</span>actions<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.actions.ts</span>
+
+<span>import</span> <span>{</span> createAction<span>,</span> props <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
+
+<span>export</span> <span>const</span> allNavbarActions <span>=</span> <span>{</span>
+  loginFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Login Flow Initiated&#34;</span><span>)</span><span>,</span>
+  logoutFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Logout Flow Initiated&#34;</span><span>)</span><span>,</span>
+<span>}</span><span>;</span>
+
+<span>export</span> <span>const</span> userChangedFromAuth0SDK <span>=</span> <span>createAction</span><span>(</span>
+  <span>&#34;[Auth0 SDK] User Changed&#34;</span><span>,</span>
+  <span><span>props</span><span><span>&lt;</span><span>{</span> userDetails<span>:</span> Auth0User <span>}</span><span>&gt;</span></span></span><span>(</span><span>)</span>
+<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>actions</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Actions">Update Application to Use User Actions</h4><p>Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> allNavbarActions <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
+  to<span>:</span> <span>string</span><span>;</span>
+  icon<span>:</span> IconDefinition<span>;</span>
+  label<span>:</span> <span>string</span><span>;</span>
+<span>}</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
+  faUser <span>=</span> faUser<span>;</span>
+  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>isAuthenticated$<span>;</span>
+  user$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>user$<span>;</span>
+
+  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
+    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
+    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
+  <span>]</span><span>;</span>
+
+  <span>constructor</span><span>(</span>
+    <span>private</span> authService<span>:</span> AuthService<span>,</span>
+    <span>// ✨ New 👇</span>
+    <span>private</span> store<span>:</span> Store
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>// ✨ New 👇</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>// ✨ New 👇</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><h3 id="Create-User-Selectors">Create User Selectors</h3><p>Create two selectors, a feature selector and a selector that returns the <code>userDetails</code>. Open <code>user<span>.</span>selector<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
+
+<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
+  selectUser<span>,</span>
+  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
+<span>)</span><span>;</span></code></pre><p>Let&#39;s also add some utility Selectors for <code>isLoggedIn</code>, <code>userRoles</code>, and <code>isAdmin</code> to easily let your components access these properties. Open <code>user<span>.</span>selector<span>.</span>ts</code> and update it with the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
+
+<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
+<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> <span>USER_ROLES</span> <span>=</span> <span>{</span>
+  <span>MENU_ADMIN</span><span>:</span> <span>&#34;menu-admin&#34;</span><span>,</span>
+<span>}</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
+  selectUser<span>,</span>
+  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
+<span>)</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> selectIsLoggedIn <span>=</span> <span>createSelector</span><span>(</span>
+  selectUserDetails<span>,</span>
+  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> <span>!</span><span>!</span>userDetails
+<span>)</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> selectUserRoles <span>=</span> <span>createSelector</span><span>(</span>
+  selectUserDetails<span>,</span>
+  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> userDetails<span>[</span><span><span>`</span><span><span>${</span>environment<span>.</span>auth<span>.</span>audience<span>}</span></span><span>/roles</span><span>`</span></span><span>]</span>
+<span>)</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> selectIsAdmin <span>=</span> <span>createSelector</span><span>(</span>selectUserRoles<span>,</span> <span>(</span>userRoles<span>)</span> <span>=&gt;</span>
+  userRoles<span>?.</span><span>includes</span><span>(</span><span>USER_ROLES</span><span>.</span><span>MENU_ADMIN</span><span>)</span>
+<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>selector</code> to the list of exports in <code>index<span>.</span>ts</code> 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Selectors">Update Application to Use User Selectors</h4><p>The user role route guard was previously using the value of the roles from <code>RolesService</code>. Since you now have a user roles Selector, you can replace the current implementation with an NgRx Selector. Open <code>user<span>-</span>role<span>.</span>guard<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/guards/user-role.guard.ts</span>
+
+<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span>
+  CanActivate<span>,</span>
+  Router<span>,</span>
+  ActivatedRouteSnapshot<span>,</span>
+  RouterStateSnapshot<span>,</span>
+<span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+
+<span>import</span> <span>{</span> Observable<span>,</span> <span>of</span> <span>}</span> <span>from</span> <span>&#34;rxjs&#34;</span><span>;</span>
+<span>import</span> <span>{</span> catchError<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectUserRoles <span>}</span> <span>from</span> <span>&#34;../state/user&#34;</span><span>;</span>
+
+@<span>Injectable</span><span>(</span><span>{</span> providedIn<span>:</span> <span>&#34;root&#34;</span> <span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>UserRoleGuard</span> <span>implements</span> <span>CanActivate</span> <span>{</span>
+  <span>constructor</span><span>(</span>
+    <span>// ✨ New 👇</span>
+    <span>private</span> store<span>:</span> Store<span>,</span>
+    <span>private</span> router<span>:</span> Router
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>canActivate</span><span>(</span>
+    route<span>:</span> ActivatedRouteSnapshot<span>,</span>
+    state<span>:</span> RouterStateSnapshot
+  <span>)</span><span>:</span> Observable<span>&lt;</span><span>boolean</span><span>&gt;</span> <span>{</span>
+    <span>// ✨ New 👇</span>
+    <span>return</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserRoles<span>)</span><span>.</span><span>pipe</span><span>(</span>
+      <span>map</span><span>(</span><span>(</span>roles<span>)</span> <span>=&gt;</span> <span>{</span>
+        <span>if</span> <span>(</span>roles <span>&amp;&amp;</span> roles<span>.</span><span>includes</span><span>(</span>route<span>?.</span>data<span>?.</span>role<span>)</span><span>)</span> <span>{</span>
+          <span>return</span> <span>true</span><span>;</span>
+        <span>}</span>
+
+        <span>// redirect the user to home</span>
+        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
+        <span>return</span> <span>false</span><span>;</span>
+      <span>}</span><span>)</span><span>,</span>
+      <span>catchError</span><span>(</span><span>(</span>err<span>)</span> <span>=&gt;</span> <span>{</span>
+        <span>// redirect the user to home</span>
+        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
+        <span>return</span> <span>of</span><span>(</span><span>false</span><span>)</span><span>;</span>
+      <span>}</span><span>)</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Another place we use user-related information is the Navbar. We display user information and conditionally display the login and logout button depending on the user&#39;s <code>isAuthenticated</code> state. Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span>
+  allNavbarActions<span>,</span>
+  selectIsLoggedIn<span>,</span>
+  selectUserDetails<span>,</span>
+<span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
+  to<span>:</span> <span>string</span><span>;</span>
+  icon<span>:</span> IconDefinition<span>;</span>
+  label<span>:</span> <span>string</span><span>;</span>
+<span>}</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
+  faUser <span>=</span> faUser<span>;</span>
+
+  <span>// ✨ New 👇</span>
+  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsLoggedIn<span>)</span><span>;</span>
+  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
+
+  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
+    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
+    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
+  <span>]</span><span>;</span>
+
+  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
+
+  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>The profile page displays some information about the user, such as name and photo. Since this is stored as part of the user Store, let&#39;s also update this to use the <code>selectUserDetails</code> Selector. Open <code>profile<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/profile/profile.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectUserDetails <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-profile&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./profile.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./profile.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>ProfileComponent</span> <span>{</span>
+  <span>// ✨ New 👇</span>
+  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
+
+  <span>// ✨ New 👇</span>
+  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
+<span>}</span></code></pre><p>We display an <code>Add</code> button when the logged-in user is an admin user on the Menu Items page. You can read more about setting up admin users on Auth0 in this <a href="https://auth0.com/blog/developing-a-secure-api-with-nestjs-adding-role-based-access-control/#Get-User-Roles" target="_blank" rel="noreferrer noopener">blog post</a>. Open <code>menu<span>-</span>items<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-items/menu-items.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectMenuItems <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-menu-items&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./menu-items.component.html&#34;</span><span>,</span>
+  styles<span>:</span> <span>[</span>
+    <span><span>`</span><span>
+      :host {
+        width: 100%;
+        height: 100%;
+      }
+    </span><span>`</span></span><span>,</span>
+  <span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>MenuItemsComponent</span> <span>{</span>
+  menuItems$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectMenuItems<span>)</span><span>;</span>
+  <span>// ✨ New 👇</span>
+  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
+
+  <span>constructor</span><span>(</span>
+    <span>private</span> router<span>:</span> Router<span>,</span>
+    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
+    <span>private</span> store<span>:</span> Store
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>addMenuItem</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;add&#34;</span><span>]</span><span>,</span> <span>{</span> relativeTo<span>:</span> <span>this</span><span>.</span>activatedRoute <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Lastly, we display a <code>Edit</code> and <code>Delete</code> buttons when the logged-in user is an admin user on the Menu Item page. Open <code>menu<span>-</span>item<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-item/menu-item.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Location <span>}</span> <span>from</span> <span>&#34;@angular/common&#34;</span><span>;</span>
+<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
+<span>import</span> <span>{</span> map<span>,</span> switchMap <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectMenuItem <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-menu-item&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./menu-item.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./menu-item.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>MenuItemComponent</span> <span>{</span>
+  menuItemId$ <span>=</span> <span>this</span><span>.</span>activatedRoute<span>.</span>params<span>.</span><span>pipe</span><span>(</span><span>map</span><span>(</span><span>(</span>params<span>)</span> <span>=&gt;</span> params<span>.</span>id<span>)</span><span>)</span><span>;</span>
+  menuItem$ <span>=</span> <span>this</span><span>.</span>menuItemId$<span>.</span><span>pipe</span><span>(</span>
+    <span>switchMap</span><span>(</span><span>(</span>id<span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span><span>selectMenuItem</span><span>(</span><span>{</span> id<span>:</span> id <span>}</span><span>)</span><span>)</span><span>)</span>
+  <span>)</span><span>;</span>
+
+  <span>// ✨ New 👇</span>
+  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
+
+  <span>constructor</span><span>(</span>
+    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
+    <span>private</span> router<span>:</span> Router<span>,</span>
+    <span>private</span> location<span>:</span> Location<span>,</span>
+    <span>private</span> store<span>:</span> Store
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>back</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>location<span>.</span><span>back</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>navigateTo</span><span>(</span>url<span>:</span> <span>string</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>router<span>.</span><span>navigateByUrl</span><span>(</span><span><span>`</span><span><span>${</span><span>this</span><span>.</span>router<span>.</span>url<span>}</span></span><span>/</span><span><span>${</span>url<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><h3 id="Create-User-Reducer">Create User Reducer</h3><p>The <code>userDetails</code> in the user Store will only be modified based on the <code>userChanged</code> event from Auth0&#39;s SDK to always keep them in sync. Open <code>user<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.reducer.ts</span>
+
+<span>import</span> <span>{</span> Action<span>,</span> createReducer<span>,</span> on <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+<span>import</span> <span>{</span> initialState<span>,</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>const</span> userReducer <span>=</span> <span>createReducer</span><span>(</span>
+  initialState<span>,</span>
+  <span>on</span><span>(</span>UserActions<span>.</span>userChangedFromAuth0SDK<span>,</span> <span>(</span>state<span>,</span> <span>{</span> userDetails <span>}</span><span>)</span> <span>=&gt;</span> <span>(</span><span>{</span>
+    <span>...</span>state<span>,</span>
+    userDetails<span>:</span> userDetails<span>,</span>
+  <span>}</span><span>)</span><span>)</span>
+<span>)</span><span>;</span>
+
+<span>export</span> <span>function</span> <span>reducer</span><span>(</span>state<span>:</span> UserState <span>|</span> <span>undefined</span><span>,</span> action<span>:</span> Action<span>)</span> <span>{</span>
+  <span>return</span> <span>userReducer</span><span>(</span>state<span>,</span> action<span>)</span><span>;</span>
+<span>}</span></code></pre><h4 id="Update-Core-Reducer">Update Core Reducer</h4><p>Similar to what you did for the menus Reducer, you will need to add the reducer to the <code>ActionReducerMap</code> to use the user reducer. Open <code>core<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.reducers.ts</span>
+
+<span>import</span> <span>{</span> ActionReducerMap<span>,</span> MetaReducer <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> State <span>}</span> <span>from</span> <span>&#34;./core.state&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> MenusReducer <span>from</span> <span>&#34;./menus/menus.reducer&#34;</span><span>;</span>
+<span>// ✨ New 👇</span>
+<span>import</span> <span>*</span> <span>as</span> UserReducer <span>from</span> <span>&#34;./user/user.reducer&#34;</span><span>;</span>
+
+<span>export</span> <span>const</span> reducers<span>:</span> ActionReducerMap<span>&lt;</span>State<span>&gt;</span> <span>=</span> <span>{</span>
+  menus<span>:</span> MenusReducer<span>.</span>reducer<span>,</span>
+  <span>// ✨ New 👇</span>
+  user<span>:</span> UserReducer<span>.</span>reducer<span>,</span>
+<span>}</span><span>;</span>
+
+<span>export</span> <span>const</span> metaReducers<span>:</span> MetaReducer<span>&lt;</span>State<span>&gt;</span><span>[</span><span>]</span> <span>=</span> <span>[</span><span>]</span><span>;</span></code></pre><h3 id="Create-User-Effects">Create User Effects</h3><p>You will be interacting with Auth0&#39;s SDK through the user Effects, to log in and log out the user and listen to changes in the user&#39;s state. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
+
+<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
+<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+
+@<span>Injectable</span><span>(</span><span>)</span>
+<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
+  <span>constructor</span><span>(</span>
+    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
+    <span>private</span> authService<span>:</span> AuthService
+  <span>)</span> <span>{</span><span>}</span>
+
+  login$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+
+  logout$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+<span>}</span></code></pre><p>To keep the user observable from the Auth0&#39;s SDK and our user Store in sync, you can use an actionless effect that listens to an external observable (in our case <code>authService<span>.</span>user$</code>) and dispatches another action whenever that observable emits a new value. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
+
+<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
+<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+
+@<span>Injectable</span><span>(</span><span>)</span>
+<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
+  <span>constructor</span><span>(</span>
+    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
+    <span>private</span> authService<span>:</span> AuthService
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>// ✨ New 👇</span>
+  userChanged$ <span>=</span> <span>createEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span>
+    <span>this</span><span>.</span>authService<span>.</span>user$<span>.</span><span>pipe</span><span>(</span>
+      <span>map</span><span>(</span><span>(</span>userDetails<span>)</span> <span>=&gt;</span>
+        UserActions<span>.</span><span>userChangedFromAuth0SDK</span><span>(</span><span>{</span> userDetails<span>:</span> userDetails <span>}</span><span>)</span>
+      <span>)</span>
+    <span>)</span>
+  <span>)</span><span>;</span>
+
+  login$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+
+  logout$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+<span>}</span></code></pre><p>Add <code>user<span>.</span>effects</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.effects&#34;</span><span>;</span></code></pre><h4 id="Update-Effects-Module">Update Effects Module</h4><p>You will then need to add <code>UserEffects</code> to the <code>EffectsModule</code> initialization. Open <code>app<span>.</span>module<span>.</span>ts</code> and add the following code</p><pre><code><span>// src/app/app.module.ts</span>
+
+<span>import</span> <span>{</span> BrowserModule <span>}</span> <span>from</span> <span>&#34;@angular/platform-browser&#34;</span><span>;</span>
+<span>import</span> <span>{</span> NgModule <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> HttpClientModule<span>,</span> <span>HTTP_INTERCEPTORS</span> <span>}</span> <span>from</span> <span>&#34;@angular/common/http&#34;</span><span>;</span>
+<span>import</span> <span>{</span> StoreModule <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> EffectsModule <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthHttpInterceptor<span>,</span> AuthModule <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+
+<span>import</span> <span>{</span> AppRoutingModule <span>}</span> <span>from</span> <span>&#34;./app-routing.module&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AppComponent <span>}</span> <span>from</span> <span>&#34;./app.component&#34;</span><span>;</span>
+<span>import</span> <span>{</span> NavBarModule <span>}</span> <span>from</span> <span>&#34;./shared&#34;</span><span>;</span>
+<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
+<span>import</span> <span>{</span> reducers<span>,</span> metaReducers <span>}</span> <span>from</span> <span>&#34;./core/state&#34;</span><span>;</span>
+<span>import</span> <span>{</span> MenusEffects <span>}</span> <span>from</span> <span>&#34;./core/state/menus&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> UserEffects <span>}</span> <span>from</span> <span>&#34;./core/state/user&#34;</span><span>;</span>
+
+@<span>NgModule</span><span>(</span><span>{</span>
+  imports<span>:</span> <span>[</span>
+    BrowserModule<span>,</span>
+    HttpClientModule<span>,</span>
+    AuthModule<span>.</span><span>forRoot</span><span>(</span><span>{</span>
+      <span>...</span>environment<span>.</span>auth<span>,</span>
+      httpInterceptor<span>:</span> <span>{</span>
+        allowedList<span>:</span> <span>[</span>
+          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items</span><span>`</span></span><span>,</span>
+          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items/*</span><span>`</span></span><span>,</span>
+        <span>]</span><span>,</span>
+      <span>}</span><span>,</span>
+    <span>}</span><span>)</span><span>,</span>
+    AppRoutingModule<span>,</span>
+    NavBarModule<span>,</span>
+
+    <span>// NgRx</span>
+    StoreModule<span>.</span><span>forRoot</span><span>(</span>reducers<span>,</span> <span>{</span>
+      metaReducers<span>,</span>
+    <span>}</span><span>)</span><span>,</span>
+
+    <span>// ✨ New 👇</span>
+    EffectsModule<span>.</span><span>forRoot</span><span>(</span><span>[</span>MenusEffects<span>,</span> UserEffects<span>]</span><span>)</span><span>,</span>
+  <span>]</span><span>,</span>
+  declarations<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
+  bootstrap<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
+  providers<span>:</span> <span>[</span>
+    <span>{</span>
+      provide<span>:</span> <span>HTTP_INTERCEPTORS</span><span>,</span>
+      useClass<span>:</span> AuthHttpInterceptor<span>,</span>
+      multi<span>:</span> <span>true</span><span>,</span>
+    <span>}</span><span>,</span>
+  <span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>AppModule</span> <span>{</span><span>}</span></code></pre><blockquote><p><strong>Checkpoint:</strong> There aren&#39;t any visible functional changes added in this section. The difference between the current state of the app compared to the previous checkpoint is its underlying implementation. The app now uses NgRx versus a <code>BehaviorSubject</code> to manage user-related states. The app should display the login button with an empty dashboard when the user is not authenticated, and display the logout button with the logged-in user&#39;s name along with the menu items on the dashboard when a user is authenticated. Clicking on the &#34;Log in&#34; and &#34;Log out&#34; buttons should trigger their respective flows using Auth0&#39;s SDK and update your application&#39;s state. If you open Redux Devtools in your browser, you should see the user state and actions every time you perform any user-related actions.</p></blockquote><h2 id="Conclusion">Conclusion</h2><p>State management is a key component when building applications. You added two Stores to our demo application to manage two distinct states - menus and user. This is a relatively small demo application with a few Stores, Actions, and Reducers to show how you can use NgRx to manage your Application&#39;s state, and use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</p></div></div>]]></content:encoded>
       <pubDate>Tue, 23 Nov 2021 19:57:00 +0000</pubDate>
     </item>
     <item>
