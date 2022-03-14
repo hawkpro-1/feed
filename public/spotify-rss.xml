@@ -4420,7 +4420,7 @@
     </item>
     <item>
       <title>&#xA;                                            Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%&#xA;</title>
-      <link>https://engineering.atspotify.com/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/</link>
+      <link>https://engineering.atspotify.com/2021/11/16/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/</link>
       <description>At Spotify, we constantly work on creating the best developer experience possible for our iOS engineers. Improving build times is one of the most common requests for infrastructure teams and, as such, we constantly seek to improve our infrastructure toolchain. We are excited to be open sourcing X</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -4432,8 +4432,8 @@
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/" title="Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-768x378.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/2021/11/16/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/" title="Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" alt="" loading="lazy" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-768x378.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
                         
         </p>
 
@@ -4587,8 +4587,11 @@
 <p><em>Xcode is a trademark of Apple Inc., registered in the U.S. and other countries.</em></p>
         <p>
 
-        Tags: <a href="https://engineering.atspotify.com/tag/mobile/" rel="tag">Mobile</a><br/>        
-            </p></div></div>]]></content:encoded>
+        Tags: <a href="https://engineering.atspotify.com/tag/mobile/" rel="tag">Mobile</a></p>
+
+        
+
+            </div></div>]]></content:encoded>
       <author>Published by Bartosz Polaczyk, Senior Engineer</author>
       <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" length="0" type="image/png"></enclosure>
       <pubDate>Tue, 16 Nov 2021 00:00:00 +0000</pubDate>
@@ -4770,7 +4773,7 @@
     </item>
     <item>
       <title>&#xA;                                            Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/11/16/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/</link>
+      <link>https://engineering.atspotify.com/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/</link>
       <description>At Spotify, we constantly work on creating the best developer experience possible for our iOS engineers. Improving build times is one of the most common requests for infrastructure teams and, as such, we constantly seek to improve our infrastructure toolchain. We are excited to be open sourcing X</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -4782,8 +4785,8 @@
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/11/16/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/" title="Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" alt="" loading="lazy" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-768x378.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/introducing-xcremotecache-the-ios-remote-caching-tool-that-cut-our-clean-build-times-by-70/" title="Introducing XCRemoteCache: The iOS Remote Caching Tool that Cut Our Clean Build Times by 70%">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-768x378.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
                         
         </p>
 
@@ -4937,11 +4940,8 @@
 <p><em>Xcode is a trademark of Apple Inc., registered in the U.S. and other countries.</em></p>
         <p>
 
-        Tags: <a href="https://engineering.atspotify.com/tag/mobile/" rel="tag">Mobile</a></p>
-
-        
-
-            </div></div>]]></content:encoded>
+        Tags: <a href="https://engineering.atspotify.com/tag/mobile/" rel="tag">Mobile</a><br/>        
+            </p></div></div>]]></content:encoded>
       <author>Published by Bartosz Polaczyk, Senior Engineer</author>
       <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/Header.png" length="0" type="image/png"></enclosure>
       <pubDate>Tue, 16 Nov 2021 00:00:00 +0000</pubDate>
@@ -6963,7 +6963,7 @@
     </item>
     <item>
       <title>&#xA;                                            How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
+      <link>https://engineering.atspotify.com/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
       <description>What’s the best way to assess your developers’ experience and performance to discover what they need help with? Is it by measuring something arbitrary, like how many lines of code they’ve written or how many commits they’ve made? Nope. How much useful data are you really getting out of those numbers</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -6975,8 +6975,8 @@
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
-                        <img src="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" alt="" loading="lazy" srcset="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px" data-image-size="post-thumbnail" data-stateless-media-bucket="rnd-atspotify" data-stateless-media-name="sites/2/2021/09/Backstage_Developers_Header.png"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px"/>                    </a>
                         
         </p>
 
@@ -7052,16 +7052,12 @@
 
 
 <p>Interested in hearing more about Backstage and what it can do for you? To hear more from Pia discussing Backstage and developer effectiveness with other engineers, check out the <a href="https://www.thoughtworks.com/insights/podcasts/technology-podcasts/developer-effectiveness" target="_blank" rel="noreferrer noopener">Thoughtworks podcast episode</a>. And if you’re curious about how to get started with Backstage, read more about that <a href="https://backstage.spotify.com/blog/getting-started-with-backstage/" target="_blank" rel="noreferrer noopener">here</a>.</p>
-        <br/>
+        <p>
 
-        
-        
-
-        
-
-            </div></div>]]></content:encoded>
+        Tags: <a href="https://engineering.atspotify.com/tag/backend/" rel="tag">backend</a>, <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
+            </p></div></div>]]></content:encoded>
       <author>Published by Spotify Engineering</author>
-      <enclosure url="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
       <pubDate>Thu, 23 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
@@ -7264,7 +7260,7 @@
     </item>
     <item>
       <title>&#xA;                                            How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too&#xA;</title>
-      <link>https://engineering.atspotify.com/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
+      <link>https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
       <description>What’s the best way to assess your developers’ experience and performance to discover what they need help with? Is it by measuring something arbitrary, like how many lines of code they’ve written or how many commits they’ve made? Nope. How much useful data are you really getting out of those numbers</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -7276,8 +7272,8 @@
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
+                        <img src="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" alt="" loading="lazy" srcset="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px" data-image-size="post-thumbnail" data-stateless-media-bucket="rnd-atspotify" data-stateless-media-name="sites/2/2021/09/Backstage_Developers_Header.png"/>                    </a>
                         
         </p>
 
@@ -7353,12 +7349,16 @@
 
 
 <p>Interested in hearing more about Backstage and what it can do for you? To hear more from Pia discussing Backstage and developer effectiveness with other engineers, check out the <a href="https://www.thoughtworks.com/insights/podcasts/technology-podcasts/developer-effectiveness" target="_blank" rel="noreferrer noopener">Thoughtworks podcast episode</a>. And if you’re curious about how to get started with Backstage, read more about that <a href="https://backstage.spotify.com/blog/getting-started-with-backstage/" target="_blank" rel="noreferrer noopener">here</a>.</p>
-        <p>
+        <br/>
 
-        Tags: <a href="https://engineering.atspotify.com/tag/backend/" rel="tag">backend</a>, <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
-            </p></div></div>]]></content:encoded>
+        
+        
+
+        
+
+            </div></div>]]></content:encoded>
       <author>Published by Spotify Engineering</author>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
+      <enclosure url="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
       <pubDate>Thu, 23 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
@@ -7803,252 +7803,6 @@
     </item>
     <item>
       <title>&#xA;                                            Four Lessons We Learned from Creating Spotify’s Desktop App&#xA;</title>
-      <link>https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
-      <description>TL;DR Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to web players to car things. But sitting at the core is our flagship product, the one that started it all: the desktop app. In the first episode of our podcast series, “Spotify: A Product Story”,</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
-        
-        
-
-        <div>
-            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>August 4, 2021</span>
-                
-            </p>
-        </div>
-        
-        <p><a href="https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px"/>                    </a>
-                        
-        </p>
-
-        
-
-        
-<p><strong>TL;DR </strong>Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to <a href="https://engineering.atspotify.com/2021/04/07/building-the-future-of-our-desktop-apps/" target="_blank" rel="noreferrer noopener">web players</a> to <a href="https://carthing.spotify.com/" target="_blank" rel="noreferrer noopener">car things</a>. But sitting at the core is our flagship product, the one that started it all: the desktop app. In <a href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank" rel="noreferrer noopener">the first episode</a> of our podcast series, “<a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank" rel="noreferrer noopener">Spotify: A Product Story</a>”, host and Chief R&amp;D Officer Gustav Söderström walks through how the app (and Spotify in general) came to be — and the product lessons you should take away from that journey. So read on to learn how Spotify had to completely rethink peer-to-peer (P2P) networking to improve our user experience, and why everyone needs a bit of magic to stand out from their competitors. And, of course, please <a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB?si=pX_Ez7ZHR3untiFXd5WaNA&amp;dl_branch=1" target="_blank" rel="noreferrer noopener">check out the podcast</a> yourself to hear even more about how Spotify became, well, Spotify.</p>
-
-
-
-<h2>How do you steal from a pirate?</h2>
-
-
-
-<p>Let’s rewind to the mid-2000s. At this point, music piracy wasn’t a new phenomenon, but it was a newly popular one. No longer did you have to physically steal records, rip radio onto a cassette, or even burn a CD. With peer-to-peer technology, all it took was an internet connection and some software, and you could be moments away from nabbing a song for yourself, with almost no chance of getting punished for it. </p>
-
-
-
-<p>Sure, download speeds could be painfully slow, the programs were a bit janky, and that album you pirated might turn out to be low-quality, incomplete, or covertly smuggling a virus along with it. But, hey, it was pretty convenient and low risk, all things considered. It was also, most importantly, absolutely free. What could compete?</p>
-
-
-
-<p>In the very first episode of the podcast, Spotify co-founder and CEO Daniel Ek remembers considering what it would take to beat piracy at its own game when first conceiving of the company:</p>
-
-
-
-<blockquote><p><strong>Daniel: </strong>I guess if you could take the concept of downloading all the world’s music, like you have on Napster and Kazaa, for a free price or a very low price, and you married it with the user experience of iTunes, so that it would feel like you had all the world’s music on your hard drive — that would be a much better experience than piracy. And then I think everyone would turn to that.</p></blockquote>
-
-
-
-<p>In other words, when it comes to guiding your product strategy, <strong>our</strong> <strong>first lesson is an important rule to live by: convenience trumps everything. </strong>The appeal of music piracy for most people, after all, wasn’t to deliberately sabotage the record industry or cut off a revenue stream for artists — it’s that it was free and relatively convenient. After realizing that, Spotify’s mission was set: if we could provide those same things with an even better user experience while still generating revenue, then, and only then, did we have a shot at success.</p>
-
-
-
-<h2>Go big or go home</h2>
-
-
-
-<p>But how exactly could we make a user experience <em>that</em> good? How could we actually beat pirates at their own game? One obvious improvement was speed; waiting hours over a slow connection to download an album was a massive pain, no matter how free it was. But when we looked at the tech and tools out there, it wasn’t immediately clear how to make anything better.</p>
-
-
-
-<p>Luckily, Spotify co-founder Martin Lorentzon ran into someone who knew how. Enter Ludde Strigeus, the creator of µTorrent, one of the world’s most popular BitTorrent clients and, ironically, one of the largest drivers of music piracy. If there were one person who could promise to push the limits of what client-server technology and P2P networking could do, it was him.</p>
-
-
-
-<p>Little surprise, then, that Ludde was fielding offers from Silicon Valley left and right. Even so, he wasn’t in any rush to accept any of them. As he puts it in the podcast, “When I find a project that interests me enough, I can’t really stop working on it. So the problem is to actually find these projects.” </p>
-
-
-
-<p>Bad news for other companies, but great news for us. You see, it’s always good to keep in mind <strong>our second lesson:</strong> <strong>great ambition attracts great talent. This is why companies always need to keep moving the goalposts.</strong> When Daniel and Martin first approached Ludde to give him the hard sell on Spotify, a company whose goal, again, seemed impossible to achieve at the time, Ludde signed right up.</p>
-
-
-
-<h2>The rules are only suggestions</h2>
-
-
-
-<p>And it wasn’t long before he identified Spotify’s problem — and the solution.</p>
-
-
-
-<blockquote><p><strong>Ludde: </strong>Doing it in the browser wasn’t even an alternative. There wasn’t any competitive way to do it in the browser at that time. The browsers weren’t mature enough.</p></blockquote>
-
-
-
-<p>Essentially, if Spotify ran in a browser, it would only be able to run as fast as the rest of the browser-based internet, which included our competition. That meant that it would never provide a better experience than piracy if we went that route. </p>
-
-
-
-<p>Fortunately, Ludde already knew <strong>our</strong> <strong>third product lesson:</strong> <strong>don’t be afraid to break the rules. </strong>The problem was bigger than just a matter of finding the right tech; for Spotify to be what we wanted, we would need to custom-build everything in our entire infrastructure from the ground up. In short, we would need to go full stack.</p>
-
-
-
-<p>Not to go into too much detail here, but at the time, most of the internet was made up of “thin clients,” like web pages or Flash-based clients that ran in-browser, and used more traditional, standardized protocols like HTTPS. Seeing the limitations of that, Ludde and a team of engineers ran in the exact opposite direction, creating a stand-alone “fat client,” building entirely new protocols and hybridizing client-server and P2P technology to suit their own ends. (<a rel="noreferrer noopener" href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank">Check out Episode 01, “How do you steal from a pirate?”</a>, to hear more of that nitty-gritty stuff about persistent TCP connections and how our P2P implementation saved us bandwidth cost.) It was only by rethinking every layer of our infrastructure that we were able to pull Spotify off, to create that magic moment of double-clicking on a new song and having it instantly play. And speaking of magic …</p>
-
-
-
-<h2>Do you want to see a magic trick?</h2>
-
-
-
-<p>All of that ambition would have meant nothing if we couldn’t secure the licensing deals we needed to actually play music on our app. We knew our tech was cool and groundbreaking, but would anyone else? The music industry was being ravaged by the same peer-to-peer technology that Spotify was using in the desktop app. Why would they want to strike a deal with someone who seemed like the enemy?</p>
-
-
-
-<p>When Michelle Kadir joined Universal Sweden in 2008 to vet new technologies that could potentially help the ailing music industry, she originally saw Spotify as just another start-up setting up a meeting, vying for her attention. That was, until she saw the product in action.</p>
-
-
-
-<blockquote><p><strong>Michelle</strong>: The thing that happened that was kind of pure magic in that meeting was that [Daniel] did a comparison. He started playing a song on the software, and the song played so quick, so instant … I mean, I don’t know if people remember, but playback was slow back then. Even if you had an MP3 on your computer, and you played it via, you know, Winamp, iTunes, this was faster. And we were like, “You have the files on your computer, right?” And he was like, “No, it’s in the cloud.”</p></blockquote>
-
-
-
-<p><strong>That’s our fourth and final lesson:</strong> <strong>differentiating yourself from your competitors is one thing. But if you can pull off something that no one thought was possible — a magic trick — now that’s captivating.</strong> Captivating enough to potentially change the minds of not only users, but an entire industry that’s stuck in a rut.</p>
-
-
-
-<p>So, sure, that’s four lessons, but why stop there? The podcast series “Spotify: A Product Story” shares all these stories and dozens more, filled with insider insight and product strategy lessons from the employees, collaborators, and musicians who made Spotify what it is today. Join host and Chief R&amp;D Officer Gustav Söderström and <a rel="noreferrer noopener" href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank">check out all the episodes right here</a>.</p>
-        <p>
-
-        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
-            </p></div></div>]]></content:encoded>
-      <author>Published by Spotify Engineering</author>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
-      <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>&#xA;                                            Four Lessons We Learned from Creating Spotify’s Desktop App&#xA;</title>
-      <link>https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
-      <description>TL;DR Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to web players to car things. But sitting at the core is our flagship product, the one that started it all: the desktop app. In the first episode of our podcast series, “Spotify: A Product Story”,</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
-        
-        
-
-        <div>
-            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>August 4, 2021</span>
-                
-            </p>
-        </div>
-        
-        <p><a href="https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px"/>                    </a>
-                        
-        </p>
-
-        
-
-        
-<p><strong>TL;DR </strong>Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to <a href="https://engineering.atspotify.com/2021/04/07/building-the-future-of-our-desktop-apps/" target="_blank" rel="noreferrer noopener">web players</a> to <a href="https://carthing.spotify.com/" target="_blank" rel="noreferrer noopener">car things</a>. But sitting at the core is our flagship product, the one that started it all: the desktop app. In <a href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank" rel="noreferrer noopener">the first episode</a> of our podcast series, “<a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank" rel="noreferrer noopener">Spotify: A Product Story</a>”, host and Chief R&amp;D Officer Gustav Söderström walks through how the app (and Spotify in general) came to be — and the product lessons you should take away from that journey. So read on to learn how Spotify had to completely rethink peer-to-peer (P2P) networking to improve our user experience, and why everyone needs a bit of magic to stand out from their competitors. And, of course, please <a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB?si=pX_Ez7ZHR3untiFXd5WaNA&amp;dl_branch=1" target="_blank" rel="noreferrer noopener">check out the podcast</a> yourself to hear even more about how Spotify became, well, Spotify.</p>
-
-
-
-<h2>How do you steal from a pirate?</h2>
-
-
-
-<p>Let’s rewind to the mid-2000s. At this point, music piracy wasn’t a new phenomenon, but it was a newly popular one. No longer did you have to physically steal records, rip radio onto a cassette, or even burn a CD. With peer-to-peer technology, all it took was an internet connection and some software, and you could be moments away from nabbing a song for yourself, with almost no chance of getting punished for it. </p>
-
-
-
-<p>Sure, download speeds could be painfully slow, the programs were a bit janky, and that album you pirated might turn out to be low-quality, incomplete, or covertly smuggling a virus along with it. But, hey, it was pretty convenient and low risk, all things considered. It was also, most importantly, absolutely free. What could compete?</p>
-
-
-
-<p>In the very first episode of the podcast, Spotify co-founder and CEO Daniel Ek remembers considering what it would take to beat piracy at its own game when first conceiving of the company:</p>
-
-
-
-<blockquote><p><strong>Daniel: </strong>I guess if you could take the concept of downloading all the world’s music, like you have on Napster and Kazaa, for a free price or a very low price, and you married it with the user experience of iTunes, so that it would feel like you had all the world’s music on your hard drive — that would be a much better experience than piracy. And then I think everyone would turn to that.</p></blockquote>
-
-
-
-<p>In other words, when it comes to guiding your product strategy, <strong>our</strong> <strong>first lesson is an important rule to live by: convenience trumps everything. </strong>The appeal of music piracy for most people, after all, wasn’t to deliberately sabotage the record industry or cut off a revenue stream for artists — it’s that it was free and relatively convenient. After realizing that, Spotify’s mission was set: if we could provide those same things with an even better user experience while still generating revenue, then, and only then, did we have a shot at success.</p>
-
-
-
-<h2>Go big or go home</h2>
-
-
-
-<p>But how exactly could we make a user experience <em>that</em> good? How could we actually beat pirates at their own game? One obvious improvement was speed; waiting hours over a slow connection to download an album was a massive pain, no matter how free it was. But when we looked at the tech and tools out there, it wasn’t immediately clear how to make anything better.</p>
-
-
-
-<p>Luckily, Spotify co-founder Martin Lorentzon ran into someone who knew how. Enter Ludde Strigeus, the creator of µTorrent, one of the world’s most popular BitTorrent clients and, ironically, one of the largest drivers of music piracy. If there were one person who could promise to push the limits of what client-server technology and P2P networking could do, it was him.</p>
-
-
-
-<p>Little surprise, then, that Ludde was fielding offers from Silicon Valley left and right. Even so, he wasn’t in any rush to accept any of them. As he puts it in the podcast, “When I find a project that interests me enough, I can’t really stop working on it. So the problem is to actually find these projects.” </p>
-
-
-
-<p>Bad news for other companies, but great news for us. You see, it’s always good to keep in mind <strong>our second lesson:</strong> <strong>great ambition attracts great talent. This is why companies always need to keep moving the goalposts.</strong> When Daniel and Martin first approached Ludde to give him the hard sell on Spotify, a company whose goal, again, seemed impossible to achieve at the time, Ludde signed right up.</p>
-
-
-
-<h2>The rules are only suggestions</h2>
-
-
-
-<p>And it wasn’t long before he identified Spotify’s problem — and the solution.</p>
-
-
-
-<blockquote><p><strong>Ludde: </strong>Doing it in the browser wasn’t even an alternative. There wasn’t any competitive way to do it in the browser at that time. The browsers weren’t mature enough.</p></blockquote>
-
-
-
-<p>Essentially, if Spotify ran in a browser, it would only be able to run as fast as the rest of the browser-based internet, which included our competition. That meant that it would never provide a better experience than piracy if we went that route. </p>
-
-
-
-<p>Fortunately, Ludde already knew <strong>our</strong> <strong>third product lesson:</strong> <strong>don’t be afraid to break the rules. </strong>The problem was bigger than just a matter of finding the right tech; for Spotify to be what we wanted, we would need to custom-build everything in our entire infrastructure from the ground up. In short, we would need to go full stack.</p>
-
-
-
-<p>Not to go into too much detail here, but at the time, most of the internet was made up of “thin clients,” like web pages or Flash-based clients that ran in-browser, and used more traditional, standardized protocols like HTTPS. Seeing the limitations of that, Ludde and a team of engineers ran in the exact opposite direction, creating a stand-alone “fat client,” building entirely new protocols and hybridizing client-server and P2P technology to suit their own ends. (<a rel="noreferrer noopener" href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank">Check out Episode 01, “How do you steal from a pirate?”</a>, to hear more of that nitty-gritty stuff about persistent TCP connections and how our P2P implementation saved us bandwidth cost.) It was only by rethinking every layer of our infrastructure that we were able to pull Spotify off, to create that magic moment of double-clicking on a new song and having it instantly play. And speaking of magic …</p>
-
-
-
-<h2>Do you want to see a magic trick?</h2>
-
-
-
-<p>All of that ambition would have meant nothing if we couldn’t secure the licensing deals we needed to actually play music on our app. We knew our tech was cool and groundbreaking, but would anyone else? The music industry was being ravaged by the same peer-to-peer technology that Spotify was using in the desktop app. Why would they want to strike a deal with someone who seemed like the enemy?</p>
-
-
-
-<p>When Michelle Kadir joined Universal Sweden in 2008 to vet new technologies that could potentially help the ailing music industry, she originally saw Spotify as just another start-up setting up a meeting, vying for her attention. That was, until she saw the product in action.</p>
-
-
-
-<blockquote><p><strong>Michelle</strong>: The thing that happened that was kind of pure magic in that meeting was that [Daniel] did a comparison. He started playing a song on the software, and the song played so quick, so instant … I mean, I don’t know if people remember, but playback was slow back then. Even if you had an MP3 on your computer, and you played it via, you know, Winamp, iTunes, this was faster. And we were like, “You have the files on your computer, right?” And he was like, “No, it’s in the cloud.”</p></blockquote>
-
-
-
-<p><strong>That’s our fourth and final lesson:</strong> <strong>differentiating yourself from your competitors is one thing. But if you can pull off something that no one thought was possible — a magic trick — now that’s captivating.</strong> Captivating enough to potentially change the minds of not only users, but an entire industry that’s stuck in a rut.</p>
-
-
-
-<p>So, sure, that’s four lessons, but why stop there? The podcast series “Spotify: A Product Story” shares all these stories and dozens more, filled with insider insight and product strategy lessons from the employees, collaborators, and musicians who made Spotify what it is today. Join host and Chief R&amp;D Officer Gustav Söderström and <a rel="noreferrer noopener" href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank">check out all the episodes right here</a>.</p>
-        <p>
-
-        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
-            </p></div></div>]]></content:encoded>
-      <author>Published by Spotify Engineering</author>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
-      <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>&#xA;                                            Four Lessons We Learned from Creating Spotify’s Desktop App&#xA;</title>
       <link>https://engineering.atspotify.com/2021/08/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
       <description>TL;DR Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to web players to car things. But sitting at the core is our flagship product, the one that started it all: the desktop app. In the first episode of our podcast series, “Spotify: A Product Story”,</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
@@ -8298,114 +8052,254 @@
       <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>&#xA;                                            Patrick Balestra: Senior Engineer&#xA;</title>
-      <link>https://engineering.atspotify.com/patrick-balestra-senior-engineer/</link>
-      <description>8:30am I’m at my best after nine hours’ sleep, so I tend to wake up pretty late, shower and dress as though I’m going into the office. Although I’ve been in Stockholm a while now, I’m still not a fan of the Swedish breakfast of bread and cheese or salami – give me Nutella on toast any day! 10:</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
-
-                        
-
-                 
- <article id="post-4729">
-     <div>
-         
-         
+      <title>&#xA;                                            Four Lessons We Learned from Creating Spotify’s Desktop App&#xA;</title>
+      <link>https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
+      <description>TL;DR Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to web players to car things. But sitting at the core is our flagship product, the one that started it all: the desktop app. In the first episode of our podcast series, “Spotify: A Product Story”,</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
-         <div>
-            <div>
-            <h2>Putting the Spotlight on our technical employees</h2>
-    <p>My beat is a blog series that turns the spotlight towards technical employees across various desciplines and roles to showcase what a typical day as a Spotifier consists of.</p>
-            </div>
- 
-             <p><img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image.png 693w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image-250x222.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image-120x106.png 120w" sizes="(max-width: 693px) 100vw, 693px"/>
-                                  
-             </p>
-             <div>
-             
-                 <p><b>Originally from Switzerland, Patrick has lived in Sweden for almost three years now and works as a Senior iOS Engineer in our Stockholm office.</b></p>
-             </div>
-         </div>
+        
 
-         
-
-
-         
-
-         
-<blockquote><p>8:30am</p></blockquote>
-
-
-
-<p>I’m at my best after nine hours’ sleep, so I tend to wake up pretty late, shower and dress as though I’m going into the office. Although I’ve been in Stockholm a while now, I’m still not a fan of the Swedish breakfast of bread and cheese or salami – give me Nutella on toast any day!</p>
-
-
-
-<blockquote><p>10:00am</p></blockquote>
-
-
-
-<p>After breakfast, I log into my computer, check my messages and settle down for my morning’s work. Officially, I’m an iOS engineer on the Infrastructure team, which means I take care of the iOS developer experience — creating tools, libraries and other innovative solutions to help developers work faster and more efficiently. But over the last year, I’ve transitioned to work more on a new monorepo and Bazel system project that’s designed for all kinds of developers, not just iOS. We’re unifying how the tooling works, where the code lives and so on. And it’s an ongoing project – we’re constantly finding ways to improve and make life easier for developers across Spotify. </p>
-
-
-
-<p>My team is divided between Stockholm and New York, so we’re accustomed to being far apart and have adapted to working from home pretty easily. But I’m a sociable person and really miss being in the office, chatting with other people and knowing what’s going on with other teams. </p>
-
-
-
-<blockquote><p>1:00pm</p></blockquote>
-
-
-
-<p>One way I stay connected is by meeting up with colleagues that live close by — we often take our lunch breaks together and grab a bite to eat in a local restaurant. Stockholm’s a great place to live — the winters can be rough but, as a Swiss-Italian, I’m no stranger to snow and ice. And at this time of year, the city is becoming more lively — the weather’s warmer, the restaurants are buzzing, and people are ready to enjoy themselves. </p>
-
-
-
-<blockquote><p>2:00pm</p></blockquote>
-
-
-
-<p>After lunch is when New York wakes up, so I tend to have more meetings and less time for writing code or reviewing documents. I also like to keep up-to-date with the wider engineering community and do open source work — I usually have a bunch of projects on the go. Recently, I helped to open source <a rel="noreferrer noopener" href="https://xcmetrics.io/" target="_blank">XCMetrics</a> — <a rel="noreferrer noopener" href="https://engineering.atspotify.com/2021/01/20/introducing-xcmetrics-our-all-in-one-tool-for-tracking-xcode-build-metrics/" target="_blank">a tool developed at Spotify</a> for Apple’s developer software, Xcode, that allows people to collect, display, and track the metrics inside their team’s Xcode build logs. It can provide valuable insights to help improve both developer experience and productivity.</p>
-
-
-
-<blockquote><p>7:00pm</p></blockquote>
-
-
-
-<p>I tend to work fairly late in the evenings to make the most of the overlap with New York. But around 7pm, it’s time to relax — I watch movies, play video games, all the usual stuff. On Thursday evenings, I often play football with a few other folks from Spotify. And I’ve also got more into cooking over the last year — I love to get my girlfriend or a few friends over for dinner and try out one of my new recipes. Somehow, I’ve become the chef of the group, but I’m more than happy with that…</p>
-
-
-
-
-
-
-
-<figure><img loading="lazy" width="700" height="111" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-700x111.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-700x111.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-250x40.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-768x121.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-120x19.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering.png 1525w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
-
-
-
-<figure><img loading="lazy" width="700" height="557" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-700x557.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-700x557.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-250x199.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-768x611.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-120x96.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2.png 1000w" sizes="(max-width: 700px) 100vw, 700px"/></figure><p>
-
-         Tags: <a href="https://engineering.atspotify.com/tag/mobile/" rel="tag">Mobile</a></p><p>
-             Published by Spotify Engineering         </p>
-     </div>
-
-     
-     
-
-
- </article>
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>August 4, 2021</span>
                 
-
-            
+            </p>
+        </div>
         
-    </section></div>]]></content:encoded>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image.png" length="0" type="image/png"></enclosure>
-      <pubDate>Fri, 04 Jun 2021 00:00:00 +0000</pubDate>
+        <p><a href="https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px"/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p><strong>TL;DR </strong>Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to <a href="https://engineering.atspotify.com/2021/04/07/building-the-future-of-our-desktop-apps/" target="_blank" rel="noreferrer noopener">web players</a> to <a href="https://carthing.spotify.com/" target="_blank" rel="noreferrer noopener">car things</a>. But sitting at the core is our flagship product, the one that started it all: the desktop app. In <a href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank" rel="noreferrer noopener">the first episode</a> of our podcast series, “<a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank" rel="noreferrer noopener">Spotify: A Product Story</a>”, host and Chief R&amp;D Officer Gustav Söderström walks through how the app (and Spotify in general) came to be — and the product lessons you should take away from that journey. So read on to learn how Spotify had to completely rethink peer-to-peer (P2P) networking to improve our user experience, and why everyone needs a bit of magic to stand out from their competitors. And, of course, please <a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB?si=pX_Ez7ZHR3untiFXd5WaNA&amp;dl_branch=1" target="_blank" rel="noreferrer noopener">check out the podcast</a> yourself to hear even more about how Spotify became, well, Spotify.</p>
+
+
+
+<h2>How do you steal from a pirate?</h2>
+
+
+
+<p>Let’s rewind to the mid-2000s. At this point, music piracy wasn’t a new phenomenon, but it was a newly popular one. No longer did you have to physically steal records, rip radio onto a cassette, or even burn a CD. With peer-to-peer technology, all it took was an internet connection and some software, and you could be moments away from nabbing a song for yourself, with almost no chance of getting punished for it. </p>
+
+
+
+<p>Sure, download speeds could be painfully slow, the programs were a bit janky, and that album you pirated might turn out to be low-quality, incomplete, or covertly smuggling a virus along with it. But, hey, it was pretty convenient and low risk, all things considered. It was also, most importantly, absolutely free. What could compete?</p>
+
+
+
+<p>In the very first episode of the podcast, Spotify co-founder and CEO Daniel Ek remembers considering what it would take to beat piracy at its own game when first conceiving of the company:</p>
+
+
+
+<blockquote><p><strong>Daniel: </strong>I guess if you could take the concept of downloading all the world’s music, like you have on Napster and Kazaa, for a free price or a very low price, and you married it with the user experience of iTunes, so that it would feel like you had all the world’s music on your hard drive — that would be a much better experience than piracy. And then I think everyone would turn to that.</p></blockquote>
+
+
+
+<p>In other words, when it comes to guiding your product strategy, <strong>our</strong> <strong>first lesson is an important rule to live by: convenience trumps everything. </strong>The appeal of music piracy for most people, after all, wasn’t to deliberately sabotage the record industry or cut off a revenue stream for artists — it’s that it was free and relatively convenient. After realizing that, Spotify’s mission was set: if we could provide those same things with an even better user experience while still generating revenue, then, and only then, did we have a shot at success.</p>
+
+
+
+<h2>Go big or go home</h2>
+
+
+
+<p>But how exactly could we make a user experience <em>that</em> good? How could we actually beat pirates at their own game? One obvious improvement was speed; waiting hours over a slow connection to download an album was a massive pain, no matter how free it was. But when we looked at the tech and tools out there, it wasn’t immediately clear how to make anything better.</p>
+
+
+
+<p>Luckily, Spotify co-founder Martin Lorentzon ran into someone who knew how. Enter Ludde Strigeus, the creator of µTorrent, one of the world’s most popular BitTorrent clients and, ironically, one of the largest drivers of music piracy. If there were one person who could promise to push the limits of what client-server technology and P2P networking could do, it was him.</p>
+
+
+
+<p>Little surprise, then, that Ludde was fielding offers from Silicon Valley left and right. Even so, he wasn’t in any rush to accept any of them. As he puts it in the podcast, “When I find a project that interests me enough, I can’t really stop working on it. So the problem is to actually find these projects.” </p>
+
+
+
+<p>Bad news for other companies, but great news for us. You see, it’s always good to keep in mind <strong>our second lesson:</strong> <strong>great ambition attracts great talent. This is why companies always need to keep moving the goalposts.</strong> When Daniel and Martin first approached Ludde to give him the hard sell on Spotify, a company whose goal, again, seemed impossible to achieve at the time, Ludde signed right up.</p>
+
+
+
+<h2>The rules are only suggestions</h2>
+
+
+
+<p>And it wasn’t long before he identified Spotify’s problem — and the solution.</p>
+
+
+
+<blockquote><p><strong>Ludde: </strong>Doing it in the browser wasn’t even an alternative. There wasn’t any competitive way to do it in the browser at that time. The browsers weren’t mature enough.</p></blockquote>
+
+
+
+<p>Essentially, if Spotify ran in a browser, it would only be able to run as fast as the rest of the browser-based internet, which included our competition. That meant that it would never provide a better experience than piracy if we went that route. </p>
+
+
+
+<p>Fortunately, Ludde already knew <strong>our</strong> <strong>third product lesson:</strong> <strong>don’t be afraid to break the rules. </strong>The problem was bigger than just a matter of finding the right tech; for Spotify to be what we wanted, we would need to custom-build everything in our entire infrastructure from the ground up. In short, we would need to go full stack.</p>
+
+
+
+<p>Not to go into too much detail here, but at the time, most of the internet was made up of “thin clients,” like web pages or Flash-based clients that ran in-browser, and used more traditional, standardized protocols like HTTPS. Seeing the limitations of that, Ludde and a team of engineers ran in the exact opposite direction, creating a stand-alone “fat client,” building entirely new protocols and hybridizing client-server and P2P technology to suit their own ends. (<a rel="noreferrer noopener" href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank">Check out Episode 01, “How do you steal from a pirate?”</a>, to hear more of that nitty-gritty stuff about persistent TCP connections and how our P2P implementation saved us bandwidth cost.) It was only by rethinking every layer of our infrastructure that we were able to pull Spotify off, to create that magic moment of double-clicking on a new song and having it instantly play. And speaking of magic …</p>
+
+
+
+<h2>Do you want to see a magic trick?</h2>
+
+
+
+<p>All of that ambition would have meant nothing if we couldn’t secure the licensing deals we needed to actually play music on our app. We knew our tech was cool and groundbreaking, but would anyone else? The music industry was being ravaged by the same peer-to-peer technology that Spotify was using in the desktop app. Why would they want to strike a deal with someone who seemed like the enemy?</p>
+
+
+
+<p>When Michelle Kadir joined Universal Sweden in 2008 to vet new technologies that could potentially help the ailing music industry, she originally saw Spotify as just another start-up setting up a meeting, vying for her attention. That was, until she saw the product in action.</p>
+
+
+
+<blockquote><p><strong>Michelle</strong>: The thing that happened that was kind of pure magic in that meeting was that [Daniel] did a comparison. He started playing a song on the software, and the song played so quick, so instant … I mean, I don’t know if people remember, but playback was slow back then. Even if you had an MP3 on your computer, and you played it via, you know, Winamp, iTunes, this was faster. And we were like, “You have the files on your computer, right?” And he was like, “No, it’s in the cloud.”</p></blockquote>
+
+
+
+<p><strong>That’s our fourth and final lesson:</strong> <strong>differentiating yourself from your competitors is one thing. But if you can pull off something that no one thought was possible — a magic trick — now that’s captivating.</strong> Captivating enough to potentially change the minds of not only users, but an entire industry that’s stuck in a rut.</p>
+
+
+
+<p>So, sure, that’s four lessons, but why stop there? The podcast series “Spotify: A Product Story” shares all these stories and dozens more, filled with insider insight and product strategy lessons from the employees, collaborators, and musicians who made Spotify what it is today. Join host and Chief R&amp;D Officer Gustav Söderström and <a rel="noreferrer noopener" href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank">check out all the episodes right here</a>.</p>
+        <p>
+
+        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
+            </p></div></div>]]></content:encoded>
+      <author>Published by Spotify Engineering</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
+      <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>&#xA;                                            Four Lessons We Learned from Creating Spotify’s Desktop App&#xA;</title>
+      <link>https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
+      <description>TL;DR Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to web players to car things. But sitting at the core is our flagship product, the one that started it all: the desktop app. In the first episode of our podcast series, “Spotify: A Product Story”,</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
+        
+        
+
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>August 4, 2021</span>
+                
+            </p>
+        </div>
+        
+        <p><a href="https://engineering.atspotify.com/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px"/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p><strong>TL;DR </strong>Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to <a href="https://engineering.atspotify.com/2021/04/07/building-the-future-of-our-desktop-apps/" target="_blank" rel="noreferrer noopener">web players</a> to <a href="https://carthing.spotify.com/" target="_blank" rel="noreferrer noopener">car things</a>. But sitting at the core is our flagship product, the one that started it all: the desktop app. In <a href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank" rel="noreferrer noopener">the first episode</a> of our podcast series, “<a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank" rel="noreferrer noopener">Spotify: A Product Story</a>”, host and Chief R&amp;D Officer Gustav Söderström walks through how the app (and Spotify in general) came to be — and the product lessons you should take away from that journey. So read on to learn how Spotify had to completely rethink peer-to-peer (P2P) networking to improve our user experience, and why everyone needs a bit of magic to stand out from their competitors. And, of course, please <a href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB?si=pX_Ez7ZHR3untiFXd5WaNA&amp;dl_branch=1" target="_blank" rel="noreferrer noopener">check out the podcast</a> yourself to hear even more about how Spotify became, well, Spotify.</p>
+
+
+
+<h2>How do you steal from a pirate?</h2>
+
+
+
+<p>Let’s rewind to the mid-2000s. At this point, music piracy wasn’t a new phenomenon, but it was a newly popular one. No longer did you have to physically steal records, rip radio onto a cassette, or even burn a CD. With peer-to-peer technology, all it took was an internet connection and some software, and you could be moments away from nabbing a song for yourself, with almost no chance of getting punished for it. </p>
+
+
+
+<p>Sure, download speeds could be painfully slow, the programs were a bit janky, and that album you pirated might turn out to be low-quality, incomplete, or covertly smuggling a virus along with it. But, hey, it was pretty convenient and low risk, all things considered. It was also, most importantly, absolutely free. What could compete?</p>
+
+
+
+<p>In the very first episode of the podcast, Spotify co-founder and CEO Daniel Ek remembers considering what it would take to beat piracy at its own game when first conceiving of the company:</p>
+
+
+
+<blockquote><p><strong>Daniel: </strong>I guess if you could take the concept of downloading all the world’s music, like you have on Napster and Kazaa, for a free price or a very low price, and you married it with the user experience of iTunes, so that it would feel like you had all the world’s music on your hard drive — that would be a much better experience than piracy. And then I think everyone would turn to that.</p></blockquote>
+
+
+
+<p>In other words, when it comes to guiding your product strategy, <strong>our</strong> <strong>first lesson is an important rule to live by: convenience trumps everything. </strong>The appeal of music piracy for most people, after all, wasn’t to deliberately sabotage the record industry or cut off a revenue stream for artists — it’s that it was free and relatively convenient. After realizing that, Spotify’s mission was set: if we could provide those same things with an even better user experience while still generating revenue, then, and only then, did we have a shot at success.</p>
+
+
+
+<h2>Go big or go home</h2>
+
+
+
+<p>But how exactly could we make a user experience <em>that</em> good? How could we actually beat pirates at their own game? One obvious improvement was speed; waiting hours over a slow connection to download an album was a massive pain, no matter how free it was. But when we looked at the tech and tools out there, it wasn’t immediately clear how to make anything better.</p>
+
+
+
+<p>Luckily, Spotify co-founder Martin Lorentzon ran into someone who knew how. Enter Ludde Strigeus, the creator of µTorrent, one of the world’s most popular BitTorrent clients and, ironically, one of the largest drivers of music piracy. If there were one person who could promise to push the limits of what client-server technology and P2P networking could do, it was him.</p>
+
+
+
+<p>Little surprise, then, that Ludde was fielding offers from Silicon Valley left and right. Even so, he wasn’t in any rush to accept any of them. As he puts it in the podcast, “When I find a project that interests me enough, I can’t really stop working on it. So the problem is to actually find these projects.” </p>
+
+
+
+<p>Bad news for other companies, but great news for us. You see, it’s always good to keep in mind <strong>our second lesson:</strong> <strong>great ambition attracts great talent. This is why companies always need to keep moving the goalposts.</strong> When Daniel and Martin first approached Ludde to give him the hard sell on Spotify, a company whose goal, again, seemed impossible to achieve at the time, Ludde signed right up.</p>
+
+
+
+<h2>The rules are only suggestions</h2>
+
+
+
+<p>And it wasn’t long before he identified Spotify’s problem — and the solution.</p>
+
+
+
+<blockquote><p><strong>Ludde: </strong>Doing it in the browser wasn’t even an alternative. There wasn’t any competitive way to do it in the browser at that time. The browsers weren’t mature enough.</p></blockquote>
+
+
+
+<p>Essentially, if Spotify ran in a browser, it would only be able to run as fast as the rest of the browser-based internet, which included our competition. That meant that it would never provide a better experience than piracy if we went that route. </p>
+
+
+
+<p>Fortunately, Ludde already knew <strong>our</strong> <strong>third product lesson:</strong> <strong>don’t be afraid to break the rules. </strong>The problem was bigger than just a matter of finding the right tech; for Spotify to be what we wanted, we would need to custom-build everything in our entire infrastructure from the ground up. In short, we would need to go full stack.</p>
+
+
+
+<p>Not to go into too much detail here, but at the time, most of the internet was made up of “thin clients,” like web pages or Flash-based clients that ran in-browser, and used more traditional, standardized protocols like HTTPS. Seeing the limitations of that, Ludde and a team of engineers ran in the exact opposite direction, creating a stand-alone “fat client,” building entirely new protocols and hybridizing client-server and P2P technology to suit their own ends. (<a rel="noreferrer noopener" href="https://open.spotify.com/episode/1jHRUXkeiUh44CK4KZQb0h?si=d8695b5f4e58491c" target="_blank">Check out Episode 01, “How do you steal from a pirate?”</a>, to hear more of that nitty-gritty stuff about persistent TCP connections and how our P2P implementation saved us bandwidth cost.) It was only by rethinking every layer of our infrastructure that we were able to pull Spotify off, to create that magic moment of double-clicking on a new song and having it instantly play. And speaking of magic …</p>
+
+
+
+<h2>Do you want to see a magic trick?</h2>
+
+
+
+<p>All of that ambition would have meant nothing if we couldn’t secure the licensing deals we needed to actually play music on our app. We knew our tech was cool and groundbreaking, but would anyone else? The music industry was being ravaged by the same peer-to-peer technology that Spotify was using in the desktop app. Why would they want to strike a deal with someone who seemed like the enemy?</p>
+
+
+
+<p>When Michelle Kadir joined Universal Sweden in 2008 to vet new technologies that could potentially help the ailing music industry, she originally saw Spotify as just another start-up setting up a meeting, vying for her attention. That was, until she saw the product in action.</p>
+
+
+
+<blockquote><p><strong>Michelle</strong>: The thing that happened that was kind of pure magic in that meeting was that [Daniel] did a comparison. He started playing a song on the software, and the song played so quick, so instant … I mean, I don’t know if people remember, but playback was slow back then. Even if you had an MP3 on your computer, and you played it via, you know, Winamp, iTunes, this was faster. And we were like, “You have the files on your computer, right?” And he was like, “No, it’s in the cloud.”</p></blockquote>
+
+
+
+<p><strong>That’s our fourth and final lesson:</strong> <strong>differentiating yourself from your competitors is one thing. But if you can pull off something that no one thought was possible — a magic trick — now that’s captivating.</strong> Captivating enough to potentially change the minds of not only users, but an entire industry that’s stuck in a rut.</p>
+
+
+
+<p>So, sure, that’s four lessons, but why stop there? The podcast series “Spotify: A Product Story” shares all these stories and dozens more, filled with insider insight and product strategy lessons from the employees, collaborators, and musicians who made Spotify what it is today. Join host and Chief R&amp;D Officer Gustav Söderström and <a rel="noreferrer noopener" href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank">check out all the episodes right here</a>.</p>
+        <p>
+
+        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
+            </p></div></div>]]></content:encoded>
+      <author>Published by Spotify Engineering</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
+      <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
       <title>&#xA;                                            Patrick Balestra: Senior Engineer&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/06/patrick-balestra-senior-engineer/</link>
+      <link>https://engineering.atspotify.com/patrick-balestra-senior-engineer/</link>
       <description>8:30am I’m at my best after nine hours’ sleep, so I tend to wake up pretty late, shower and dress as though I’m going into the office. Although I’ve been in Stockholm a while now, I’m still not a fan of the Swedish breakfast of bread and cheese or salami – give me Nutella on toast any day! 10:</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
 
@@ -8608,6 +8502,112 @@
         
     </section></div>]]></content:encoded>
       <enclosure url="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/06/Patrick-Balestra_Header-Image.png" length="0" type="image/png"></enclosure>
+      <pubDate>Fri, 04 Jun 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>&#xA;                                            Patrick Balestra: Senior Engineer&#xA;</title>
+      <link>https://engineering.atspotify.com/2021/06/patrick-balestra-senior-engineer/</link>
+      <description>8:30am I’m at my best after nine hours’ sleep, so I tend to wake up pretty late, shower and dress as though I’m going into the office. Although I’ve been in Stockholm a while now, I’m still not a fan of the Swedish breakfast of bread and cheese or salami – give me Nutella on toast any day! 10:</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
+
+                        
+
+                 
+ <article id="post-4729">
+     <div>
+         
+         
+        
+         <div>
+            <div>
+            <h2>Putting the Spotlight on our technical employees</h2>
+    <p>My beat is a blog series that turns the spotlight towards technical employees across various desciplines and roles to showcase what a typical day as a Spotifier consists of.</p>
+            </div>
+ 
+             <p><img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image.png 693w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image-250x222.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image-120x106.png 120w" sizes="(max-width: 693px) 100vw, 693px"/>
+                                  
+             </p>
+             <div>
+             
+                 <p><b>Originally from Switzerland, Patrick has lived in Sweden for almost three years now and works as a Senior iOS Engineer in our Stockholm office.</b></p>
+             </div>
+         </div>
+
+         
+
+
+         
+
+         
+<blockquote><p>8:30am</p></blockquote>
+
+
+
+<p>I’m at my best after nine hours’ sleep, so I tend to wake up pretty late, shower and dress as though I’m going into the office. Although I’ve been in Stockholm a while now, I’m still not a fan of the Swedish breakfast of bread and cheese or salami – give me Nutella on toast any day!</p>
+
+
+
+<blockquote><p>10:00am</p></blockquote>
+
+
+
+<p>After breakfast, I log into my computer, check my messages and settle down for my morning’s work. Officially, I’m an iOS engineer on the Infrastructure team, which means I take care of the iOS developer experience — creating tools, libraries and other innovative solutions to help developers work faster and more efficiently. But over the last year, I’ve transitioned to work more on a new monorepo and Bazel system project that’s designed for all kinds of developers, not just iOS. We’re unifying how the tooling works, where the code lives and so on. And it’s an ongoing project – we’re constantly finding ways to improve and make life easier for developers across Spotify. </p>
+
+
+
+<p>My team is divided between Stockholm and New York, so we’re accustomed to being far apart and have adapted to working from home pretty easily. But I’m a sociable person and really miss being in the office, chatting with other people and knowing what’s going on with other teams. </p>
+
+
+
+<blockquote><p>1:00pm</p></blockquote>
+
+
+
+<p>One way I stay connected is by meeting up with colleagues that live close by — we often take our lunch breaks together and grab a bite to eat in a local restaurant. Stockholm’s a great place to live — the winters can be rough but, as a Swiss-Italian, I’m no stranger to snow and ice. And at this time of year, the city is becoming more lively — the weather’s warmer, the restaurants are buzzing, and people are ready to enjoy themselves. </p>
+
+
+
+<blockquote><p>2:00pm</p></blockquote>
+
+
+
+<p>After lunch is when New York wakes up, so I tend to have more meetings and less time for writing code or reviewing documents. I also like to keep up-to-date with the wider engineering community and do open source work — I usually have a bunch of projects on the go. Recently, I helped to open source <a rel="noreferrer noopener" href="https://xcmetrics.io/" target="_blank">XCMetrics</a> — <a rel="noreferrer noopener" href="https://engineering.atspotify.com/2021/01/20/introducing-xcmetrics-our-all-in-one-tool-for-tracking-xcode-build-metrics/" target="_blank">a tool developed at Spotify</a> for Apple’s developer software, Xcode, that allows people to collect, display, and track the metrics inside their team’s Xcode build logs. It can provide valuable insights to help improve both developer experience and productivity.</p>
+
+
+
+<blockquote><p>7:00pm</p></blockquote>
+
+
+
+<p>I tend to work fairly late in the evenings to make the most of the overlap with New York. But around 7pm, it’s time to relax — I watch movies, play video games, all the usual stuff. On Thursday evenings, I often play football with a few other folks from Spotify. And I’ve also got more into cooking over the last year — I love to get my girlfriend or a few friends over for dinner and try out one of my new recipes. Somehow, I’ve become the chef of the group, but I’m more than happy with that…</p>
+
+
+
+
+
+
+
+<figure><img loading="lazy" width="700" height="111" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-700x111.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-700x111.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-250x40.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-768x121.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering-120x19.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2020/11/My-Beat-Breakdown-Engineering.png 1525w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
+
+
+
+<figure><img loading="lazy" width="700" height="557" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-700x557.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-700x557.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-250x199.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-768x611.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2-120x96.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/MyBeat-Patrick-Balestra_Pie-chart2.png 1000w" sizes="(max-width: 700px) 100vw, 700px"/></figure><p>
+
+         Tags: <a href="https://engineering.atspotify.com/tag/mobile/" rel="tag">Mobile</a></p><p>
+             Published by Spotify Engineering         </p>
+     </div>
+
+     
+     
+
+
+ </article>
+                
+
+            
+        
+    </section></div>]]></content:encoded>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/06/Patrick-Balestra_Header-Image.png" length="0" type="image/png"></enclosure>
       <pubDate>Fri, 04 Jun 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
@@ -10670,7 +10670,7 @@
     </item>
     <item>
       <title>&#xA;                                            Customization vs. Configuration in Evolving Design Systems&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/04/customization-vs-configuration-in-evolving-design-systems/</link>
+      <link>https://engineering.atspotify.com/customization-vs-configuration-in-evolving-design-systems/</link>
       <description>When a design system first starts out, the promise of visual consistency glows bright — the ideal product would have only one set of buttons, a unified typography scale, and elements that look the same no matter which designer made the design or which developer programmed them to be real and deploye</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -10682,7 +10682,7 @@
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/04/customization-vs-configuration-in-evolving-design-systems/" title="Customization vs. Configuration in Evolving Design Systems">
+        <p><a href="https://engineering.atspotify.com/customization-vs-configuration-in-evolving-design-systems/" title="Customization vs. Configuration in Evolving Design Systems">
                         <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-250x126.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-700x352.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-768x386.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-1536x772.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-120x60.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
                         
         </p>
@@ -11295,7 +11295,7 @@
     </item>
     <item>
       <title>&#xA;                                            Customization vs. Configuration in Evolving Design Systems&#xA;</title>
-      <link>https://engineering.atspotify.com/customization-vs-configuration-in-evolving-design-systems/</link>
+      <link>https://engineering.atspotify.com/2021/04/customization-vs-configuration-in-evolving-design-systems/</link>
       <description>When a design system first starts out, the promise of visual consistency glows bright — the ideal product would have only one set of buttons, a unified typography scale, and elements that look the same no matter which designer made the design or which developer programmed them to be real and deploye</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -11307,7 +11307,7 @@
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/customization-vs-configuration-in-evolving-design-systems/" title="Customization vs. Configuration in Evolving Design Systems">
+        <p><a href="https://engineering.atspotify.com/2021/04/customization-vs-configuration-in-evolving-design-systems/" title="Customization vs. Configuration in Evolving Design Systems">
                         <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-250x126.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-700x352.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-768x386.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-1536x772.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/04/image3-120x60.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
                         
         </p>
