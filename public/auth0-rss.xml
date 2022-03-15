@@ -10405,6 +10405,13 @@ exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async<
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
     <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Flutter Authentication and Authorization with Auth0, Part 3: Adding Real-Time Chat to the App</title>
       <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-3-adding-real-time-chat-to-the-app/</link>
       <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
@@ -10711,13 +10718,6 @@ exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async<
   <span>// client.devToken(user.id).rawValue,</span>
     user<span>.</span>streamChatUserToken<span>,</span>
 <span>)</span><span>;</span></code></pre><p>Well done! Log out of the app, restart it. and log in again. This time, you&#39;ll receive a production-ready user token. When you go to the support chat screen, everything should work as expected.</p><h2 id="Looking-Ahead">Looking Ahead</h2><p>Now that the app has a real-time chat is ready with a proper authentication flow, you can move on to the next section to focus on authorization, roles, and permissions.</p></div></div>]]></content:encoded>
-      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
-      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
-      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
     <item>
