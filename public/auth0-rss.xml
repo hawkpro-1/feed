@@ -4,6 +4,243 @@
     <link>https://auth0.com/blog/rss.xml</link>
     <description></description>
     <item>
+      <title>Get Started with iOS Authentication using SwiftUI, Part 1: Login and Logout</title>
+      <link>https://auth0.com/blog/get-started-ios-authentication-swift-swiftui-part-1-login-logout/</link>
+      <description>Learn how to use Auth0 to implement basic login and logout in iOS apps built with SwiftUI.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>If you’re an iOS developer who’s new to SwiftUI and authentication with Auth0, you’re in for a treat. In this tutorial, you’ll build an app in SwiftUI that implements basic login and logout using Auth0!</p><p><strong>This tutorial covers using version 2.0.0 of the Auth0.swift SDK to implement login/logout in an iOS app written using the Swift programming language and the SwiftUI framework.</strong> In the process, you’ll get a quick introduction to the basics of our newly revised Swift SDK and how to use it with Apple’s SwiftUI framework. You’ll also become familiar with the Auth0 dashboard and learn how to use it to register applications and manage users.</p><blockquote><p><strong>Look for the 🛠 emoji if you’d like to skim through the content while focusing on the build and execution steps.</strong> </p></blockquote><h2 id="Apple-s-SwiftUI-Framework">Apple’s SwiftUI Framework</h2><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4jOxDICikkdQLFNtPKaNSp/1356c0c9d7415de3ea7164671699d968/swiftui_logo.png" alt="SwiftUI logo" width="200"/></p><p><a href="https://developer.apple.com/xcode/swiftui/" target="_blank" rel="noreferrer noopener">SwiftUI</a> is a user interface toolkit and “the new way” for building apps that Apple introduced in 2019. With SwiftUI, you build user interfaces using Swift code with a <em>declarative</em> approach, which means that you specify how the UI should look and behave under different states. You don’t have to specify how the UI moves between those states — it takes care of that for you. If you know <a href="https://reactjs.org/" target="_blank" rel="noreferrer noopener">React</a> programming, you’ll find SwiftUI familiar.</p><p>The SwiftUI approach is quite different from the one used by <a href="https://developer.apple.com/documentation/uikit" target="_blank" rel="noreferrer noopener">UIKit</a>, iOS’ original UI toolkit, which dates back to 2007. With UIKit, you build user interfaces using Interface Builder, a drag-and-drop layout tool to build the app’s views graphically. You connect UI elements to variables and methods in the app’s view controllers using outlets and actions. UIKit uses an imperative approach, which means that you define how the program moves between states and how the UI should look and behave in those states.</p><h2 id="Auth0-and-the--Auth0-swift--SDK">Auth0 and the <em>Auth0.swift</em> SDK</h2><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2l2T8DQNjSXDHljZAJxlXa/ac5177aca992db4ab351d96f18a6f859/auth0_shield.png" alt="Auth0 logo" width="200"/></p><p>Adding login and logout to an app may seem like a simple task — until you try it. You have to handle the many ways to log in, confirm email addresses and passwords, manage users, and handle security and scalability. Each of these issues has dozens of considerations, risks, issues, and edge cases.</p><p>Auth0 solves this problem. With Auth0 and a few lines of code, your app can have a full-featured system that supports logging in with a username/password combination, single sign-on and social accounts, passwordless login, biometrics, and more. You won’t have to handle the “behind the scenes” issues, either! Instead, you can focus on your app’s main functionality.</p><p><a href="https://auth0.com/docs/libraries/auth0-swift" target="_blank" rel="noreferrer noopener"><em>Auth0.swift</em></a> is the Auth0 SDK for all Apple platforms: not just iOS, but macOS, iPadOS, watchOS, and tvOS. It’s our third most-used SDK, accounting for 11% of all API requests made to our systems. If you’re building an Apple device application that needs to authenticate or authorize its users, you need this SDK!</p><p>The newest version of <em>Auth0.swift</em>, version 2.0.0, incorporates what we’ve learned from securing applications on Apple devices over the past five years. If you’ve used earlier versions, you’ll appreciate its updated error handling, support for <a href="https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html" target="_blank" rel="noreferrer noopener">async/await</a> and <a href="https://developer.apple.com/documentation/combine" target="_blank" rel="noreferrer noopener">Combine</a>, improved default configuration, new documentation, and that we removed deprecated methods and legacy features. If you’re new to Auth0, you’ll be pleasantly surprised at how little code you’ll need to write to add authentication to your apps.</p><h2 id="What-You-ll-Build">What You’ll Build</h2><p>In this tutorial, you’ll build a simple, single-screen iOS app that will allow the user to log in and log out using Auth0. While logged in, the screen will have a different appearance and show the user their name, email address, and photo from their profile.</p><p>In this tutorial, you’ll build a simple, single-screen iOS app that will allow the user to log in and log out using Auth0. While logged in, the screen will have a different appearance and show the user their name, email address, and photo from their profile.</p><p>Instead of building the app from a starter project, you’ll build it “from scratch,” starting with selecting <strong>File</strong> → <strong>New</strong> → <strong>Project…</strong> from Xcode’s menu bar.</p><h3 id="A-quick-tour-of-the-app">A quick tour of the app</h3><p>When you launch the completed app, you’ll see an logo icon, some status text, the app’s title, and a <strong>Log In</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2vCUITSZoWh5vx9rvaT23o/7f5a6ba12dd7948f2a93374a485e2abe/starter_app_1.png" alt="The app’s “Logged out” screen, featuring the app’s title, “SwiftUI Login Demo” and a “Log in” button."/></p><p>The <strong>Log in</strong> button takes the user to the <a href="https://auth0.com/docs/login/universal-login" target="_blank" rel="noreferrer noopener">Auth0 Universal Login screen</a>, which appears in a custom browser window:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6viU0brK9Sf7kefqWhCpcL/3c0ada420ad13f7cf3a952a433412f76/swiftui_app_acreen_2.png" alt="The Auth0 Universal Login web page, with Auth0 logo and “email address” and “password” fields."/></p><p>When you use Auth0 to add login/logout capability to your apps, you delegate authentication to Auth0’s <a href="https://auth0.com/docs/authenticate/login/auth0-universal-login" target="_blank" rel="noreferrer noopener">Universal Login</a>, a cross-platform webview-based page that supports logging in, signing up for an account, and other authentication flows. In this exercise, you’ll use the default “look and feel” for the login page, but <a href="https://auth0.com/docs/universal-login/new-experience/universal-login-page-templates" target="_blank" rel="noreferrer noopener">you can customize it to match your app or organization’s branding</a>.</p><p>If the user logs in successfully, the Universal Login screen and its browser window disappear, and the user returns to the app, which now displays selected information from the user’s profile, namely their profile photo, name, and email address, as well as a <strong>Log out</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/EYzWjMRx1fIiX9rU4Jd99/0a85c0549351669da425b614b6e82a8f/updated_logged_in_screen.png" alt="The app’s “logged in” screen, featuring the text “Logged in” and displaying the user’s picture, name, and email address."/></p><p>The <strong>Log out</strong> button logs the user out and returns them to the initial screen.</p><h2 id="Prerequisites">Prerequisites</h2><p>Here’s a list of the software, hardware, and knowledge you’ll need for this exercise.</p><h3 id="An-Auth0-account">An Auth0 account</h3><p>The app you will write for this article’s exercise uses Auth0 to provide login and logout functionality. As its developer, you’ll need an Auth0 account. You can <a href="https://auth0.com/signup" data-amp-replace="CLIENT_ID" data-amp-addparams="anonId=CLIENT_ID(cid-scope-cookie-fallback-name)" target="_blank" rel="noreferrer noopener">sign up for a free account</a>, which lets you add authentication for up to 10 applications and 7000 users. This should be enough for evaluating the platform, as well as for prototyping, development, and testing.</p><h3 id="An-iOS-development-setup">An iOS development setup</h3><p>To develop applications for any Apple hardware, you need a Mac computer running Xcode, Apple’s integrated development environment:</p><ul><li>Most Macs from mid-2013 or later with at least 8 GB RAM (16 GB preferred).</li><li>One of the more recent releases of macOS, preferably <a href="https://apps.apple.com/us/app/macos-big-sur/id1526878132?mt=12" target="_blank" rel="noreferrer noopener">Big Sur</a> or <a href="https://www.apple.com/macos/monterey/" target="_blank" rel="noreferrer noopener">Monterey</a>.</li><li><a href="https://developer.apple.com/xcode/" target="_blank" rel="noreferrer noopener">Xcode</a> version 11.0 (September 2019) or later. When writing this article, I used the current version: version 13.2.1 (13C100), released on December 17, 2021.</li></ul><h3 id="An-iOS-device--virtual-or-real">An iOS device, virtual or real</h3><p>Xcode comes with the Simulator, an application that creates virtual devices that simulate recent models of the iPhone, iPad, and iPod Touch models, all of which run iOS 15.</p><blockquote><p>To install earlier versions of iOS for the Simulator, select <strong>Preferences…</strong> from the <strong>Xcode</strong> menu, followed by the <strong>Components</strong> tab. You’ll see a list of older versions of not just iOS, but watchOS and tvOS as well.</p></blockquote><p>One of the benefits of using the Simulator is that you <em>don’t</em> need an Apple Developer account — free or paid — to use it.</p><p>While the Simulator is convenient, there’s no substitute for an actual physical device. It provides a more realistic testing experience, since you can’t do certain things on the Simulator, such as motion/tilt sensing and augmented reality. </p><p>To deploy an app directly to a device for testing, you need a free Apple Developer account, which in turn requires an Apple ID. If you don’t have an Apple ID, <a href="https://appleid.apple.com/account?appId=632&amp;returnUrl=https%3A%2F%2Fdeveloper.apple.com%2Faccount%2F" target="_blank" rel="noreferrer noopener">sign up for one here</a>. Once you have an Apple ID, go to <a href="https://developer.app" target="_blank" rel="noreferrer noopener">developer.apple.com</a>, click the <a href="https://developer.apple.com/account/" target="_blank" rel="noreferrer noopener"><strong>Account</strong></a> at the top of the page, and sign in.   </p><p>You need to register the device in your developer account to deploy apps to it; <a href="https://developer.apple.com/account/resources/devices/list" target="_blank" rel="noreferrer noopener">you do so on this page in the Apple Developer site</a>. You can register up to 100 devices per membership year. You’ll need to provide the device’s UDID (Unique Device IDentifier), and <a href="https://udid.tech/" target="_blank" rel="noreferrer noopener">you may find this site helpful</a>. Once you’ve registered a device, you can deploy apps directly to it; see <a href="https://developer.apple.com/documentation/xcode/distributing-your-app-to-registered-devices" target="_blank" rel="noreferrer noopener"><em>Distributing Your App to Registered Devices</em></a> for more information.</p><p>To deploy apps to the App Store, you’ll need a paid account. For more details, see the <a href="https://developer.apple.com/programs/enroll/" target="_blank" rel="noreferrer noopener">Apple Developer enrollment page</a>.</p><p>To find out more about running apps on virtual and real iOS devices, start with Apple’s article, <a href="https://developer.apple.com/documentation/xcode/running-your-app-in-the-simulator-or-on-a-device" target="_blank" rel="noreferrer noopener"><em>Running Your App in the Simulator or on a Device</em></a>.</p><h3 id="Some-knowledge-of-Swift-and--struct-s">Some knowledge of Swift and <code>struct</code>s</h3><p>While not completely necessary, it would help if you were familiar with the Swift programming language and iOS development. If these are new to you, the Swift programming language, or the UIKit framework, try this Apple tutorial: <a href="https://developer.apple.com/tutorials/app-dev-training/getting-started-with-today" target="_blank" rel="noreferrer noopener"><em>Getting Started with Today,</em></a>.</p><p>SwiftUI relies heavily on <code>struct</code>s, so you may find it helpful to review their basics. You may find <em>Hacking with Swift’s</em> article, <a href="https://www.hackingwithswift.com/quick-start/beginners/how-to-create-your-own-structs" target="_blank" rel="noreferrer noopener"><em>How to create your own structs</em></a>, helpful.</p><h2 id="Make-a-New-SwiftUI-App">Make a New SwiftUI App</h2><p>Let’s start by building a new SwiftUI app. Once we have a basic app working and you’ve learned about a few SwiftUI interface elements, we’ll incorporate Auth0 authentication and then finish the exercise by adding some user experience flair.</p><h3 id="Start-from-scratch">Start from scratch</h3><p>🛠 Launch Xcode and create a new project by opening the <strong>File</strong> menu and selecting <strong>New</strong> → <strong>Project...</strong>.</p><p>Xcode will present this dialog box, where you’ll choose a project template for the app you’ll create. Each template generates the necessary files for different applications, including general-purpose apps, videogames, augmented reality apps, and add-ons that add custom features to iMessage and Safari.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3ODgLadC5ufqPqzgKO54C8/fed4b68956a55076b2350b8c10cdea7b/choose_template.png" alt="Xcode’s “Choose a template for your new project” dialog, with “iOS” and “App” selected."/></p><p>🛠 For this exercise, we want to create a general-purpose app for iOS, so select the <strong>iOS</strong> tab, then select <strong>App</strong> project template, which will be at the upper left corner of the collection. Click the <strong>Next</strong> button to confirm the selection.</p><p>Xcode will display the next dialog box, where you’ll give the project its human- and computer-friendly names and specify which programming language and framework you’ll use:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1Ovxubuy744ymhlGzG9weh/89c5147cf335642710aece40e62ec5cc/choose_options.png" alt="Xcode’s “Choose options for your new project” dialog, with the  “Product Name” field filled with “SwiftUI Login Demo”."/></p><p>🛠 In this dialog box, do the following:</p><ul><li>Enter a name for the project into the <strong>Product Name</strong> field. For this exercise, I used the name <code>SwiftUI Login Demo</code>.</li><li>Select a team from the <strong>Team</strong> menu. 
+If you haven’t created a development team yet and want to continue with this exercise without going through the process of signing up for an Apple developer account and creating a team, select <strong>None</strong>. This will let you deploy the app to the Simulator but not to a device.</li><li>Enter <code>com<span>.</span>example</code> into the <strong>Organization Identifier</strong> field.</li><li>Select <strong>SwiftUI</strong> from the <strong>Interface</strong> menu.</li><li>Select <strong>Swift</strong> from the <strong>Language</strong> menu.</li><li>Click the <strong>Next</strong> button.</li></ul><p>🛠 Xcode will show one more dialog box — this one lets you specify where your project and its files will be stored. Select a location.</p><p>Once you’ve completed the steps above, Xcode will generate the files for your project and display the main window:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1XrrWzO79Gn3TzLuJjIjsJ/37701f5b6d4deca6c8fa65dffaa8cc89/initial_xcode_window.png" alt="The Xcode window displaying the newly created project, with an empty Preview pane."/></p><p>Whenever you create a new SwiftUI project using the App template, Xcode generates a single view named <code>ContentView</code>, whose contents are the first thing you see once it creates the project.</p><p>This is <code>ContentView</code>’s initial code, annotated with numbered comments:</p><pre><code><span>import</span> <span>SwiftUI</span>  <span>// 1</span>
+
+<span>// 2</span>
+<span>struct</span> <span>ContentView</span><span>:</span> <span>View</span> <span>{</span>
+  
+  <span>// 3</span>
+  <span>var</span> body<span>:</span> some <span>View</span> <span>{</span>
+    
+    <span>// 4</span>
+    <span>Text</span><span>(</span><span>&#34;Hello, world!&#34;</span><span>)</span>
+      <span>.</span><span>padding</span><span>(</span><span>)</span>
+  <span>}</span>
+<span>}</span>
+
+<span>// 5</span>
+<span>struct</span> <span>ContentView_Previews</span><span>:</span> <span>PreviewProvider</span> <span>{</span>
+  <span>static</span> <span>var</span> previews<span>:</span> some <span>View</span> <span>{</span>
+    <span>ContentView</span><span>(</span><span>)</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Here’s what’s happening in the code marked by the numbered comments above:</p><ol start="1"><li>Any SwiftUI project file that defines a UI element, whether a whole screen or a single control, must import the SwiftUI library.</li><li>In SwiftUI, every UI element is a view — a <code>struct</code> that adopts the <code>View</code> protocol, which defines the functionality that a SwiftUI onscreen element should provide. This particular view, <code>ContentView</code>, defines the app’s single screen.</li><li>The <code>View</code> protocol has a single requirement: any type that adopts it must have a <code>body</code> property, which defines the UI element’s appearance and behavior. The <code>body</code> property’s type is <code>some View</code>, which is <a href="https://www.process-one.net/blog/the-concepts-behind-swiftui-what-is-the-keyword-some-doing/" target="_blank" rel="noreferrer noopener">Swift’s way of saying “some type that adopts the <code>View</code> protocol</a>.” Note that <code>body</code>’s value is determined by a <a href="https://www.appypie.com/closures-swift-how-to" target="_blank" rel="noreferrer noopener">closure</a>, which is a block of code that you can pass to a function.</li><li>You’ve probably figured out that <code>Text</code> is a view for displaying text onscreen. Views can be followed by <em>modifiers</em> — methods that change their appearance or behavior. In this case, we’re adding space between the <code>Text</code> view’s contents and edges with the <code><span>padding</span><span>(</span><span>)</span></code> modifier.</li><li>When Xcode creates a new file for a view, it generates two <code>struct</code>s: one for the view that appears in the app, and one for a preview that appears in the Xcode editor. This <code>struct</code>, <code>ContentView_Previews</code>, generates a preview of <code>ContentView</code> that allows you to see what it will look like without requiring you to compile and run the app.</li></ol><p>When editing view files, Xcode divides the editing area in the center of its screen into two areas: a code editor and a preview viewer. </p><p>🛠 To see what the app’s user interface will look like, make a selection from the simulator device menu, then click the <strong>Resume</strong> button in the preview viewer:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5kG3XOQE4EUyNEy0NbMsJ2/f09860c42e01722cd511f5571f081967/select_simulator_device_and_click_resume.png" alt="The Xcode window, with instructions to select a simulator device and click the “Resume” button."/></p><p>You should see something like this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6pOLYbPrYnl4o5w6bCpfLK/1a2dff3da2c8670afa72cccff70cafd2/default_app_in_simulator.png" alt="The Xcode window, with the Preview pane displaying a preview of the app."/></p><p>🛠 You can also choose to see the app in action by running it. Select a Simulator device or connect a real device to your computer and click the <strong>Run</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1H4UKWoPWVgKhXub4yczTS/18bcbb01715cdc95017d085468425913/running_the_default_app.png" alt="The Xcode window, with instructions to make sure you’ve selected a simulator device and click the “Run” button."/></p><p>The Simulator will launch, and you’ll shortly see this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6kmQHF60K65RH0tw6RHm13/0fefc68078af348c8aeec0db3262e580/simulator_initial_run.png" alt="The Xcode simulator simulating an iPhone 13. Its screen is blank, except for the sentence “Hello, World!” in the center."/></p><h3 id="Add-state-and-interactivity-to-the-app">Add state and interactivity to the app</h3><p>It’s time for the app to do more than just display “Hello, World!” Let’s create the app’s two states — logged out and logged in — and provide a way for the user to navigate between them.</p><p>When launched, the app will feature title text and a <strong>Log in</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2vCUITSZoWh5vx9rvaT23o/7f5a6ba12dd7948f2a93374a485e2abe/starter_app_1.png" alt="The app’s “Logged out” screen, featuring the app’s title, “SwiftUI Login Demo” and a “Log in” button."/></p><p>Tapping the <strong>Log in</strong> button takes you to this screen, which has the text “Logged in” and a <strong>Log out</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4uU0WdpCV2zDclRYVQdimA/fb93f1404bdda89c2705f6c767239b4a/starter_app_2.png" alt="The app’s “Logged in” screen, featuring the text “Logged in” and a “Log out” button."/></p><p>🛠 In Xcode, open the <code>ContentView</code> file and replace the <code>ContentView</code> <code>struct</code> with the following:</p><pre><code><span>struct</span> <span>ContentView</span><span>:</span> <span>View</span> <span>{</span>
+  
+  <span>// 1</span>
+  @<span>State</span> <span>private</span> <span>var</span> isAuthenticated <span>=</span> <span>false</span>
+
+
+  <span>var</span> body<span>:</span> some <span>View</span> <span>{</span>
+
+    <span>// 2</span>
+    <span>if</span> isAuthenticated <span>{</span>
+      
+      <span>// 3</span>
+      <span>VStack</span> <span>{</span>
+        
+        <span>Text</span><span>(</span><span>&#34;Logged in&#34;</span><span>)</span>
+          <span>.</span><span>padding</span><span>(</span><span>)</span>
+        
+        <span>// 4</span>
+        <span>Button</span><span>(</span><span>&#34;Log out&#34;</span><span>)</span> <span>{</span>
+          isAuthenticated <span>=</span> <span>false</span>
+        <span>}</span>
+        <span>.</span><span>padding</span><span>(</span><span>)</span>
+        
+      <span>}</span>
+      
+    <span>}</span> <span>else</span> <span>{</span>
+    
+      <span>// 5</span>
+      <span>VStack</span> <span>{</span>
+        
+        <span>Text</span><span>(</span><span>&#34;SwiftUI Login Demo&#34;</span><span>)</span>
+          <span>.</span><span>padding</span><span>(</span><span>)</span>
+        
+        <span>// 6</span>
+        <span>Button</span><span>(</span><span>&#34;Log in&#34;</span><span>)</span> <span>{</span>
+          isAuthenticated <span>=</span> <span>true</span>
+        <span>}</span>
+        <span>.</span><span>padding</span><span>(</span><span>)</span>
+        
+      <span>}</span>
+      
+    <span>}</span> <span>// if isAuthenticated</span>
+    
+  <span>}</span>
+  
+<span>}</span></code></pre><p>I’ve marked the code with numbered comments, which are explained below:</p><ol start="1"><li>This line declares a new private instance variable, <code>isAuthenticated</code>. It starts with <code>@State</code>, which tells SwiftUI a couple of things about it:
+ <ul><li><code>@State</code> informs SwiftUI that this variable is part of the view’s <em>state</em>, which is the set of variables that affect its appearance and behavior. When the value of any state variable in a view is changed, SwiftUI redraws the view to reflect that change. The value of <code>isAuthenticated</code> will be set to <code><span>true</span></code> if the user is logged in and <code><span>false</span></code> if the user is logged out. Since this value will affect the app’s appearance, I’ve made it a state variable.</li><li><code>@State</code> also allows the <code>struct</code>’s methods to change its value. By default, a <code>struct</code>’s methods can’t change the values of its variables.</li></ul></li><li>The app should display a different screen depending on the value of <code>isAuthenticated</code>. This <code><span>if</span></code> statement determines the value that will be assigned to <code>body</code>, which determines the onscreen user interface.</li><li>This is the branch of the <code><span>if</span></code> statement that executes if the user is logged in. The result of this branch must be a single view, which is a problem: we want to display <em>two</em> views: some text and the <strong>Log out</strong> button. To work around this limitation, we’ll use a view that acts as a container for other views: <code>VStack</code>, whose name is short for “vertical stack.” It can take up to 10 views, which it displays in a vertical column, with the first view appearing at the top and subsequent views appearing below the topmost view.</li><li>The <code>Button</code> view takes two arguments:
+ <ul><li>A string value for the button’s label: “Logged in”.</li><li>A closure that defines what should happen when the user presses the button: it changes the value of <code>isAuthenticated</code> to <code><span>false</span></code>. Since <code>isAuthenticated</code> is a state variable, changing its value causes SwiftUI to redraw <code>ContentView</code>. When that happens, the app will execute the other branch of the <code><span>if</span></code> statement.</li></ul></li><li>This is the branch of the <code><span>if</span></code> statement that executes if the user is not logged in. The result of this branch is another <code>VStack</code> — this one contains the app’s title and the <strong>Log in</strong> button.</li><li>This <code>Button</code> view is similar to the one for the <strong>Log in</strong> button, except that it says <strong>Log out</strong> and sets <code>isAuthenticated</code> to <code><span>true</span></code> when pressed.</li></ol><p>🛠 If the <strong>Resume</strong> button is visible in the Preview pane, click it. It will update to display the new user interface.</p><p>🛠 Run the app to see it in action. Click the <strong>Log in</strong> and <strong>Log out</strong> buttons to go from screen to screen.</p><h3 id="Refactor-the-buttons--code">Refactor the buttons’ code</h3><p>As SwiftUI views become more complex, their code often becomes increasingly hard to read. One way to keep them readable is to put code in closures into their own methods.</p><p>🛠 Add this extension to <code>ContentView</code>, between <code>ContentView</code> and <code>ContentView_Previews</code>:</p><pre><code><span>extension</span> <span>ContentView</span> <span>{</span>
+  
+  <span>func</span> <span>login</span><span>(</span><span>)</span> <span>{</span>
+    isAuthenticated <span>=</span> <span>true</span>
+  <span>}</span>
+  
+  <span>func</span> <span>logout</span><span>(</span><span>)</span> <span>{</span>
+    isAuthenticated <span>=</span> <span>false</span>
+  <span>}</span>
+  
+<span>}</span></code></pre><p>🛠 Update the code for the <strong>Log out</strong> button in <code>ContentView</code> to the following:</p><pre><code>        <span>Button</span><span>(</span><span>&#34;Log out&#34;</span><span>)</span> <span>{</span>
+          <span>logout</span><span>(</span><span>)</span>
+        <span>}</span>
+        <span>.</span><span>padding</span><span>(</span><span>)</span></code></pre><p>🛠 Update the code for the <strong>Log in</strong> button in <code>ContentView</code> to the following:</p><pre><code>        <span>Button</span><span>(</span><span>&#34;Log in&#34;</span><span>)</span> <span>{</span>
+          <span>login</span><span>(</span><span>)</span>
+        <span>}</span>
+        <span>.</span><span>padding</span><span>(</span><span>)</span></code></pre><p>🛠 Run the app. It will still work the same way, but by extracting the buttons’ closures into their own methods and putting those methods into their own extension, the code will be easier to read and change.</p><h2 id="Set-Up-the-App-to-Integrate-with-Auth0">Set Up the App to Integrate with Auth0</h2><p>Now that you’ve been introduced to a few SwiftUI views and have seen how SwiftUI uses state to configure the user interface, it’s time to change the app to one that uses Auth0 for user authentication. </p><h3 id="Install-the--Auth0-swift--package">Install the <em>Auth0.swift</em> package</h3><p>Let’s take on the first part of this task: setting up the app to integrate with Auth0. We’ll do this by adding the <em>Auth0.swift</em> package to the project.</p><p><em>Auth0.swift</em> is a collection of libraries that allow applications written in Swift to make use of Auth0’s authorization and authentication functionality. It contains these Swift libraries:</p><ul><li><code>Auth0</code>: A toolkit for using <a href="https://auth0.com/docs/api" target="_blank" rel="noreferrer noopener">Auth0’s APIs</a>, including the <a href="https://auth0.com/docs/api/authentication" target="_blank" rel="noreferrer noopener">Authentication API</a>, which you’ll use to implement login and logout in the app.</li><li><code>JWTDecode</code>: A library for decoding <a href="https://jwt.io/introduction" target="_blank" rel="noreferrer noopener">JWTs (JSON web tokens)</a>.</li><li><code>SimpleKeychain</code>: A wrapper for the <a href="https://developer.apple.com/documentation/security/keychain_services" target="_blank" rel="noreferrer noopener">iOS Keychain</a> useful for securely storing small chunks of data, such as user credentials.</li></ul><p>There are three ways to install <em>Auth0.swift</em>:</p><ol start="1"><li><a href="https://swift.org/package-manager/" target="_blank" rel="noreferrer noopener">Swift Package Manager</a>, Apple’s dependency manager</li><li><a href="https://cocoapods.org/" target="_blank" rel="noreferrer noopener">Cocoapods</a>, a long-standing third-party package manager first released in 2011 and used in many projects</li><li><a href="https://github.com/Carthage/Carthage" target="_blank" rel="noreferrer noopener">Carthage</a>, another third-party package manager</li></ol><p>I chose to use Swift Package Manager for this tutorial because it’s built into Xcode and doesn’t require additional software. If you’d rather use Cocoapods or Carthage to install <em>Auth0.swift</em>, <a href="https://auth0.com/docs/quickstart/native/ios-swift#install-the-sdk" target="_blank" rel="noreferrer noopener">see these instructions</a>.</p><p>🛠 To start the process of installing the <em>Auth0.swift</em> package, open the <strong>File</strong> menu and select <strong>Add Packages...</strong>. This window will appear:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/100ew69wVN7eru0ygSH43x/33e6c376160781a92e5e072a4de15f3e/install_auth0_package_1.png" alt="The “Add Packages” window."/></p><p>🛠 Enter the URL for the <em>Auth0.swift</em> package repository into the window’s search field:</p><pre><code>https<span>:</span><span>/</span><span>/</span>github<span>.</span>com<span>/</span>auth0<span>/</span>Auth0<span>.</span>swift<span>.</span>git</code></pre><p>Xcode will search online and display any packages it finds at the URL. The search should produce a single result: <em>Auth0.swift</em>.</p><p>🛠 Select the <strong>Auth0.swift</strong> package when it appears in the list. In the <strong>Dependency Rule</strong> menu, select <strong>Up to Next Major Version</strong> and make sure that the version number in the text field to its right os <code><span>2.0</span><span>.0</span></code>, then click <strong>Add Package</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/31e6E1Au6syIpBz9TlFz21/2c1c5a917ed69b2d269b60a45d154804/install_auth0_package_2.png" alt="The “Add Packages” window, with instructions for adding the “Auth0.swift” package."/></p><p>🛠 You’ll be asked to confirm that you want to add the <em>Auth0.swift</em> package. Click <strong>Add Package</strong> to reassure Xcode that yes, you want <em>Auth0.swift</em>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/DgmNEWGaLNYY45YN5yeQI/87847efc55729dcab638062cf418ee2f/install_auth0_package_3.png" alt="The “Add Packages” window, with a modal window asking the user to select the packages to add."/></p><p>When <em>Auth0.swift</em> finishes installing, its package will appear in the list under the <strong>Package Dependencies</strong> tab of the project screen. You’ll see <em>Auth0.swift’s</em> libraries listed in the Project Explorer pane: </p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/6I5vKsKOPqOuoIbu0WpoTy/0e7aebb51574beb841347a5eb9d81b05/install_auth0_package_4.png" alt="Xcode’s “Package Dependencies” tab."/></p><p>At this point, the functionality contained within <em>Auth0.swift</em> is now available to your app. You’ll start using it once you’ve done all the necessary Auth0 setup.</p><h3 id="Add-a-property-list-to-store-Auth0-credentials">Add a property list to store Auth0 credentials</h3><p>In order to use Auth0 to authenticate users, your app needs to:</p><ul><li>communicate with the appropriate Auth0 <a href="https://auth0.com/docs/get-started/auth0-overview/create-tenants#create-a-tenant-and-domain" target="_blank" rel="noreferrer noopener">tenant</a>, and</li><li>identify itself to that server.</li></ul><p>You do this by providing the app with that tenant’s identifier, a value known as the <em>domain</em>, and the app’s identifier, the <em>client ID</em>. <em>Auth0.swift</em> expects to find these values in a property list (a <code><span>.</span>plist</code> file), so let’s create one.</p><p>🛠 Create a new property list file by right-clicking (or control-clicking) the <strong>SwiftUI Login Demo</strong> folder in Project Explorer and selecting <strong>New File…</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5KGLpG2sKiw4Xqem8zsaC3/92060a8ecc10a5fac799d99eea19711d/create_new_plist_1.png" alt="Xcode screenshot, showing the user selecting “File -&gt; New File...”"/></p><p>🛠 In the window that appears, make sure that the <strong>iOS</strong> tab is selected. Scroll down the list of icons until you see the <strong>Property List</strong> icon. Select it, then click <strong>Next</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/50TZKBjTR6ReJdsK98VQnw/ee65a98f22e36cf272e199f203e8abd2/create_new_plist_2.png" alt="Xcode screenshot, showing the selection of the “Property List” file template."/></p><p>🛠 Name the file <code>Auth0<span>.</span>plist</code> and click <strong>Create</strong> to create the file:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/am3pLocO8RHtF5aEROzXK/55bb5dd0406854d05270b4f840a54648/create_new_plist_3.png" alt="Xcode screenshot, showing the “Save” dialog box for the property list."/></p><p>Xcode will display the new <code>Auth0<span>.</span>plist</code> file in a table format. Let’s add two rows to the table, which will hold the domain and client ID values.</p><p>🛠 Move the cursor over the <strong>Root</strong> row to reveal the <strong>+</strong> button. Click on the <strong>+</strong> button <em>twice</em> to add <em>two</em> rows:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/4H8mDfUiIFOSAgB9fjJhFq/e1e3b06dbe83b11766bd0f5faf36d459/create_new_plist_4.png" alt="Xcode screenshot, showing the creation of two new rows in the property list."/></p><p>🛠 Enter the following values into the two rows:</p><ul><li>Row 1:
+  <ul><li><strong>Key:</strong> <code>Domain</code></li><li><strong>Type:</strong> <code>String</code></li><li><strong>Value:</strong> Leave this blank for the time being. You’ll get this value from the Auth0 dashboard.</li></ul></li><li>Row 2:
+  <ul><li><strong>Key:</strong> <code>ClientId</code></li><li><strong>Type:</strong> <code>String</code></li><li><strong>Value:</strong> Leave this blank for the time being. You’ll get this value from the Auth0 dashboard.</li></ul></li></ul><p>Your <code>Auth0</code> plist file should look like this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/60Ge68Pws1CRwoJtvUfPTl/cbec84d40dcde9014df4a08b3a86dba1/create_new_plist_5.png" alt="Xcode screenshot, showing the completed property list."/></p><h2 id="Set-Up-Auth0-to-Integrate-with-Your-App">Set Up Auth0 to Integrate with Your App</h2><p>Now that you’ve set up the app to work with Auth0, it’s time to set up your Auth0 tenant to work with the app. To accomplish this, you’ll do the following:</p><ol start="1"><li>Add the app to your Auth0 dashboard’s list of registered applications</li><li>Gather two pieces of information that the app will need to delegate login/logout to Auth0: 
+ <ul><li>Your tenant’s domain</li><li>The client ID that Auth0 will assign to the app</li></ul></li><li>Provide Auth0 with the necessary callback URLs to contact the app: one to call at the end of the login process and the other to call at the end of the logout process</li></ol><p>You’ll need an Auth0 account for this step. Once again, <a href="https://auth0.com/signup" data-amp-replace="CLIENT_ID" data-amp-addparams="anonId=CLIENT_ID(cid-scope-cookie-fallback-name)" target="_blank" rel="noreferrer noopener">you can sign up for an Auth0 account for free!</a> We’ve taken great care to make the process as painless as possible.</p><h3 id="Add-the-app-to-the-Applications-list">Add the app to the Applications list</h3><p>🛠 Log into the Auth0 dashboard and select <strong>Applications</strong> → <strong>Applications</strong> from the menu on the left side of the page.</p><p>You will now be on the <strong>Applications</strong> page, which lists all the applications that you have registered with Auth0. Let’s add your app to the list.</p><p>🛠 Start the process of registering a new app by clicking the <strong>Create application</strong> button near the top right of the page:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3WYgeMPVAzoHBoxWKEdoDN/9249d91dff46dc1396c3d54d303de6f8/dashboard_-_create_application.png" alt="The “Applications” page. The reader is directed to click the “Create Application” button."/></p><p>You’ll see this dialog appear:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/48XqjmIoSHGZDmqLWNtRXF/3c0b5413d23580e079db43c9ed5ee711/dashboard_-_create_application_dialog.png" alt="The “Create application” dialog. The application’s name is set to “iOS Auth”, and the selected application type is “Native”."/></p><p>🛠 You’ll need to provide two pieces of information to continue:</p><ul><li>Enter a name for the app in the name field. It might be simplest to use the same name as your Xcode project (if you’ve been following my example, use the name <strong>SwiftUI Login Demo</strong>).</li><li>Specify the application type, which in this case is <strong>Native</strong>.</li></ul><p>🛠 Click <strong>Create</strong>. The <strong>Quick Start</strong> page for the app will appear:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/48nyPyhRSWRdn2vGCdlYoP/1600210c674dd6e6c7daf7c2ee46cc27/quick_start_tab.png" alt="The “Quick Start” page. It contains several icons, each one representing an operating system or platform."/></p><p>This page provides you with ready-made projects for several different platforms that you can use as the basis for an application that delegates authentication to Auth0. You won’t be using any of them in this exercise; instead, you’ll make use of a couple of Auth0 libraries and write the code yourself. It’s more educational — and more importantly, <em>fun</em> — that way.</p><p>🛠 Click the <strong>Settings</strong> tab, which will take you to this page:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/37HtYh1S4r9FCYZfSB0bvB/055ca8a7e14e9da539f11c39c4822154/settings_tab.png" alt="The “Application” page’s “Settings” tab."/></p><p>You’re going to do two critical things on this page:</p><ol start="1"><li>Get information that the app needs to know about Auth0, and</li><li>Provide information that Auth0 needs to know about the app.</li></ol><p>Let’s take care of the first one: Getting the information that the app needs, namely the domain and client ID, which you’ll enter into the property list file you created earlier.</p><p>🛠 Copy the contents of the <strong>Domain</strong> field, then switch to Xcode, open the <code>Auth0</code> property list, and paste the domain value you copied into the <strong>Domain</strong> row’s <strong>Value</strong> field.</p><p>🛠 Next, go back to the Auth0 dashboard and copy the contents of the <strong>Client ID</strong> field, then switch to Xcode, and paste the domain value you copied into the <strong>ClientId</strong> row’s <strong>Value</strong> field in the property list.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/7mXvwXHQMTzNLWaCktaZKK/4d0f3288d300cf53db4ca20897337c9d/copy_domain_and_clientid_values.png" alt="The Auth0 property list in Xcode, with instructions to copy and paste the “Domain” and “Client ID” values into it."/></p><p>🛠 Return to the Auth0 dashboard and scroll down to the <strong>Applications URIs</strong> section:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/55BxLToXj6zXYvxaYLmICP/0998fb3d2e81a9c5a1285849c2a394c4/application_uris_section.png" alt="The “Application URIs” section of the “Application” page’s “Settings” tab."/></p><p>This is where you provide Auth0 with two pieces of information that it needs to know about your app:</p><ol start="1"><li>The <strong>callback URL:</strong> the URL that Auth0 will redirect to after the user successfully logs in. There can be more than one of these.</li><li>The <strong>logout URL:</strong> the URL that Auth0 will redirect to after the user logs out. There can be more than one of these.</li></ol><p>At this point, you’re probably thinking: “Wait a minute — I’m writing a <em>iOS app using SwiftUI</em>. It doesn’t have <em>web pages</em> that you navigate to using URLs, but <em>Views</em>!”</p><p>You’re absolutely right. For native applications, the callback and logout URLs are the same string, and Auth0 sends that string to the app to inform it that a user has logged in or logged out.</p><p>The string that native iOS apps use for both the callback URL and the logout URL follow this format:</p><pre><code><span>{</span><span>BUNDLE_IDENTIFIER</span><span>}</span><span>:</span><span>/</span><span>/</span><span>{</span><span>YOUR_DOMAIN</span><span>}</span><span>/</span>ios<span>/</span><span>{</span><span>BUNDLE_IDENTIFIER</span><span>}</span><span>/</span>callback</code></pre><p>To construct this string, you’ll need your app’s bundle identifier.</p><p>🛠 In Xcode, click on the project in the Project navigator, click on the project in the <strong>Targets</strong> menu, and select the <strong>General</strong> tab. Copy the bundle identifier value, which you’ll find in the <strong>Bundle Identifier</strong> field in the <strong>Identity</strong> section near the top of the center pane:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/78YuX3Ckyc6dfZ6PAbNDRs/c48010f7de65094c37a1e92aada8248d/bundle_identifier_in_xcode.png" alt="Getting the bundle identifier from Xcode."/></p><p>🛠 Copy the URL format string above and make the following changes to create a new URL:</p><ul><li>Replace <code><span>{</span><span>BUNDLE_IDENTIFIER</span><span>}</span></code> with the bundle identifier you copied. Note that <code><span>{</span><span>BUNDLE_IDENTIFIER</span><span>}</span></code> appears twice in the URL — replace it both times.</li><li>Replace <code><span>{</span><span>YOUR_DOMAIN</span><span>}</span></code> with your tenant’s domain.</li></ul><p>🛠 Enter the URL you just constructed into both the <strong>Allowed Callback URLs</strong> and <strong>Allowed Login URLs</strong> fields. Remember, the same URL goes into both fields.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2OXT7ElyikvL8JNCO3RzFk/658591a0c5a67dc7e8499bb0ea02b7e5/settings_-_put_info.png" alt="The “Application URIs” section of the page. The reader is directed to enter the callback URL into “Allowed Callback URLs” and “Allowed Logout URLs”."/></p><p>🛠 You’ve done everything you need to do on this page. Scroll down to the bottom of the page and click the <strong>Save Changes</strong> button:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3w6HT6fNOjiJPOjA5uduzt/bb290473a3ae601b70d7ce6456ac7fc4/settings_-_save_changes.png" alt="The bottom of the page, which features the “Save Changes” button. An arrow directs the reader to click the button."/></p><h3 id="Create-a-user-if-your-tenant-doesn-t-have-any">Create a user if your tenant doesn’t have any</h3><p>If you just created an Auth0 account, your tenant won’t have any user accounts. You’ll need at least one user account to be able to log into the app. Follow these steps to create a user.</p><p>🛠 In the menu on the left side of the Auth0 dashboard, select <strong>User Management</strong>  → <strong>Users</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1tivj870qehY6oIaeDolj1/31b0544fab715b7fbded29fb63802a45/select_users_menu_item.png" alt="The bottom of the page now featuring an expanded “User Management” menu. An arrow directs the reader to expand the “Users” menu item."/></p><p>The <strong>Users</strong> page will appear. It lists all the users registered to your tenant. If there are no users, you’ll see the “You don’t have any users yet” message.</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1wCORw3pqSOLt65n48Qr56/7421164d02cfb112350882a4cccb4cca/click_create_user.png" alt="The “Users” page. The page says, “You don’t have any users yet”. An arrow directs the reader to click the “Create User” button."/></p><p>🛠 Click the <strong>Create User</strong> button to create a new user, which will make this dialog box appear:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/2s3GfTHNKRgts8lcXQJ0SH/6d6d0ca397684be75030d40bb6b94fb5/create_user_dialog.png" alt="The “Create User” dialog. It has fields for email and password, as well as a drop-down menu displaying “Username-Password-Authentication”."/></p><p>🛠 Enter an email address and password for the user. The only option for the <strong>Connection</strong> will be <strong>Username-Password-Authentication</strong>, so leave it as it is. Make a note of that email address and password — you’ll be using them to log in to the app.</p><p>🛠 Click the <strong>Create</strong> button to create the user. The user’s <strong>Details</strong> page will appear:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/3TbGcAFo4e4N1coNCtHYdV/fa830264079fc661cbc683590729e4b1/user_details_page.png" alt="The user’s “Details” page."/></p><p>That takes care of all the setup you need to do within the Auth0 dashboard. It’s time to go back to Xcode and the app.</p><h2 id="Add-Authentication">Add Authentication</h2><p>With all that setup complete, it’s time to return to coding. In this step, we’ll convert the app into one that uses Auth0 to log the user in and out.</p><h3 id="Import-the-Auth0-library">Import the Auth0 library</h3><p>🛠 Find this line near the beginning of <code>ContentView</code>...</p><pre><code><span>import</span> <span>SwiftUI</span></code></pre><p>...and add this <code><span>import</span></code> statement immediately after it:</p><pre><code><span>import</span> <span>Auth0</span></code></pre><p>This addition will allow the app to use the <code>Auth0</code> object and its methods and properties.</p><h3 id="Update-the--login----method">Update the <code><span>login</span><span>(</span><span>)</span></code> method</h3><p>The <code><span>login</span><span>(</span><span>)</span></code> method merely <em>simulates</em> the login process. Let’s make it real.</p><p>🛠 Open <code>ContentView</code> and replace the current <code><span>login</span><span>(</span><span>)</span></code> method with this one:</p><pre><code>  <span>func</span> <span>login</span><span>(</span><span>)</span> <span>{</span>
+    <span>Auth0</span> <span>// 1</span>
+      <span>.</span><span>webAuth</span><span>(</span><span>)</span> <span>// 2</span>
+      <span>.</span>start <span>{</span> result <span>in</span> <span>// 3</span>
+        <span>switch</span> result <span>{</span>
+          <span>// 4</span>
+          <span>case</span> <span>.</span><span>failure</span><span>(</span><span>let</span> error<span>)</span><span>:</span>
+            <span>print</span><span>(</span><span>&#34;Failed with: <span><span>\(</span>error<span>)</span></span>&#34;</span><span>)</span>
+          <span>// 5</span>
+          <span>case</span> <span>.</span><span>success</span><span>(</span><span>let</span> credentials<span>)</span><span>:</span>
+            <span>self</span><span>.</span>isAuthenticated <span>=</span> <span>true</span>
+            <span>print</span><span>(</span><span>&#34;Credentials: <span><span>\(</span>credentials<span>)</span></span>&#34;</span><span>)</span>
+            <span>print</span><span>(</span><span>&#34;ID token: <span><span>\(</span>credentials<span>.</span>idToken<span>)</span></span>&#34;</span><span>)</span>
+        <span>}</span> 
+      <span>}</span>
+  <span>}</span></code></pre><p>The notes below correspond to the numbered comments in the login() method:</p><ol start="1"><li>The Auth0 package’s <code>Auth0</code> object provides methods for the authentication process. Many of these methods perform one of the necessary steps for authentication, and you can chain these methods together to do different authentication tasks.</li><li><code><span>webAuth</span><span>(</span><span>)</span></code> is the first method in the chain. It creates a <code>WebAuth</code> object, which initiates Universal Login. It required the tenant’s domain and app’s client ID, which it collects from the <code>Auth0</code> property list.</li><li><code><span>start</span><span>(</span><span>)</span></code> is the method that presents the login box. It takes a closure whose sole parameter represents the result of the user’s attempt to log in. The two possible outcomes — a failed login and a successful login — are handled within the closure.</li><li>We’re keeping things simple in the failure case. In the case of an unsuccessful login, the app simply prints an error message in the debug console.</li><li>If the user successfully logs in, two things happen:
+ <ul><li>The app receives the user’s credentials, a collection of information about the user. One of these credentials is the <em>ID token</em>, which is proof that the user has been authenticated. For now, the app will simply use <code>credentials</code>’ <code>idToken</code> property to print the ID token to the debug console; in a later revision, it will extract the user’s name, email address, and picture URL from the token.</li><li>The <code>isAuthenticated</code> state variable is set to <code><span>true</span></code>, and this change causes the UI to update to the “logged in” view.</li></ul></li></ol><h3 id="Update-the--logout----method">Update the <code><span>logout</span><span>(</span><span>)</span></code> method</h3><p>Just as you did with <code><span>login</span><span>(</span><span>)</span></code>, it’s time to give the <code><span>logout</span><span>(</span><span>)</span></code> method real functionality.</p><p>🛠 Replace the current <code><span>logout</span><span>(</span><span>)</span></code> method with this one:</p><pre><code>  <span>func</span> <span>logout</span><span>(</span><span>)</span> <span>{</span>
+    <span>Auth0</span> <span>// 1</span>
+      <span>.</span><span>webAuth</span><span>(</span><span>)</span> <span>// 2</span>
+      <span>.</span>clearSession <span>{</span> result <span>in</span> <span>// 3</span>
+        <span>switch</span> result <span>{</span>
+          <span>// 4</span>
+          <span>case</span> <span>.</span><span>failure</span><span>(</span><span>let</span> error<span>)</span><span>:</span>
+            <span>print</span><span>(</span><span>&#34;Failed with: <span><span>\(</span>error<span>)</span></span>&#34;</span><span>)</span>
+            <span>// 5</span>
+          <span>case</span> <span>.</span>success<span>:</span>
+            <span>self</span><span>.</span>isAuthenticated <span>=</span> <span>false</span>
+        <span>}</span>
+      <span>}</span>
+  <span>}</span></code></pre><p>The notes below correspond to the numbered comments in the logout() method:</p><ol start="1"><li>We’re chaining methods from the <code>Auth0</code> object again.</li><li>Just as with <code><span>login</span><span>(</span><span>)</span></code>, <code><span>webAuth</span><span>(</span><span>)</span></code> is the first method in the chain, and once again, we’re using it to activate Universal Login.</li><li><code><span>clearSession</span><span>(</span><span>)</span></code> does the actual work of logging out. Like the <code><span>start</span><span>(</span><span>)</span></code> method in <code><span>login</span><span>(</span><span>)</span></code>, <code><span>clearSession</span><span>(</span><span>)</span></code> takes a closure with a single parameter that represents the result of that request.</li><li>As with <code><span>login</span><span>(</span><span>)</span></code>, the app just prints an error message if the system can’t log the user out.</li><li>If the user successfully logs out, the <code>isAuthenticated</code> state variable is set to <code><span>false</span></code>, and this change causes the UI to update to the “logged out” view.</li></ol><h3 id="Test-the-updated-app">Test the updated app</h3><p>🛠 Run the app to confirm that the app actually authenticates users. This time, when you press the <strong>Log in</strong> button, instead of going directly to the “logged in” view, you’ll see the Universal Login screen. You’ll need to enter a valid username and password to see that second screen.</p><p>Look at Xcode’s debug window after you log in. You’ll see the output of the <code><span>login</span><span>(</span><span>)</span></code> method’s <code><span>print</span><span>(</span><span>)</span></code> functions, which output the contents of the <code>credentials</code> object and its <code>idToken</code> property:</p><pre><code>Credentials<span>:</span> <span>Credentials</span><span>(</span>accessToken<span>:</span> <span>&#34;&lt;REDACTED&gt;&#34;</span><span>,</span> tokenType<span>:</span> <span>&#34;Bearer&#34;</span><span>,</span> idToken<span>:</span> <span>&#34;&lt;REDACTED&gt;&#34;</span><span>,</span> refreshToken<span>:</span> nil<span>,</span> expiresIn<span>:</span> <span>2022</span><span>-</span><span>03</span><span>-</span><span>20</span> <span>04</span><span>:</span><span>38</span><span>:</span><span>25</span> <span>+</span><span>0000</span><span>,</span> scope<span>:</span> <span>Optional</span><span>(</span><span>&#34;openid profile email&#34;</span><span>)</span><span>,</span> recoveryCode<span>:</span> nil<span>)</span>
+<span>ID</span> token<span>:</span> eyJhbGciOiJSUzI1NiIsInR5cC<span>...</span></code></pre><p>Note that when the <code><span>print</span><span>(</span><span>)</span></code> function is used to output the contents of <code>credentials</code>, the values of the <code>accessToken</code> and <code>idToken</code> properties are replaced with the string <code><span>&lt;</span><span>REDACTED</span><span>&gt;</span></code>. Ideally, you should remove <code><span>print</span><span>(</span><span>)</span></code> functions from an app when it goes into production, but many developers often forget this step. Malicious parties can use tools to capture the output of <code><span>print</span><span>(</span><span>)</span></code> functions from production apps; this is why <code>Credentials</code> instances redact the values of their <code>accessToken</code> and <code>idToken</code> properties when printed.</p><p><code>credentials</code> has a <code>scope</code> property containing a space-delimited list of  <a href="https://auth0.com/docs/get-started/apis/scopes/openid-connect-scopes" target="_blank" rel="noreferrer noopener">OpenID Connect (OIDC) scopes</a> — authorizations for access to details about the user — that Auth0 has granted to the app. Unless you specify otherwise, <em>Auth0.swift</em> defaults to requesting the following scopes when logging in a user:</p><ul><li><code>openid</code>: Authorization to use OIDC to verify the user&#39;s identity</li><li><code>profile</code>: Authorization to access the user’s name information</li><li><code>email</code>:  Authorization to access the user’s email address</li></ul><p>To confirm that the app received an ID token after logging in the user, we print its value. We’ll use it to get the user’s name, email address, and picture in the next step.</p><blockquote><p>🚨 <strong>Warning:</strong> 🚨 It’s fine to print the value of the ID token to the debug console while you’re learning about the authentication process or building the app. Make sure that you remove <code><span>print</span><span>(</span><span>)</span></code> statements — especially those that print sensitive information, such as the ID token — before putting them into production!</p></blockquote><p>So far, you’ve created a SwiftUI-based iOS app that uses Auth0 for basic login and logout functionality. In the second part of this tutorial, you’ll give the app the ability to get information about the logged-in user and display it onscreen.</p></div></div>]]></content:encoded>
+      <pubDate>Wed, 30 Mar 2022 14:56:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Get Started with iOS Authentication using SwiftUI, Part 2: User Profiles</title>
+      <link>https://auth0.com/blog/get-started-ios-authentication-swift-swiftui-part-2-user-profiles/</link>
+      <description>Learn how to use Auth0 and user profiles to basic information about logged-in users in iOS apps built with SwiftUI.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In the previous part of this tutorial, you created a SwiftUI-based iOS app that uses Auth0 for basic login and logout functionality. In this part, you’ll enhance your app by giving it the ability to read the user’s profile to display their photo, name, and email address when they’re logged in.</p><h2 id="Display-the-User-s-Profile-Information">Display the User’s Profile Information</h2><p>The app only “knows” whether the user is logged in or logged out in its current state. It also has information about the user’s identity, which is encoded in the ID token. Let’s extract this user information — the <em>user profile</em> — and use it to display the user’s name, email address, and picture when the user is logged in. </p><p>When you’ve completed this section, the app’s “logged in” screen will look something like this:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/EYzWjMRx1fIiX9rU4Jd99/0a85c0549351669da425b614b6e82a8f/updated_logged_in_screen.png" alt="The app’s “logged in” screen, now displaying the user’s picture, name, and email address."/></p><h3 id="Create-a-data-structure-for-the-user-profile">Create a data structure for the user profile</h3><p>We&#39;ll need to build a data structure to store it before we can extract the user’s profile information from the ID token. Let’s create a <code>struct</code> for that purpose.</p><p>🛠 Create a new Swift file for the <code>struct</code> by right-clicking (or control-clicking) the <strong>SwiftUI Login Demo</strong> folder in Project Explorer and selecting <strong>New File…</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5KGLpG2sKiw4Xqem8zsaC3/92060a8ecc10a5fac799d99eea19711d/create_new_plist_1.png" alt="Xcode screenshot, showing the user selecting “File -&gt; New File...”"/></p><p>🛠 In the window that appears, make sure that the <strong>iOS</strong> tab is selected. Select <strong>Swift File</strong>, then click <strong>Next</strong>:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/1kPgckx5E6oEB8tfrPZUFa/e289b83402d8a06bdecc499ee3197887/create_new_swift_file.png" alt="Xcode screenshot, showing the selection of the “Swift File” file template.."/></p><p>🛠 Name the file <code>Profile<span>.</span>swift</code> and click <strong>Create</strong> to create the file:</p><p><img src="https://images.ctfassets.net/23aumh6u8s0i/5omkXIcNFgAvsw9lym2TaG/952b1334c717d1965a5c25ad224a6ec4/save_new_swift_file.png" alt="Xcode screenshot, showing the “Save” dialog box for the Swift file."/></p><p>Now that there’s a <code>Profile</code> <code>struct</code>, let’s implement it a little bit at a time.</p><p>🛠 Replace the contents of <code>Profile</code> with the following:</p><pre><code><span>// 1</span>
+<span>import</span> <span>JWTDecode</span>
+
+
+<span>// 2</span>
+<span>struct</span> <span>Profile</span> <span>{</span>
+  <span>let</span> id<span>:</span> <span>String</span>
+  <span>let</span> name<span>:</span> <span>String</span>
+  <span>let</span> email<span>:</span> <span>String</span>
+  <span>let</span> emailVerified<span>:</span> <span>String</span>
+  <span>let</span> picture<span>:</span> <span>String</span>
+  <span>let</span> updatedAt<span>:</span> <span>String</span>
+<span>}</span></code></pre><p>Here’s an explanation of the numbered comments in the code above:</p><ol start="1"><li>The ID token’s format is <a href="https://auth0.com/docs/secure/tokens/json-web-tokens" target="_blank" rel="noreferrer noopener">JWT, or JSON Web Token</a>. The <code>JWTDecode</code> library allows you to decode the token to extract the user profile information it contains.</li><li><p>This code defines <code>Profile</code>, the <code>struct</code> that will decode and store the user profile information in the ID token. It has the following properties, all of which are strings:</p><ul><li><code>id</code>: The user’s unique identifier</li><li><code>name</code>: The user’s full name</li><li><code>email</code>: The user’s email address</li><li><code>emailVerified</code>: <code><span>true</span></code> if the user verified their email address with Auth0, <code><span>false</span></code> otherwise</li><li><code>picture</code>: The URL for the user’s picture</li><li><code>updatedAt</code>: The date and time when the user profile was last updated</li></ul></li></ol><p>🛠 Add the following after the definition of <code>Profile</code>:</p><pre><code><span>extension</span> <span>Profile</span> <span>{</span>
+
+<span>}</span></code></pre><p>Once again, we’re using an <code>extension</code> to break a <code>struct</code> into smaller parts that are easier to read and update. This extension will contain methods and variables that act like methods.</p><p>🛠 Add the following variable declaration <em>inside</em> the newly-created <code>extension</code>:</p><pre><code>  <span>static</span> <span>var</span> empty<span>:</span> <span>Self</span> <span>{</span>
+    <span>return</span> <span>Profile</span><span>(</span>
+      id<span>:</span> <span>&#34;&#34;</span><span>,</span>
+      name<span>:</span> <span>&#34;&#34;</span><span>,</span>
+      email<span>:</span> <span>&#34;&#34;</span><span>,</span>
+      emailVerified<span>:</span> <span>&#34;&#34;</span><span>,</span>
+      picture<span>:</span> <span>&#34;&#34;</span><span>,</span>
+      updatedAt<span>:</span> <span>&#34;&#34;</span>
+    <span>)</span>
+  <span>}</span></code></pre><p>This defines <code>empty</code>, a static variable that acts more like a function. It creates a new <code>Profile</code> instance whose properties are all set to empty strings.</p><p>🛠 Add this function to the <code>extension</code> immediately after the declaration for <code>empty</code>:</p><pre><code><span>static</span> <span>func</span> <span>from</span><span>(</span><span>_</span> idToken<span>:</span> <span>String</span><span>)</span> <span>-</span><span>&gt;</span> <span>Self</span> <span>{</span>
+  <span>guard</span> 
+    <span>let</span> jwt <span>=</span> <span>try</span><span>?</span> <span>decode</span><span>(</span>jwt<span>:</span> idToken<span>)</span><span>,</span>
+        <span>let</span> id <span>=</span> jwt<span>.</span>subject<span>,</span>
+        <span>let</span> name <span>=</span> jwt<span>.</span><span>claim</span><span>(</span>name<span>:</span> <span>&#34;name&#34;</span><span>)</span><span>.</span>string<span>,</span>
+        <span>let</span> email <span>=</span> jwt<span>.</span><span>claim</span><span>(</span>name<span>:</span> <span>&#34;email&#34;</span><span>)</span><span>.</span>string<span>,</span>
+        <span>let</span> emailVerified <span>=</span> jwt<span>.</span><span>claim</span><span>(</span>name<span>:</span> <span>&#34;email_verified&#34;</span><span>)</span><span>.</span>boolean<span>,</span>
+        <span>let</span> picture <span>=</span> jwt<span>.</span><span>claim</span><span>(</span>name<span>:</span> <span>&#34;picture&#34;</span><span>)</span><span>.</span>string<span>,</span>
+        <span>let</span> updatedAt <span>=</span> jwt<span>.</span><span>claim</span><span>(</span>name<span>:</span> <span>&#34;updated_at&#34;</span><span>)</span><span>.</span>string
+  <span>else</span> <span>{</span>
+    <span>return</span> <span>.</span>empty
+  <span>}</span>
+  
+  <span>return</span> <span>Profile</span><span>(</span>
+    id<span>:</span> id<span>,</span>
+    name<span>:</span> name<span>,</span>
+    email<span>:</span> email<span>,</span>
+    emailVerified<span>:</span> <span>String</span><span>(</span>describing<span>:</span> emailVerified<span>)</span><span>,</span>
+    picture<span>:</span> picture<span>,</span>
+    updatedAt<span>:</span> updatedAt
+  <span>)</span>
+<span>}</span></code></pre><p>Given an ID token string, the <code><span>from</span><span>(</span><span>)</span></code> function creates a <code>Profile</code> instance. If <code><span>from</span><span>(</span><span>)</span></code> is able to extract claims — values about the user’s identity, which include their name, email address, and the URL for their picture — from the ID token, it returns a <code>Profile</code> instance with that information in its properties. Otherwise, it returns a <code>Profile</code> instance with empty properties.</p><h3 id="Update-the-user-interface">Update the user interface</h3><p>Now that there’s a way to extract information from an ID token, let’s put it to use. In this step, we’ll make changes to the user interface that will allow it to display the logged-in user’s name, email address, and picture.</p><p>🛠 Open <code>ContentView</code> and add a new property immediately after the one for <code>isAuthenticated</code>. Note where the comments tell you to add the new code:</p><pre><code>  @<span>State</span> <span>private</span> <span>var</span> isAuthenticated <span>=</span> <span>false</span>
+  <span>// 👇🏽👇🏽👇🏽 New line of code here!</span>
+  @<span>State</span> <span>var</span> userProfile <span>=</span> <span>Profile</span><span>.</span>empty
+  <span>// 👆🏽👆🏽👆🏽</span></code></pre><p>This creates <code>userProfile</code>, an instance of <code>Profile</code> that will contain information about the user when they log in. The app will use its properties to display the user’s name, email address, and picture.</p><p>Since <code>userProfile</code> is marked with the <code>@State</code> attribute, it defines the user interface’s state. Whenever <code>userProfile</code> or one of its properties changes, the app redraws the user interface to reflect the change.</p><p>🛠 Add user interface elements to the <code>body</code> property to display the user’s information. Once again, the comments will tell you where to add new code:</p><pre><code>  <span>var</span> body<span>:</span> some <span>View</span> <span>{</span>
+
+    <span>if</span> isAuthenticated <span>{</span>
+      
+      <span>// 3</span>
+      <span>VStack</span> <span>{</span>
+        
+        <span>// 4</span>
+        <span>Text</span><span>(</span><span>&#34;Logged in&#34;</span><span>)</span>
+          <span>.</span><span>padding</span><span>(</span><span>)</span>
+        
+        <span>// 👇🏽👇🏽👇🏽 New lines of code here!</span>
+        <span>AsyncImage</span><span>(</span>url<span>:</span> <span>URL</span><span>(</span>string<span>:</span> userProfile<span>.</span>picture<span>)</span><span>)</span> <span>{</span> image <span>in</span>
+          image
+            <span>.</span><span>frame</span><span>(</span>maxWidth<span>:</span> <span>128</span><span>)</span>
+        <span>}</span> placeholder<span>:</span> <span>{</span>
+          <span>Image</span><span>(</span>systemName<span>:</span> <span>&#34;photo.circle.fill&#34;</span><span>)</span>
+            <span>.</span><span>resizable</span><span>(</span><span>)</span>
+            <span>.</span><span>scaledToFit</span><span>(</span><span>)</span>
+            <span>.</span><span>frame</span><span>(</span>maxWidth<span>:</span> <span>128</span><span>)</span>
+            <span>.</span><span>foregroundColor</span><span>(</span><span>.</span>gray<span>)</span>
+            <span>.</span><span>opacity</span><span>(</span><span>0.5</span><span>)</span>
+        <span>}</span>
+        <span>.</span><span>padding</span><span>(</span><span>40</span><span>)</span>
+        
+        <span>VStack</span> <span>{</span>
+          <span>Text</span><span>(</span><span>&#34;Name: <span><span>\(</span>userProfile<span>.</span>name<span>)</span></span>&#34;</span><span>)</span>
+          <span>Text</span><span>(</span><span>&#34;Email: <span><span>\(</span>userProfile<span>.</span>email<span>)</span></span>&#34;</span><span>)</span>
+        <span>}</span>
+        <span>.</span><span>padding</span><span>(</span><span>)</span>
+        <span>// 👆🏽👆🏽👆🏽</span>
+        
+        <span>// 5</span>
+        <span>Button</span><span>(</span><span>&#34;Log out&#34;</span><span>)</span> <span>{</span>
+          <span>logout</span><span>(</span><span>)</span>
+        <span>}</span>
+        <span>.</span><span>padding</span><span>(</span><span>)</span>
+        
+      <span>}</span>
+      
+    <span>}</span> <span>else</span> <span>{</span>
+    
+    <span>// The rest of the “body” property goes here...</span></code></pre><p>The new code adds two new views to <code>ContentView</code>:</p><ol start="1"><li>An <code>AsyncImage</code>, a view that will download the user’s picture asynchronously and displays it when the download is complete. It uses the <code>placeholder</code> option to display the camera icon from iOS’s built-in icon collection while downloading the user’s picture.</li><li>A <code>VStack</code> contains two <code>Text</code> views: one to display the user’s name and one for the user’s email address.</li></ol><p>🛠 Scroll to the <code>extension</code> where the methods for <code>ContentView</code> are defined and update <code><span>login</span><span>(</span><span>)</span></code> to extract the user’s profile information from the ID token. The comments in the code below will tell you where to add the new line:</p><pre><code>  <span>func</span> <span>login</span><span>(</span><span>)</span> <span>{</span>
+    <span>Auth0</span> <span>// 1</span>
+      <span>.</span><span>webAuth</span><span>(</span><span>)</span> <span>// 2</span>
+      <span>.</span>start <span>{</span> result <span>in</span> <span>// 3</span>
+        <span>switch</span> result <span>{</span>
+          <span>// 4</span>
+          <span>case</span> <span>.</span><span>failure</span><span>(</span><span>let</span> error<span>)</span><span>:</span>
+            <span>print</span><span>(</span><span>&#34;Failed with: <span><span>\(</span>error<span>)</span></span>&#34;</span><span>)</span>
+          <span>// 5</span>
+          <span>case</span> <span>.</span><span>success</span><span>(</span><span>let</span> credentials<span>)</span><span>:</span>
+            <span>self</span><span>.</span>isAuthenticated <span>=</span> <span>true</span>
+            <span>// 👇🏽👇🏽👇🏽 New line of code here!</span>
+            <span>self</span><span>.</span>userProfile <span>=</span> <span>Profile</span><span>.</span><span>from</span><span>(</span>credentials<span>.</span>idToken<span>)</span>
+            <span>// 👆🏽👆🏽👆🏽</span>
+            <span>print</span><span>(</span><span>&#34;Credentials: <span><span>\(</span>credentials<span>)</span></span>&#34;</span><span>)</span>
+            <span>print</span><span>(</span><span>&#34;ID token: <span><span>\(</span>credentials<span>.</span>idToken<span>)</span></span>&#34;</span><span>)</span>
+        <span>}</span>
+      <span>}</span>
+  <span>}</span></code></pre><p>The newly-added line of code runs after the user logs in and the app receives the ID token. It creates a new <code>Profile</code> instance from the data in the ID token and sets <code>ContentView</code>’s <code>userProfile</code> property to that instance.</p><h3 id="Run-the-app">Run the app</h3><p>Run the app and confirm that the changes work. When you log in, you should see the user’s name, email address, and picture.</p><h2 id="Next-Steps">Next Steps</h2><p>You’ve covered a lot of ground in this exercise! Not only did you build an iOS app using the SwiftUI framework, but you also gave it the ability to authenticate users with Auth0.</p><p>You can download a completed project in the <a href="https://github.com/auth0-blog/get-started-ios-authentication-swiftui" target="_blank" rel="noreferrer noopener"><em>get-started-ios-authentication-swiftui</em> repository</a> on the <a href="https://github.com/auth0-blog" target="_blank" rel="noreferrer noopener"><em>Auth0 Blog Samples</em> GitHub account</a>.</p><p>SwiftUI is an expansive topic, and we only scratched its surface in this tutorial. For your next steps in exploring it, you might want to look at these useful resources:</p><ul><li><a href="https://www.hackingwithswift.com/quick-start/swiftui" target="_blank" rel="noreferrer noopener">SwiftUI by Example</a></li><li><a href="https://www.youtube.com/watch?v=VlhcNR7Qrno" target="_blank" rel="noreferrer noopener">Your First SwiftUI App</a></li><li><a href="https://www.youtube.com/playlist?list=PLpGHT1n4-mAsxuRxVPv7kj4-dQYoC3VVu" target="_blank" rel="noreferrer noopener">Stanford University’s “Developing Applications for iOS” course for Spring 2021</a></li></ul><p>This is the second in a new series of articles on iOS development with Auth0. Future articles will feature deeper dives into authentication and authorization with iOS and Auth0 and alternatives to the standard username-and-password approach. Watch this space!</p></div></div>]]></content:encoded>
+      <pubDate>Wed, 30 Mar 2022 14:56:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Social Impact Innovations: National Council for the Blind Ireland</title>
       <link>https://auth0.com/blog/social-impact-innovations-national-council-for-the-blind-ireland/</link>
       <description>Exploring the Impact of Identity for the Visually Impaired</description>
@@ -6130,6 +6367,501 @@ Go to the TODO API definition in the <a href="https://manage.auth0.com/#/apis" t
       <pubDate>Wed, 24 Nov 2021 15:24:00 +0000</pubDate>
     </item>
     <item>
+      <title>State Management in Angular Using NgRx: Pt. 2</title>
+      <link>https://auth0.com/blog/state-management-in-angular-with-ngrx-2/</link>
+      <description>See how it&#39;s easy to manage your Angular application&#39;s state using NgRx and learn how you can use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><h2 id="User-State-Management">User State Management</h2><p>The user store will work similarly to how the menus state management works. I won&#39;t detail how each part of the state works and focus more on the Auth0 and NgRx integration.</p><p>The starter app is using the Auth0 SDK directly and managing the roles through the <code>RolesService</code>, this section of the tutorial will walk you through migrating to using Auth0&#39;s SDK through NgRx and managing the roles by using selectors.</p><h3 id="Create-User-State">Create User State</h3><p>Let&#39;s start with defining the interface for the user state object and its initial state. Open <code>user<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.state.ts</span>
+
+<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>UserState</span> <span>{</span>
+  userDetails<span>:</span> Auth0User<span>;</span>
+<span>}</span>
+
+<span>export</span> <span>const</span> initialState<span>:</span> UserState <span>=</span> <span>{</span>
+  userDetails<span>:</span> <span>undefined</span><span>,</span>
+<span>}</span><span>;</span></code></pre><p>Create a barrel export for the <code>user</code> directory with the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span></code></pre><h4 id="Update-Core-State">Update Core State</h4><p>To access <code>UserState</code> from your Store, you will need to add it to your <code>CoreState</code>&#39;s state object. Open <code>core<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.state.ts</span>
+
+<span>import</span> <span>{</span> MenusState <span>}</span> <span>from</span> <span>&#34;./menus&#34;</span><span>;</span>
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>State</span> <span>{</span>
+  menus<span>:</span> MenusState<span>;</span>
+  <span>// ✨ New 👇</span>
+  user<span>:</span> UserState<span>;</span>
+<span>}</span></code></pre><h3 id="Create-User-Actions">Create User Actions</h3><p>We have three user-related Actions that we need for our user Store. Login, logout, and user changed Action to keep the user details in our Store in sync with Auth0&#39;s SDK.</p><p>Since we have several user Actions that will originate from the Navbar component, you can group them under <code>allNavbarAction</code> to ensure you aren&#39;t reusing these Actions in a different part of the application (following the Good Action Hygiene pattern).</p><p>Because the <code>userChangedFromAuth0SDK</code> Action originates from Auth0&#39;s SDK, let&#39;s name the source part of the Action type as <code>Auth0 <span>SDK</span></code>.</p><p>Open <code>user<span>.</span>actions<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.actions.ts</span>
+
+<span>import</span> <span>{</span> createAction<span>,</span> props <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
+
+<span>export</span> <span>const</span> allNavbarActions <span>=</span> <span>{</span>
+  loginFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Login Flow Initiated&#34;</span><span>)</span><span>,</span>
+  logoutFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Logout Flow Initiated&#34;</span><span>)</span><span>,</span>
+<span>}</span><span>;</span>
+
+<span>export</span> <span>const</span> userChangedFromAuth0SDK <span>=</span> <span>createAction</span><span>(</span>
+  <span>&#34;[Auth0 SDK] User Changed&#34;</span><span>,</span>
+  <span><span>props</span><span><span>&lt;</span><span>{</span> userDetails<span>:</span> Auth0User <span>}</span><span>&gt;</span></span></span><span>(</span><span>)</span>
+<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>actions</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Actions">Update Application to Use User Actions</h4><p>Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> allNavbarActions <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
+  to<span>:</span> <span>string</span><span>;</span>
+  icon<span>:</span> IconDefinition<span>;</span>
+  label<span>:</span> <span>string</span><span>;</span>
+<span>}</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
+  faUser <span>=</span> faUser<span>;</span>
+  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>isAuthenticated$<span>;</span>
+  user$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>user$<span>;</span>
+
+  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
+    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
+    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
+  <span>]</span><span>;</span>
+
+  <span>constructor</span><span>(</span>
+    <span>private</span> authService<span>:</span> AuthService<span>,</span>
+    <span>// ✨ New 👇</span>
+    <span>private</span> store<span>:</span> Store
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>// ✨ New 👇</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>// ✨ New 👇</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><h3 id="Create-User-Selectors">Create User Selectors</h3><p>Create two selectors, a feature selector and a selector that returns the <code>userDetails</code>. Open <code>user<span>.</span>selector<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
+
+<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
+  selectUser<span>,</span>
+  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
+<span>)</span><span>;</span></code></pre><p>Let&#39;s also add some utility Selectors for <code>isLoggedIn</code>, <code>userRoles</code>, and <code>isAdmin</code> to easily let your components access these properties. Open <code>user<span>.</span>selector<span>.</span>ts</code> and update it with the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
+
+<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
+<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> <span>USER_ROLES</span> <span>=</span> <span>{</span>
+  <span>MENU_ADMIN</span><span>:</span> <span>&#34;menu-admin&#34;</span><span>,</span>
+<span>}</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
+
+<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
+  selectUser<span>,</span>
+  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
+<span>)</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> selectIsLoggedIn <span>=</span> <span>createSelector</span><span>(</span>
+  selectUserDetails<span>,</span>
+  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> <span>!</span><span>!</span>userDetails
+<span>)</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> selectUserRoles <span>=</span> <span>createSelector</span><span>(</span>
+  selectUserDetails<span>,</span>
+  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> userDetails<span>[</span><span><span>`</span><span><span>${</span>environment<span>.</span>auth<span>.</span>audience<span>}</span></span><span>/roles</span><span>`</span></span><span>]</span>
+<span>)</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>const</span> selectIsAdmin <span>=</span> <span>createSelector</span><span>(</span>selectUserRoles<span>,</span> <span>(</span>userRoles<span>)</span> <span>=&gt;</span>
+  userRoles<span>?.</span><span>includes</span><span>(</span><span>USER_ROLES</span><span>.</span><span>MENU_ADMIN</span><span>)</span>
+<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>selector</code> to the list of exports in <code>index<span>.</span>ts</code> 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Selectors">Update Application to Use User Selectors</h4><p>The user role route guard was previously using the value of the roles from <code>RolesService</code>. Since you now have a user roles Selector, you can replace the current implementation with an NgRx Selector. Open <code>user<span>-</span>role<span>.</span>guard<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/guards/user-role.guard.ts</span>
+
+<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span>
+  CanActivate<span>,</span>
+  Router<span>,</span>
+  ActivatedRouteSnapshot<span>,</span>
+  RouterStateSnapshot<span>,</span>
+<span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+
+<span>import</span> <span>{</span> Observable<span>,</span> <span>of</span> <span>}</span> <span>from</span> <span>&#34;rxjs&#34;</span><span>;</span>
+<span>import</span> <span>{</span> catchError<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectUserRoles <span>}</span> <span>from</span> <span>&#34;../state/user&#34;</span><span>;</span>
+
+@<span>Injectable</span><span>(</span><span>{</span> providedIn<span>:</span> <span>&#34;root&#34;</span> <span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>UserRoleGuard</span> <span>implements</span> <span>CanActivate</span> <span>{</span>
+  <span>constructor</span><span>(</span>
+    <span>// ✨ New 👇</span>
+    <span>private</span> store<span>:</span> Store<span>,</span>
+    <span>private</span> router<span>:</span> Router
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>canActivate</span><span>(</span>
+    route<span>:</span> ActivatedRouteSnapshot<span>,</span>
+    state<span>:</span> RouterStateSnapshot
+  <span>)</span><span>:</span> Observable<span>&lt;</span><span>boolean</span><span>&gt;</span> <span>{</span>
+    <span>// ✨ New 👇</span>
+    <span>return</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserRoles<span>)</span><span>.</span><span>pipe</span><span>(</span>
+      <span>map</span><span>(</span><span>(</span>roles<span>)</span> <span>=&gt;</span> <span>{</span>
+        <span>if</span> <span>(</span>roles <span>&amp;&amp;</span> roles<span>.</span><span>includes</span><span>(</span>route<span>?.</span>data<span>?.</span>role<span>)</span><span>)</span> <span>{</span>
+          <span>return</span> <span>true</span><span>;</span>
+        <span>}</span>
+
+        <span>// redirect the user to home</span>
+        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
+        <span>return</span> <span>false</span><span>;</span>
+      <span>}</span><span>)</span><span>,</span>
+      <span>catchError</span><span>(</span><span>(</span>err<span>)</span> <span>=&gt;</span> <span>{</span>
+        <span>// redirect the user to home</span>
+        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
+        <span>return</span> <span>of</span><span>(</span><span>false</span><span>)</span><span>;</span>
+      <span>}</span><span>)</span>
+    <span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Another place we use user-related information is the Navbar. We display user information and conditionally display the login and logout button depending on the user&#39;s <code>isAuthenticated</code> state. Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span>
+  allNavbarActions<span>,</span>
+  selectIsLoggedIn<span>,</span>
+  selectUserDetails<span>,</span>
+<span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
+  to<span>:</span> <span>string</span><span>;</span>
+  icon<span>:</span> IconDefinition<span>;</span>
+  label<span>:</span> <span>string</span><span>;</span>
+<span>}</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
+  faUser <span>=</span> faUser<span>;</span>
+
+  <span>// ✨ New 👇</span>
+  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsLoggedIn<span>)</span><span>;</span>
+  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
+
+  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
+    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
+    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
+  <span>]</span><span>;</span>
+
+  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
+
+  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>The profile page displays some information about the user, such as name and photo. Since this is stored as part of the user Store, let&#39;s also update this to use the <code>selectUserDetails</code> Selector. Open <code>profile<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/profile/profile.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectUserDetails <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-profile&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./profile.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./profile.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>ProfileComponent</span> <span>{</span>
+  <span>// ✨ New 👇</span>
+  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
+
+  <span>// ✨ New 👇</span>
+  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
+<span>}</span></code></pre><p>We display an <code>Add</code> button when the logged-in user is an admin user on the Menu Items page. You can read more about setting up admin users on Auth0 in this <a href="https://auth0.com/blog/developing-a-secure-api-with-nestjs-adding-role-based-access-control/#Get-User-Roles" target="_blank" rel="noreferrer noopener">blog post</a>. Open <code>menu<span>-</span>items<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-items/menu-items.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectMenuItems <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-menu-items&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./menu-items.component.html&#34;</span><span>,</span>
+  styles<span>:</span> <span>[</span>
+    <span><span>`</span><span>
+      :host {
+        width: 100%;
+        height: 100%;
+      }
+    </span><span>`</span></span><span>,</span>
+  <span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>MenuItemsComponent</span> <span>{</span>
+  menuItems$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectMenuItems<span>)</span><span>;</span>
+  <span>// ✨ New 👇</span>
+  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
+
+  <span>constructor</span><span>(</span>
+    <span>private</span> router<span>:</span> Router<span>,</span>
+    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
+    <span>private</span> store<span>:</span> Store
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>addMenuItem</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;add&#34;</span><span>]</span><span>,</span> <span>{</span> relativeTo<span>:</span> <span>this</span><span>.</span>activatedRoute <span>}</span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><p>Lastly, we display a <code>Edit</code> and <code>Delete</code> buttons when the logged-in user is an admin user on the Menu Item page. Open <code>menu<span>-</span>item<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-item/menu-item.component.ts</span>
+
+<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Location <span>}</span> <span>from</span> <span>&#34;@angular/common&#34;</span><span>;</span>
+<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
+<span>import</span> <span>{</span> map<span>,</span> switchMap <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> selectMenuItem <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
+
+@<span>Component</span><span>(</span><span>{</span>
+  selector<span>:</span> <span>&#34;app-menu-item&#34;</span><span>,</span>
+  templateUrl<span>:</span> <span>&#34;./menu-item.component.html&#34;</span><span>,</span>
+  styleUrls<span>:</span> <span>[</span><span>&#34;./menu-item.component.scss&#34;</span><span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>MenuItemComponent</span> <span>{</span>
+  menuItemId$ <span>=</span> <span>this</span><span>.</span>activatedRoute<span>.</span>params<span>.</span><span>pipe</span><span>(</span><span>map</span><span>(</span><span>(</span>params<span>)</span> <span>=&gt;</span> params<span>.</span>id<span>)</span><span>)</span><span>;</span>
+  menuItem$ <span>=</span> <span>this</span><span>.</span>menuItemId$<span>.</span><span>pipe</span><span>(</span>
+    <span>switchMap</span><span>(</span><span>(</span>id<span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span><span>selectMenuItem</span><span>(</span><span>{</span> id<span>:</span> id <span>}</span><span>)</span><span>)</span><span>)</span>
+  <span>)</span><span>;</span>
+
+  <span>// ✨ New 👇</span>
+  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
+
+  <span>constructor</span><span>(</span>
+    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
+    <span>private</span> router<span>:</span> Router<span>,</span>
+    <span>private</span> location<span>:</span> Location<span>,</span>
+    <span>private</span> store<span>:</span> Store
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>back</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>location<span>.</span><span>back</span><span>(</span><span>)</span><span>;</span>
+  <span>}</span>
+
+  <span>navigateTo</span><span>(</span>url<span>:</span> <span>string</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
+    <span>this</span><span>.</span>router<span>.</span><span>navigateByUrl</span><span>(</span><span><span>`</span><span><span>${</span><span>this</span><span>.</span>router<span>.</span>url<span>}</span></span><span>/</span><span><span>${</span>url<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
+  <span>}</span>
+<span>}</span></code></pre><h3 id="Create-User-Reducer">Create User Reducer</h3><p>The <code>userDetails</code> in the user Store will only be modified based on the <code>userChanged</code> event from Auth0&#39;s SDK to always keep them in sync. Open <code>user<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.reducer.ts</span>
+
+<span>import</span> <span>{</span> Action<span>,</span> createReducer<span>,</span> on <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+<span>import</span> <span>{</span> initialState<span>,</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+
+<span>const</span> userReducer <span>=</span> <span>createReducer</span><span>(</span>
+  initialState<span>,</span>
+  <span>on</span><span>(</span>UserActions<span>.</span>userChangedFromAuth0SDK<span>,</span> <span>(</span>state<span>,</span> <span>{</span> userDetails <span>}</span><span>)</span> <span>=&gt;</span> <span>(</span><span>{</span>
+    <span>...</span>state<span>,</span>
+    userDetails<span>:</span> userDetails<span>,</span>
+  <span>}</span><span>)</span><span>)</span>
+<span>)</span><span>;</span>
+
+<span>export</span> <span>function</span> <span>reducer</span><span>(</span>state<span>:</span> UserState <span>|</span> <span>undefined</span><span>,</span> action<span>:</span> Action<span>)</span> <span>{</span>
+  <span>return</span> <span>userReducer</span><span>(</span>state<span>,</span> action<span>)</span><span>;</span>
+<span>}</span></code></pre><h4 id="Update-Core-Reducer">Update Core Reducer</h4><p>Similar to what you did for the menus Reducer, you will need to add the reducer to the <code>ActionReducerMap</code> to use the user reducer. Open <code>core<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.reducers.ts</span>
+
+<span>import</span> <span>{</span> ActionReducerMap<span>,</span> MetaReducer <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> State <span>}</span> <span>from</span> <span>&#34;./core.state&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> MenusReducer <span>from</span> <span>&#34;./menus/menus.reducer&#34;</span><span>;</span>
+<span>// ✨ New 👇</span>
+<span>import</span> <span>*</span> <span>as</span> UserReducer <span>from</span> <span>&#34;./user/user.reducer&#34;</span><span>;</span>
+
+<span>export</span> <span>const</span> reducers<span>:</span> ActionReducerMap<span>&lt;</span>State<span>&gt;</span> <span>=</span> <span>{</span>
+  menus<span>:</span> MenusReducer<span>.</span>reducer<span>,</span>
+  <span>// ✨ New 👇</span>
+  user<span>:</span> UserReducer<span>.</span>reducer<span>,</span>
+<span>}</span><span>;</span>
+
+<span>export</span> <span>const</span> metaReducers<span>:</span> MetaReducer<span>&lt;</span>State<span>&gt;</span><span>[</span><span>]</span> <span>=</span> <span>[</span><span>]</span><span>;</span></code></pre><h3 id="Create-User-Effects">Create User Effects</h3><p>You will be interacting with Auth0&#39;s SDK through the user Effects, to log in and log out the user and listen to changes in the user&#39;s state. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
+
+<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
+<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+
+@<span>Injectable</span><span>(</span><span>)</span>
+<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
+  <span>constructor</span><span>(</span>
+    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
+    <span>private</span> authService<span>:</span> AuthService
+  <span>)</span> <span>{</span><span>}</span>
+
+  login$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+
+  logout$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+<span>}</span></code></pre><p>To keep the user observable from the Auth0&#39;s SDK and our user Store in sync, you can use an actionless effect that listens to an external observable (in our case <code>authService<span>.</span>user$</code>) and dispatches another action whenever that observable emits a new value. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
+
+<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
+<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
+<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+
+@<span>Injectable</span><span>(</span><span>)</span>
+<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
+  <span>constructor</span><span>(</span>
+    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
+    <span>private</span> authService<span>:</span> AuthService
+  <span>)</span> <span>{</span><span>}</span>
+
+  <span>// ✨ New 👇</span>
+  userChanged$ <span>=</span> <span>createEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span>
+    <span>this</span><span>.</span>authService<span>.</span>user$<span>.</span><span>pipe</span><span>(</span>
+      <span>map</span><span>(</span><span>(</span>userDetails<span>)</span> <span>=&gt;</span>
+        UserActions<span>.</span><span>userChangedFromAuth0SDK</span><span>(</span><span>{</span> userDetails<span>:</span> userDetails <span>}</span><span>)</span>
+      <span>)</span>
+    <span>)</span>
+  <span>)</span><span>;</span>
+
+  login$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+
+  logout$ <span>=</span> <span>createEffect</span><span>(</span>
+    <span>(</span><span>)</span> <span>=&gt;</span>
+      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
+        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
+        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
+      <span>)</span><span>,</span>
+    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
+  <span>)</span><span>;</span>
+<span>}</span></code></pre><p>Add <code>user<span>.</span>effects</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
+
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.effects&#34;</span><span>;</span></code></pre><h4 id="Update-Effects-Module">Update Effects Module</h4><p>You will then need to add <code>UserEffects</code> to the <code>EffectsModule</code> initialization. Open <code>app<span>.</span>module<span>.</span>ts</code> and add the following code</p><pre><code><span>// src/app/app.module.ts</span>
+
+<span>import</span> <span>{</span> BrowserModule <span>}</span> <span>from</span> <span>&#34;@angular/platform-browser&#34;</span><span>;</span>
+<span>import</span> <span>{</span> NgModule <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
+<span>import</span> <span>{</span> HttpClientModule<span>,</span> <span>HTTP_INTERCEPTORS</span> <span>}</span> <span>from</span> <span>&#34;@angular/common/http&#34;</span><span>;</span>
+<span>import</span> <span>{</span> StoreModule <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
+<span>import</span> <span>{</span> EffectsModule <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AuthHttpInterceptor<span>,</span> AuthModule <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
+
+<span>import</span> <span>{</span> AppRoutingModule <span>}</span> <span>from</span> <span>&#34;./app-routing.module&#34;</span><span>;</span>
+<span>import</span> <span>{</span> AppComponent <span>}</span> <span>from</span> <span>&#34;./app.component&#34;</span><span>;</span>
+<span>import</span> <span>{</span> NavBarModule <span>}</span> <span>from</span> <span>&#34;./shared&#34;</span><span>;</span>
+<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
+<span>import</span> <span>{</span> reducers<span>,</span> metaReducers <span>}</span> <span>from</span> <span>&#34;./core/state&#34;</span><span>;</span>
+<span>import</span> <span>{</span> MenusEffects <span>}</span> <span>from</span> <span>&#34;./core/state/menus&#34;</span><span>;</span>
+
+<span>// ✨ New 👇</span>
+<span>import</span> <span>{</span> UserEffects <span>}</span> <span>from</span> <span>&#34;./core/state/user&#34;</span><span>;</span>
+
+@<span>NgModule</span><span>(</span><span>{</span>
+  imports<span>:</span> <span>[</span>
+    BrowserModule<span>,</span>
+    HttpClientModule<span>,</span>
+    AuthModule<span>.</span><span>forRoot</span><span>(</span><span>{</span>
+      <span>...</span>environment<span>.</span>auth<span>,</span>
+      httpInterceptor<span>:</span> <span>{</span>
+        allowedList<span>:</span> <span>[</span>
+          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items</span><span>`</span></span><span>,</span>
+          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items/*</span><span>`</span></span><span>,</span>
+        <span>]</span><span>,</span>
+      <span>}</span><span>,</span>
+    <span>}</span><span>)</span><span>,</span>
+    AppRoutingModule<span>,</span>
+    NavBarModule<span>,</span>
+
+    <span>// NgRx</span>
+    StoreModule<span>.</span><span>forRoot</span><span>(</span>reducers<span>,</span> <span>{</span>
+      metaReducers<span>,</span>
+    <span>}</span><span>)</span><span>,</span>
+
+    <span>// ✨ New 👇</span>
+    EffectsModule<span>.</span><span>forRoot</span><span>(</span><span>[</span>MenusEffects<span>,</span> UserEffects<span>]</span><span>)</span><span>,</span>
+  <span>]</span><span>,</span>
+  declarations<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
+  bootstrap<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
+  providers<span>:</span> <span>[</span>
+    <span>{</span>
+      provide<span>:</span> <span>HTTP_INTERCEPTORS</span><span>,</span>
+      useClass<span>:</span> AuthHttpInterceptor<span>,</span>
+      multi<span>:</span> <span>true</span><span>,</span>
+    <span>}</span><span>,</span>
+  <span>]</span><span>,</span>
+<span>}</span><span>)</span>
+<span>export</span> <span>class</span> <span>AppModule</span> <span>{</span><span>}</span></code></pre><blockquote><p><strong>Checkpoint:</strong> There aren&#39;t any visible functional changes added in this section. The difference between the current state of the app compared to the previous checkpoint is its underlying implementation. The app now uses NgRx versus a <code>BehaviorSubject</code> to manage user-related states. The app should display the login button with an empty dashboard when the user is not authenticated, and display the logout button with the logged-in user&#39;s name along with the menu items on the dashboard when a user is authenticated. Clicking on the &#34;Log in&#34; and &#34;Log out&#34; buttons should trigger their respective flows using Auth0&#39;s SDK and update your application&#39;s state. If you open Redux Devtools in your browser, you should see the user state and actions every time you perform any user-related actions.</p></blockquote><h2 id="Conclusion">Conclusion</h2><p>State management is a key component when building applications. You added two Stores to our demo application to manage two distinct states - menus and user. This is a relatively small demo application with a few Stores, Actions, and Reducers to show how you can use NgRx to manage your Application&#39;s state, and use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</p></div></div>]]></content:encoded>
+      <pubDate>Tue, 23 Nov 2021 19:57:00 +0000</pubDate>
+    </item>
+    <item>
       <title>State Management in Angular Using NgRx: Pt. 1</title>
       <link>https://auth0.com/blog/state-management-in-angular-with-ngrx-1/</link>
       <description>See how it&#39;s easy to manage your Angular application&#39;s state using NgRx and learn how you can use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</description>
@@ -7012,501 +7744,6 @@ This blog post will focus on using NgRx as our state management solution. We wil
   <span>]</span><span>,</span>
 <span>}</span><span>)</span>
 <span>export</span> <span>class</span> <span>AppModule</span> <span>{</span><span>}</span></code></pre><blockquote><p><strong>Checkpoint:</strong> Executing any CRUD operations such as adding a new menu item and editting or deleting an existing menu item should make an API call to update the server&#39;s database and also update the app&#39;s state. Only authenticated users with a <code>menu<span>-</span>admin</code> role can create, update, and delete menu items. The <code>menu<span>-</span>admin</code> role bundles the necessary permissions to execute these write operations. Read more on how to configure role-based access control (RBAC) and how to create an admin user for this application in this <a href="https://auth0.com/blog/node-js-and-typescript-tutorial-secure-an-express-api/#Configure-Role-Based-Access-Control--RBAC-" target="_blank" rel="noreferrer noopener">blogpost</a></p></blockquote></div></div>]]></content:encoded>
-      <pubDate>Tue, 23 Nov 2021 19:57:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>State Management in Angular Using NgRx: Pt. 2</title>
-      <link>https://auth0.com/blog/state-management-in-angular-with-ngrx-2/</link>
-      <description>See how it&#39;s easy to manage your Angular application&#39;s state using NgRx and learn how you can use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><h2 id="User-State-Management">User State Management</h2><p>The user store will work similarly to how the menus state management works. I won&#39;t detail how each part of the state works and focus more on the Auth0 and NgRx integration.</p><p>The starter app is using the Auth0 SDK directly and managing the roles through the <code>RolesService</code>, this section of the tutorial will walk you through migrating to using Auth0&#39;s SDK through NgRx and managing the roles by using selectors.</p><h3 id="Create-User-State">Create User State</h3><p>Let&#39;s start with defining the interface for the user state object and its initial state. Open <code>user<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.state.ts</span>
-
-<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>UserState</span> <span>{</span>
-  userDetails<span>:</span> Auth0User<span>;</span>
-<span>}</span>
-
-<span>export</span> <span>const</span> initialState<span>:</span> UserState <span>=</span> <span>{</span>
-  userDetails<span>:</span> <span>undefined</span><span>,</span>
-<span>}</span><span>;</span></code></pre><p>Create a barrel export for the <code>user</code> directory with the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span></code></pre><h4 id="Update-Core-State">Update Core State</h4><p>To access <code>UserState</code> from your Store, you will need to add it to your <code>CoreState</code>&#39;s state object. Open <code>core<span>.</span>state<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.state.ts</span>
-
-<span>import</span> <span>{</span> MenusState <span>}</span> <span>from</span> <span>&#34;./menus&#34;</span><span>;</span>
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>State</span> <span>{</span>
-  menus<span>:</span> MenusState<span>;</span>
-  <span>// ✨ New 👇</span>
-  user<span>:</span> UserState<span>;</span>
-<span>}</span></code></pre><h3 id="Create-User-Actions">Create User Actions</h3><p>We have three user-related Actions that we need for our user Store. Login, logout, and user changed Action to keep the user details in our Store in sync with Auth0&#39;s SDK.</p><p>Since we have several user Actions that will originate from the Navbar component, you can group them under <code>allNavbarAction</code> to ensure you aren&#39;t reusing these Actions in a different part of the application (following the Good Action Hygiene pattern).</p><p>Because the <code>userChangedFromAuth0SDK</code> Action originates from Auth0&#39;s SDK, let&#39;s name the source part of the Action type as <code>Auth0 <span>SDK</span></code>.</p><p>Open <code>user<span>.</span>actions<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.actions.ts</span>
-
-<span>import</span> <span>{</span> createAction<span>,</span> props <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> User <span>as</span> Auth0User <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-spa-js&#34;</span><span>;</span>
-
-<span>export</span> <span>const</span> allNavbarActions <span>=</span> <span>{</span>
-  loginFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Login Flow Initiated&#34;</span><span>)</span><span>,</span>
-  logoutFlowInitiated<span>:</span> <span>createAction</span><span>(</span><span>&#34;[Navbar] Logout Flow Initiated&#34;</span><span>)</span><span>,</span>
-<span>}</span><span>;</span>
-
-<span>export</span> <span>const</span> userChangedFromAuth0SDK <span>=</span> <span>createAction</span><span>(</span>
-  <span>&#34;[Auth0 SDK] User Changed&#34;</span><span>,</span>
-  <span><span>props</span><span><span>&lt;</span><span>{</span> userDetails<span>:</span> Auth0User <span>}</span><span>&gt;</span></span></span><span>(</span><span>)</span>
-<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>actions</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Actions">Update Application to Use User Actions</h4><p>Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> allNavbarActions <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
-  to<span>:</span> <span>string</span><span>;</span>
-  icon<span>:</span> IconDefinition<span>;</span>
-  label<span>:</span> <span>string</span><span>;</span>
-<span>}</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
-  faUser <span>=</span> faUser<span>;</span>
-  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>isAuthenticated$<span>;</span>
-  user$ <span>=</span> <span>this</span><span>.</span>authService<span>.</span>user$<span>;</span>
-
-  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
-    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
-    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
-  <span>]</span><span>;</span>
-
-  <span>constructor</span><span>(</span>
-    <span>private</span> authService<span>:</span> AuthService<span>,</span>
-    <span>// ✨ New 👇</span>
-    <span>private</span> store<span>:</span> Store
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>// ✨ New 👇</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>// ✨ New 👇</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><h3 id="Create-User-Selectors">Create User Selectors</h3><p>Create two selectors, a feature selector and a selector that returns the <code>userDetails</code>. Open <code>user<span>.</span>selector<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
-
-<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
-  selectUser<span>,</span>
-  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
-<span>)</span><span>;</span></code></pre><p>Let&#39;s also add some utility Selectors for <code>isLoggedIn</code>, <code>userRoles</code>, and <code>isAdmin</code> to easily let your components access these properties. Open <code>user<span>.</span>selector<span>.</span>ts</code> and update it with the following code 👇</p><pre><code><span>// src/app/core/state/user/user.selector.ts</span>
-
-<span>import</span> <span>{</span> createFeatureSelector<span>,</span> createSelector <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
-<span>import</span> <span>{</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> <span>USER_ROLES</span> <span>=</span> <span>{</span>
-  <span>MENU_ADMIN</span><span>:</span> <span>&#34;menu-admin&#34;</span><span>,</span>
-<span>}</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUser <span>=</span> <span><span>createFeatureSelector</span><span><span>&lt;</span>UserState<span>&gt;</span></span></span><span>(</span><span>&#34;user&#34;</span><span>)</span><span>;</span>
-
-<span>export</span> <span>const</span> selectUserDetails <span>=</span> <span>createSelector</span><span>(</span>
-  selectUser<span>,</span>
-  <span>(</span>state<span>:</span> UserState<span>)</span> <span>=&gt;</span> state<span>.</span>userDetails
-<span>)</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> selectIsLoggedIn <span>=</span> <span>createSelector</span><span>(</span>
-  selectUserDetails<span>,</span>
-  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> <span>!</span><span>!</span>userDetails
-<span>)</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> selectUserRoles <span>=</span> <span>createSelector</span><span>(</span>
-  selectUserDetails<span>,</span>
-  <span>(</span>userDetails<span>)</span> <span>=&gt;</span> userDetails<span>[</span><span><span>`</span><span><span>${</span>environment<span>.</span>auth<span>.</span>audience<span>}</span></span><span>/roles</span><span>`</span></span><span>]</span>
-<span>)</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>const</span> selectIsAdmin <span>=</span> <span>createSelector</span><span>(</span>selectUserRoles<span>,</span> <span>(</span>userRoles<span>)</span> <span>=&gt;</span>
-  userRoles<span>?.</span><span>includes</span><span>(</span><span>USER_ROLES</span><span>.</span><span>MENU_ADMIN</span><span>)</span>
-<span>)</span><span>;</span></code></pre><p>Add <code>user<span>.</span>selector</code> to the list of exports in <code>index<span>.</span>ts</code> 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span></code></pre><h4 id="Update-Application-to-Use-User-Selectors">Update Application to Use User Selectors</h4><p>The user role route guard was previously using the value of the roles from <code>RolesService</code>. Since you now have a user roles Selector, you can replace the current implementation with an NgRx Selector. Open <code>user<span>-</span>role<span>.</span>guard<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/guards/user-role.guard.ts</span>
-
-<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span>
-  CanActivate<span>,</span>
-  Router<span>,</span>
-  ActivatedRouteSnapshot<span>,</span>
-  RouterStateSnapshot<span>,</span>
-<span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-
-<span>import</span> <span>{</span> Observable<span>,</span> <span>of</span> <span>}</span> <span>from</span> <span>&#34;rxjs&#34;</span><span>;</span>
-<span>import</span> <span>{</span> catchError<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectUserRoles <span>}</span> <span>from</span> <span>&#34;../state/user&#34;</span><span>;</span>
-
-@<span>Injectable</span><span>(</span><span>{</span> providedIn<span>:</span> <span>&#34;root&#34;</span> <span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>UserRoleGuard</span> <span>implements</span> <span>CanActivate</span> <span>{</span>
-  <span>constructor</span><span>(</span>
-    <span>// ✨ New 👇</span>
-    <span>private</span> store<span>:</span> Store<span>,</span>
-    <span>private</span> router<span>:</span> Router
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>canActivate</span><span>(</span>
-    route<span>:</span> ActivatedRouteSnapshot<span>,</span>
-    state<span>:</span> RouterStateSnapshot
-  <span>)</span><span>:</span> Observable<span>&lt;</span><span>boolean</span><span>&gt;</span> <span>{</span>
-    <span>// ✨ New 👇</span>
-    <span>return</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserRoles<span>)</span><span>.</span><span>pipe</span><span>(</span>
-      <span>map</span><span>(</span><span>(</span>roles<span>)</span> <span>=&gt;</span> <span>{</span>
-        <span>if</span> <span>(</span>roles <span>&amp;&amp;</span> roles<span>.</span><span>includes</span><span>(</span>route<span>?.</span>data<span>?.</span>role<span>)</span><span>)</span> <span>{</span>
-          <span>return</span> <span>true</span><span>;</span>
-        <span>}</span>
-
-        <span>// redirect the user to home</span>
-        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
-        <span>return</span> <span>false</span><span>;</span>
-      <span>}</span><span>)</span><span>,</span>
-      <span>catchError</span><span>(</span><span>(</span>err<span>)</span> <span>=&gt;</span> <span>{</span>
-        <span>// redirect the user to home</span>
-        <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;/home&#34;</span><span>]</span><span>)</span><span>;</span>
-        <span>return</span> <span>of</span><span>(</span><span>false</span><span>)</span><span>;</span>
-      <span>}</span><span>)</span>
-    <span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>Another place we use user-related information is the Navbar. We display user information and conditionally display the login and logout button depending on the user&#39;s <code>isAuthenticated</code> state. Open <code>nav<span>-</span>bar<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/shared/components/nav-bar/nav-bar.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> IconDefinition <span>}</span> <span>from</span> <span>&#34;@fortawesome/fontawesome-svg-core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> faHome<span>,</span> faUser<span>,</span> faUtensils <span>}</span> <span>from</span> <span>&#34;@fortawesome/free-solid-svg-icons&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span>
-  allNavbarActions<span>,</span>
-  selectIsLoggedIn<span>,</span>
-  selectUserDetails<span>,</span>
-<span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-<span>export</span> <span>interface</span> <span>INavBarMenuLinkProps</span> <span>{</span>
-  to<span>:</span> <span>string</span><span>;</span>
-  icon<span>:</span> IconDefinition<span>;</span>
-  label<span>:</span> <span>string</span><span>;</span>
-<span>}</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-nav-bar&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./nav-bar.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./nav-bar.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>NavBarComponent</span> <span>{</span>
-  faUser <span>=</span> faUser<span>;</span>
-
-  <span>// ✨ New 👇</span>
-  isAuthenticated$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsLoggedIn<span>)</span><span>;</span>
-  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
-
-  navOptions<span>:</span> INavBarMenuLinkProps<span>[</span><span>]</span> <span>=</span> <span>[</span>
-    <span>{</span> to<span>:</span> <span>&#34;/home&#34;</span><span>,</span> label<span>:</span> <span>&#34;Home&#34;</span><span>,</span> icon<span>:</span> faHome <span>}</span><span>,</span>
-    <span>{</span> to<span>:</span> <span>&#34;/menu&#34;</span><span>,</span> label<span>:</span> <span>&#34;Menu&#34;</span><span>,</span> icon<span>:</span> faUtensils <span>}</span><span>,</span>
-  <span>]</span><span>;</span>
-
-  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
-
-  <span>loginWithRedirect</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>loginFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>logout</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>store<span>.</span><span>dispatch</span><span>(</span>allNavbarActions<span>.</span><span>logoutFlowInitiated</span><span>(</span><span>)</span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>The profile page displays some information about the user, such as name and photo. Since this is stored as part of the user Store, let&#39;s also update this to use the <code>selectUserDetails</code> Selector. Open <code>profile<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/profile/profile.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectUserDetails <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-profile&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./profile.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./profile.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>ProfileComponent</span> <span>{</span>
-  <span>// ✨ New 👇</span>
-  user$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectUserDetails<span>)</span><span>;</span>
-
-  <span>// ✨ New 👇</span>
-  <span>constructor</span><span>(</span><span>private</span> store<span>:</span> Store<span>)</span> <span>{</span><span>}</span>
-<span>}</span></code></pre><p>We display an <code>Add</code> button when the logged-in user is an admin user on the Menu Items page. You can read more about setting up admin users on Auth0 in this <a href="https://auth0.com/blog/developing-a-secure-api-with-nestjs-adding-role-based-access-control/#Get-User-Roles" target="_blank" rel="noreferrer noopener">blog post</a>. Open <code>menu<span>-</span>items<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-items/menu-items.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectMenuItems <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-menu-items&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./menu-items.component.html&#34;</span><span>,</span>
-  styles<span>:</span> <span>[</span>
-    <span><span>`</span><span>
-      :host {
-        width: 100%;
-        height: 100%;
-      }
-    </span><span>`</span></span><span>,</span>
-  <span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>MenuItemsComponent</span> <span>{</span>
-  menuItems$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectMenuItems<span>)</span><span>;</span>
-  <span>// ✨ New 👇</span>
-  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
-
-  <span>constructor</span><span>(</span>
-    <span>private</span> router<span>:</span> Router<span>,</span>
-    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
-    <span>private</span> store<span>:</span> Store
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>addMenuItem</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>router<span>.</span><span>navigate</span><span>(</span><span>[</span><span>&#34;add&#34;</span><span>]</span><span>,</span> <span>{</span> relativeTo<span>:</span> <span>this</span><span>.</span>activatedRoute <span>}</span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><p>Lastly, we display a <code>Edit</code> and <code>Delete</code> buttons when the logged-in user is an admin user on the Menu Item page. Open <code>menu<span>-</span>item<span>.</span>component<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/features/menu/menu-item/menu-item.component.ts</span>
-
-<span>import</span> <span>{</span> Component <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Location <span>}</span> <span>from</span> <span>&#34;@angular/common&#34;</span><span>;</span>
-<span>import</span> <span>{</span> ActivatedRoute<span>,</span> Router <span>}</span> <span>from</span> <span>&#34;@angular/router&#34;</span><span>;</span>
-<span>import</span> <span>{</span> map<span>,</span> switchMap <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Store <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> selectMenuItem <span>}</span> <span>from</span> <span>&#34;src/app/core/state/menus&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> selectIsAdmin <span>}</span> <span>from</span> <span>&#34;src/app/core/state/user&#34;</span><span>;</span>
-
-@<span>Component</span><span>(</span><span>{</span>
-  selector<span>:</span> <span>&#34;app-menu-item&#34;</span><span>,</span>
-  templateUrl<span>:</span> <span>&#34;./menu-item.component.html&#34;</span><span>,</span>
-  styleUrls<span>:</span> <span>[</span><span>&#34;./menu-item.component.scss&#34;</span><span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>MenuItemComponent</span> <span>{</span>
-  menuItemId$ <span>=</span> <span>this</span><span>.</span>activatedRoute<span>.</span>params<span>.</span><span>pipe</span><span>(</span><span>map</span><span>(</span><span>(</span>params<span>)</span> <span>=&gt;</span> params<span>.</span>id<span>)</span><span>)</span><span>;</span>
-  menuItem$ <span>=</span> <span>this</span><span>.</span>menuItemId$<span>.</span><span>pipe</span><span>(</span>
-    <span>switchMap</span><span>(</span><span>(</span>id<span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span><span>selectMenuItem</span><span>(</span><span>{</span> id<span>:</span> id <span>}</span><span>)</span><span>)</span><span>)</span>
-  <span>)</span><span>;</span>
-
-  <span>// ✨ New 👇</span>
-  isAdmin$ <span>=</span> <span>this</span><span>.</span>store<span>.</span><span>select</span><span>(</span>selectIsAdmin<span>)</span><span>;</span>
-
-  <span>constructor</span><span>(</span>
-    <span>private</span> activatedRoute<span>:</span> ActivatedRoute<span>,</span>
-    <span>private</span> router<span>:</span> Router<span>,</span>
-    <span>private</span> location<span>:</span> Location<span>,</span>
-    <span>private</span> store<span>:</span> Store
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>back</span><span>(</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>location<span>.</span><span>back</span><span>(</span><span>)</span><span>;</span>
-  <span>}</span>
-
-  <span>navigateTo</span><span>(</span>url<span>:</span> <span>string</span><span>)</span><span>:</span> <span>void</span> <span>{</span>
-    <span>this</span><span>.</span>router<span>.</span><span>navigateByUrl</span><span>(</span><span><span>`</span><span><span>${</span><span>this</span><span>.</span>router<span>.</span>url<span>}</span></span><span>/</span><span><span>${</span>url<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
-  <span>}</span>
-<span>}</span></code></pre><h3 id="Create-User-Reducer">Create User Reducer</h3><p>The <code>userDetails</code> in the user Store will only be modified based on the <code>userChanged</code> event from Auth0&#39;s SDK to always keep them in sync. Open <code>user<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.reducer.ts</span>
-
-<span>import</span> <span>{</span> Action<span>,</span> createReducer<span>,</span> on <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-<span>import</span> <span>{</span> initialState<span>,</span> UserState <span>}</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-
-<span>const</span> userReducer <span>=</span> <span>createReducer</span><span>(</span>
-  initialState<span>,</span>
-  <span>on</span><span>(</span>UserActions<span>.</span>userChangedFromAuth0SDK<span>,</span> <span>(</span>state<span>,</span> <span>{</span> userDetails <span>}</span><span>)</span> <span>=&gt;</span> <span>(</span><span>{</span>
-    <span>...</span>state<span>,</span>
-    userDetails<span>:</span> userDetails<span>,</span>
-  <span>}</span><span>)</span><span>)</span>
-<span>)</span><span>;</span>
-
-<span>export</span> <span>function</span> <span>reducer</span><span>(</span>state<span>:</span> UserState <span>|</span> <span>undefined</span><span>,</span> action<span>:</span> Action<span>)</span> <span>{</span>
-  <span>return</span> <span>userReducer</span><span>(</span>state<span>,</span> action<span>)</span><span>;</span>
-<span>}</span></code></pre><h4 id="Update-Core-Reducer">Update Core Reducer</h4><p>Similar to what you did for the menus Reducer, you will need to add the reducer to the <code>ActionReducerMap</code> to use the user reducer. Open <code>core<span>.</span>reducer<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/core.reducers.ts</span>
-
-<span>import</span> <span>{</span> ActionReducerMap<span>,</span> MetaReducer <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> State <span>}</span> <span>from</span> <span>&#34;./core.state&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> MenusReducer <span>from</span> <span>&#34;./menus/menus.reducer&#34;</span><span>;</span>
-<span>// ✨ New 👇</span>
-<span>import</span> <span>*</span> <span>as</span> UserReducer <span>from</span> <span>&#34;./user/user.reducer&#34;</span><span>;</span>
-
-<span>export</span> <span>const</span> reducers<span>:</span> ActionReducerMap<span>&lt;</span>State<span>&gt;</span> <span>=</span> <span>{</span>
-  menus<span>:</span> MenusReducer<span>.</span>reducer<span>,</span>
-  <span>// ✨ New 👇</span>
-  user<span>:</span> UserReducer<span>.</span>reducer<span>,</span>
-<span>}</span><span>;</span>
-
-<span>export</span> <span>const</span> metaReducers<span>:</span> MetaReducer<span>&lt;</span>State<span>&gt;</span><span>[</span><span>]</span> <span>=</span> <span>[</span><span>]</span><span>;</span></code></pre><h3 id="Create-User-Effects">Create User Effects</h3><p>You will be interacting with Auth0&#39;s SDK through the user Effects, to log in and log out the user and listen to changes in the user&#39;s state. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
-
-<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
-<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-
-@<span>Injectable</span><span>(</span><span>)</span>
-<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
-  <span>constructor</span><span>(</span>
-    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
-    <span>private</span> authService<span>:</span> AuthService
-  <span>)</span> <span>{</span><span>}</span>
-
-  login$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-
-  logout$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-<span>}</span></code></pre><p>To keep the user observable from the Auth0&#39;s SDK and our user Store in sync, you can use an actionless effect that listens to an external observable (in our case <code>authService<span>.</span>user$</code>) and dispatches another action whenever that observable emits a new value. Open <code>user<span>.</span>effects<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/user.effects.ts</span>
-
-<span>import</span> <span>{</span> Injectable <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthService <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-<span>import</span> <span>{</span> Actions<span>,</span> createEffect<span>,</span> ofType <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
-<span>import</span> <span>{</span> tap<span>,</span> map <span>}</span> <span>from</span> <span>&#34;rxjs/operators&#34;</span><span>;</span>
-<span>import</span> <span>*</span> <span>as</span> UserActions <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-
-@<span>Injectable</span><span>(</span><span>)</span>
-<span>export</span> <span>class</span> <span>UserEffects</span> <span>{</span>
-  <span>constructor</span><span>(</span>
-    <span>private</span> actions$<span>:</span> Actions<span>&lt;</span><span>any</span><span>&gt;</span><span>,</span>
-    <span>private</span> authService<span>:</span> AuthService
-  <span>)</span> <span>{</span><span>}</span>
-
-  <span>// ✨ New 👇</span>
-  userChanged$ <span>=</span> <span>createEffect</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span>
-    <span>this</span><span>.</span>authService<span>.</span>user$<span>.</span><span>pipe</span><span>(</span>
-      <span>map</span><span>(</span><span>(</span>userDetails<span>)</span> <span>=&gt;</span>
-        UserActions<span>.</span><span>userChangedFromAuth0SDK</span><span>(</span><span>{</span> userDetails<span>:</span> userDetails <span>}</span><span>)</span>
-      <span>)</span>
-    <span>)</span>
-  <span>)</span><span>;</span>
-
-  login$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>loginFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>loginWithRedirect</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-
-  logout$ <span>=</span> <span>createEffect</span><span>(</span>
-    <span>(</span><span>)</span> <span>=&gt;</span>
-      <span>this</span><span>.</span>actions$<span>.</span><span>pipe</span><span>(</span>
-        <span>ofType</span><span>(</span>UserActions<span>.</span>allNavbarActions<span>.</span>logoutFlowInitiated<span>.</span><span>type</span><span>)</span><span>,</span>
-        <span>tap</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>this</span><span>.</span>authService<span>.</span><span>logout</span><span>(</span><span>)</span><span>)</span>
-      <span>)</span><span>,</span>
-    <span>{</span> dispatch<span>:</span> <span>false</span> <span>}</span>
-  <span>)</span><span>;</span>
-<span>}</span></code></pre><p>Add <code>user<span>.</span>effects</code> to the barrel export. Open <code>index<span>.</span>ts</code> and add the following code 👇</p><pre><code><span>// src/app/core/state/user/index.ts</span>
-
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.state&#34;</span><span>;</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.actions&#34;</span><span>;</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.selector&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>export</span> <span>*</span> <span>from</span> <span>&#34;./user.effects&#34;</span><span>;</span></code></pre><h4 id="Update-Effects-Module">Update Effects Module</h4><p>You will then need to add <code>UserEffects</code> to the <code>EffectsModule</code> initialization. Open <code>app<span>.</span>module<span>.</span>ts</code> and add the following code</p><pre><code><span>// src/app/app.module.ts</span>
-
-<span>import</span> <span>{</span> BrowserModule <span>}</span> <span>from</span> <span>&#34;@angular/platform-browser&#34;</span><span>;</span>
-<span>import</span> <span>{</span> NgModule <span>}</span> <span>from</span> <span>&#34;@angular/core&#34;</span><span>;</span>
-<span>import</span> <span>{</span> HttpClientModule<span>,</span> <span>HTTP_INTERCEPTORS</span> <span>}</span> <span>from</span> <span>&#34;@angular/common/http&#34;</span><span>;</span>
-<span>import</span> <span>{</span> StoreModule <span>}</span> <span>from</span> <span>&#34;@ngrx/store&#34;</span><span>;</span>
-<span>import</span> <span>{</span> EffectsModule <span>}</span> <span>from</span> <span>&#34;@ngrx/effects&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AuthHttpInterceptor<span>,</span> AuthModule <span>}</span> <span>from</span> <span>&#34;@auth0/auth0-angular&#34;</span><span>;</span>
-
-<span>import</span> <span>{</span> AppRoutingModule <span>}</span> <span>from</span> <span>&#34;./app-routing.module&#34;</span><span>;</span>
-<span>import</span> <span>{</span> AppComponent <span>}</span> <span>from</span> <span>&#34;./app.component&#34;</span><span>;</span>
-<span>import</span> <span>{</span> NavBarModule <span>}</span> <span>from</span> <span>&#34;./shared&#34;</span><span>;</span>
-<span>import</span> <span>{</span> environment <span>}</span> <span>from</span> <span>&#34;src/environments/environment&#34;</span><span>;</span>
-<span>import</span> <span>{</span> reducers<span>,</span> metaReducers <span>}</span> <span>from</span> <span>&#34;./core/state&#34;</span><span>;</span>
-<span>import</span> <span>{</span> MenusEffects <span>}</span> <span>from</span> <span>&#34;./core/state/menus&#34;</span><span>;</span>
-
-<span>// ✨ New 👇</span>
-<span>import</span> <span>{</span> UserEffects <span>}</span> <span>from</span> <span>&#34;./core/state/user&#34;</span><span>;</span>
-
-@<span>NgModule</span><span>(</span><span>{</span>
-  imports<span>:</span> <span>[</span>
-    BrowserModule<span>,</span>
-    HttpClientModule<span>,</span>
-    AuthModule<span>.</span><span>forRoot</span><span>(</span><span>{</span>
-      <span>...</span>environment<span>.</span>auth<span>,</span>
-      httpInterceptor<span>:</span> <span>{</span>
-        allowedList<span>:</span> <span>[</span>
-          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items</span><span>`</span></span><span>,</span>
-          <span><span>`</span><span><span>${</span>environment<span>.</span>serverUrl<span>}</span></span><span>/api/menu/items/*</span><span>`</span></span><span>,</span>
-        <span>]</span><span>,</span>
-      <span>}</span><span>,</span>
-    <span>}</span><span>)</span><span>,</span>
-    AppRoutingModule<span>,</span>
-    NavBarModule<span>,</span>
-
-    <span>// NgRx</span>
-    StoreModule<span>.</span><span>forRoot</span><span>(</span>reducers<span>,</span> <span>{</span>
-      metaReducers<span>,</span>
-    <span>}</span><span>)</span><span>,</span>
-
-    <span>// ✨ New 👇</span>
-    EffectsModule<span>.</span><span>forRoot</span><span>(</span><span>[</span>MenusEffects<span>,</span> UserEffects<span>]</span><span>)</span><span>,</span>
-  <span>]</span><span>,</span>
-  declarations<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
-  bootstrap<span>:</span> <span>[</span>AppComponent<span>]</span><span>,</span>
-  providers<span>:</span> <span>[</span>
-    <span>{</span>
-      provide<span>:</span> <span>HTTP_INTERCEPTORS</span><span>,</span>
-      useClass<span>:</span> AuthHttpInterceptor<span>,</span>
-      multi<span>:</span> <span>true</span><span>,</span>
-    <span>}</span><span>,</span>
-  <span>]</span><span>,</span>
-<span>}</span><span>)</span>
-<span>export</span> <span>class</span> <span>AppModule</span> <span>{</span><span>}</span></code></pre><blockquote><p><strong>Checkpoint:</strong> There aren&#39;t any visible functional changes added in this section. The difference between the current state of the app compared to the previous checkpoint is its underlying implementation. The app now uses NgRx versus a <code>BehaviorSubject</code> to manage user-related states. The app should display the login button with an empty dashboard when the user is not authenticated, and display the logout button with the logged-in user&#39;s name along with the menu items on the dashboard when a user is authenticated. Clicking on the &#34;Log in&#34; and &#34;Log out&#34; buttons should trigger their respective flows using Auth0&#39;s SDK and update your application&#39;s state. If you open Redux Devtools in your browser, you should see the user state and actions every time you perform any user-related actions.</p></blockquote><h2 id="Conclusion">Conclusion</h2><p>State management is a key component when building applications. You added two Stores to our demo application to manage two distinct states - menus and user. This is a relatively small demo application with a few Stores, Actions, and Reducers to show how you can use NgRx to manage your Application&#39;s state, and use NgRx with Auth0&#39;s SDK to handle user-related functionalities.</p></div></div>]]></content:encoded>
       <pubDate>Tue, 23 Nov 2021 19:57:00 +0000</pubDate>
     </item>
     <item>
@@ -11486,6 +11723,13 @@ Future<span>&lt;</span><span>void</span><span>&gt;</span> <span>archiveSupportCh
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
     <item>
+      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
+      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
+      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
+      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Flutter Authentication and Authorization with Auth0, Part 3: Adding Real-Time Chat to the App</title>
       <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-3-adding-real-time-chat-to-the-app/</link>
       <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
@@ -11792,13 +12036,6 @@ exports<span>.</span><span>onExecutePostLogin</span> <span>=</span> <span>async<
   <span>// client.devToken(user.id).rawValue,</span>
     user<span>.</span>streamChatUserToken<span>,</span>
 <span>)</span><span>;</span></code></pre><p>Well done! Log out of the app, restart it. and log in again. This time, you&#39;ll receive a production-ready user token. When you go to the support chat screen, everything should work as expected.</p><h2 id="Looking-Ahead">Looking Ahead</h2><p>Now that the app has a real-time chat is ready with a proper authentication flow, you can move on to the next section to focus on authorization, roles, and permissions.</p></div></div>]]></content:encoded>
-      <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Flutter Authentication and Authorization with Auth0, Part 4: Roles and Permissions</title>
-      <link>https://auth0.com/blog/flutter-authentication-authorization-with-auth0-part-4-roles-permissions/</link>
-      <description>In this tutorial, you’ll learn how to enhance your Flutter apps by enabling authentication, supporting federated identity providers, adding authorization by introducing roles and permissions, all leveraging Auth0.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><ul><li><a href="https://twitter.com/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://facebook.com/getauth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://linkedin.com/company/auth0" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://www.instagram.com/weareauth0/" target="_blank" rel="noopener noreferrer"></a></li><li><a href="https://github.com/auth0" target="_blank" rel="noopener noreferrer"></a></li></ul><p>© 2013-2021 Auth0 Inc. All Rights Reserved.</p></div></div>]]></content:encoded>
       <pubDate>Mon, 04 Oct 2021 17:13:00 +0000</pubDate>
     </item>
     <item>
