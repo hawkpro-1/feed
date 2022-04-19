@@ -2135,7 +2135,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
     </item>
     <item>
       <title>&#xA;                                            Product Lessons from ML Home: Spotify’s One-Stop Shop for Machine Learning&#xA;</title>
-      <link>https://engineering.atspotify.com/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/</link>
+      <link>https://engineering.atspotify.com/2022/01/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/</link>
       <description>Introduction Building platforms is a hard business. Building platforms for discerning machine learning (ML) practitioners with bespoke needs and a do-it-yourself ethos is even harder. In today’s post, we will give you a peek into how we built ML Home, the internal user interface for Spotify’s Ma</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -2147,7 +2147,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/" title="Product Lessons from ML Home: Spotify’s One-Stop Shop for Machine Learning">
+        <p><a href="https://engineering.atspotify.com/2022/01/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/" title="Product Lessons from ML Home: Spotify’s One-Stop Shop for Machine Learning">
                         <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-768x378.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
                         
         </p>
@@ -2542,7 +2542,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
     </item>
     <item>
       <title>&#xA;                                            Product Lessons from ML Home: Spotify’s One-Stop Shop for Machine Learning&#xA;</title>
-      <link>https://engineering.atspotify.com/2022/01/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/</link>
+      <link>https://engineering.atspotify.com/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/</link>
       <description>Introduction Building platforms is a hard business. Building platforms for discerning machine learning (ML) practitioners with bespoke needs and a do-it-yourself ethos is even harder. In today’s post, we will give you a peek into how we built ML Home, the internal user interface for Spotify’s Ma</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -2554,7 +2554,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2022/01/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/" title="Product Lessons from ML Home: Spotify’s One-Stop Shop for Machine Learning">
+        <p><a href="https://engineering.atspotify.com/product-lessons-from-ml-home-spotifys-one-stop-shop-for-machine-learning/" title="Product Lessons from ML Home: Spotify’s One-Stop Shop for Machine Learning">
                         <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header.png 1999w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-768x378.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2022/01/ML-Home_Header-120x59.png 120w" sizes="(max-width: 1999px) 100vw, 1999px"/>                    </a>
                         
         </p>
@@ -4022,7 +4022,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
     </item>
     <item>
       <title>&#xA;                                            The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/11/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/</link>
+      <link>https://engineering.atspotify.com/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/</link>
       <description>In Part I of this two-part series, we talked about the challenges we faced with the models we use to recommend content on Home, including: The Podcast Model: Predicts podcasts a listener is likely to listen to in the Shows you might like shelf. The Shortcuts Model: Predicts the listener’s next fa</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -4034,7 +4034,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/11/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/" title="The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)">
+        <p><a href="https://engineering.atspotify.com/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/" title="The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)">
                         <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A.png 2098w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-768x379.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-2048x1009.png 2048w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-120x59.png 120w" sizes="(max-width: 2098px) 100vw, 2098px"/>                    </a>
                         
         </p>
@@ -4898,7 +4898,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
     </item>
     <item>
       <title>&#xA;                                            The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)&#xA;</title>
-      <link>https://engineering.atspotify.com/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/</link>
+      <link>https://engineering.atspotify.com/2021/11/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/</link>
       <description>In Part I of this two-part series, we talked about the challenges we faced with the models we use to recommend content on Home, including: The Podcast Model: Predicts podcasts a listener is likely to listen to in the Shows you might like shelf. The Shortcuts Model: Predicts the listener’s next fa</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -4910,7 +4910,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/" title="The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)">
+        <p><a href="https://engineering.atspotify.com/2021/11/the-rise-and-lessons-learned-of-ml-models-to-personalize-content-on-home-part-ii/" title="The Rise (and Lessons Learned) of ML Models to Personalize Content on Home (Part II)">
                         <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A.png 2098w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-250x123.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-700x345.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-768x379.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-1536x757.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-2048x1009.png 2048w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/11/147_Part-02A-120x59.png 120w" sizes="(max-width: 2098px) 100vw, 2098px"/>                    </a>
                         
         </p>
@@ -8006,7 +8006,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
     </item>
     <item>
       <title>&#xA;                                            How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
+      <link>https://engineering.atspotify.com/2021/09/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
       <description>What’s the best way to assess your developers’ experience and performance to discover what they need help with? Is it by measuring something arbitrary, like how many lines of code they’ve written or how many commits they’ve made? Nope. How much useful data are you really getting out of those numbers</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -8018,8 +8018,8 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
-                        <img src="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" alt="" loading="lazy" srcset="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px" data-image-size="post-thumbnail" data-stateless-media-bucket="rnd-atspotify" data-stateless-media-name="sites/2/2021/09/Backstage_Developers_Header.png"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/2021/09/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px"/>                    </a>
                         
         </p>
 
@@ -8095,16 +8095,12 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
 
 
 <p>Interested in hearing more about Backstage and what it can do for you? To hear more from Pia discussing Backstage and developer effectiveness with other engineers, check out the <a href="https://www.thoughtworks.com/insights/podcasts/technology-podcasts/developer-effectiveness" target="_blank" rel="noreferrer noopener">Thoughtworks podcast episode</a>. And if you’re curious about how to get started with Backstage, read more about that <a href="https://backstage.spotify.com/blog/getting-started-with-backstage/" target="_blank" rel="noreferrer noopener">here</a>.</p>
-        <br/>
+        <p>
 
-        
-        
-
-        
-
-            </div></div>]]></content:encoded>
+        Tags: <a href="https://engineering.atspotify.com/tag/backend/" rel="tag">backend</a>, <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
+            </p></div></div>]]></content:encoded>
       <author>Published by Spotify Engineering</author>
-      <enclosure url="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
       <pubDate>Thu, 23 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
@@ -8208,7 +8204,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
     </item>
     <item>
       <title>&#xA;                                            How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/09/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
+      <link>https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/</link>
       <description>What’s the best way to assess your developers’ experience and performance to discover what they need help with? Is it by measuring something arbitrary, like how many lines of code they’ve written or how many commits they’ve made? Nope. How much useful data are you really getting out of those numbers</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -8220,8 +8216,8 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/09/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/2021/09/23/how-backstage-made-our-developers-more-effective-and-how-it-can-help-yours-too/" title="How Backstage Made Our Developers More Effective — And How It Can Help Yours, Too">
+                        <img src="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" alt="" loading="lazy" srcset="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png 512w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-250x131.png 250w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header-120x63.png 120w" sizes="(max-width: 512px) 100vw, 512px" data-image-size="post-thumbnail" data-stateless-media-bucket="rnd-atspotify" data-stateless-media-name="sites/2/2021/09/Backstage_Developers_Header.png"/>                    </a>
                         
         </p>
 
@@ -8297,13 +8293,235 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
 
 
 <p>Interested in hearing more about Backstage and what it can do for you? To hear more from Pia discussing Backstage and developer effectiveness with other engineers, check out the <a href="https://www.thoughtworks.com/insights/podcasts/technology-podcasts/developer-effectiveness" target="_blank" rel="noreferrer noopener">Thoughtworks podcast episode</a>. And if you’re curious about how to get started with Backstage, read more about that <a href="https://backstage.spotify.com/blog/getting-started-with-backstage/" target="_blank" rel="noreferrer noopener">here</a>.</p>
+        <br/>
+
+        
+        
+
+        
+
+            </div></div>]]></content:encoded>
+      <author>Published by Spotify Engineering</author>
+      <enclosure url="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
+      <pubDate>Thu, 23 Sep 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>&#xA;                                            Introducing Pedalboard: Spotify’s Audio Effects Library for Python&#xA;</title>
+      <link>https://engineering.atspotify.com/2021/09/introducing-pedalboard-spotifys-audio-effects-library-for-python/</link>
+      <description>We’ve just open sourced Pedalboard, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW). If you ask any music or podcast producer where they spend most of the</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
+
+                        
+
+                <article id="post-4787">
+    <div>
+        
+        
+
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>September 7, 2021</span>
+                
+            </p>
+        </div>
+        
+        <p><a href="https://engineering.atspotify.com/2021/09/introducing-pedalboard-spotifys-audio-effects-library-for-python/" title="Introducing Pedalboard: Spotify’s Audio Effects Library for Python">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" alt=""/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p>We’ve just open sourced <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">Pedalboard</a>, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW).</p>
+
+
+
+<p>If you ask any music or podcast producer where they spend most of their time, chances are they’ll say their DAW — the app that lets them edit, manipulate, and perfect their audio. DAWs are powerful software packages that are used in the production of the vast majority of audio today. Most music or podcast content that you hear on Spotify has probably been processed through popular DAWs like Ableton Live, Logic Pro<sup>®</sup>, or Pro Tools<sup>®</sup>, or newer, more accessible tools like <a rel="noreferrer noopener" href="https://www.soundtrap.com/" target="_blank">Soundtrap</a> or <a rel="noreferrer noopener" href="https://anchor.fm/" target="_blank">Anchor</a>. These apps are optimized for high performance and audio quality, and give producers both incredible flexibility and control over their audio.</p>
+
+
+
+<p>This ability to play with sound is usually relegated to DAWs, and these apps are built for musicians, not programmers. But what if programmers want to use the power, speed, and sound quality of a DAW in their code? The engineers and researchers at <a href="https://research.atspotify.com/audio-intelligence/" target="_blank" rel="noreferrer noopener">Spotify’s Audio Intelligence Lab</a> found themselves with that exact need as part of their cutting-edge audio research. They found that each existing solution met some (but not all) of the criteria they needed — so instead, they built their own. Enter <em>Pedalboard</em>, a new Python package.</p>
+
+
+
+<figure><img loading="lazy" width="700" height="182" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-250x65.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-768x200.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-1536x400.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-120x31.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
+
+
+
+<p>Pedalboard is a Python audio effects library designed to bridge the gap between professional audio software and Python code. It’s built on top of <a rel="noreferrer noopener" href="https://juce.com/" target="_blank">JUCE</a>, the industry-standard framework for performant and reliable audio applications. Just like a professional DAW, Pedalboard supports a number of built-in audio effects, as well as third-party VST3<sup>® </sup>and Audio Unit plugins. And just like a DAW, Pedalboard prioritizes speed and quality: in basic tests on common developer hardware, it’s up to 300 times faster than the currently widely used packages for Python audio effects.</p>
+
+
+
+<p>Similar to the pedalboards used by guitar players, Pedalboard includes a variety of common stylistic effects and augmentations that you can use to alter sounds. You’ll find basic tools to control volume, like a noise gate, compressor, and limiter, as well as more stylistic tools like distortion, phaser, filter, and reverb. Pedalboard even includes a built-in convolution operator for high-quality simulation of speakers and microphones. If that’s not enough, any VST3<sup>® </sup>or Audio Unit effect plugin can be loaded to provide access to more sonic possibilities. Once you’ve got the sound you’re looking for, you can save your effects by grouping plugins together into a pedalboard, which has the added benefit of speeding up processing.</p>
+
+
+
+<figure><img loading="lazy" width="700" height="538" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-250x192.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-768x591.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-1536x1181.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-120x92.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2.png 1874w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
+
+
+
+<p>We’ve found a number of great uses for Pedalboard at Spotify so far, including:</p>
+
+
+
+<ul><li><strong>Machine Learning (ML):</strong> Pedalboard makes the process of <a rel="noreferrer noopener" href="https://en.wikipedia.org/wiki/Data_augmentation" target="_blank">data augmentation</a> for audio dramatically faster and produces more realistic results. Using Pedalboard, it’s easy to take a small dataset and augment it with audio effects — adding reverb, compression, distortion, and more — to vastly increase the size of your model’s training data and increase your model’s performance. Pedalboard has been thoroughly tested in high-performance and high-reliability ML use cases at Spotify, and is used heavily with TensorFlow.</li></ul>
+
+
+
+
+
+
+
+<ul><li><strong>Content Creation: </strong>Pedalboard makes it easy to script the application of audio effects with small amounts of Python code. This can help automate parts of the audio creation process. Applying a VST3<sup>®</sup> or Audio Unit plugin no longer requires launching your DAW, importing audio, and exporting it; a couple of lines of code can do it all in one command, or as part of a larger workflow.</li></ul>
+
+
+
+
+
+
+
+<ul><li><strong>Creativity:</strong> Artists, musicians, and producers with a bit of Python knowledge can use Pedalboard to produce new creative effects that would be extremely time consuming and difficult to produce in a DAW. And for those just getting started with Python, Pedalboard is a great place to begin, as it provides a bridge between code and music.</li></ul>
+
+
+
+<p>Spotify has a long tradition of contributing to open source software, and our research labs are active participants in the open source and academic communities. To continue that tradition, we’re open sourcing the project after nearly a year of internal use in the hopes that it will open up new possibilities for researchers, engineers, musicians, and tinkerers. Pedalboard is “stage ready” — it supports macOS, Windows, and Linux out of the box, and we’ve used it internally at Spotify to process millions of hours of audio.</p>
+
+
+
+<p>If you’re interested in trying out Pedalboard, it’s ready now. You can find its <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">code and documentation on GitHub</a>, where we welcome contributions to the code. Installing Pedalboard on your computer is as simple as running one command: pip install pedalboard. We can’t wait to hear what you use Pedalboard for!</p>
+
+
+
+<p>—</p>
+
+
+
+<p><em>VST is a registered trademark of Steinberg Media Technologies GmbH.</em></p>
         <p>
 
-        Tags: <a href="https://engineering.atspotify.com/tag/backend/" rel="tag">backend</a>, <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
-            </p></div></div>]]></content:encoded>
-      <author>Published by Spotify Engineering</author>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Backstage_Developers_Header.png" length="0" type="image/png"></enclosure>
-      <pubDate>Thu, 23 Sep 2021 00:00:00 +0000</pubDate>
+        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a>, <a href="https://engineering.atspotify.com/tag/tech-research/" rel="tag">tech research</a><br/>        
+            </p></div>
+    
+
+
+</article>
+                
+
+            
+        
+    </section></div>]]></content:encoded>
+      <author>Published by Peter Sobot, Staff Machine Learning Engineer - Spotify Audio Intelligence Lab</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" length="0" type="image/gif"></enclosure>
+      <pubDate>Tue, 07 Sep 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>&#xA;                                            Introducing Pedalboard: Spotify’s Audio Effects Library for Python&#xA;</title>
+      <link>https://engineering.atspotify.com/introducing-pedalboard-spotifys-audio-effects-library-for-python/</link>
+      <description>We’ve just open sourced Pedalboard, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW). If you ask any music or podcast producer where they spend most of the</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
+
+                        
+
+                <article id="post-4787">
+    <div>
+        
+        
+
+        <div>
+            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>September 7, 2021</span>
+                
+            </p>
+        </div>
+        
+        <p><a href="https://engineering.atspotify.com/introducing-pedalboard-spotifys-audio-effects-library-for-python/" title="Introducing Pedalboard: Spotify’s Audio Effects Library for Python">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" alt=""/>                    </a>
+                        
+        </p>
+
+        
+
+        
+<p>We’ve just open sourced <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">Pedalboard</a>, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW).</p>
+
+
+
+<p>If you ask any music or podcast producer where they spend most of their time, chances are they’ll say their DAW — the app that lets them edit, manipulate, and perfect their audio. DAWs are powerful software packages that are used in the production of the vast majority of audio today. Most music or podcast content that you hear on Spotify has probably been processed through popular DAWs like Ableton Live, Logic Pro<sup>®</sup>, or Pro Tools<sup>®</sup>, or newer, more accessible tools like <a rel="noreferrer noopener" href="https://www.soundtrap.com/" target="_blank">Soundtrap</a> or <a rel="noreferrer noopener" href="https://anchor.fm/" target="_blank">Anchor</a>. These apps are optimized for high performance and audio quality, and give producers both incredible flexibility and control over their audio.</p>
+
+
+
+<p>This ability to play with sound is usually relegated to DAWs, and these apps are built for musicians, not programmers. But what if programmers want to use the power, speed, and sound quality of a DAW in their code? The engineers and researchers at <a href="https://research.atspotify.com/audio-intelligence/" target="_blank" rel="noreferrer noopener">Spotify’s Audio Intelligence Lab</a> found themselves with that exact need as part of their cutting-edge audio research. They found that each existing solution met some (but not all) of the criteria they needed — so instead, they built their own. Enter <em>Pedalboard</em>, a new Python package.</p>
+
+
+
+<figure><img loading="lazy" width="700" height="182" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-250x65.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-768x200.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-1536x400.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-120x31.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
+
+
+
+<p>Pedalboard is a Python audio effects library designed to bridge the gap between professional audio software and Python code. It’s built on top of <a rel="noreferrer noopener" href="https://juce.com/" target="_blank">JUCE</a>, the industry-standard framework for performant and reliable audio applications. Just like a professional DAW, Pedalboard supports a number of built-in audio effects, as well as third-party VST3<sup>® </sup>and Audio Unit plugins. And just like a DAW, Pedalboard prioritizes speed and quality: in basic tests on common developer hardware, it’s up to 300 times faster than the currently widely used packages for Python audio effects.</p>
+
+
+
+<p>Similar to the pedalboards used by guitar players, Pedalboard includes a variety of common stylistic effects and augmentations that you can use to alter sounds. You’ll find basic tools to control volume, like a noise gate, compressor, and limiter, as well as more stylistic tools like distortion, phaser, filter, and reverb. Pedalboard even includes a built-in convolution operator for high-quality simulation of speakers and microphones. If that’s not enough, any VST3<sup>® </sup>or Audio Unit effect plugin can be loaded to provide access to more sonic possibilities. Once you’ve got the sound you’re looking for, you can save your effects by grouping plugins together into a pedalboard, which has the added benefit of speeding up processing.</p>
+
+
+
+<figure><img loading="lazy" width="700" height="538" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-250x192.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-768x591.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-1536x1181.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-120x92.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2.png 1874w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
+
+
+
+<p>We’ve found a number of great uses for Pedalboard at Spotify so far, including:</p>
+
+
+
+<ul><li><strong>Machine Learning (ML):</strong> Pedalboard makes the process of <a rel="noreferrer noopener" href="https://en.wikipedia.org/wiki/Data_augmentation" target="_blank">data augmentation</a> for audio dramatically faster and produces more realistic results. Using Pedalboard, it’s easy to take a small dataset and augment it with audio effects — adding reverb, compression, distortion, and more — to vastly increase the size of your model’s training data and increase your model’s performance. Pedalboard has been thoroughly tested in high-performance and high-reliability ML use cases at Spotify, and is used heavily with TensorFlow.</li></ul>
+
+
+
+
+
+
+
+<ul><li><strong>Content Creation: </strong>Pedalboard makes it easy to script the application of audio effects with small amounts of Python code. This can help automate parts of the audio creation process. Applying a VST3<sup>®</sup> or Audio Unit plugin no longer requires launching your DAW, importing audio, and exporting it; a couple of lines of code can do it all in one command, or as part of a larger workflow.</li></ul>
+
+
+
+
+
+
+
+<ul><li><strong>Creativity:</strong> Artists, musicians, and producers with a bit of Python knowledge can use Pedalboard to produce new creative effects that would be extremely time consuming and difficult to produce in a DAW. And for those just getting started with Python, Pedalboard is a great place to begin, as it provides a bridge between code and music.</li></ul>
+
+
+
+<p>Spotify has a long tradition of contributing to open source software, and our research labs are active participants in the open source and academic communities. To continue that tradition, we’re open sourcing the project after nearly a year of internal use in the hopes that it will open up new possibilities for researchers, engineers, musicians, and tinkerers. Pedalboard is “stage ready” — it supports macOS, Windows, and Linux out of the box, and we’ve used it internally at Spotify to process millions of hours of audio.</p>
+
+
+
+<p>If you’re interested in trying out Pedalboard, it’s ready now. You can find its <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">code and documentation on GitHub</a>, where we welcome contributions to the code. Installing Pedalboard on your computer is as simple as running one command: pip install pedalboard. We can’t wait to hear what you use Pedalboard for!</p>
+
+
+
+<p>—</p>
+
+
+
+<p><em>VST is a registered trademark of Steinberg Media Technologies GmbH.</em></p>
+        <p>
+
+        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a>, <a href="https://engineering.atspotify.com/tag/tech-research/" rel="tag">tech research</a><br/>        
+            </p></div>
+    
+
+
+</article>
+                
+
+            
+        
+    </section></div>]]></content:encoded>
+      <author>Published by Peter Sobot, Staff Machine Learning Engineer - Spotify Audio Intelligence Lab</author>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" length="0" type="image/gif"></enclosure>
+      <pubDate>Tue, 07 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
       <title>&#xA;                                            Introducing Pedalboard: Spotify’s Audio Effects Library for Python&#xA;</title>
@@ -8528,226 +8746,8 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
       <pubDate>Tue, 07 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>&#xA;                                            Introducing Pedalboard: Spotify’s Audio Effects Library for Python&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/09/introducing-pedalboard-spotifys-audio-effects-library-for-python/</link>
-      <description>We’ve just open sourced Pedalboard, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW). If you ask any music or podcast producer where they spend most of the</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
-
-                        
-
-                <article id="post-4787">
-    <div>
-        
-        
-
-        <div>
-            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>September 7, 2021</span>
-                
-            </p>
-        </div>
-        
-        <p><a href="https://engineering.atspotify.com/2021/09/introducing-pedalboard-spotifys-audio-effects-library-for-python/" title="Introducing Pedalboard: Spotify’s Audio Effects Library for Python">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" alt=""/>                    </a>
-                        
-        </p>
-
-        
-
-        
-<p>We’ve just open sourced <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">Pedalboard</a>, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW).</p>
-
-
-
-<p>If you ask any music or podcast producer where they spend most of their time, chances are they’ll say their DAW — the app that lets them edit, manipulate, and perfect their audio. DAWs are powerful software packages that are used in the production of the vast majority of audio today. Most music or podcast content that you hear on Spotify has probably been processed through popular DAWs like Ableton Live, Logic Pro<sup>®</sup>, or Pro Tools<sup>®</sup>, or newer, more accessible tools like <a rel="noreferrer noopener" href="https://www.soundtrap.com/" target="_blank">Soundtrap</a> or <a rel="noreferrer noopener" href="https://anchor.fm/" target="_blank">Anchor</a>. These apps are optimized for high performance and audio quality, and give producers both incredible flexibility and control over their audio.</p>
-
-
-
-<p>This ability to play with sound is usually relegated to DAWs, and these apps are built for musicians, not programmers. But what if programmers want to use the power, speed, and sound quality of a DAW in their code? The engineers and researchers at <a href="https://research.atspotify.com/audio-intelligence/" target="_blank" rel="noreferrer noopener">Spotify’s Audio Intelligence Lab</a> found themselves with that exact need as part of their cutting-edge audio research. They found that each existing solution met some (but not all) of the criteria they needed — so instead, they built their own. Enter <em>Pedalboard</em>, a new Python package.</p>
-
-
-
-<figure><img loading="lazy" width="700" height="182" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-250x65.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-768x200.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-1536x400.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-120x31.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
-
-
-
-<p>Pedalboard is a Python audio effects library designed to bridge the gap between professional audio software and Python code. It’s built on top of <a rel="noreferrer noopener" href="https://juce.com/" target="_blank">JUCE</a>, the industry-standard framework for performant and reliable audio applications. Just like a professional DAW, Pedalboard supports a number of built-in audio effects, as well as third-party VST3<sup>® </sup>and Audio Unit plugins. And just like a DAW, Pedalboard prioritizes speed and quality: in basic tests on common developer hardware, it’s up to 300 times faster than the currently widely used packages for Python audio effects.</p>
-
-
-
-<p>Similar to the pedalboards used by guitar players, Pedalboard includes a variety of common stylistic effects and augmentations that you can use to alter sounds. You’ll find basic tools to control volume, like a noise gate, compressor, and limiter, as well as more stylistic tools like distortion, phaser, filter, and reverb. Pedalboard even includes a built-in convolution operator for high-quality simulation of speakers and microphones. If that’s not enough, any VST3<sup>® </sup>or Audio Unit effect plugin can be loaded to provide access to more sonic possibilities. Once you’ve got the sound you’re looking for, you can save your effects by grouping plugins together into a pedalboard, which has the added benefit of speeding up processing.</p>
-
-
-
-<figure><img loading="lazy" width="700" height="538" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-250x192.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-768x591.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-1536x1181.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-120x92.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2.png 1874w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
-
-
-
-<p>We’ve found a number of great uses for Pedalboard at Spotify so far, including:</p>
-
-
-
-<ul><li><strong>Machine Learning (ML):</strong> Pedalboard makes the process of <a rel="noreferrer noopener" href="https://en.wikipedia.org/wiki/Data_augmentation" target="_blank">data augmentation</a> for audio dramatically faster and produces more realistic results. Using Pedalboard, it’s easy to take a small dataset and augment it with audio effects — adding reverb, compression, distortion, and more — to vastly increase the size of your model’s training data and increase your model’s performance. Pedalboard has been thoroughly tested in high-performance and high-reliability ML use cases at Spotify, and is used heavily with TensorFlow.</li></ul>
-
-
-
-
-
-
-
-<ul><li><strong>Content Creation: </strong>Pedalboard makes it easy to script the application of audio effects with small amounts of Python code. This can help automate parts of the audio creation process. Applying a VST3<sup>®</sup> or Audio Unit plugin no longer requires launching your DAW, importing audio, and exporting it; a couple of lines of code can do it all in one command, or as part of a larger workflow.</li></ul>
-
-
-
-
-
-
-
-<ul><li><strong>Creativity:</strong> Artists, musicians, and producers with a bit of Python knowledge can use Pedalboard to produce new creative effects that would be extremely time consuming and difficult to produce in a DAW. And for those just getting started with Python, Pedalboard is a great place to begin, as it provides a bridge between code and music.</li></ul>
-
-
-
-<p>Spotify has a long tradition of contributing to open source software, and our research labs are active participants in the open source and academic communities. To continue that tradition, we’re open sourcing the project after nearly a year of internal use in the hopes that it will open up new possibilities for researchers, engineers, musicians, and tinkerers. Pedalboard is “stage ready” — it supports macOS, Windows, and Linux out of the box, and we’ve used it internally at Spotify to process millions of hours of audio.</p>
-
-
-
-<p>If you’re interested in trying out Pedalboard, it’s ready now. You can find its <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">code and documentation on GitHub</a>, where we welcome contributions to the code. Installing Pedalboard on your computer is as simple as running one command: pip install pedalboard. We can’t wait to hear what you use Pedalboard for!</p>
-
-
-
-<p>—</p>
-
-
-
-<p><em>VST is a registered trademark of Steinberg Media Technologies GmbH.</em></p>
-        <p>
-
-        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a>, <a href="https://engineering.atspotify.com/tag/tech-research/" rel="tag">tech research</a><br/>        
-            </p></div>
-    
-
-
-</article>
-                
-
-            
-        
-    </section></div>]]></content:encoded>
-      <author>Published by Peter Sobot, Staff Machine Learning Engineer - Spotify Audio Intelligence Lab</author>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" length="0" type="image/gif"></enclosure>
-      <pubDate>Tue, 07 Sep 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>&#xA;                                            Introducing Pedalboard: Spotify’s Audio Effects Library for Python&#xA;</title>
-      <link>https://engineering.atspotify.com/introducing-pedalboard-spotifys-audio-effects-library-for-python/</link>
-      <description>We’ve just open sourced Pedalboard, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW). If you ask any music or podcast producer where they spend most of the</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><section role="main" id="main">
-
-                        
-
-                <article id="post-4787">
-    <div>
-        
-        
-
-        <div>
-            <p><img src="https://engineering.atspotify.com/wp-content/themes/theme-spotify/images/icon.png" alt=""/></p><p><span>September 7, 2021</span>
-                
-            </p>
-        </div>
-        
-        <p><a href="https://engineering.atspotify.com/introducing-pedalboard-spotifys-audio-effects-library-for-python/" title="Introducing Pedalboard: Spotify’s Audio Effects Library for Python">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" alt=""/>                    </a>
-                        
-        </p>
-
-        
-
-        
-<p>We’ve just open sourced <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">Pedalboard</a>, Spotify’s framework for adding effects to audio in Python. Pedalboard makes it easy to use studio-quality audio effects in your code, rather than just in your digital audio workstation (DAW).</p>
-
-
-
-<p>If you ask any music or podcast producer where they spend most of their time, chances are they’ll say their DAW — the app that lets them edit, manipulate, and perfect their audio. DAWs are powerful software packages that are used in the production of the vast majority of audio today. Most music or podcast content that you hear on Spotify has probably been processed through popular DAWs like Ableton Live, Logic Pro<sup>®</sup>, or Pro Tools<sup>®</sup>, or newer, more accessible tools like <a rel="noreferrer noopener" href="https://www.soundtrap.com/" target="_blank">Soundtrap</a> or <a rel="noreferrer noopener" href="https://anchor.fm/" target="_blank">Anchor</a>. These apps are optimized for high performance and audio quality, and give producers both incredible flexibility and control over their audio.</p>
-
-
-
-<p>This ability to play with sound is usually relegated to DAWs, and these apps are built for musicians, not programmers. But what if programmers want to use the power, speed, and sound quality of a DAW in their code? The engineers and researchers at <a href="https://research.atspotify.com/audio-intelligence/" target="_blank" rel="noreferrer noopener">Spotify’s Audio Intelligence Lab</a> found themselves with that exact need as part of their cutting-edge audio research. They found that each existing solution met some (but not all) of the criteria they needed — so instead, they built their own. Enter <em>Pedalboard</em>, a new Python package.</p>
-
-
-
-<figure><img loading="lazy" width="700" height="182" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-700x182.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-250x65.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-768x200.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-1536x400.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1-120x31.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_1.png 1999w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
-
-
-
-<p>Pedalboard is a Python audio effects library designed to bridge the gap between professional audio software and Python code. It’s built on top of <a rel="noreferrer noopener" href="https://juce.com/" target="_blank">JUCE</a>, the industry-standard framework for performant and reliable audio applications. Just like a professional DAW, Pedalboard supports a number of built-in audio effects, as well as third-party VST3<sup>® </sup>and Audio Unit plugins. And just like a DAW, Pedalboard prioritizes speed and quality: in basic tests on common developer hardware, it’s up to 300 times faster than the currently widely used packages for Python audio effects.</p>
-
-
-
-<p>Similar to the pedalboards used by guitar players, Pedalboard includes a variety of common stylistic effects and augmentations that you can use to alter sounds. You’ll find basic tools to control volume, like a noise gate, compressor, and limiter, as well as more stylistic tools like distortion, phaser, filter, and reverb. Pedalboard even includes a built-in convolution operator for high-quality simulation of speakers and microphones. If that’s not enough, any VST3<sup>® </sup>or Audio Unit effect plugin can be loaded to provide access to more sonic possibilities. Once you’ve got the sound you’re looking for, you can save your effects by grouping plugins together into a pedalboard, which has the added benefit of speeding up processing.</p>
-
-
-
-<figure><img loading="lazy" width="700" height="538" src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-700x538.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-250x192.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-768x591.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-1536x1181.png 1536w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2-120x92.png 120w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_Audio_Effects_2.png 1874w" sizes="(max-width: 700px) 100vw, 700px"/></figure>
-
-
-
-<p>We’ve found a number of great uses for Pedalboard at Spotify so far, including:</p>
-
-
-
-<ul><li><strong>Machine Learning (ML):</strong> Pedalboard makes the process of <a rel="noreferrer noopener" href="https://en.wikipedia.org/wiki/Data_augmentation" target="_blank">data augmentation</a> for audio dramatically faster and produces more realistic results. Using Pedalboard, it’s easy to take a small dataset and augment it with audio effects — adding reverb, compression, distortion, and more — to vastly increase the size of your model’s training data and increase your model’s performance. Pedalboard has been thoroughly tested in high-performance and high-reliability ML use cases at Spotify, and is used heavily with TensorFlow.</li></ul>
-
-
-
-
-
-
-
-<ul><li><strong>Content Creation: </strong>Pedalboard makes it easy to script the application of audio effects with small amounts of Python code. This can help automate parts of the audio creation process. Applying a VST3<sup>®</sup> or Audio Unit plugin no longer requires launching your DAW, importing audio, and exporting it; a couple of lines of code can do it all in one command, or as part of a larger workflow.</li></ul>
-
-
-
-
-
-
-
-<ul><li><strong>Creativity:</strong> Artists, musicians, and producers with a bit of Python knowledge can use Pedalboard to produce new creative effects that would be extremely time consuming and difficult to produce in a DAW. And for those just getting started with Python, Pedalboard is a great place to begin, as it provides a bridge between code and music.</li></ul>
-
-
-
-<p>Spotify has a long tradition of contributing to open source software, and our research labs are active participants in the open source and academic communities. To continue that tradition, we’re open sourcing the project after nearly a year of internal use in the hopes that it will open up new possibilities for researchers, engineers, musicians, and tinkerers. Pedalboard is “stage ready” — it supports macOS, Windows, and Linux out of the box, and we’ve used it internally at Spotify to process millions of hours of audio.</p>
-
-
-
-<p>If you’re interested in trying out Pedalboard, it’s ready now. You can find its <a href="https://github.com/spotify/pedalboard" target="_blank" rel="noreferrer noopener">code and documentation on GitHub</a>, where we welcome contributions to the code. Installing Pedalboard on your computer is as simple as running one command: pip install pedalboard. We can’t wait to hear what you use Pedalboard for!</p>
-
-
-
-<p>—</p>
-
-
-
-<p><em>VST is a registered trademark of Steinberg Media Technologies GmbH.</em></p>
-        <p>
-
-        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a>, <a href="https://engineering.atspotify.com/tag/tech-research/" rel="tag">tech research</a><br/>        
-            </p></div>
-    
-
-
-</article>
-                
-
-            
-        
-    </section></div>]]></content:encoded>
-      <author>Published by Peter Sobot, Staff Machine Learning Engineer - Spotify Audio Intelligence Lab</author>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/09/Pedalboard_header.gif" length="0" type="image/gif"></enclosure>
-      <pubDate>Tue, 07 Sep 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
       <title>&#xA;                                            Four Lessons We Learned from Creating Spotify’s Desktop App&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/08/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
+      <link>https://engineering.atspotify.com/2021/08/04/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
       <description>TL;DR Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to web players to car things. But sitting at the core is our flagship product, the one that started it all: the desktop app. In the first episode of our podcast series, “Spotify: A Product Story”,</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -8759,8 +8759,8 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/08/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
-                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/2021/08/04/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
+                        <img src="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" loading="lazy" srcset="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px" data-image-size="post-thumbnail" data-stateless-media-bucket="rnd-atspotify" data-stateless-media-name="sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png"/>                    </a>
                         
         </p>
 
@@ -8860,12 +8860,16 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
 
 
 <p>So, sure, that’s four lessons, but why stop there? The podcast series “Spotify: A Product Story” shares all these stories and dozens more, filled with insider insight and product strategy lessons from the employees, collaborators, and musicians who made Spotify what it is today. Join host and Chief R&amp;D Officer Gustav Söderström and <a rel="noreferrer noopener" href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank">check out all the episodes right here</a>.</p>
-        <p>
+        <br/>
 
-        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
-            </p></div></div>]]></content:encoded>
+        
+        
+
+        
+
+            </div></div>]]></content:encoded>
       <author>Published by Spotify Engineering</author>
-      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
+      <enclosure url="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
       <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
@@ -8993,7 +8997,7 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
     </item>
     <item>
       <title>&#xA;                                            Four Lessons We Learned from Creating Spotify’s Desktop App&#xA;</title>
-      <link>https://engineering.atspotify.com/2021/08/04/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
+      <link>https://engineering.atspotify.com/2021/08/four-lessons-we-learned-from-creating-spotifys-desktop-app/</link>
       <description>TL;DR Over the years, Spotify’s brand has expanded to encompass a number of products, from mobile apps to web players to car things. But sitting at the core is our flagship product, the one that started it all: the desktop app. In the first episode of our podcast series, “Spotify: A Product Story”,</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div>
         
@@ -9005,8 +9009,8 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
             </p>
         </div>
         
-        <p><a href="https://engineering.atspotify.com/2021/08/04/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
-                        <img src="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" loading="lazy" srcset="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px" data-image-size="post-thumbnail" data-stateless-media-bucket="rnd-atspotify" data-stateless-media-name="sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png"/>                    </a>
+        <p><a href="https://engineering.atspotify.com/2021/08/four-lessons-we-learned-from-creating-spotifys-desktop-app/" title="Four Lessons We Learned from Creating Spotify’s Desktop App">
+                        <img src="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" alt="" srcset="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png 1201w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-250x131.png 250w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-700x368.png 700w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-768x404.png 768w, https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1-120x63.png 120w" sizes="(max-width: 1201px) 100vw, 1201px"/>                    </a>
                         
         </p>
 
@@ -9106,16 +9110,12 @@ confidence interval is given by ({bootstrap_confidence_interval}).&#34;</code></
 
 
 <p>So, sure, that’s four lessons, but why stop there? The podcast series “Spotify: A Product Story” shares all these stories and dozens more, filled with insider insight and product strategy lessons from the employees, collaborators, and musicians who made Spotify what it is today. Join host and Chief R&amp;D Officer Gustav Söderström and <a rel="noreferrer noopener" href="https://open.spotify.com/show/3L9tzrt0CthF6hNkxYIeSB" target="_blank">check out all the episodes right here</a>.</p>
-        <br/>
+        <p>
 
-        
-        
-
-        
-
-            </div></div>]]></content:encoded>
+        Tags: <a href="https://engineering.atspotify.com/tag/engineering-leadership/" rel="tag">engineering leadership</a><br/>        
+            </p></div></div>]]></content:encoded>
       <author>Published by Spotify Engineering</author>
-      <enclosure url="https://storage.googleapis.com/rnd-atspotify/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
+      <enclosure url="https://engineering.atspotify.com/wp-content/uploads/sites/2/2021/08/A-Product-Story_01-Illustration_1200x630-1.png" length="0" type="image/png"></enclosure>
       <pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
