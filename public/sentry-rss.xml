@@ -6611,6 +6611,81 @@ Next, start using suspect tags to find latency issues in your app with <a href="
       <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
     </item>
     <item>
+      <title>Using Segment Explorer to improve App Performance</title>
+      <link>https://blog.sentry.io/2021/09/09/using-segment-explorer-to-improve-app-performance/</link>
+      <description>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also…</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also user conditions of the slowest transactions, such as OS, browser type, and even connection type. When you’re looking at performance data, it can be hard to see the forest through the trees. Segment Explorer makes it easier to find specific performance issues, rule out user conditions outside your control, and in general have a better grasp of performance within your application. </p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313&amp;fm=webp 313w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625&amp;fm=webp 625w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250&amp;fm=webp 1250w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313 313w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625 625w,
+https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250 1250w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="SegmentExplorer" title="" src="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>We use Segment Explorer to find slow requests in Sentry. For our frontend project, we wanted to improve <a href="https://blog.sentry.io/2020/11/10/sentry-fall-semester-web-vitals-101">LCP</a> to speed up our users’ experience. Adding tags makes it easy to find and visualize performance groups within transactions — you can compare performance without the noise.</p>
+<p>To do that, we wanted to focus on the slowest transactions. Once you click on the transactions, you’ll see an overview page with a list of suspect tags. By default, suspect tags on the left are sorted by total time lost, helping us quickly shortlist suspicious tags.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349&amp;fm=webp 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697&amp;fm=webp 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="SuspectTags" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>Here, we’re looking at tags affecting the largest segment of users. We usually use multiple tags, on top of the default tags such as the user’s effective connection type, filtering out users on a 3G network or controlling for specific hardware. With Web Vitals, we can exclude things like the CLS element — a heuristic that may not pick a page’s most appropriate visually complete element.</p>
+<p>To give you more control when narrowing down transactions, we’ll select filters that correspond to a majority of users. We might also filter out users with the Edge browser since that’s not our typical use case. By eliminating conditions like hardware or battery level, we can focus on conditions that affect our key user base. Once you select the Tags tab, you’ll see a heatmap, filtered by the list of suspect tags.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349&amp;fm=webp 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697&amp;fm=webp 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349 349w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697 697w,
+https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="HeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>This heatmap shows a list of user conditions and corresponding performance behavior. You can refine the heatmap by changing transaction duration bounds in the filter (eg. transaction.duration:&lt;15m). Now, just click on a purple box to isolate and add filters based on different <a href="https://docs.sentry.io/product/performance/transaction-summary/#tags">suspect tags</a> to create your custom heatmap.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349&amp;fm=webp 349w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697&amp;fm=webp 697w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349 349w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697 697w,
+https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="CustomHeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>Segment Explorer helps you find the issues that affect your customers the most, giving you a clear signal on what broke and how to fix it efficiently. To start exploring latency issues in your app, check out <a href="https://docs.sentry.io/product/performance/getting-started/">Segment Explorer with Sentry Performance.</a></p>
+<p>Try Sentry for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or contact us at <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/7LLI0QOFlsyNpnThyXZyFr/51ec12e9014a31639ffb5d8f23641279/Errors3-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Use Suspect Tags to improve App Performance</title>
       <link>https://blog.sentry.io/2021/09/09/use-suspect-tags-to-improve-app-performance/</link>
       <description>When you’re optimizing your application for performance, it helps to understand the user conditions where the slowest transactions occurred…</description>
@@ -6684,81 +6759,6 @@ https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9f
 <p><strong>Next Steps:</strong><br/>
 First, watch a demo of this feature from the developer that built it, <a href="https://www.youtube.com/watch?v=a5ShMQVYFIA">watch this video.</a>
 Next, start using suspect tags to find latency issues in your app with <a href="https://docs.sentry.io/product/performance/getting-started">Sentry Performance</a>.</p>
-<p>Try Sentry for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or contact us at <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/7LLI0QOFlsyNpnThyXZyFr/51ec12e9014a31639ffb5d8f23641279/Errors3-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Using Segment Explorer to improve App Performance</title>
-      <link>https://blog.sentry.io/2021/09/09/using-segment-explorer-to-improve-app-performance/</link>
-      <description>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also…</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>When you’re trying to optimize your application for performance, it helps to understand not only the number of people affected, but also user conditions of the slowest transactions, such as OS, browser type, and even connection type. When you’re looking at performance data, it can be hard to see the forest through the trees. Segment Explorer makes it easier to find specific performance issues, rule out user conditions outside your control, and in general have a better grasp of performance within your application. </p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313&amp;fm=webp 313w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625&amp;fm=webp 625w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250&amp;fm=webp 1250w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=313 313w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=625 625w,
-https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png?w=1250 1250w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="SegmentExplorer" title="" src="https://images.ctfassets.net/em6l9zw4tzag/XDMrYjKwZSRbOSyr6OAXb/dab30d3191b188e147823a3c1996c2cb/SegmentExplorer.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>We use Segment Explorer to find slow requests in Sentry. For our frontend project, we wanted to improve <a href="https://blog.sentry.io/2020/11/10/sentry-fall-semester-web-vitals-101">LCP</a> to speed up our users’ experience. Adding tags makes it easy to find and visualize performance groups within transactions — you can compare performance without the noise.</p>
-<p>To do that, we wanted to focus on the slowest transactions. Once you click on the transactions, you’ll see an overview page with a list of suspect tags. By default, suspect tags on the left are sorted by total time lost, helping us quickly shortlist suspicious tags.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349&amp;fm=webp 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697&amp;fm=webp 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=349 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=697 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="SuspectTags" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1kBll48PNFG7OpVStkaMhz/75a6fe23e820687afa7731ca5cf8becf/SuspectTags.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>Here, we’re looking at tags affecting the largest segment of users. We usually use multiple tags, on top of the default tags such as the user’s effective connection type, filtering out users on a 3G network or controlling for specific hardware. With Web Vitals, we can exclude things like the CLS element — a heuristic that may not pick a page’s most appropriate visually complete element.</p>
-<p>To give you more control when narrowing down transactions, we’ll select filters that correspond to a majority of users. We might also filter out users with the Edge browser since that’s not our typical use case. By eliminating conditions like hardware or battery level, we can focus on conditions that affect our key user base. Once you select the Tags tab, you’ll see a heatmap, filtered by the list of suspect tags.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349&amp;fm=webp 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697&amp;fm=webp 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=349 349w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=697 697w,
-https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="HeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1jBSZpCOPxrVRvsd4bnsG0/7e87aac15a78b93d03f004f821a4398f/HeatMap.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>This heatmap shows a list of user conditions and corresponding performance behavior. You can refine the heatmap by changing transaction duration bounds in the filter (eg. transaction.duration:&lt;15m). Now, just click on a purple box to isolate and add filters based on different <a href="https://docs.sentry.io/product/performance/transaction-summary/#tags">suspect tags</a> to create your custom heatmap.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349&amp;fm=webp 349w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697&amp;fm=webp 697w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394&amp;fm=webp 1394w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=349 349w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=697 697w,
-https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png?w=1394 1394w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="CustomHeatMap" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2bQraHRS2WwEqztCnnINjQ/63ebddc1b733a9fbb2217958fc4db971/CustomHeatMap.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>Segment Explorer helps you find the issues that affect your customers the most, giving you a clear signal on what broke and how to fix it efficiently. To start exploring latency issues in your app, check out <a href="https://docs.sentry.io/product/performance/getting-started/">Segment Explorer with Sentry Performance.</a></p>
 <p>Try Sentry for <a href="https://sentry.io/orgredirect/try-business/">free</a> today or contact us at <a href="mailto:sales@sentry.io">sales@sentry.io</a> to get started.</p></div></div>]]></content:encoded>
       <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/7LLI0QOFlsyNpnThyXZyFr/51ec12e9014a31639ffb5d8f23641279/Errors3-meta.jpg" length="0" type="image/jpeg"></enclosure>
       <pubDate>Thu, 09 Sep 2021 00:00:00 +0000</pubDate>
@@ -11025,152 +11025,6 @@ https://images.ctfassets.net/em6l9zw4tzag/3Bh0QrBFcBBT5mUeRjeDlV/2e46d58281552af
     <item>
       <title>Dogfooding Chronicles: Never Be Content With Your Content (Security Policies)</title>
       <link>https://blog.sentry.io/2021/05/27/dogfooding-chronicles-never-be-content-with-your-content/</link>
-      <description>A Content Security Policy (CSP) lets a browser know which content sources are to be trusted — and which aren’t. Learn how to update your CSP and protect your application.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>As the Internet evolves, so must our security mechanisms. It’s why same-origin policies (a Netscape-era directive in which resources from one origin are unable to modify or read data from another origin) put your application at risk for clickjacking and cross-site scripting attacks. That’s because same-origin policies have a weakness that enables third-party entities to have the same access rights as trusted entities. Content Security Policies (CSPs) address this blind spot by approving specific content types — everything from <a href="https://sentry.io/for/javascript/">JavaScript</a> sources to CSS fonts, HTML frames and embeddable Java applets.</p>
-<h2 id="defining-content-security-policies"><a href="#defining-content-security-policies" aria-label="defining content security policies permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Defining Content Security Policies</h2>
-<p>Put simply, a Content Security Policy lets a browser know which content sources are to be trusted — and which aren’t. And when there is a CSP violation, browsers can submit the error to a <code>report-uri</code>. What’s more, if you have Sentry, these violation reports are integrated into your application’s monitoring dashboards.</p>
-<p>During our most recent penetration test, we found that some of the CDN domains in our allow list were hosting potentially dangerous scripts. One of our recommendations from this audit was to refine and improve our CSP rules.</p>
-<p>In this Dogfooding Chronicle, I’ll walk you through how we updated our Content Security Policy using <a href="https://docs.sentry.io/product/discover-queries/">Discover</a> — and how we’re keeping watch with <a href="https://sentry.io/features/dashboards/">Dashboards</a>.</p>
-<h2 id="discover-ing-report-only-mode"><a href="#discover-ing-report-only-mode" aria-label="discover ing report only mode permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Discover-ing ‘report-only’ mode</h2>
-<p>Content Security Policies have two modes. The first mode enforces and actively blocks resource loading and execution, while the second collects the errors that would happen if the rules were active. This mode is set via the invaluable <code>Content-Security-Policy-Report-Only</code> header that defines your CSP rules. </p>
-<p>When I combined this ‘report-only’ feature with <a href="http://sentry.io/features/custom-queries">Discover queries</a>, I was able to visualize all the errors coming from <code>report-only</code> mode. Now I could view the impact of fixes in real time, and see which rules were being broken — without disrupting customers.</p>
-<h2 id="sussing-out-safari"><a href="#sussing-out-safari" aria-label="sussing out safari permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Sussing out Safari</h2>
-<p>While <code>report-only</code> mode worked well, I did encounter some hiccups in Safari, as it’s been known to jumble its report-only and enforced modes. This meant I was getting errors for sources that should be allowed. To verify that these errors were caused by Safari bugs, I used our staging environment to test Safari with only the new rules being enforced. And using <a href="https://docs.sentry.io/product/dashboards/custom-dashboards/">Dashboards</a>, I was able to fully view Safari’s impact on our CSP errors.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254&amp;fm=webp 254w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508&amp;fm=webp 508w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016&amp;fm=webp 1016w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254 254w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508 508w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016 1016w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="Graph of Content Security Policy errors by browser" title="" src="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<h2 id="a-glance-at-the-solution"><a href="#a-glance-at-the-solution" aria-label="a glance at the solution permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>A glance at the solution</h2>
-<p>Like reading a good detective novel, once I solved this problem, another, more confounding problem bubbled up to take its place. Our Jira integration was having trouble integrating with our Content Security Policy. Because our <a href="http://sentry.io/integrations/jira">Jira integration</a> includes an embedded ‘glance view’, I could view Sentry data alongside other fields like assignee, priority and labels. After reviewing these embedded views, I discovered the issue: outdated libraries that relied on <code>eval()</code> expressions which are not allowed in our CSP rules. </p>
-<p>While upgrading these libraries to newer versions resolved a large number of errors, it didn’t solve them all.  And though I was unable to reproduce these last few errors, I was able to use Discover’s tag breakdowns to narrow things back down to — you guessed it — a Safari-specific issue:</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78&amp;fm=webp 78w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156&amp;fm=webp 156w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312&amp;fm=webp 312w" sizes="(max-width: 312px) 100vw, 312px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78 78w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156 156w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312 312w" sizes="(max-width: 312px) 100vw, 312px"/>
-          <img alt="Tags that show cause of CSP errors" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<h2 id="csp-3-coming-to-a-browser-near-you"><a href="#csp-3-coming-to-a-browser-near-you" aria-label="csp 3 coming to a browser near you permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>CSP 3: Coming to a browser near you.</h2>
-<p>The newest iteration of CSP has been in production for years, and is about to be fully released. Which is why we have defined rules for all three levels to get the broadest — and sturdiest — coverage possible. Doing so has both simplified our CSP configuration and improved our resilience to cross-site scripting. Which brings me to my last tip: it’s important to define directives in the order of their levels. Browsers will often stop parsing a directive when they find something they don’t know, so it’s important that there are specific directives for all three CSP levels.</p>
-<p>Developing a Content Security Policy isn’t about being fussy — it’s about being functional. Data and code from untrusted sources should not have the same privileges as the trusted programmer’s code. By implementing a well-defined CSP, you can mitigate attacks, control assets, and breathe easier.  </p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/3oXGtdjqkwjIGE1O1ioWCe/3a83d856f5afed3d1040feec43f1351c/DogFood2-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Thu, 27 May 2021 09:30:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Dogfooding Chronicles: Never Be Content With Your Content (Security Policies)</title>
-      <link>https://blog.sentry.io/2021/05/27/dogfooding-chronicles-never-be-content-with-your-content/</link>
-      <description>A Content Security Policy (CSP) lets a browser know which content sources are to be trusted — and which aren’t. Learn how to update your CSP and protect your application.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>As the Internet evolves, so must our security mechanisms. It’s why same-origin policies (a Netscape-era directive in which resources from one origin are unable to modify or read data from another origin) put your application at risk for clickjacking and cross-site scripting attacks. That’s because same-origin policies have a weakness that enables third-party entities to have the same access rights as trusted entities. Content Security Policies (CSPs) address this blind spot by approving specific content types — everything from <a href="https://sentry.io/for/javascript/">JavaScript</a> sources to CSS fonts, HTML frames and embeddable Java applets.</p>
-<h2 id="defining-content-security-policies"><a href="#defining-content-security-policies" aria-label="defining content security policies permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Defining Content Security Policies</h2>
-<p>Put simply, a Content Security Policy lets a browser know which content sources are to be trusted — and which aren’t. And when there is a CSP violation, browsers can submit the error to a <code>report-uri</code>. What’s more, if you have Sentry, these violation reports are integrated into your application’s monitoring dashboards.</p>
-<p>During our most recent penetration test, we found that some of the CDN domains in our allow list were hosting potentially dangerous scripts. One of our recommendations from this audit was to refine and improve our CSP rules.</p>
-<p>In this Dogfooding Chronicle, I’ll walk you through how we updated our Content Security Policy using <a href="https://docs.sentry.io/product/discover-queries/">Discover</a> — and how we’re keeping watch with <a href="https://sentry.io/features/dashboards/">Dashboards</a>.</p>
-<h2 id="discover-ing-report-only-mode"><a href="#discover-ing-report-only-mode" aria-label="discover ing report only mode permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Discover-ing ‘report-only’ mode</h2>
-<p>Content Security Policies have two modes. The first mode enforces and actively blocks resource loading and execution, while the second collects the errors that would happen if the rules were active. This mode is set via the invaluable <code>Content-Security-Policy-Report-Only</code> header that defines your CSP rules. </p>
-<p>When I combined this ‘report-only’ feature with <a href="http://sentry.io/features/custom-queries">Discover queries</a>, I was able to visualize all the errors coming from <code>report-only</code> mode. Now I could view the impact of fixes in real time, and see which rules were being broken — without disrupting customers.</p>
-<h2 id="sussing-out-safari"><a href="#sussing-out-safari" aria-label="sussing out safari permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Sussing out Safari</h2>
-<p>While <code>report-only</code> mode worked well, I did encounter some hiccups in Safari, as it’s been known to jumble its report-only and enforced modes. This meant I was getting errors for sources that should be allowed. To verify that these errors were caused by Safari bugs, I used our staging environment to test Safari with only the new rules being enforced. And using <a href="https://docs.sentry.io/product/dashboards/custom-dashboards/">Dashboards</a>, I was able to fully view Safari’s impact on our CSP errors.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254&amp;fm=webp 254w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508&amp;fm=webp 508w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016&amp;fm=webp 1016w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254 254w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508 508w,
-https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016 1016w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="Graph of Content Security Policy errors by browser" title="" src="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<h2 id="a-glance-at-the-solution"><a href="#a-glance-at-the-solution" aria-label="a glance at the solution permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>A glance at the solution</h2>
-<p>Like reading a good detective novel, once I solved this problem, another, more confounding problem bubbled up to take its place. Our Jira integration was having trouble integrating with our Content Security Policy. Because our <a href="http://sentry.io/integrations/jira">Jira integration</a> includes an embedded ‘glance view’, I could view Sentry data alongside other fields like assignee, priority and labels. After reviewing these embedded views, I discovered the issue: outdated libraries that relied on <code>eval()</code> expressions which are not allowed in our CSP rules. </p>
-<p>While upgrading these libraries to newer versions resolved a large number of errors, it didn’t solve them all.  And though I was unable to reproduce these last few errors, I was able to use Discover’s tag breakdowns to narrow things back down to — you guessed it — a Safari-specific issue:</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78&amp;fm=webp 78w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156&amp;fm=webp 156w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312&amp;fm=webp 312w" sizes="(max-width: 312px) 100vw, 312px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78 78w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156 156w,
-https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312 312w" sizes="(max-width: 312px) 100vw, 312px"/>
-          <img alt="Tags that show cause of CSP errors" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<h2 id="csp-3-coming-to-a-browser-near-you"><a href="#csp-3-coming-to-a-browser-near-you" aria-label="csp 3 coming to a browser near you permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>CSP 3: Coming to a browser near you.</h2>
-<p>The newest iteration of CSP has been in production for years, and is about to be fully released. Which is why we have defined rules for all three levels to get the broadest — and sturdiest — coverage possible. Doing so has both simplified our CSP configuration and improved our resilience to cross-site scripting. Which brings me to my last tip: it’s important to define directives in the order of their levels. Browsers will often stop parsing a directive when they find something they don’t know, so it’s important that there are specific directives for all three CSP levels.</p>
-<p>Developing a Content Security Policy isn’t about being fussy — it’s about being functional. Data and code from untrusted sources should not have the same privileges as the trusted programmer’s code. By implementing a well-defined CSP, you can mitigate attacks, control assets, and breathe easier.  </p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/3oXGtdjqkwjIGE1O1ioWCe/3a83d856f5afed3d1040feec43f1351c/DogFood2-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Thu, 27 May 2021 09:30:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Dogfooding Chronicles: Never Be Content With Your Content (Security Policies)</title>
-      <link>https://blog.sentry.io/2021/05/27/dogfooding-chronicles-never-be-content-with-your-content/</link>
       <description>In this Dogfooding Chronicle, I’ll walk you through how we updated our Content Security Policy using Discover — and how we’re keeping watch…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>In this Dogfooding Chronicle, I’ll walk you through how we updated our Content Security Policy using <a href="https://docs.sentry.io/product/discover-queries/">Discover</a> — and how we’re keeping watch with <a href="https://sentry.io/features/dashboards/">Dashboards</a>.</p>
 <h2 id="defining-content-security-policies"><a href="#defining-content-security-policies" aria-label="defining content security policies permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -11227,6 +11081,152 @@ https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c1
 https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156 156w,
 https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312 312w" sizes="(max-width: 312px) 100vw, 312px"/>
           <img alt="dd" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h2 id="csp-3-coming-to-a-browser-near-you"><a href="#csp-3-coming-to-a-browser-near-you" aria-label="csp 3 coming to a browser near you permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>CSP 3: Coming to a browser near you.</h2>
+<p>The newest iteration of CSP has been in production for years, and is about to be fully released. Which is why we have defined rules for all three levels to get the broadest — and sturdiest — coverage possible. Doing so has both simplified our CSP configuration and improved our resilience to cross-site scripting. Which brings me to my last tip: it’s important to define directives in the order of their levels. Browsers will often stop parsing a directive when they find something they don’t know, so it’s important that there are specific directives for all three CSP levels.</p>
+<p>Developing a Content Security Policy isn’t about being fussy — it’s about being functional. Data and code from untrusted sources should not have the same privileges as the trusted programmer’s code. By implementing a well-defined CSP, you can mitigate attacks, control assets, and breathe easier.  </p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/3oXGtdjqkwjIGE1O1ioWCe/3a83d856f5afed3d1040feec43f1351c/DogFood2-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Thu, 27 May 2021 09:30:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Dogfooding Chronicles: Never Be Content With Your Content (Security Policies)</title>
+      <link>https://blog.sentry.io/2021/05/27/dogfooding-chronicles-never-be-content-with-your-content/</link>
+      <description>A Content Security Policy (CSP) lets a browser know which content sources are to be trusted — and which aren’t. Learn how to update your CSP and protect your application.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>As the Internet evolves, so must our security mechanisms. It’s why same-origin policies (a Netscape-era directive in which resources from one origin are unable to modify or read data from another origin) put your application at risk for clickjacking and cross-site scripting attacks. That’s because same-origin policies have a weakness that enables third-party entities to have the same access rights as trusted entities. Content Security Policies (CSPs) address this blind spot by approving specific content types — everything from <a href="https://sentry.io/for/javascript/">JavaScript</a> sources to CSS fonts, HTML frames and embeddable Java applets.</p>
+<h2 id="defining-content-security-policies"><a href="#defining-content-security-policies" aria-label="defining content security policies permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Defining Content Security Policies</h2>
+<p>Put simply, a Content Security Policy lets a browser know which content sources are to be trusted — and which aren’t. And when there is a CSP violation, browsers can submit the error to a <code>report-uri</code>. What’s more, if you have Sentry, these violation reports are integrated into your application’s monitoring dashboards.</p>
+<p>During our most recent penetration test, we found that some of the CDN domains in our allow list were hosting potentially dangerous scripts. One of our recommendations from this audit was to refine and improve our CSP rules.</p>
+<p>In this Dogfooding Chronicle, I’ll walk you through how we updated our Content Security Policy using <a href="https://docs.sentry.io/product/discover-queries/">Discover</a> — and how we’re keeping watch with <a href="https://sentry.io/features/dashboards/">Dashboards</a>.</p>
+<h2 id="discover-ing-report-only-mode"><a href="#discover-ing-report-only-mode" aria-label="discover ing report only mode permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Discover-ing ‘report-only’ mode</h2>
+<p>Content Security Policies have two modes. The first mode enforces and actively blocks resource loading and execution, while the second collects the errors that would happen if the rules were active. This mode is set via the invaluable <code>Content-Security-Policy-Report-Only</code> header that defines your CSP rules. </p>
+<p>When I combined this ‘report-only’ feature with <a href="http://sentry.io/features/custom-queries">Discover queries</a>, I was able to visualize all the errors coming from <code>report-only</code> mode. Now I could view the impact of fixes in real time, and see which rules were being broken — without disrupting customers.</p>
+<h2 id="sussing-out-safari"><a href="#sussing-out-safari" aria-label="sussing out safari permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Sussing out Safari</h2>
+<p>While <code>report-only</code> mode worked well, I did encounter some hiccups in Safari, as it’s been known to jumble its report-only and enforced modes. This meant I was getting errors for sources that should be allowed. To verify that these errors were caused by Safari bugs, I used our staging environment to test Safari with only the new rules being enforced. And using <a href="https://docs.sentry.io/product/dashboards/custom-dashboards/">Dashboards</a>, I was able to fully view Safari’s impact on our CSP errors.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254&amp;fm=webp 254w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508&amp;fm=webp 508w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016&amp;fm=webp 1016w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254 254w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508 508w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016 1016w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="Graph of Content Security Policy errors by browser" title="" src="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h2 id="a-glance-at-the-solution"><a href="#a-glance-at-the-solution" aria-label="a glance at the solution permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>A glance at the solution</h2>
+<p>Like reading a good detective novel, once I solved this problem, another, more confounding problem bubbled up to take its place. Our Jira integration was having trouble integrating with our Content Security Policy. Because our <a href="http://sentry.io/integrations/jira">Jira integration</a> includes an embedded ‘glance view’, I could view Sentry data alongside other fields like assignee, priority and labels. After reviewing these embedded views, I discovered the issue: outdated libraries that relied on <code>eval()</code> expressions which are not allowed in our CSP rules. </p>
+<p>While upgrading these libraries to newer versions resolved a large number of errors, it didn’t solve them all.  And though I was unable to reproduce these last few errors, I was able to use Discover’s tag breakdowns to narrow things back down to — you guessed it — a Safari-specific issue:</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78&amp;fm=webp 78w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156&amp;fm=webp 156w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312&amp;fm=webp 312w" sizes="(max-width: 312px) 100vw, 312px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78 78w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156 156w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312 312w" sizes="(max-width: 312px) 100vw, 312px"/>
+          <img alt="Tags that show cause of CSP errors" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h2 id="csp-3-coming-to-a-browser-near-you"><a href="#csp-3-coming-to-a-browser-near-you" aria-label="csp 3 coming to a browser near you permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>CSP 3: Coming to a browser near you.</h2>
+<p>The newest iteration of CSP has been in production for years, and is about to be fully released. Which is why we have defined rules for all three levels to get the broadest — and sturdiest — coverage possible. Doing so has both simplified our CSP configuration and improved our resilience to cross-site scripting. Which brings me to my last tip: it’s important to define directives in the order of their levels. Browsers will often stop parsing a directive when they find something they don’t know, so it’s important that there are specific directives for all three CSP levels.</p>
+<p>Developing a Content Security Policy isn’t about being fussy — it’s about being functional. Data and code from untrusted sources should not have the same privileges as the trusted programmer’s code. By implementing a well-defined CSP, you can mitigate attacks, control assets, and breathe easier.  </p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/3oXGtdjqkwjIGE1O1ioWCe/3a83d856f5afed3d1040feec43f1351c/DogFood2-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Thu, 27 May 2021 09:30:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Dogfooding Chronicles: Never Be Content With Your Content (Security Policies)</title>
+      <link>https://blog.sentry.io/2021/05/27/dogfooding-chronicles-never-be-content-with-your-content/</link>
+      <description>A Content Security Policy (CSP) lets a browser know which content sources are to be trusted — and which aren’t. Learn how to update your CSP and protect your application.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>As the Internet evolves, so must our security mechanisms. It’s why same-origin policies (a Netscape-era directive in which resources from one origin are unable to modify or read data from another origin) put your application at risk for clickjacking and cross-site scripting attacks. That’s because same-origin policies have a weakness that enables third-party entities to have the same access rights as trusted entities. Content Security Policies (CSPs) address this blind spot by approving specific content types — everything from <a href="https://sentry.io/for/javascript/">JavaScript</a> sources to CSS fonts, HTML frames and embeddable Java applets.</p>
+<h2 id="defining-content-security-policies"><a href="#defining-content-security-policies" aria-label="defining content security policies permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Defining Content Security Policies</h2>
+<p>Put simply, a Content Security Policy lets a browser know which content sources are to be trusted — and which aren’t. And when there is a CSP violation, browsers can submit the error to a <code>report-uri</code>. What’s more, if you have Sentry, these violation reports are integrated into your application’s monitoring dashboards.</p>
+<p>During our most recent penetration test, we found that some of the CDN domains in our allow list were hosting potentially dangerous scripts. One of our recommendations from this audit was to refine and improve our CSP rules.</p>
+<p>In this Dogfooding Chronicle, I’ll walk you through how we updated our Content Security Policy using <a href="https://docs.sentry.io/product/discover-queries/">Discover</a> — and how we’re keeping watch with <a href="https://sentry.io/features/dashboards/">Dashboards</a>.</p>
+<h2 id="discover-ing-report-only-mode"><a href="#discover-ing-report-only-mode" aria-label="discover ing report only mode permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Discover-ing ‘report-only’ mode</h2>
+<p>Content Security Policies have two modes. The first mode enforces and actively blocks resource loading and execution, while the second collects the errors that would happen if the rules were active. This mode is set via the invaluable <code>Content-Security-Policy-Report-Only</code> header that defines your CSP rules. </p>
+<p>When I combined this ‘report-only’ feature with <a href="http://sentry.io/features/custom-queries">Discover queries</a>, I was able to visualize all the errors coming from <code>report-only</code> mode. Now I could view the impact of fixes in real time, and see which rules were being broken — without disrupting customers.</p>
+<h2 id="sussing-out-safari"><a href="#sussing-out-safari" aria-label="sussing out safari permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Sussing out Safari</h2>
+<p>While <code>report-only</code> mode worked well, I did encounter some hiccups in Safari, as it’s been known to jumble its report-only and enforced modes. This meant I was getting errors for sources that should be allowed. To verify that these errors were caused by Safari bugs, I used our staging environment to test Safari with only the new rules being enforced. And using <a href="https://docs.sentry.io/product/dashboards/custom-dashboards/">Dashboards</a>, I was able to fully view Safari’s impact on our CSP errors.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254&amp;fm=webp 254w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508&amp;fm=webp 508w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016&amp;fm=webp 1016w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=254 254w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=508 508w,
+https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png?w=1016 1016w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="Graph of Content Security Policy errors by browser" title="" src="https://images.ctfassets.net/em6l9zw4tzag/3SSb59kIs6SSz1NRswiiJ5/50c19c85aa718ffbf921cee0829595bb/cc.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h2 id="a-glance-at-the-solution"><a href="#a-glance-at-the-solution" aria-label="a glance at the solution permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>A glance at the solution</h2>
+<p>Like reading a good detective novel, once I solved this problem, another, more confounding problem bubbled up to take its place. Our Jira integration was having trouble integrating with our Content Security Policy. Because our <a href="http://sentry.io/integrations/jira">Jira integration</a> includes an embedded ‘glance view’, I could view Sentry data alongside other fields like assignee, priority and labels. After reviewing these embedded views, I discovered the issue: outdated libraries that relied on <code>eval()</code> expressions which are not allowed in our CSP rules. </p>
+<p>While upgrading these libraries to newer versions resolved a large number of errors, it didn’t solve them all.  And though I was unable to reproduce these last few errors, I was able to use Discover’s tag breakdowns to narrow things back down to — you guessed it — a Safari-specific issue:</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78&amp;fm=webp 78w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156&amp;fm=webp 156w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312&amp;fm=webp 312w" sizes="(max-width: 312px) 100vw, 312px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=78 78w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=156 156w,
+https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png?w=312 312w" sizes="(max-width: 312px) 100vw, 312px"/>
+          <img alt="Tags that show cause of CSP errors" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2O54ifTOk2YEPCgLaZ3QV8/dfeba6f057367c16a32bd664eb596715/dd.png" loading="lazy"/>
         </picture>
         </span>
       </span>
