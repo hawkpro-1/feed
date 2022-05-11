@@ -4,6 +4,316 @@
     <link>https://blog.sentry.io/feed.xml</link>
     <description></description>
     <item>
+      <title>Improve Performance in your iOS Applications - Part 2</title>
+      <link>https://blog.sentry.io/2022/05/10/improve-performance-in-your-ios-applications-part-2/</link>
+      <description>The performance of your iOS app is crucial when building and publishing it for any number of users. Your users expect it to be delightful…</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>The performance of your iOS app is crucial when building and publishing it for any number of users. Your users expect it to be delightful, fast and responsive, so if your app seems sluggish or unresponsive, it will affect your reviews and you might lose valuable users. While solving this for your apps, it’s easy to overlook the influence of the choices made on performance throughout development.</p>
+<p>This is the second article in the series, which focuses on iOS performance tips that help you improve the UI interactions, media playback, animations and visuals, etc. delivering a smooth and seamless experience.</p>
+<p>It is important to make sure there’s an issue to be fixed before attempting to optimize any code! Don’t fall prey to the temptation to “pre-optimize” your code, which is a mistake. Make regular use of Instruments to profile your code and discover any flaws. Matt Galloway has a nice lesson on how to optimize your code using Instruments.</p>
+<p>Some of the suggestions made in this article may need a lot of effort to implement, or may make your code more difficult; thus select cautiously. Let’s dive right in.</p>
+<p>You can read about <a href="https://blog.sentry.io/2022/04/07/improve-performance-in-your-ios-applications-part-1/">the first article in the series here</a>, which focuses on performance tips that help you improve compile time of your iOS apps, build apps faster, and focus on iOS performance improvements in the build system.</p>
+<h2 id="monitoring-application-behavior"><a href="#monitoring-application-behavior" aria-label="monitoring application behavior permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Monitoring Application Behavior</h2>
+<p>Apple’s iOS App Store is a massive market with <a href="https://www.statista.com/statistics/268251/number-of-apps-in-the-itunes-app-store-since-2008/">millions of applications</a>, and it provides several opportunities for any organization or individual to develop and publish apps. However, with so many apps accessible, determining your “sweet spot” - the best place to attract new customers – may be difficult.</p>
+<p>You must develop a set of indicators that will allow us to monitor your success against your objectives before you can expect to see an increase in your App Store revenue. Maintaining vigilance and knowing how your app will react when new features are deployed is critical after metrics and a clear aim for measuring performance have been defined.</p>
+<p><a href="https://sentry.io/welcome">Sentry</a> is an essential monitoring tool to maintain the health and performance of your application code. Error Tracking and Performance Monitoring features enable you to see, correct, and learn about the applications from the frontend to the backend in a more clear, quick, and efficient way.</p>
+<p>Sentry’s iOS performance monitoring for iOS applications allows you to determine the root of performance issues, such as slow API calls and database queries.</p>
+<p>Setting up Sentry for your iOS application takes just a couple of steps once you <a href="https://sentry.io/signup">sign up</a>, also visible in the below image:</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png?w=334&amp;fm=webp 334w,
+https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png?w=667&amp;fm=webp 667w,
+https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png?w=1334&amp;fm=webp 1334w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png?w=334 334w,
+https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png?w=667 667w,
+https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png?w=1334 1334w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="ios-performance-part2-image4" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1ucxDichYUOoxtEBY5BojH/a1d91b8a07d07073c361c4c22a630a6a/ios-performance-part2-image4.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>The <a href="https://docs.sentry.io/platforms/apple/guides/ios/#install">iOS SDK setup is required with the steps</a> in order to start receiving data on your Sentry dashboard to track, identify and resolve alerts and performance issues.</p>
+<p>In this article, we will briefly understand how Sentry helps monitoring your iOS application performance.</p>
+<h2 id="the-fundamentals-of-ios-ui"><a href="#the-fundamentals-of-ios-ui" aria-label="the fundamentals of ios ui permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>The Fundamentals of iOS UI</h2>
+<p>Before going into the recommendations, it is important to define and understand how the main thread works, in order to optimize performance of the rendering UI.</p>
+<p>As a rule of thumb, the main thread shouldn’t be used for very heavy tasks. Instead, it should mostly be used for actions like:</p>
+<ul>
+<li>Accepting user input and interactions</li>
+<li>Displaying results and updating the UI</li>
+</ul>
+<p>Most of the time, the main thread processes too many things, which leads to loss or drop of frames. This happens when the device cannot process the standard frame rate and the user witnesses a lag or stuck screen.</p>
+<p>So, it becomes important to identify which frames have been lost and which haven’t, but how?</p>
+<p>There are times when it’s easy to spot them, because the most important thing is that they aren’t responding. Other times, it isn’t, and you need something more accurate to track them down. If you want to track them quickly, you can make use of profiling tools to identify the issue.</p>
+<p>Once you identify the root causes behind the frames dropping, you can address them during your development. Here are some of the possibilities you can think of, to overcome frame-drops:</p>
+<ul>
+<li>Limiting the number of views being rendered on the mobile screen</li>
+<li>Avoid transparency to elements wherever applicable</li>
+<li>Reduce the amount of time and frequency of requested jobs</li>
+<li>Decode JPEG images</li>
+<li>Perform operations on background threads</li>
+<li>Let’s go over them one by one.</li>
+</ul>
+<h3 id="how-to-reduce-view-hierarchy"><a href="#how-to-reduce-view-hierarchy" aria-label="how to reduce view hierarchy permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>How to Reduce View Hierarchy</h3>
+<p>The easiest thing to start with is to reduce the number of views in the view hierarchy and avoid transparency wherever possible. To achieve the same, below code snippet helps drawing a white background which instructs the rendered to avoid any complex processing of transparency:</p>
+<p><code>label.layer.opacity = 1.0</code></p>
+<p><code>label.backgroundColor = .white</code></p>
+<p>To verify the transparency overlapping issue is fixed, you can use the <strong>Color Blended Layers</strong> tool from Debug —&gt; View Debugging —&gt; Rendering menu in your Xcode.</p>
+<h3 id="reduce-the-frequency-of-operations"><a href="#reduce-the-frequency-of-operations" aria-label="reduce the frequency of operations permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Reduce the Frequency of Operations</h3>
+<p>Functions like <code>cellForItemAt</code>, <code>indexPath</code>, and <code>scrollViewDidScroll</code> must be very smooth and fast because they are called frequently, almost every moment, so they need to be very quick.</p>
+<p>You should always make sure you have the <em>simplest views</em> and cells you can create and maintain. You should also make sure the configuration methods you use are always very light, such as layouts with constraints.</p>
+<h3 id="decode-images"><a href="#decode-images" aria-label="decode images permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Decode Images</h3>
+<p>When it comes to missing frames, one of the most common culprits is <em>image</em> <em>decoding</em>. Typically, <code>imageViews</code> do this process on the main thread, behind the scenes. However, this might occasionally cause a continuous slowness in your apps, particularly when the images are rather large in size or resolution.</p>
+<p>One solution to this issue is to delegate the decoding task to the background thread or queue. The operations will not be as efficient as the UIImageView’s standard decoding, but the <code>mainThread</code> will be free.</p>
+<p>In this approach, it is important to sync specific updates, such as errors or warnings, because they are handled by the main thread and the image processing happens on the background thread to avoid any glitches, or crashes.</p>
+<p><em>Bonus Tip: Handle App in Background</em></p>
+<p><a href="https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background">Official documentation from Apple Developer</a> indicates that you should prepare your app to run in the background. Even the simplest instances when the user exits a foreground app, your app moves to the background before UIKit suspends it. According to the documentation guidelines, when your app is in the background, it should do as little as possible, and preferably nothing.</p>
+<p>In such cases, all the processes including non-main thread operations, should also release resources in use - without hurting your app’s performance. When your app goes in the background, UIKit calls one of the following methods of your app:</p>
+<ul>
+<li><code>sceneDidEnterBackground(_:)</code> method of the appropriate scene delegate for apps that support Scenes</li>
+<li><code>applicationDidEnterBackground(_:)</code> method for all other apps</li>
+</ul>
+<p>The good thing is, you don’t need to discard the images that you loaded from your application’s asset catalog.</p>
+<p><em>Bonus Tip: Scaling Images</em></p>
+<p>A <code>UIImageView</code> can only display images that have the same dimensions as the <code>UIImageView</code>. A <code>UIImageView</code> encased in a <code>UIScrollView</code> makes zooming in and out of photographs on the fly expensive.</p>
+<p>It is possible to use a background thread to scale the image <em>after</em> it has been downloaded and used in the <code>UIImageView</code> if it is loaded from a remote service and you do not have control over its size before downloading.</p>
+<h3 id="perform-optimized-operations"><a href="#perform-optimized-operations" aria-label="perform optimized operations permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Perform Optimized Operations</h3>
+<p>When dealing with certain properties of our UI Items, you may have encountered some off-screen rendering difficulties since you must prepare such elements before exposing them. In other words, it makes extensive use of the CPU and GPU. So, how can you identify this issue?</p>
+<p><strong>Color Offscreen-Rendered Yellow</strong> comes handy! You can find the same under Debug —&gt; View Debugging —&gt; Rendering menu.</p>
+<p>With this tool, you can identify the elements in the yellow or red color depending on how resource-heavy they are.</p>
+<p>A common example such as the use of cornerRadius property indicates something like this in your app:</p>
+<p><code>imageView.layer.cornerRadius = imageHeight / 2.0</code></p>
+<p>The above line of code results in a 50% more resource-heavy operation per image. To avoid this, you should adapt to the below performance best practices:</p>
+<ul>
+<li>Avoid use of <code>CornerRadius</code> property, replace it with other approaches</li>
+<li>Avoid use of <code>ShouldRasterize</code> property unless extremely necessary</li>
+<li>Avoid use of <code>Shadows</code> in most of the cases, since it leads to off-screen rendering</li>
+<li>Avoid use of <code>boundingRectWithSize</code> for text measurements since it leads to heavy processing</li>
+<li>Make use of <code>.rounded()</code>, as they are lighter and less resource heavy while computation</li>
+</ul>
+<h2 id="set-background-efficiently"><a href="#set-background-efficiently" aria-label="set background efficiently permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Set Background Efficiently</h2>
+<p><code>colorWithPatternImage</code> from <code>UIColor</code> class is designed to generate small repeating pictures as backgrounds, if you want to utilize a full-frame background, you must use <code>UIImageView</code>. In this case, switching to <code>UIImageView</code> may result in considerable memory savings.</p>
+<p><code>UIImageView *bgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@&#34;background&#34;]];</code></p>
+<p><code>[self.view addSubview:bgView];</code></p>
+<p>If your background is made up of small tiles, you should utilize the <code>colorWithPatternImage</code> function from <code>UIColor</code> class, which shows faster and consumes less memory.</p>
+<p><code>self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@&#34;background&#34;]];</code></p>
+<h2 id="improve-app-launch-time"><a href="#improve-app-launch-time" aria-label="improve app launch time permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Improve App Launch Time</h2>
+<p>It’s a good idea to assess your iOS application launch time before making any optimizations. How much does your application take? There is a delayed starting time or are you OK with the existing threshold?</p>
+<p>After you’ve done your research, you’ll want to determine an app’s realistic launch window. The initial frame of your app should take <strong>no more than 400 milliseconds</strong> to generate, according to <a href="https://developer.apple.com/videos/play/wwdc2019/423/?time=305">Apple at WWDC 2019</a>. If you have high hopes for your application, you should set this as a minimum goal.</p>
+<p>There are three distinct types of launches:</p>
+<p>When your application hasn’t been started in a long time or after a reboot, you may experience a “cold startup.” After a cold launch, each subsequent launch is referred to as a warm launch. System-side services are currently running and your programme has already been brought into memory. Restarting your application from the home screen or the application switcher will resume your previous launch. We don’t have to wait long for your application to go live since it’s already operating!</p>
+<p>To examine how your code influences startup time, use Xcode’s App Launch Time template. Using the template gives us an overview of the life cycle of the app when it is initially published. This is an excellent method for gaining early insight into which stages are generating the greatest delays. Instruments are particularly useful for honing in on code that is creating performance issues.</p>
+<p>Sentry tracks application performance, measures metrics like throughput and latency, and displays the impact of errors across multiple services while capturing distributed traces consisting of transactions and spans to measure individual services and operations within those services.</p>
+<p>For iOS, Sentry allows different SDK installation methods including <a href="https://docs.sentry.io/platforms/apple/install/cocoapods/">Cocoapods SDK</a>, <a href="https://docs.sentry.io/platforms/apple/install/swift-package-manager/">Swift Package Manager</a> and <a href="https://docs.sentry.io/platforms/apple/install/carthage/">Carthage</a>. The SDK is also capable of measuring app start activity, spanning different phases from the application launch to the first auto-generated UI transaction.</p>
+<p>Application start metrics track how long your mobile application takes to launch. For this, Sentry measures cold starts and warm starts. The beginning of the app start is marked by the process start time, while the ending is marked by <code>UIWindowDidBecomeVisibleNotification</code>. The following are generated as a result:</p>
+<ul>
+<li><strong>Pre main</strong>: From the beginning of the process time to the runtime init.</li>
+<li><strong>UIKit and Application Init</strong>: From the runtime init to the <code>didFinishLaunchingNotification</code>.</li>
+<li><strong>Initial Frame Render</strong>: From <code>didFinishLaunchingNotification</code> to <code>UIWindowDidBecomeVisibleNotification</code>.</li>
+</ul>
+<p>The below image showcases the performance trace of an iOS application:</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png?w=300&amp;fm=webp 300w,
+https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png?w=600&amp;fm=webp 600w,
+https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png?w=1200&amp;fm=webp 1200w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png?w=300 300w,
+https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png?w=600 600w,
+https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png?w=1200 1200w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="ios-performance-part2-image3" title="" src="https://images.ctfassets.net/em6l9zw4tzag/71oTEWCUc8HQXbfBS2QIbC/11b59d7cd6c16815a1e10109d8fc24a5/ios-performance-part2-image3.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>You can click on each of the events under <code>ui.rendering</code> to get more details and find out which events or elements are causing performance issues.</p>
+<h2 id="lazy-load-and-reuse-your-views"><a href="#lazy-load-and-reuse-your-views" aria-label="lazy load and reuse your views permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Lazy Load and Reuse Your Views</h2>
+<p>Those who have a lot of views nested within <code>UIScrollView</code> consume more CPU and memory than people whose applications don’t have a lot of views. The idea is to duplicate the behaviours of <code>UITableView</code> and <code>UICollectionView</code>. </p>
+<p>Instead of creating all of the subViews at once, create them as required and place them in a queue when they’re done.</p>
+<p>This way, you only need to create views when someone scrolls, which saves memory. The energy efficiency problem that arises while creating views impacts other aspects of your software as well. Assume a user hits a button and wants to display a view. There are two options:</p>
+<ul>
+<li>As the screen loads, create and conceal the view, then reveal it when required</li>
+<li>Make and display items as required</li>
+</ul>
+<p>The first method has the advantage of requiring you to establish a <em>viewpoint</em> from the outset and maintain it until it is no longer required. This option consumes more memory than the second. Because when a user hits a button, your programme merely has to re-enable the view. The second option is the inverse – it uses less memory but runs somewhat slower when the button is pressed.</p>
+<p>In such scenarios, Mobile Vitals Provides you information on your iOS app, allowing you to prioritize significant problems and quickly resolve them. Sentry detects sluggish frames and frozen frames to track user interface responsiveness. A phone or tablet typically renders 60 fps, which boils down to each frame being rendered at 16.67 ms.</p>
+<p>Apple can use a faster frame rate, particularly as 120 fps panels become more common. Sentry detects the frame rate and changes the slow frame calculation for these programmes. In the example below, the transaction detail view shows the sluggish, frozen, and total frames:</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png?w=300&amp;fm=webp 300w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png?w=600&amp;fm=webp 600w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png?w=1200&amp;fm=webp 1200w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png?w=300 300w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png?w=600 600w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png?w=1200 1200w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="ios-performance-part2-image1" title="" src="https://images.ctfassets.net/em6l9zw4tzag/7oOhgJ2Kzv9hs8OhcUeYPE/5bc76c1f545b06bb4036d47a65da08ef/ios-performance-part2-image1.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h2 id="reuse-identifiers-to-improve-performance"><a href="#reuse-identifiers-to-improve-performance" aria-label="reuse identifiers to improve performance permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Reuse Identifiers to improve performance</h2>
+<p>Setting the wrong reuse identifier for <code>UITableViewCells</code>, <code>UICollectionViewCells</code>, or even <code>UITableViewHeaderFooterViews</code> is a common application development mistake. The data source should often reuse <code>UITableViewCell</code> instances when allocating cells to rows in a <code>tableView</code>.</p>
+<p>Without the <code>reuseIdentifier</code>, each time a table view is presented, a new cell must be set on the UI. This may have a major influence on performance, particularly the app’s scrolling experience. In addition to <code>UICollectionView</code> cells and supplemental views, <code>reuseIdentifiers</code> should be used in header and footer views.</p>
+<p>If required, this procedure removes cells from the queue or generates new cells with previously registered NIBs or classes. If there are no reusable cells and no classes or NIBs have been set up, this method returns nil.
+Sentry allows you to set up alerts with real-time insights into errors, problems or even custom defined criteria that you can specify for your own applications:</p>
+<ul>
+<li>New issues emerging</li>
+<li>Increasing frequency of issues</li>
+<li>Resolved or ignored issues in the past becoming unresolved and resurfacing again</li>
+</ul>
+<p>You can also define alerts and receive notifications for a specific failure rate, latency of the action, and so on. You can create and manage alerts from the Alerts page on Sentry dashboard.</p>
+<p>By default, Sentry will provide a considerable quantity of data as part of the problem notice. In certain circumstances, this data may be source code or other user data. Enabling the Enhanced Privacy option will allow you to regulate this. To do so, visit your organization’s dashboard, select Settings, and then check the option to allow increased privacy. Email alerts and other elements of the system will begin limiting data to the issue’s title and description as soon as you activate this option.</p>
+
+<p>If the user experience stutters when scrolling in the complex hierarchy such as Table view, make sure you perform the following to keep the table View scrolling smoothly:</p>
+<ul>
+<li><code>reuseIdentifier</code> in the proper manner when reusing cells</li>
+<li>Make all the views opaque, including the cells</li>
+<li>Avoid using gradients, zooming, or selecting a backdrop color.</li>
+<li>Use asynchronous loading and caching if the data in the cell is retrieved from the Internet.</li>
+<li><code>shadowPath</code> should be used to draw a shadow, only when necessary.</li>
+<li>Avoid using subviews as much as possible.</li>
+<li>Avoid using <code>applycellForRowAtIndexPath</code>. If you need to use it, do it just once and save the results in a cache.</li>
+<li>Provide <code>userowHeight.section</code> a fixed height and avoid requests to the delegate while setting the height.</li>
+</ul>
+<h2 id="caching-to-the-rescue"><a href="#caching-to-the-rescue" aria-label="caching to the rescue permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Caching to the Rescue</h2>
+<p>On iOS, there are various ways to build a visually appealing UI. Full-size pictures or resizable images may be used, and they can be rendered using <code>CALayer</code>, <code>CoreGraphics</code>, or even <code>OpenGL</code>. Each solution, of course, differs in terms of complexity and performance.</p>
+<p>Utilizing pre-rendered graphics saves time by eliminating the need for iOS to create a picture, draw on it, and then display it on the screen The problem is that you must include all relevant photographs in your program bundle, which increases its capacity — which is why using variable-sized images is even better: you can save unnecessary space and avoid developing distinct images for different portions of your application, for example buttons.</p>
+<p>Using images, on the other hand, means you lose the ability to change usability of the image, you will have to redo them repeatedly, which costs time and resources and if you want to create animation effects, even if each image represents only a small portion of the changes, you will need a large number of images, which increases the bundle size.</p>
+<p>As a general trade-off, balancing performance against managing the growing bundle size is advisable.</p>
+<p>One of the most popular methods to load an image from a bundle is <code>imageNamed</code>, the other one is image with content file, which is less common.</p>
+<p>When images are loaded, <code>imageNamed</code> saves them in a cache. It searches the system cache for an image object with a specified name and returns it if it is found. Objects that don’t have a matching picture in the cache are fetched from the provided document and then cached and returned using this function. <code>imageWithContentsOfFile</code>, on the other hand, just loads pictures.</p>
+<p>The question is, how do you choose which one to use?</p>
+<p>If you’re just going to utilize heavy images once, there’s no need to cache them. Instead, use an image with a <em>Content file</em> and save yourself the memory. <code>ImageNamed</code>, on the other hand, is a superior option in situations when images are often re-used such as lists.</p>
+<h2 id="how-to-display-shadows-efficiently"><a href="#how-to-display-shadows-efficiently" aria-label="how to display shadows efficiently permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>How to Display Shadows Efficiently</h2>
+<p>To cast a shadow on a layer or view, usually developers choose the <code>QuartzCore</code> framework like below example:</p>
+<p><code>#import &lt;QuartzCore/QuartzCore.h&gt;</code>
+<code>UIView *view = [[UIView alloc] init];</code>
+<code>view.layer.shadowOffset = CGSizeMake(-1.0f, 1.0f);</code>
+<code>view.layer.shadowRadius = 5.0f;</code>
+<code>view.layer.shadowOpacity = 0.6;</code></p>
+<p>This seems a lot easier for the system to represent. Isn’t it? Sadly, the above strategy is flawed. So Core Animation must first execute an offscreen pass to identify your view’s exact shape, which is resource heavy.</p>
+<p>Using <code>shadowPath</code> takes care of the issue:</p>
+<p><code>view.layer.shadowPath = [[UIBezierPath bezierPathWithRect:view.bounds] CGPath];</code></p>
+<p>With <code>shadowPath</code>, iOS no longer has to recalculate how to draw each time. Instead, it utilizes a previously determined route. Problems arise when you have to calculate and update the shadow path manually in certain views, and this is time-consuming.</p>
+<h2 id="be-aware-with-memory-warnings"><a href="#be-aware-with-memory-warnings" aria-label="be aware with memory warnings permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Be Aware with Memory Warnings</h2>
+<p>iOS notifies all running applications when the system memory is low. When your app receives a memory warning, it must clear up as much memory as possible. That is in accordance with the guidelines established by the Apple team. The most efficient way to do this is to remove strong references to reusable caches, image objects, and other stuff. UIKit, for the most part, makes it simple to keep track of low memory notifications.</p>
+<p>On the other hand, Sentry adds breadcrumbs prior to an issue developing. As is the case with traditional logs, these events may include a plethora of structured data. You can allow the SDK to automatically capture the breadcrumbs for your app such as click and keypress events, or manually add a breadcrumb for specific actions performed using the code below</p>
+<p><code>import Sentry</code></p>
+<p><code>let breadcrumb = Breadcrumb()</code></p>
+<p><code>breadcrumb.level = SentryLevel.info</code></p>
+<p><code>breadcrumb.category = &#34;auth&#34;</code></p>
+<p><code>breadcrumb.message = &#34;Authenticated user \(user.email)&#34;</code></p>
+<p><code>SentrySDK.addBreadcrumb(crumb: breadcrumb)</code></p>
+<p>You can refer to <a href="https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/">this documentation</a> to understand and configure the data and properties of a breadcrumb. After obtaining these alerts from the system, you should remove any unnecessary objects from the memory. Furthermore, it is possible to erase images from an app’s image cache that are not currently shown on the screen. If you do not handle memory alerts in this way, the operating system may shut down your app. To free up memory, the object must be able to be recreated. When creating, keep a watch out for emulation-based rendering.</p>
+<p>For end-users, the response time is crucial as delays or unresponsiveness due to memory overflow and other things may frustrate the user, resulting in the user abandoning the app altogether.</p>
+<p>Sentry Metrics provide you a better understanding of how your users are interacting with your app. You can quantify the health of your app more quickly and discover faults or performance concerns that may be developing, such as <a href="https://docs.sentry.io/platforms/apple/configuration/out-of-memory/">out of memory errors (OOMs)</a>.</p>
+<p>Before your app terminates, the Apple SDK writes a report to disc with data like the stack trace, tags, and breadcrumbs. This is because OOM crashes force the OS to stop your software without notice. It’s not easy to get the app’s state back after an OOM. So we’d need to routinely store the app state. This would generate a lot of I/O, slowing down the application. OOM occurrences lack context.</p>
+<h2 id="managing--legacy-projects"><a href="#managing--legacy-projects" aria-label="managing  legacy projects permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Managing -Legacy Projects</h2>
+<p>Storyboards have replaced XIBs as the main visual design tool in iOS 5. While XIBs might be advantageous in certain situations, they are not always required. You’ll have to deal with them unless you’re targeting pre-iOS 5 devices or utilizing a custom reusable view.</p>
+<p>If you must utilize XIBs, keep them as simple as possible. If a view controller’s view hierarchy necessitates the creation of many XIBs, construct one for each XIB. Any images included inside the XIB are also included in the memory load and should be considered. Remove any views that aren’t presently being used to conserve memory. Storyboards prevent this from occurring since they only build view controllers when they are absolutely necessary.</p>
+<p>When you load a nib file that contains references to an image or sound resource, the nib-loading process loads and caches the actual image or sound file. OS X saves picture and sound resources in temporary caches so that they may be accessed later. On iOS, named caches only store picture resources and no other sorts of data. Depending on your platform, the imageNamed: method of NSImage or UIImage may be used to obtain images.</p>
+<p>Sentry identifies transactions that have had significant changes in their performance over time with Trends. This view is ideal for providing insights when you have transactions with large counts. You can access the Trends View from the Performance homepage by clicking the tab in the top right corner of the page. Over time, this page highlights deals that have seen notable changes to their profitability.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png?w=300&amp;fm=webp 300w,
+https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png?w=600&amp;fm=webp 600w,
+https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png?w=1200&amp;fm=webp 1200w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png?w=300 300w,
+https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png?w=600 600w,
+https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png?w=1200 1200w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="ios-performance-part2-image5" title="" src="https://images.ctfassets.net/em6l9zw4tzag/4dSFm2OoInqLNZqGFuXC3A/a58808ae8e1ded478059a2665a7066ac/ios-performance-part2-image5.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a>
+<a href="https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png?w=300&amp;fm=webp 300w,
+https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png?w=600&amp;fm=webp 600w,
+https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png?w=1200&amp;fm=webp 1200w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png?w=300 300w,
+https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png?w=600 600w,
+https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png?w=1200 1200w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="ios-performance-part2-image2" title="" src="https://images.ctfassets.net/em6l9zw4tzag/4Ldz2hU56TEdorfZo6SHXP/ef96c52796ab196e18d022b233e9f955/ios-performance-part2-image2.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<h2 id="conclusion"><a href="#conclusion" aria-label="conclusion permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Conclusion</h2>
+<p>Despite the importance of application performance, it is often disregarded by developers. As a result, we tend to only use the most powerful devices and the most expensive data plans while developing our applications. As a result, we are blind to the consequences of our underperformance.</p>
+<p>In this article, you gained knowledge about improving iOS application performance for UI, animations and more. This article tries to ensure all the UI updates, frontend rendering, animations and how Sentry can help you supercharge your performance improvement journey.</p>
+<p>This is the second article in the <strong>Performance Series: Improve your iOS Applications</strong>. You can read about the <a href="https://blog.sentry.io/2022/04/07/improve-performance-in-your-ios-applications-part-1/">first article in the series</a>, which focuses on performance improvements for iOS build processes and build systems. Stay tuned for upcoming articles in the series, which will focus on UI improvements, code improvements, animations, visual experience best practices and much more.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/1rProAAB1pjEOG3Y45IJiv/d399239194746602f7a42cb4a4f53be9/ios-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Tue, 10 May 2022 00:00:00 +0000</pubDate>
+    </item>
+    <item>
       <title>Unity Tutorial: Developing Your First Unity Game - Part 2</title>
       <link>https://blog.sentry.io/2022/05/09/unity-tutorial-developing-your-first-unity-game-part-2/</link>
       <description>In part 2 of our Unity game development series, we walk through adding the falling effect, how to instantiate several prefabs in random places, &amp; how to make a score counter (and display it).</description>
@@ -8367,7 +8677,7 @@ https://images.ctfassets.net/em6l9zw4tzag/wedTce5zjvRmWQE96M5cS/9545a6f41651315b
       <description>Slow apps frustrate users, which leads to bad reviews, or customers that swipe left to competition. Unfortunately, seeing and solving…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Slow apps frustrate users, which leads to bad reviews, or customers that swipe left to competition. Unfortunately, seeing and solving performance issues can be a struggle and time-consuming.</p>
 <p>Most developers use profilers within IDEs like Android Studio or Xcode to hunt for bottlenecks and automated performance tests to catch performance regressions in their code during development. However, testing an application before it ships is not enough.</p>
-<p>To catch the most frustrating performance issues, you need to explore what’s happening on your users’ devices. That means visibility into how fast your app starts, duration of HTTP requests, number of slow and frozen frames, how fast your views are loading, and more. With Sentry for Mobile, you can now easily monitor your iOS and Android app’s performance in real-time without additional setup (or accumulating a pile of testing devices).</p>
+<p>To catch the most frustrating performance issues, you need to explore what’s happening on your users’ devices. That means visibility into how fast your app starts, duration of HTTP requests, number of slow and frozen frames, how fast your views are loading, and more. With Sentry for Mobile, you can now easily monitor your <a href="https://docs.sentry.io/platforms/react-native/performance/">React Native</a>, <a href="https://docs.sentry.io/platforms/apple/guides/ios/performance/">iOS</a>, and <a href="https://docs.sentry.io/platforms/android/performance/">Android</a> app’s performance in real-time without additional setup (or accumulating a pile of testing devices).</p>
 <h2 id="mobile-vitals"><a href="#mobile-vitals" aria-label="mobile vitals permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
   <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
   </path>
@@ -8594,7 +8904,7 @@ https://images.ctfassets.net/em6l9zw4tzag/wedTce5zjvRmWQE96M5cS/9545a6f41651315b
       <description>Slow apps frustrate users, which leads to bad reviews, or customers that swipe left to competition. Unfortunately, seeing and solving…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Slow apps frustrate users, which leads to bad reviews, or customers that swipe left to competition. Unfortunately, seeing and solving performance issues can be a struggle and time-consuming.</p>
 <p>Most developers use profilers within IDEs like Android Studio or Xcode to hunt for bottlenecks and automated performance tests to catch performance regressions in their code during development. However, testing an application before it ships is not enough.</p>
-<p>To catch the most frustrating performance issues, you need to explore what’s happening on your users’ devices. That means visibility into how fast your app starts, duration of HTTP requests, number of slow and frozen frames, how fast your views are loading, and more. With Sentry for Mobile, you can now easily monitor your <a href="https://docs.sentry.io/platforms/react-native/performance/">React Native</a>, <a href="https://docs.sentry.io/platforms/apple/guides/ios/performance/">iOS</a>, and <a href="https://docs.sentry.io/platforms/android/performance/">Android</a> app’s performance in real-time without additional setup (or accumulating a pile of testing devices).</p>
+<p>To catch the most frustrating performance issues, you need to explore what’s happening on your users’ devices. That means visibility into how fast your app starts, duration of HTTP requests, number of slow and frozen frames, how fast your views are loading, and more. With Sentry for Mobile, you can now easily monitor your iOS and Android app’s performance in real-time without additional setup (or accumulating a pile of testing devices).</p>
 <h2 id="mobile-vitals"><a href="#mobile-vitals" aria-label="mobile vitals permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
   <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
   </path>
@@ -8822,268 +9132,6 @@ https://images.ctfassets.net/em6l9zw4tzag/wedTce5zjvRmWQE96M5cS/9545a6f41651315b
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><em>Welcome to Part 1 of our multipart series on Distributed Tracing for Full Stack Developers. In this series, we’ll be learning the ins-and-outs of distributed tracing and how it can assist you in monitoring the increasingly complex requirements of full stack applications.</em></p>
 <p>In the early days of the web, writing web applications was simple. Developers generated HTML on the server using a language like PHP, communicated with a single relational database like MySQL, and most interactivity was driven by static HTML form components. While debugging tools were primitive, understanding the execution flow of your code was straightforward.</p>
 <p>In today’s modern web stack it’s anything but. Full stack developers are expected to write JavaScript executing in the browser, interop with multiple database technologies, and deploy server side code on different server architectures (e.g. serverless). Without the right tools, understanding how a user interaction in the browser cascades into a 500 server error deep in your server stack is nigh-impossible. Enter: distributed tracing.</p>
-<p><strong>Distributed tracing</strong> is a monitoring technique that links the operations and requests occurring between multiple services. This allows developers to “trace” the path of an end-to-end request as it moves from one service to another, letting them pinpoint errors or performance bottlenecks in individual services that are negatively affecting the overall system.</p>
-<p>In this post, we’ll learn more about distributed tracing concepts, go over an end-to-end tracing example in code, and see how to use tracing metadata to add valuable context to your logging and monitoring tools. When we’re done, you’ll not only understand the fundamentals of distributed tracing, but how you can apply tracing techniques to be more effective in debugging your full stack web applications.</p>
-<p>But first, let’s go back to the beginning: what’s distributed tracing again?</p>
-<h2 id="distributed-tracing-basics"><a href="#distributed-tracing-basics" aria-label="distributed tracing basics permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Distributed tracing basics</h2>
-<p>Distributed tracing is a method of recording the connected operations of multiple services. Typically, these operations are initiated by requests from one service to another, where a “request” could be an actual HTTP request, or work invoked through a task queue or some other asynchronous means.</p>
-<p>Traces are composed of two fundamental components:</p>
-<ul>
-<li>A <strong>span</strong> describes an operation or “work” taking place on a service. Spans can describe broad operations – for example, the operation of a web server responding to an HTTP request – or as granular as a single invocation of a function.</li>
-<li>A <strong>trace</strong> describes the end-to-end journey of one or more connected <strong>spans</strong>. A trace is considered to be a <strong>distributed trace</strong> if it connects spans (“work”) performed on multiple services.</li>
-</ul>
-<p>Let’s take a look at an example of a hypothetical distributed trace.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=451&amp;fm=webp 451w,
-https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=901&amp;fm=webp 901w,
-https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=1802&amp;fm=webp 1802w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=451 451w,
-https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=901 901w,
-https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=1802 1802w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="tracing-image1" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>The diagram above illustrates how a trace begins in one service – a React application running on the browser – and continues through a call to an API web server, and even further to a background task worker. The spans in this diagram are the work performed within each service, and each span can be “traced” back to the initial work kicked off by the browser application. Lastly, since these operations occur on different services, this trace is considered to be distributed.</p>
-<p><em>Aside: Spans that describe broad operations (e.g. the full lifecycle of a web server responding to an HTTP request) are sometimes referred to as <strong>transaction spans</strong> or even just <strong>transactions</strong>. We’ll talk more about transactions vs. spans in Part 2 of this series.</em></p>
-<h2 id="trace-and-span-identifiers"><a href="#trace-and-span-identifiers" aria-label="trace and span identifiers permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Trace and span identifiers</h2>
-<p>So far we’ve identified the components of a trace, but we haven’t described how those components are linked together.</p>
-<p>First, each trace is uniquely identified with a <strong>trace identifier</strong>. This is done by creating a unique randomly generated value (i.e. a UUID) in the <strong>root span</strong> – the initial operation that kicks off the entire trace. In our example above, the root span occurs in the Browser Application.</p>
-<p>Second, each span first needs to be uniquely identified. This is similarly done by creating a unique <strong>span identifier</strong> (or <code>span_id</code>) when the span begins its operation. This <code>span_id</code> creation should occur at every span (or operation) that takes place within a trace.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=443&amp;fm=webp 443w,
-https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=885&amp;fm=webp 885w,
-https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=1770&amp;fm=webp 1770w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=443 443w,
-https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=885 885w,
-https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=1770 1770w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="tracing-image2" title="" src="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>Let’s revisit our hypothetical trace example. In the diagram above, you’ll notice that a trace identifier uniquely identifies the trace, and each span within that trace also possesses a unique span identifier.</p>
-<p>Generating <code>trace_id</code> and <code>span_id</code> isn’t enough however. To actually connect these services, your application must propagate what’s known as a <strong>trace context</strong> when making a request from one service to another.</p>
-<h2 id="trace-context"><a href="#trace-context" aria-label="trace context permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Trace context</h2>
-<p>The trace context is typically composed of just two values:</p>
-<ul>
-<li><strong>Trace identifier</strong> (or <code>trace_id</code>): the unique identifier that is generated in the root span intended to identify the entirety of the trace. This is the same trace identifier we introduced in the last section; it is propagated unchanged to every downstream service.</li>
-<li><strong>Parent identifier</strong> (or <code>parent_id</code>): the span_id of the “parent” span that spawned the current operation.</li>
-</ul>
-<p>The diagram below visualizes how a request kicked off in one service propagates the trace context to the next service downstream. You’ll notice that trace_id remains constant, while the parent_id changes between requests, pointing to the parent span that kicked off the latest operation.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=461&amp;fm=webp 461w,
-https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=922&amp;fm=webp 922w,
-https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=1844&amp;fm=webp 1844w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=461 461w,
-https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=922 922w,
-https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=1844 1844w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="tracing-image3" title="" src="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>With these two values, for any given operation, it is possible to determine the originating (root) service, and to reconstruct all parent/ancestor services in order that led to the current operation.</p>
-<h2 id="a-working-example-with-code"><a href="#a-working-example-with-code" aria-label="a working example with code permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>A working example with code</h2>
-<p>To understand this all better, let’s actually implement a bare-bones tracing implementation, using the example we’ve been returning to, wherein a browser application is the initiator of a series of distributed operations connected by a trace context.</p>
-<p>First, the browser application renders a form: for the purposes of this example, an “invite user” form. The form has a submit event handler, which fires when the form is submitted. Let’s consider this submit handler our <strong>root span</strong>, which means that when the handler is invoked, both a <code>trace_id</code> and <code>span_id</code> are generated.</p>
-<p>Next, some work is done to gather user-inputted values from the form, then finally a <code>fetch</code> request is made to our web server to the <code>/inviteUser</code> API endpoint. As part of this fetch request, the trace context is passed as two custom HTTP headers: <code>trace-id</code> and <code>parent-id</code> (which is the current span’s  <code>span_id</code>).</p>
-<div data-language="javascript"><pre><code><span>// browser app (JavaScript)</span>
-<span>import</span> uuid <span>from</span> <span>&#39;uuid&#39;</span><span>;</span>
-
-<span>const</span> traceId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>;</span>
-<span>const</span> spanId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>;</span>
-
-console<span>.</span><span>log</span><span>(</span><span>&#39;Initiate inviteUser POST request&#39;</span><span>,</span> <span><span>`</span><span>traceId: </span><span><span>${</span>traceId<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
-
-<span>fetch</span><span>(</span><span>&#39;/api/v1/inviteUser?email=&#39;</span> <span>+</span> <span>encodeURIComponent</span><span>(</span>email<span>)</span><span>,</span> <span>{</span>
-   method<span>:</span> <span>&#39;POST&#39;</span><span>,</span>
-   headers<span>:</span> <span>{</span>
-       <span>&#39;trace-id&#39;</span><span>:</span> traceId<span>,</span>
-       <span>&#39;parent-id&#39;</span><span>:</span> spanId<span>,</span>
-   <span>}</span>
-<span>}</span><span>)</span><span>.</span><span>then</span><span>(</span><span>(</span><span>data</span><span>)</span> <span>=&gt;</span> <span>{</span>
-   console<span>.</span><span>log</span><span>(</span><span>&#39;Success!&#39;</span><span>)</span><span>;</span>
-<span>}</span><span>)</span><span>.</span><span>catch</span><span>(</span><span>(</span><span>err</span><span>)</span> <span>=&gt;</span> <span>{</span>
-   console<span>.</span><span>log</span><span>(</span><span>&#39;Something bad happened&#39;</span><span>,</span> <span><span>`</span><span>traceId: </span><span><span>${</span>traceId<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
-<span>}</span><span>)</span><span>;</span></code></pre></div>
-<p><em>Note these are non-standard HTTP headers used for explanatory purposes. There is an active effort to standardize tracing HTTP headers as part of the W3C <a href="https://www.w3.org/TR/trace-context/">traceparent</a> specification, which is still in the “Recommendation” phase.</em> </p>
-<p>On the receiving end, the API web server handles the request and extracts the tracing metadata from the HTTP request. It then queues up a job to send an email to the user, and attaches the tracing context as part of a “meta” field in the job description. Last, it returns a response with a 200 status code indicating that the method was successful.</p>
-<p>Note that while the server returned a successful response, the actual “work” isn’t done until the background task worker picks up the newly queued job and actually delivers an email.</p>
-<p>At some point, the queue processor begins working on the queued email job. Again, the trace and parent identifiers are extracted, just as they were earlier in the web server.</p>
-<div data-language="javascript"><pre><code><span>// API Web Server</span>
-<span>const</span> Queue <span>=</span> <span>require</span><span>(</span><span>&#39;bull&#39;</span><span>)</span><span>;</span>
-<span>const</span> emailQueue <span>=</span> <span>new</span> <span>Queue</span><span>(</span><span>&#39;email&#39;</span><span>)</span><span>;</span>
-<span>const</span> uuid <span>=</span> <span>require</span><span>(</span><span>&#39;uuid&#39;</span><span>)</span><span>;</span>
-
-app<span>.</span><span>post</span><span>(</span><span>&#34;/api/v1/inviteUser&#34;</span><span>,</span> <span>(</span><span>req<span>,</span> res</span><span>)</span> <span>=&gt;</span> <span>{</span>
-  <span>const</span> spanId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>,</span>
-    traceId <span>=</span> req<span>.</span>headers<span>[</span><span>&#34;trace-id&#34;</span><span>]</span><span>,</span>
-    parentId <span>=</span> req<span>.</span>headers<span>[</span><span>&#34;parent-id&#34;</span><span>]</span><span>;</span>
-
-  console<span>.</span><span>log</span><span>(</span>
-    <span>&#34;Adding job to email queue&#34;</span><span>,</span>
-    <span><span>`</span><span>[traceId: </span><span><span>${</span>traceId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
-    <span><span>`</span><span>parentId: </span><span><span>${</span>parentId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
-    <span><span>`</span><span>spanId: </span><span><span>${</span>spanId<span>}</span></span><span>]</span><span>`</span></span>
-  <span>)</span><span>;</span>
-
-  emailQueue<span>.</span><span>add</span><span>(</span><span>{</span>
-    title<span>:</span> <span>&#34;Welcome to our product&#34;</span><span>,</span>
-    to<span>:</span> req<span>.</span>params<span>.</span>email<span>,</span>
-    meta<span>:</span> <span>{</span>
-      traceId<span>:</span> traceId<span>,</span>
-
-      <span>// the downstream span&#39;s parent_id is this span&#39;s span_id</span>
-      parentId<span>:</span> spanId<span>,</span>
-    <span>}</span><span>,</span>
-  <span>}</span><span>)</span><span>;</span>
-
-  res<span>.</span><span>status</span><span>(</span><span>200</span><span>)</span><span>.</span><span>send</span><span>(</span><span>&#34;ok&#34;</span><span>)</span><span>;</span>
-<span>}</span><span>)</span><span>;</span>
-
-<span>// Background Task Worker</span>
-emailQueue<span>.</span><span>process</span><span>(</span><span>(</span><span>job<span>,</span> done</span><span>)</span> <span>=&gt;</span> <span>{</span>
-  <span>const</span> spanId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>;</span>
-  <span>const</span> <span>{</span> traceId<span>,</span> parentId <span>}</span> <span>=</span> job<span>.</span>data<span>.</span>meta<span>;</span>
-
-  console<span>.</span><span>log</span><span>(</span>
-    <span>&#34;Sending email&#34;</span><span>,</span>
-    <span><span>`</span><span>[traceId: </span><span><span>${</span>traceId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
-    <span><span>`</span><span>parentId: </span><span><span>${</span>parentId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
-    <span><span>`</span><span>spanId: </span><span><span>${</span>spanId<span>}</span></span><span>]</span><span>`</span></span>
-  <span>)</span><span>;</span>
-
-  <span>// actually send the email</span>
-  <span>// ...</span>
-
-  <span>done</span><span>(</span><span>)</span><span>;</span>
-<span>}</span><span>)</span><span>;</span></code></pre></div>
-<p><em>If you’re interested in running this example yourself, you can find the source code on <a href="https://github.com/getsentry/distributed-tracing-examples">GitHub</a>.</em></p>
-<h2 id="logging-with-distributed-systems"><a href="#logging-with-distributed-systems" aria-label="logging with distributed systems permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Logging with distributed systems</h2>
-<p>You’ll notice that at every stage of our example, a logging call is made using console.log that additionally emits the current <strong>trace, span,</strong> and <strong>parent</strong> identifiers. In a perfect synchronous world – one where each service could log to the same centralized logging tool – each of these logging statements would appear sequentially:</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=210&amp;fm=webp 210w,
-https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=419&amp;fm=webp 419w,
-https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=838&amp;fm=webp 838w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=210 210w,
-https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=419 419w,
-https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=838 838w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="tracing-part1" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>If an exception or errant behavior occurred during the course of these operations, it would be relatively trivial to use these or additional logging statements to pinpoint a source. But the unfortunate reality is that these are <em>distributed services</em>, which means:</p>
-<ul>
-<li><strong>Web servers typically handle many concurrent requests.</strong> The web server may be performing work (and emitting logging statements) attributed to other requests.</li>
-<li><strong>Network latency can cloud the order of operations.</strong> Requests made from upstream services might not reach their destination in the same order they were fired.</li>
-<li><strong>Background workers may have queued jobs.</strong> Workers may have to first work through earlier queued jobs before reaching the exact job queued up in this trace.</li>
-</ul>
-<p>In a more realistic example, our logging calls might look something like this, which reflects multiple operations occurring concurrently:</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=209&amp;fm=webp 209w,
-https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=419&amp;fm=webp 419w,
-https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=837&amp;fm=webp 837w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=209 209w,
-https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=419 419w,
-https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=837 837w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="tracing-part2" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>Without tracing metadata, understanding the topology of which action invoked which action would be impossible. But by emitting tracing meta information at every logging call, it’s possible to quickly filter on all logging calls within a trace by filtering on <code>traceId</code>, and to reconstruct the exact order by examining <code>spanId</code> and <code>parentId</code> relationships.</p>
-<p>This is the power of distributed tracing: by attaching metadata describing the current operation (span id), the parent operation that spawned it (parent id), and the trace identifier (trace id), we can augment logging and telemetry data to better understand the exact sequence of events occurring in your distributed services.</p>
-<h2 id="tracing-in-the-real-world"><a href="#tracing-in-the-real-world" aria-label="tracing in the real world permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Tracing in the real world</h2>
-<p>Over the course of this article, we have been working with a somewhat contrived example. In a real distributed tracing environment, you wouldn’t generate and pass all your span and tracing identifiers manually. Nor would you rely on <code>console.log</code> (or other logging) calls to emit your tracing metadata yourself. You would use proper tracing libraries to handle the instrumentation and emitting of tracing data for you.</p>
-<h2 id="opentelemetry"><a href="#opentelemetry" aria-label="opentelemetry permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>OpenTelemetry</h2>
-<p><a href="https://opentelemetry.io/">OpenTelemetry</a> is a collection of open source tools, APIs, and SDKs for instrumenting, generating, and exporting telemetry data from running software. It provides language-specific implementations for most popular programming languages, including both browser <a href="https://github.com/open-telemetry/opentelemetry-js">JavaScript and Node.js</a>.</p>
-<h2 id="sentry"><a href="#sentry" aria-label="sentry permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Sentry</h2>
-<p><a href="https://sentry.io">Sentry</a> is an open source application monitoring product that helps you identify errors and performance bottlenecks in your code. It provides client libraries in every major programming language which instrument your software’s code to capture both error data and tracing telemetry.</p>
-<p>Sentry uses this telemetry in a number of ways. For example, Sentry’s <a href="https://sentry.io/for/performance/">Performance Monitoring</a> feature set uses tracing data to generate waterfall diagrams that illustrate the end-to-end latency of your distributed services’ operations within a trace.</p>
-<p><a href="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png" target="_blank" rel="noopener">
-          <span>
-        <span>
-          <picture>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=296&amp;fm=webp 296w,
-https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=591&amp;fm=webp 591w,
-https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=1182&amp;fm=webp 1182w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
-          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=296 296w,
-https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=591 591w,
-https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=1182 1182w" sizes="(max-width: 800px) 100vw, 800px"/>
-          <img alt="tracing-image4" title="" src="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png" loading="lazy"/>
-        </picture>
-        </span>
-      </span>
-        </a></p>
-<p>Sentry additionally uses tracing metadata to augment its Error Monitoring capabilities to understand how an error triggered in one service (e.g. server backend) can propagate to an error in another service (e.g. frontend).</p>
-<p>You can learn more about <a href="https://sentry.io/features/distributed-tracing/">Sentry and distributed tracing here</a>.</p>
-<h2 id="next-span-trees-opentelemetry-and-sentry"><a href="#next-span-trees-opentelemetry-and-sentry" aria-label="next span trees opentelemetry and sentry permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
-  </path>
-</svg>
-</a>Next: Span trees, OpenTelemetry, and Sentry</h2>
-<p>Congratulations: you’ve graduated from part 1 of our series on distributed tracing for full stack developers. At this point you should understand what a trace is, how trace information is propagated through services via tracing context, and how trace context can be used to connect logging statements between multiple distributed services.</p>
-<p>Stay tuned for the next post in this series, where we’ll expand on the OpenTelemetry set of tracing tools, and take a further dive into how Sentry incorporates tracing context to augment error and performance monitoring telemetry.</p></div></div>]]></content:encoded>
-      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/3eypAaYgkGx1UcxtcLenNI/e8198055602f3c9d68d97d050143acb9/Tracing2-meta.jpg" length="0" type="image/jpeg"></enclosure>
-      <pubDate>Thu, 12 Aug 2021 00:00:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Distributed Tracing 101 for Full Stack Developers</title>
-      <link>https://blog.sentry.io/2021/08/12/distributed-tracing-101-for-full-stack-developers/</link>
-      <description>Welcome to Part 1 of our multipart series on Distributed Tracing for Full Stack Developers. In this series, we’ll be learning the ins-and-outs of distributed tracing and how it can assist you in monitoring the increasingly complex requirements of full stack applications.</description>
-      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><em>Welcome to Part 1 of our multipart series on Distributed Tracing for Full Stack Developers. In this series, we’ll be learning the ins-and-outs of distributed tracing and how it can assist you in monitoring the increasingly complex requirements of full stack applications.</em></p>
-<p>In the early days of the web, writing web applications was simple. Developers generated HTML on the server using a language like PHP, communicated with a single relational database like MySQL, and most interactivity was driven by static HTML form components. While debugging tools were primitive, understanding the execution flow of your code was straightforward.</p>
-<p>In today’s modern web stack it’s anything but. Full stack developers are expected to write JavaScript executing in the browser, interop with multiple database technologies, and deploy server side code on different server architectures (e.g. serverless). Without the right tools, understanding how a user interaction in the browser cascades into a 500 server error deep in your server stack is nigh-impossible. Enter: distributed tracing.</p>
 </div><div>
 <p><strong>Distributed tracing</strong> is a monitoring technique that links the operations and requests occurring between multiple services. This allows developers to “trace” the path of an end-to-end request as it moves from one service to another, letting them pinpoint errors or performance bottlenecks in individual services that are negatively affecting the overall system.</p>
 <p>In this post, we’ll learn more about distributed tracing concepts, go over an end-to-end tracing example in code, and see how to use tracing metadata to add valuable context to your logging and monitoring tools. When we’re done, you’ll not only understand the fundamentals of distributed tracing, but how you can apply tracing techniques to be more effective in debugging your full stack web applications.</p>
@@ -9348,6 +9396,268 @@ https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740
 <p>In the early days of the web, writing web applications was simple. Developers generated HTML on the server using a language like PHP, communicated with a single relational database like MySQL, and most interactivity was driven by static HTML form components. While debugging tools were primitive, understanding the execution flow of your code was straightforward.</p>
 <p>In today’s modern web stack it’s anything but. Full stack developers are expected to write JavaScript executing in the browser, interop with multiple database technologies, and deploy server side code on different server architectures (e.g. serverless). Without the right tools, understanding how a user interaction in the browser cascades into a 500 server error deep in your server stack is nigh-impossible. Enter: distributed tracing.</p>
 </div><div>
+<p><strong>Distributed tracing</strong> is a monitoring technique that links the operations and requests occurring between multiple services. This allows developers to “trace” the path of an end-to-end request as it moves from one service to another, letting them pinpoint errors or performance bottlenecks in individual services that are negatively affecting the overall system.</p>
+<p>In this post, we’ll learn more about distributed tracing concepts, go over an end-to-end tracing example in code, and see how to use tracing metadata to add valuable context to your logging and monitoring tools. When we’re done, you’ll not only understand the fundamentals of distributed tracing, but how you can apply tracing techniques to be more effective in debugging your full stack web applications.</p>
+<p>But first, let’s go back to the beginning: what’s distributed tracing again?</p>
+<h2 id="distributed-tracing-basics"><a href="#distributed-tracing-basics" aria-label="distributed tracing basics permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Distributed tracing basics</h2>
+<p>Distributed tracing is a method of recording the connected operations of multiple services. Typically, these operations are initiated by requests from one service to another, where a “request” could be an actual HTTP request, or work invoked through a task queue or some other asynchronous means.</p>
+<p>Traces are composed of two fundamental components:</p>
+<ul>
+<li>A <strong>span</strong> describes an operation or “work” taking place on a service. Spans can describe broad operations – for example, the operation of a web server responding to an HTTP request – or as granular as a single invocation of a function.</li>
+<li>A <strong>trace</strong> describes the end-to-end journey of one or more connected <strong>spans</strong>. A trace is considered to be a <strong>distributed trace</strong> if it connects spans (“work”) performed on multiple services.</li>
+</ul>
+<p>Let’s take a look at an example of a hypothetical distributed trace.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=451&amp;fm=webp 451w,
+https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=901&amp;fm=webp 901w,
+https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=1802&amp;fm=webp 1802w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=451 451w,
+https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=901 901w,
+https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png?w=1802 1802w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="tracing-image1" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1Mw7WN2QgOE0OGWqHgQnYM/221577b3f76d22ce714e1768b8dca73b/Screen_Shot_2021-08-11_at_5.15.41_PM.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>The diagram above illustrates how a trace begins in one service – a React application running on the browser – and continues through a call to an API web server, and even further to a background task worker. The spans in this diagram are the work performed within each service, and each span can be “traced” back to the initial work kicked off by the browser application. Lastly, since these operations occur on different services, this trace is considered to be distributed.</p>
+<p><em>Aside: Spans that describe broad operations (e.g. the full lifecycle of a web server responding to an HTTP request) are sometimes referred to as <strong>transaction spans</strong> or even just <strong>transactions</strong>. We’ll talk more about transactions vs. spans in Part 2 of this series.</em></p>
+<h2 id="trace-and-span-identifiers"><a href="#trace-and-span-identifiers" aria-label="trace and span identifiers permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Trace and span identifiers</h2>
+<p>So far we’ve identified the components of a trace, but we haven’t described how those components are linked together.</p>
+<p>First, each trace is uniquely identified with a <strong>trace identifier</strong>. This is done by creating a unique randomly generated value (i.e. a UUID) in the <strong>root span</strong> – the initial operation that kicks off the entire trace. In our example above, the root span occurs in the Browser Application.</p>
+<p>Second, each span first needs to be uniquely identified. This is similarly done by creating a unique <strong>span identifier</strong> (or <code>span_id</code>) when the span begins its operation. This <code>span_id</code> creation should occur at every span (or operation) that takes place within a trace.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=443&amp;fm=webp 443w,
+https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=885&amp;fm=webp 885w,
+https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=1770&amp;fm=webp 1770w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=443 443w,
+https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=885 885w,
+https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png?w=1770 1770w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="tracing-image2" title="" src="https://images.ctfassets.net/em6l9zw4tzag/14IFqR5JxfyihYP7pH3Kk8/951008e67f31c34371ca79cb3c8a27de/Screen_Shot_2021-08-11_at_5.18.21_PM.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>Let’s revisit our hypothetical trace example. In the diagram above, you’ll notice that a trace identifier uniquely identifies the trace, and each span within that trace also possesses a unique span identifier.</p>
+<p>Generating <code>trace_id</code> and <code>span_id</code> isn’t enough however. To actually connect these services, your application must propagate what’s known as a <strong>trace context</strong> when making a request from one service to another.</p>
+<h2 id="trace-context"><a href="#trace-context" aria-label="trace context permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Trace context</h2>
+<p>The trace context is typically composed of just two values:</p>
+<ul>
+<li><strong>Trace identifier</strong> (or <code>trace_id</code>): the unique identifier that is generated in the root span intended to identify the entirety of the trace. This is the same trace identifier we introduced in the last section; it is propagated unchanged to every downstream service.</li>
+<li><strong>Parent identifier</strong> (or <code>parent_id</code>): the span_id of the “parent” span that spawned the current operation.</li>
+</ul>
+<p>The diagram below visualizes how a request kicked off in one service propagates the trace context to the next service downstream. You’ll notice that trace_id remains constant, while the parent_id changes between requests, pointing to the parent span that kicked off the latest operation.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=461&amp;fm=webp 461w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=922&amp;fm=webp 922w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=1844&amp;fm=webp 1844w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=461 461w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=922 922w,
+https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png?w=1844 1844w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="tracing-image3" title="" src="https://images.ctfassets.net/em6l9zw4tzag/7oOE4tSCpscHffsIiWATjo/25debdd5303b27a71de618d4ae63549f/Screen_Shot_2021-08-11_at_5.19.10_PM.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>With these two values, for any given operation, it is possible to determine the originating (root) service, and to reconstruct all parent/ancestor services in order that led to the current operation.</p>
+<h2 id="a-working-example-with-code"><a href="#a-working-example-with-code" aria-label="a working example with code permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>A working example with code</h2>
+<p>To understand this all better, let’s actually implement a bare-bones tracing implementation, using the example we’ve been returning to, wherein a browser application is the initiator of a series of distributed operations connected by a trace context.</p>
+<p>First, the browser application renders a form: for the purposes of this example, an “invite user” form. The form has a submit event handler, which fires when the form is submitted. Let’s consider this submit handler our <strong>root span</strong>, which means that when the handler is invoked, both a <code>trace_id</code> and <code>span_id</code> are generated.</p>
+<p>Next, some work is done to gather user-inputted values from the form, then finally a <code>fetch</code> request is made to our web server to the <code>/inviteUser</code> API endpoint. As part of this fetch request, the trace context is passed as two custom HTTP headers: <code>trace-id</code> and <code>parent-id</code> (which is the current span’s  <code>span_id</code>).</p>
+<div data-language="javascript"><pre><code><span>// browser app (JavaScript)</span>
+<span>import</span> uuid <span>from</span> <span>&#39;uuid&#39;</span><span>;</span>
+
+<span>const</span> traceId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>;</span>
+<span>const</span> spanId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>;</span>
+
+console<span>.</span><span>log</span><span>(</span><span>&#39;Initiate inviteUser POST request&#39;</span><span>,</span> <span><span>`</span><span>traceId: </span><span><span>${</span>traceId<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
+
+<span>fetch</span><span>(</span><span>&#39;/api/v1/inviteUser?email=&#39;</span> <span>+</span> <span>encodeURIComponent</span><span>(</span>email<span>)</span><span>,</span> <span>{</span>
+   method<span>:</span> <span>&#39;POST&#39;</span><span>,</span>
+   headers<span>:</span> <span>{</span>
+       <span>&#39;trace-id&#39;</span><span>:</span> traceId<span>,</span>
+       <span>&#39;parent-id&#39;</span><span>:</span> spanId<span>,</span>
+   <span>}</span>
+<span>}</span><span>)</span><span>.</span><span>then</span><span>(</span><span>(</span><span>data</span><span>)</span> <span>=&gt;</span> <span>{</span>
+   console<span>.</span><span>log</span><span>(</span><span>&#39;Success!&#39;</span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>.</span><span>catch</span><span>(</span><span>(</span><span>err</span><span>)</span> <span>=&gt;</span> <span>{</span>
+   console<span>.</span><span>log</span><span>(</span><span>&#39;Something bad happened&#39;</span><span>,</span> <span><span>`</span><span>traceId: </span><span><span>${</span>traceId<span>}</span></span><span>`</span></span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>;</span></code></pre></div>
+<p><em>Note these are non-standard HTTP headers used for explanatory purposes. There is an active effort to standardize tracing HTTP headers as part of the W3C <a href="https://www.w3.org/TR/trace-context/">traceparent</a> specification, which is still in the “Recommendation” phase.</em> </p>
+<p>On the receiving end, the API web server handles the request and extracts the tracing metadata from the HTTP request. It then queues up a job to send an email to the user, and attaches the tracing context as part of a “meta” field in the job description. Last, it returns a response with a 200 status code indicating that the method was successful.</p>
+<p>Note that while the server returned a successful response, the actual “work” isn’t done until the background task worker picks up the newly queued job and actually delivers an email.</p>
+<p>At some point, the queue processor begins working on the queued email job. Again, the trace and parent identifiers are extracted, just as they were earlier in the web server.</p>
+<div data-language="javascript"><pre><code><span>// API Web Server</span>
+<span>const</span> Queue <span>=</span> <span>require</span><span>(</span><span>&#39;bull&#39;</span><span>)</span><span>;</span>
+<span>const</span> emailQueue <span>=</span> <span>new</span> <span>Queue</span><span>(</span><span>&#39;email&#39;</span><span>)</span><span>;</span>
+<span>const</span> uuid <span>=</span> <span>require</span><span>(</span><span>&#39;uuid&#39;</span><span>)</span><span>;</span>
+
+app<span>.</span><span>post</span><span>(</span><span>&#34;/api/v1/inviteUser&#34;</span><span>,</span> <span>(</span><span>req<span>,</span> res</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>const</span> spanId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>,</span>
+    traceId <span>=</span> req<span>.</span>headers<span>[</span><span>&#34;trace-id&#34;</span><span>]</span><span>,</span>
+    parentId <span>=</span> req<span>.</span>headers<span>[</span><span>&#34;parent-id&#34;</span><span>]</span><span>;</span>
+
+  console<span>.</span><span>log</span><span>(</span>
+    <span>&#34;Adding job to email queue&#34;</span><span>,</span>
+    <span><span>`</span><span>[traceId: </span><span><span>${</span>traceId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
+    <span><span>`</span><span>parentId: </span><span><span>${</span>parentId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
+    <span><span>`</span><span>spanId: </span><span><span>${</span>spanId<span>}</span></span><span>]</span><span>`</span></span>
+  <span>)</span><span>;</span>
+
+  emailQueue<span>.</span><span>add</span><span>(</span><span>{</span>
+    title<span>:</span> <span>&#34;Welcome to our product&#34;</span><span>,</span>
+    to<span>:</span> req<span>.</span>params<span>.</span>email<span>,</span>
+    meta<span>:</span> <span>{</span>
+      traceId<span>:</span> traceId<span>,</span>
+
+      <span>// the downstream span&#39;s parent_id is this span&#39;s span_id</span>
+      parentId<span>:</span> spanId<span>,</span>
+    <span>}</span><span>,</span>
+  <span>}</span><span>)</span><span>;</span>
+
+  res<span>.</span><span>status</span><span>(</span><span>200</span><span>)</span><span>.</span><span>send</span><span>(</span><span>&#34;ok&#34;</span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>;</span>
+
+<span>// Background Task Worker</span>
+emailQueue<span>.</span><span>process</span><span>(</span><span>(</span><span>job<span>,</span> done</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>const</span> spanId <span>=</span> uuid<span>.</span><span>v4</span><span>(</span><span>)</span><span>;</span>
+  <span>const</span> <span>{</span> traceId<span>,</span> parentId <span>}</span> <span>=</span> job<span>.</span>data<span>.</span>meta<span>;</span>
+
+  console<span>.</span><span>log</span><span>(</span>
+    <span>&#34;Sending email&#34;</span><span>,</span>
+    <span><span>`</span><span>[traceId: </span><span><span>${</span>traceId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
+    <span><span>`</span><span>parentId: </span><span><span>${</span>parentId<span>}</span></span><span>,</span><span>`</span></span><span>,</span>
+    <span><span>`</span><span>spanId: </span><span><span>${</span>spanId<span>}</span></span><span>]</span><span>`</span></span>
+  <span>)</span><span>;</span>
+
+  <span>// actually send the email</span>
+  <span>// ...</span>
+
+  <span>done</span><span>(</span><span>)</span><span>;</span>
+<span>}</span><span>)</span><span>;</span></code></pre></div>
+<p><em>If you’re interested in running this example yourself, you can find the source code on <a href="https://github.com/getsentry/distributed-tracing-examples">GitHub</a>.</em></p>
+<h2 id="logging-with-distributed-systems"><a href="#logging-with-distributed-systems" aria-label="logging with distributed systems permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Logging with distributed systems</h2>
+<p>You’ll notice that at every stage of our example, a logging call is made using console.log that additionally emits the current <strong>trace, span,</strong> and <strong>parent</strong> identifiers. In a perfect synchronous world – one where each service could log to the same centralized logging tool – each of these logging statements would appear sequentially:</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=210&amp;fm=webp 210w,
+https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=419&amp;fm=webp 419w,
+https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=838&amp;fm=webp 838w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=210 210w,
+https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=419 419w,
+https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png?w=838 838w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="tracing-part1" title="" src="https://images.ctfassets.net/em6l9zw4tzag/2JJOHB6ERQm3a7DPcdruqn/4146ae0fbf1dfdc5375dca179ca458f2/part1.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>If an exception or errant behavior occurred during the course of these operations, it would be relatively trivial to use these or additional logging statements to pinpoint a source. But the unfortunate reality is that these are <em>distributed services</em>, which means:</p>
+<ul>
+<li><strong>Web servers typically handle many concurrent requests.</strong> The web server may be performing work (and emitting logging statements) attributed to other requests.</li>
+<li><strong>Network latency can cloud the order of operations.</strong> Requests made from upstream services might not reach their destination in the same order they were fired.</li>
+<li><strong>Background workers may have queued jobs.</strong> Workers may have to first work through earlier queued jobs before reaching the exact job queued up in this trace.</li>
+</ul>
+<p>In a more realistic example, our logging calls might look something like this, which reflects multiple operations occurring concurrently:</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=209&amp;fm=webp 209w,
+https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=419&amp;fm=webp 419w,
+https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=837&amp;fm=webp 837w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=209 209w,
+https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=419 419w,
+https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png?w=837 837w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="tracing-part2" title="" src="https://images.ctfassets.net/em6l9zw4tzag/1PxZtyBXE9sKDL4gi5BfQL/2b155109a8a13292ab1da0664b92cc70/part2.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>Without tracing metadata, understanding the topology of which action invoked which action would be impossible. But by emitting tracing meta information at every logging call, it’s possible to quickly filter on all logging calls within a trace by filtering on <code>traceId</code>, and to reconstruct the exact order by examining <code>spanId</code> and <code>parentId</code> relationships.</p>
+<p>This is the power of distributed tracing: by attaching metadata describing the current operation (span id), the parent operation that spawned it (parent id), and the trace identifier (trace id), we can augment logging and telemetry data to better understand the exact sequence of events occurring in your distributed services.</p>
+<h2 id="tracing-in-the-real-world"><a href="#tracing-in-the-real-world" aria-label="tracing in the real world permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Tracing in the real world</h2>
+<p>Over the course of this article, we have been working with a somewhat contrived example. In a real distributed tracing environment, you wouldn’t generate and pass all your span and tracing identifiers manually. Nor would you rely on <code>console.log</code> (or other logging) calls to emit your tracing metadata yourself. You would use proper tracing libraries to handle the instrumentation and emitting of tracing data for you.</p>
+<h2 id="opentelemetry"><a href="#opentelemetry" aria-label="opentelemetry permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>OpenTelemetry</h2>
+<p><a href="https://opentelemetry.io/">OpenTelemetry</a> is a collection of open source tools, APIs, and SDKs for instrumenting, generating, and exporting telemetry data from running software. It provides language-specific implementations for most popular programming languages, including both browser <a href="https://github.com/open-telemetry/opentelemetry-js">JavaScript and Node.js</a>.</p>
+<h2 id="sentry"><a href="#sentry" aria-label="sentry permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Sentry</h2>
+<p><a href="https://sentry.io">Sentry</a> is an open source application monitoring product that helps you identify errors and performance bottlenecks in your code. It provides client libraries in every major programming language which instrument your software’s code to capture both error data and tracing telemetry.</p>
+<p>Sentry uses this telemetry in a number of ways. For example, Sentry’s <a href="https://sentry.io/for/performance/">Performance Monitoring</a> feature set uses tracing data to generate waterfall diagrams that illustrate the end-to-end latency of your distributed services’ operations within a trace.</p>
+<p><a href="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png" target="_blank" rel="noopener">
+          <span>
+        <span>
+          <picture>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=296&amp;fm=webp 296w,
+https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=591&amp;fm=webp 591w,
+https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=1182&amp;fm=webp 1182w" sizes="(max-width: 800px) 100vw, 800px" type="image/webp"/>
+          <source srcset="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=296 296w,
+https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=591 591w,
+https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png?w=1182 1182w" sizes="(max-width: 800px) 100vw, 800px"/>
+          <img alt="tracing-image4" title="" src="https://images.ctfassets.net/em6l9zw4tzag/5hDdIoY4LoUIGZnP4VENHj/51c60bf16a78740fdba335255dee77bc/tracing-image4.png" loading="lazy"/>
+        </picture>
+        </span>
+      </span>
+        </a></p>
+<p>Sentry additionally uses tracing metadata to augment its Error Monitoring capabilities to understand how an error triggered in one service (e.g. server backend) can propagate to an error in another service (e.g. frontend).</p>
+<p>You can learn more about <a href="https://sentry.io/features/distributed-tracing/">Sentry and distributed tracing here</a>.</p>
+<h2 id="next-span-trees-opentelemetry-and-sentry"><a href="#next-span-trees-opentelemetry-and-sentry" aria-label="next span trees opentelemetry and sentry permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
+  </path>
+</svg>
+</a>Next: Span trees, OpenTelemetry, and Sentry</h2>
+<p>Congratulations: you’ve graduated from part 1 of our series on distributed tracing for full stack developers. At this point you should understand what a trace is, how trace information is propagated through services via tracing context, and how trace context can be used to connect logging statements between multiple distributed services.</p>
+<p>Stay tuned for the next post in this series, where we’ll expand on the OpenTelemetry set of tracing tools, and take a further dive into how Sentry incorporates tracing context to augment error and performance monitoring telemetry.</p></div></div>]]></content:encoded>
+      <enclosure url="https://images.ctfassets.net/em6l9zw4tzag/3eypAaYgkGx1UcxtcLenNI/e8198055602f3c9d68d97d050143acb9/Tracing2-meta.jpg" length="0" type="image/jpeg"></enclosure>
+      <pubDate>Thu, 12 Aug 2021 00:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Distributed Tracing 101 for Full Stack Developers</title>
+      <link>https://blog.sentry.io/2021/08/12/distributed-tracing-101-for-full-stack-developers/</link>
+      <description>Welcome to Part 1 of our multipart series on Distributed Tracing for Full Stack Developers. In this series, we’ll be learning the ins-and-outs of distributed tracing and how it can assist you in monitoring the increasingly complex requirements of full stack applications.</description>
+      <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p><em>Welcome to Part 1 of our multipart series on Distributed Tracing for Full Stack Developers. In this series, we’ll be learning the ins-and-outs of distributed tracing and how it can assist you in monitoring the increasingly complex requirements of full stack applications.</em></p>
+<p>In the early days of the web, writing web applications was simple. Developers generated HTML on the server using a language like PHP, communicated with a single relational database like MySQL, and most interactivity was driven by static HTML form components. While debugging tools were primitive, understanding the execution flow of your code was straightforward.</p>
+<p>In today’s modern web stack it’s anything but. Full stack developers are expected to write JavaScript executing in the browser, interop with multiple database technologies, and deploy server side code on different server architectures (e.g. serverless). Without the right tools, understanding how a user interaction in the browser cascades into a 500 server error deep in your server stack is nigh-impossible. Enter: distributed tracing.</p>
 <p><strong>Distributed tracing</strong> is a monitoring technique that links the operations and requests occurring between multiple services. This allows developers to “trace” the path of an end-to-end request as it moves from one service to another, letting them pinpoint errors or performance bottlenecks in individual services that are negatively affecting the overall system.</p>
 <p>In this post, we’ll learn more about distributed tracing concepts, go over an end-to-end tracing example in code, and see how to use tracing metadata to add valuable context to your logging and monitoring tools. When we’re done, you’ll not only understand the fundamentals of distributed tracing, but how you can apply tracing techniques to be more effective in debugging your full stack web applications.</p>
 <p>But first, let’s go back to the beginning: what’s distributed tracing again?</p>
@@ -9962,7 +10272,7 @@ https://images.ctfassets.net/em6l9zw4tzag/1gHe7UkKVdpTLF9kKVQQK2/374c257ae67d8dd
       <link>https://blog.sentry.io/2021/08/03/fluttering-our-mobile-wings/</link>
       <description>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates, like <a href="https://blog.sentry.io/2021/03/16/building-dark-mode/">dark mode</a> support, design them and implement prototypes. </p>
-<p>The mobile engineering team came up with the idea for a Sentry mobile app that focuses on Release Health. We wanted to give developers a concise but comprehensive view of whether a release was healthy, errored, or experiencing abnormal crash sessions across multiple projects.</p>
+<p>The mobile engineering team came up with the idea for a Sentry mobile app that focuses on Release Health. We wanted to give developers a concise but comprehensive view of whether a release a release was healthy, errored, or experiencing abnormal crash sessions across multiple projects.</p>
 <p>Because we wanted to bring this to both <a href="https://apps.apple.com/us/app/sentry-io/id1546709967">iOS</a> and <a href="https://play.google.com/store/apps/details?id=io.sentry.mobile.app">Android</a>, and we only had a week to build a proof of concept we decided to build the app in Flutter. Oh by the way, we also have a <a href="https://sentry.io/for/flutter/">Flutter Sentry SDK</a>, it’s great.</p>
 <h2 id="application-overview"><a href="#application-overview" aria-label="application overview permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
   <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
@@ -10091,7 +10401,7 @@ https://images.ctfassets.net/em6l9zw4tzag/PAPw56I1qUdiN9jfUlw9S/22bccb24eeaede8f
       <link>https://blog.sentry.io/2021/08/03/fluttering-our-mobile-wings/</link>
       <description>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates…</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>Once a year we let our imagination go wild for a whole week during our annual Hackweek event. It’s where we come up with product updates, like <a href="https://blog.sentry.io/2021/03/16/building-dark-mode/">dark mode</a> support, design them and implement prototypes. </p>
-<p>The mobile engineering team came up with the idea for a Sentry mobile app that focuses on Release Health. We wanted to give developers a concise but comprehensive view of whether a release a release was healthy, errored, or experiencing abnormal crash sessions across multiple projects.</p>
+<p>The mobile engineering team came up with the idea for a Sentry mobile app that focuses on Release Health. We wanted to give developers a concise but comprehensive view of whether a release was healthy, errored, or experiencing abnormal crash sessions across multiple projects.</p>
 <p>Because we wanted to bring this to both <a href="https://apps.apple.com/us/app/sentry-io/id1546709967">iOS</a> and <a href="https://play.google.com/store/apps/details?id=io.sentry.mobile.app">Android</a>, and we only had a week to build a proof of concept we decided to build the app in Flutter. Oh by the way, we also have a <a href="https://sentry.io/for/flutter/">Flutter Sentry SDK</a>, it’s great.</p>
 <h2 id="application-overview"><a href="#application-overview" aria-label="application overview permalink"><svg viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
   <path d="M10.8786797,6.05025253 L15,1.92893219 C16.7967298,0.132202428 19.6206785,-0.0112433245 21.5814287,1.49859493 C21.7515515,1.62959474 21.9151761,1.77304049 22.0710678,1.92893219 C24.0236893,3.88155365 24.0236893,7.04737854 22.0710678,9 L17.9497475,13.1213203 C17.5592232,13.5118446 16.9260582,13.5118446 16.5355339,13.1213203 C16.1450096,12.7307961 16.1450096,12.0976311 16.5355339,11.7071068 L20.6568542,7.58578644 C21.8284271,6.41421356 21.8284271,4.51471863 20.6568542,3.34314575 C19.4852814,2.17157288 17.5857864,2.17157288 16.4142136,3.34314575 L12.2928932,7.46446609 C11.9023689,7.85499039 11.2692039,7.85499039 10.8786797,7.46446609 C10.4881554,7.0739418 10.4881554,6.44077682 10.8786797,6.05025253 Z M13.1213203,17.9497475 L9,22.0710678 C7.04737854,24.0236893 3.88155365,24.0236893 1.92893219,22.0710678 C-0.0236892706,20.1184464 -0.0236892706,16.9526215 1.92893219,15 L6.05025253,10.8786797 C6.44077682,10.4881554 7.0739418,10.4881554 7.46446609,10.8786797 C7.85499039,11.2692039 7.85499039,11.9023689 7.46446609,12.2928932 L3.34314575,16.4142136 C2.17157288,17.5857864 2.17157288,19.4852814 3.34314575,20.6568542 C4.51471863,21.8284271 6.41421356,21.8284271 7.58578644,20.6568542 L11.7071068,16.5355339 C12.0976311,16.1450096 12.7307961,16.1450096 13.1213203,16.5355339 C13.5118446,16.9260582 13.5118446,17.5592232 13.1213203,17.9497475 Z M4.75735931,17.8284271 L17.8284271,4.75735931 C18.2189514,4.36683502 18.8521164,4.36683502 19.2426407,4.75735931 C19.633165,5.1478836 19.633165,5.78104858 19.2426407,6.17157288 L6.17157288,19.2426407 C5.78104858,19.633165 5.1478836,19.633165 4.75735931,19.2426407 C4.36683502,18.8521164 4.36683502,18.2189514 4.75735931,17.8284271 Z" fill="currentColor">
