@@ -765,7 +765,7 @@ https://images.ctfassets.net/em6l9zw4tzag/7Giedss2DADfF0dZ5RCsXq/f6c44610683b672
       <pubDate>Tue, 14 Jun 2022 00:00:00 +0000</pubDate>
     </item>
     <item>
-      <title>Django Performance Improvements - Part 1: Database Optimizations </title>
+      <title>Django Performance Improvements - Part 1: Database Optimizations</title>
       <link>https://blog.sentry.io/2022/06/10/django-performance-improvements-part-1-database-optimizations/</link>
       <description>In this 4 part series, you will learn how to optimize the different areas of your Django application. This part will focus on optimizing the database for speed in Django applications.</description>
       <content:encoded><![CDATA[<div id="readability-page-1" class="page"><div><p>The main goal of optimization in Django projects is to make it fast to perform database queries by ensuring that your projects run by making the best use of system resources. A properly optimized database will reduce the response time hence a better user experience.</p>
